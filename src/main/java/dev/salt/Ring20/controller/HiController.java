@@ -18,7 +18,7 @@ public class HiController {
     }
 
     @GetMapping("/hi")
-    public ResponseEntity<String> sayHi(){
+    public ResponseEntity<String> sayHi() {
         return ResponseEntity.ok("");
     }
 }

@@ -16,6 +16,7 @@ public class GreetingMessage {
     public GreetingMessage() {
 
     }
+
     public GreetingMessage(String message) {
         this.message = message;
     }
