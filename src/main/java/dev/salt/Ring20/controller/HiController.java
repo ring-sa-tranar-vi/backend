@@ -1,5 +1,7 @@
 package dev.salt.Ring20.controller;
 
+import dev.salt.Ring20.entity.GreetingMessage;
+import dev.salt.Ring20.service.HiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "http://localhost:5173")
 public class HiController {
 
-    private final HiService hiService;
+    private final HiService service;
 
     public HiController(HiService hiservice) {
-        this.hiService = hiservice;
+        this.service = hiservice;
     }
 
     @GetMapping("/hi")
-    public ResponseEntity<String> sayHi() {
-        return ResponseEntity.ok("");
+    public ResponseEntity<GreetingMessage> sayHi() {
+        return ResponseEntity.ok(service.getOrCreateMessage());
     }
 }
