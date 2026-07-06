@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.0.7"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("com.diffplug.spotless") version "8.8.0"
 }
 
 group = "dev.salt"
@@ -12,6 +13,15 @@ java {
 		languageVersion = JavaLanguageVersion.of(25)
 	}
 }
+
+spotless {
+	java {
+		importOrder()
+		removeUnusedImports()
+		googleJavaFormat()
+	}
+}
+
 
 repositories {
 	mavenCentral()
