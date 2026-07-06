@@ -6,18 +6,16 @@ import lombok.Data;
 @Entity
 @Data
 public class GreetingMessage {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String message;
+  @Column(nullable = false)
+  private String message;
 
-    public GreetingMessage() {
+  public GreetingMessage() {}
 
-    }
-
-    public GreetingMessage(String message) {
-        this.message = message;
-    }
+  public GreetingMessage(String message) {
+    this.message = message;
+  }
 }

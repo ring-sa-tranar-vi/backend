@@ -8,21 +8,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:5173")
 public class HiController {
 
-    private final HiService service;
+  private final HiService service;
 
-    public HiController(HiService hiservice) {
-        this.service = hiservice;
-    }
+  public HiController(HiService hiservice) {
+    this.service = hiservice;
+  }
 
-    @GetMapping("/hi")
-    public ResponseEntity<GreetingMessage> sayHi() {
-        return ResponseEntity.ok(service.getOrCreateMessage());
-    }
+  @GetMapping("/hi")
+  public ResponseEntity<GreetingMessage> sayHi() {
+    return ResponseEntity.ok(service.getOrCreateMessage());
+  }
 }
