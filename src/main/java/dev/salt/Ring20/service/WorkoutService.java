@@ -2,7 +2,6 @@ package dev.salt.Ring20.service;
 
 import com.example.trainingapp.dto.WorkoutResponseDTO;
 import com.example.trainingapp.entity.ActivityLog;
-import com.example.trainingapp.entity.Trainer;
 import com.example.trainingapp.entity.Workout;
 import com.example.trainingapp.repository.ActivityLogRepository;
 import com.example.trainingapp.repository.TrainerRepository;
