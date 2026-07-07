@@ -1,3 +1,37 @@
 spring:
   application:
     name: Ring.2.0
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    ignore-migration-patterns: "*:missing"
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CLERK_JWT_ISSUER_URI}
+
+server:
+  error:
+    include-message: always
+  port: ${PORT:8080}
+
+supabase:
+  url: ${SUPABASE_URL:}
+  api-key: ${SUPABASE_API_KEY:}
+  bucket-name: ${SUPABASE_BUCKET_NAME:}
+
+GEMINI_API_KEY: ${GEMINI_API_KEY:}
