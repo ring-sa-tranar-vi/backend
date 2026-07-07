@@ -39,15 +39,15 @@ Explain each layer and its responsibility.
 
 ## Technology Stack
 
-| Technology | Purpose |
-|------------|---------|
+| Technology       | Purpose           |
+| ---------------- | ----------------- |
 | Java Spring Boot | Backend framework |
-| PostgreSQL | Database |
-| Redis | Caching |
-| Docker | Containerization |
-| JWT | Authentication |
-| JUnit | Testing |
-| Swagger/OpenAPI | API documentation |
+| PostgreSQL       | Database          |
+| Redis            | Caching           |
+| Docker           | Containerization  |
+| JWT              | Authentication    |
+| JUnit            | Testing           |
+| Swagger/OpenAPI  | API documentation |
 
 ---
 
@@ -56,7 +56,7 @@ Explain each layer and its responsibility.
 ### Prerequisites
 
 - Java 21
-- Maven
+- Gradle Wrapper (`./gradlew`)
 - PostgreSQL
 - Docker (optional)
 
@@ -70,13 +70,25 @@ cd backend
 ### Install dependencies
 
 ```bash
-mvn clean install
+./gradlew build
 ```
 
 ### Run locally
 
 ```bash
-mvn spring-boot:run
+./gradlew bootRun
+```
+
+### Run all tests
+
+```bash
+./gradlew test
+```
+
+If you only want to compile the tests without executing them:
+
+```bash
+./gradlew testClasses
 ```
 
 ---
@@ -95,12 +107,12 @@ application-prod.yml
 
 Environment variables:
 
-| Variable | Description |
-|----------|-------------|
-| DB_URL | Database connection |
-| DB_USER | Database username |
-| JWT_SECRET | JWT signing key |
-| REDIS_HOST | Redis server |
+| Variable   | Description         |
+| ---------- | ------------------- |
+| DB_URL     | Database connection |
+| DB_USER    | Database username   |
+| JWT_SECRET | JWT signing key     |
+| REDIS_HOST | Redis server        |
 
 ---
 
@@ -240,8 +252,8 @@ Example:
 
 ```json
 {
-    "status":400,
-    "message":"Invalid email"
+  "status": 400,
+  "message": "Invalid email"
 }
 ```
 
