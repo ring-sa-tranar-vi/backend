@@ -49,3 +49,18 @@ target/
 
 # JVM GC rotated logs generated at runtime
 logs/gc.log.*
+
+target/
+*.log
+*.class
+*.jar
+*.war
+*.iml
+.mvn/
+.idea/
+.env
+.envlocal
+
+# JVM GC rotated logs generated at runtime
+logs/gc.log.*
+
