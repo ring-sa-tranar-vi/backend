@@ -39,8 +39,6 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
-    implementation("org.flywaydb:flyway-core")
-    implementation("org.flywaydb:flyway-database-postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-data-jpa-test")
 	testCompileOnly("org.projectlombok:lombok")
