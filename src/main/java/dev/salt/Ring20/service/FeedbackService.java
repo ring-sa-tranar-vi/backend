@@ -1,15 +1,15 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.dto.AdminRecentFeedbackDTO;
-import com.example.trainingapp.dto.AdminWorkoutFeedbackSummaryDTO;
-import com.example.trainingapp.entity.Feedback;
-import com.example.trainingapp.entity.FeedbackDifficulty;
-import com.example.trainingapp.entity.Workout;
-import com.example.trainingapp.entity.UserWorkoutPreferenceType;
-import com.example.trainingapp.entity.ActivityLog;
-import com.example.trainingapp.repository.ActivityLogRepository;
-import com.example.trainingapp.repository.FeedbackRepository;
-import com.example.trainingapp.repository.WorkoutRepository;
+import dev.salt.Ring20.dto.AdminRecentFeedbackDTO;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDTO;
+import dev.salt.Ring20.entity.Feedback;
+import dev.salt.Ring20.entity.FeedbackDifficulty;
+import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.repository.ActivityLogRepository;
+import dev.salt.Ring20.repository.FeedbackRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 

@@ -1,14 +1,14 @@
 package dev.salt.Ring20.integration;
 
-import com.example.trainingapp.dto.WorkoutResponseDTO;
-import com.example.trainingapp.entity.Workout;
-import com.example.trainingapp.repository.ActivityLogRepository;
-import com.example.trainingapp.repository.WorkoutRepository;
-import com.example.trainingapp.service.WorkoutService;
+import dev.salt.Ring20.dto.WorkoutResponseDTO;
+import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.repository.ActivityLogRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.WorkoutService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.*;

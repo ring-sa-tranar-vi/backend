@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.FeedbackRequestDTO;
-import com.example.trainingapp.dto.FeedbackResponseDTO;
-import com.example.trainingapp.entity.Feedback;
-import com.example.trainingapp.service.FeedbackService;
+import dev.salt.Ring20.dto.FeedbackRequestDTO;
+import dev.salt.Ring20.dto.FeedbackResponseDTO;
+import dev.salt.Ring20.entity.Feedback;
+import dev.salt.Ring20.service.FeedbackService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;

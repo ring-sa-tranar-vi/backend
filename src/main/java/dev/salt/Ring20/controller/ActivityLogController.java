@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.ActivityLogCreateRequestDTO;
-import com.example.trainingapp.dto.ActivityLogResponseDTO;
-import com.example.trainingapp.entity.ActivityLog;
-import com.example.trainingapp.service.ActivityLogService;
+import dev.salt.Ring20.dto.ActivityLogCreateRequestDTO;
+import dev.salt.Ring20.dto.ActivityLogResponseDTO;
+import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.service.ActivityLogService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,6 +1,6 @@
 package dev.salt.Ring20.repository;
 
-import com.example.trainingapp.entity.ActivityLog;
+import dev.salt.Ring20.entity.ActivityLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

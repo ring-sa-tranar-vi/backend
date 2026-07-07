@@ -1,8 +1,8 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.entity.UserWorkoutPreference;
-import com.example.trainingapp.entity.UserWorkoutPreferenceType;
-import com.example.trainingapp.repository.UserWorkoutPreferenceRepository;
+import dev.salt.Ring20.entity.UserWorkoutPreference;
+import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

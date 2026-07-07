@@ -1,9 +1,9 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.entity.ActivityLog;
-import com.example.trainingapp.entity.Workout;
-import com.example.trainingapp.repository.ActivityLogRepository;
-import com.example.trainingapp.repository.WorkoutRepository;
+import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.repository.ActivityLogRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

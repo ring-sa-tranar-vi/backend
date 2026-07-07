@@ -1,7 +1,6 @@
 package dev.salt.Ring20.repository;
-
-import com.example.trainingapp.entity.UserWorkoutPreference;
-import com.example.trainingapp.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.UserWorkoutPreference;
+import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

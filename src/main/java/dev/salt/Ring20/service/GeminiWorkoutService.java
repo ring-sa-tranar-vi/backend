@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.entity.User;
-import com.example.trainingapp.entity.Workout;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.Workout;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

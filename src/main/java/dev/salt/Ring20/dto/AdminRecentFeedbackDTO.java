@@ -1,6 +1,7 @@
 package dev.salt.Ring20.dto;
 
-import com.example.trainingapp.entity.FeedbackDifficulty;
+
+import dev.salt.Ring20.entity.FeedbackDifficulty;
 
 import java.time.LocalDateTime;
 

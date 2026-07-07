@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.entity.User;
-import com.example.trainingapp.entity.UserWorkoutPreferenceType;
-import com.example.trainingapp.service.UserService;
-import com.example.trainingapp.service.UserWorkoutPreferenceService;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.service.UserService;
+import dev.salt.Ring20.service.UserWorkoutPreferenceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;

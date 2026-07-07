@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.entity.GreetingMessage;
-import com.example.trainingapp.repository.GreetingRepository;
+import dev.salt.Ring20.entity.GreetingMessage;
+import dev.salt.Ring20.repository.GreetingRepository;
 import org.springframework.stereotype.Service;
 
 @Service

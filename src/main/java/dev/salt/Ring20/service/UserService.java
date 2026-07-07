@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.entity.User;
-import com.example.trainingapp.repository.UserRepository;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 

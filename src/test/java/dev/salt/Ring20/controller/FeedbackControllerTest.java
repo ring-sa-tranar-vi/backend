@@ -1,10 +1,10 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.FeedbackRequestDTO;
-import com.example.trainingapp.dto.FeedbackResponseDTO;
-import com.example.trainingapp.entity.Feedback;
-import com.example.trainingapp.entity.FeedbackDifficulty;
-import com.example.trainingapp.service.FeedbackService;
+import dev.salt.Ring20.dto.FeedbackRequestDTO;
+import dev.salt.Ring20.dto.FeedbackResponseDTO;
+import dev.salt.Ring20.entity.Feedback;
+import dev.salt.Ring20.entity.FeedbackDifficulty;
+import dev.salt.Ring20.service.FeedbackService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,8 +1,8 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.dto.TrainerRequestDto;
-import com.example.trainingapp.entity.Trainer;
-import com.example.trainingapp.repository.TrainerRepository;
+import dev.salt.Ring20.dto.TrainerRequestDto;
+import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.repository.TrainerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

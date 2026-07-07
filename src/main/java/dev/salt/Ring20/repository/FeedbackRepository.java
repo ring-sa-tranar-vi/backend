@@ -1,6 +1,6 @@
 package dev.salt.Ring20.repository;
 
-import com.example.trainingapp.entity.Feedback;
+import dev.salt.Ring20.entity.Feedback;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

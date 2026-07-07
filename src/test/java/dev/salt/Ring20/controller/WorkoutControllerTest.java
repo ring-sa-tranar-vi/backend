@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.WorkoutRequestDTO;
-import com.example.trainingapp.dto.WorkoutResponseDTO;
-import com.example.trainingapp.service.UserService;
-import com.example.trainingapp.service.WorkoutService;
+import dev.salt.Ring20.dto.WorkoutRequestDTO;
+import dev.salt.Ring20.dto.WorkoutResponseDTO;
+import dev.salt.Ring20.service.UserService;
+import dev.salt.Ring20.service.WorkoutService;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.example.trainingapp.service.GeminiWorkoutService;
+import dev.salt.Ring20.service.GeminiWorkoutService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkoutController Tests")
@@ -154,7 +154,7 @@ class WorkoutControllerTest {
 
         ResponseEntity<WorkoutResponseDTO> response = controller.setWorkoutEnabled(
                 1L,
-                new com.example.trainingapp.dto.WorkoutEnabledRequestDTO(false),
+                new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
                 auth("user_1")
         );
 
@@ -175,7 +175,7 @@ class WorkoutControllerTest {
 
         ResponseEntity<WorkoutResponseDTO> response = controller.setWorkoutEnabled(
                 1L,
-                new com.example.trainingapp.dto.WorkoutEnabledRequestDTO(false),
+                new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
                 auth("admin_1")
         );
 

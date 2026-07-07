@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.entity.User;
-import com.example.trainingapp.repository.UserRepository;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

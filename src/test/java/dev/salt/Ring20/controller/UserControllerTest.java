@@ -1,10 +1,10 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.UserCreateRequestDTO;
-import com.example.trainingapp.dto.UserRequestDTO;
-import com.example.trainingapp.entity.User;
-import com.example.trainingapp.service.ActivityLogService;
-import com.example.trainingapp.service.UserService;
+import dev.salt.Ring20.dto.UserCreateRequestDTO;
+import dev.salt.Ring20.dto.UserRequestDTO;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,6 +1,6 @@
 package dev.salt.Ring20.repository;
 
-import com.example.trainingapp.entity.Trainer;
+import dev.salt.Ring20.entity.Trainer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TrainerRepository extends JpaRepository<Trainer, Long> {

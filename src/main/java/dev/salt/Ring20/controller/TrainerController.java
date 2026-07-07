@@ -6,7 +6,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import com.example.trainingapp.dto.RecommendWorkoutDTO;
+import dev.salt.Ring20.dto.RecommendWorkoutDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.trainingapp.dto.TrainerRequestDto;
-import com.example.trainingapp.dto.TrainerResponseDto;
-import com.example.trainingapp.entity.Trainer;
-import com.example.trainingapp.service.TrainerService;
-import com.example.trainingapp.service.UserService;
+import dev.salt.Ring20.dto.TrainerRequestDto;
+import dev.salt.Ring20.dto.TrainerResponseDto;
+import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.service.TrainerService;
+import dev.salt.Ring20.service.UserService;
 
 @RestController
 @RequestMapping("/api/trainers")

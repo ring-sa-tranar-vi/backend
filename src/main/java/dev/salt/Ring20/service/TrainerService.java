@@ -1,13 +1,13 @@
 package dev.salt.Ring20.service;
 
-import com.example.trainingapp.dto.RecommendWorkoutDTO;
-import com.example.trainingapp.dto.TrainerRequestDto;
-import com.example.trainingapp.entity.Trainer;
-import com.example.trainingapp.entity.User;
-import com.example.trainingapp.entity.Workout;
-import com.example.trainingapp.repository.TrainerRepository;
-import com.example.trainingapp.repository.UserRepository;
-import com.example.trainingapp.repository.WorkoutRepository;
+import dev.salt.Ring20.dto.RecommendWorkoutDTO;
+import dev.salt.Ring20.dto.TrainerRequestDto;
+import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.repository.TrainerRepository;
+import dev.salt.Ring20.repository.UserRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;

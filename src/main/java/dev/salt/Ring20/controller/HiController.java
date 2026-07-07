@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.entity.GreetingMessage;
-import com.example.trainingapp.service.HiService;
+import dev.salt.Ring20.entity.GreetingMessage;
+import dev.salt.Ring20.service.HiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

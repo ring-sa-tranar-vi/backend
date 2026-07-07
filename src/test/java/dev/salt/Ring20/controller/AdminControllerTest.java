@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.AdminUserCountDTO;
-import com.example.trainingapp.service.ActivityLogService;
-import com.example.trainingapp.service.FeedbackService;
-import com.example.trainingapp.service.UserService;
+import dev.salt.Ring20.dto.AdminUserCountDTO;
+import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.FeedbackService;
+import dev.salt.Ring20.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

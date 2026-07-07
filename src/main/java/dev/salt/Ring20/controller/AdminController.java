@@ -1,11 +1,11 @@
 package dev.salt.Ring20.controller;
 
-import com.example.trainingapp.dto.AdminRecentFeedbackDTO;
-import com.example.trainingapp.dto.AdminUserCountDTO;
-import com.example.trainingapp.dto.AdminWorkoutFeedbackSummaryDTO;
-import com.example.trainingapp.service.ActivityLogService;
-import com.example.trainingapp.service.FeedbackService;
-import com.example.trainingapp.service.UserService;
+import dev.salt.Ring20.dto.AdminRecentFeedbackDTO;
+import dev.salt.Ring20.dto.AdminUserCountDTO;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDTO;
+import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.FeedbackService;
+import dev.salt.Ring20.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;

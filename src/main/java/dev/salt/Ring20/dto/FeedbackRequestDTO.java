@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto;
 
-import com.example.trainingapp.entity.FeedbackDifficulty;
+import dev.salt.Ring20.entity.FeedbackDifficulty;
 
 public record FeedbackRequestDTO(
         Long userId,
