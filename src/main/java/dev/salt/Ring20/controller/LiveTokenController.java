@@ -20,7 +20,7 @@ public class LiveTokenController {
     private final RestClient restClient;
 
     public LiveTokenController(
-            @Value("${GEMINI_API_KEY}") String googleApiKey,
+            @Value("${gemini.api-key:}") String googleApiKey,
             RestClient.Builder restClientBuilder) {
         this.googleApiKey = googleApiKey;
         this.restClient = restClientBuilder.build();

@@ -35,4 +35,5 @@ supabase:
   api-key: ${SUPABASE_API_KEY:}
   bucket-name: ${SUPABASE_BUCKET_NAME:}
 
-GEMINI_API_KEY: ${GEMINI_API_KEY:}
+gemini:
+  api-key: ${GEMINI_API_KEY:}

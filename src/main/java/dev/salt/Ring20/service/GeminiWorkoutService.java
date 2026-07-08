@@ -1,20 +1,22 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.Workout;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.Workout;
 
 @Service
 public class GeminiWorkoutService {
@@ -23,7 +25,7 @@ public class GeminiWorkoutService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
-    public GeminiWorkoutService(@Value("${GEMINI_API_KEY}") String googleApiKey) {
+    public GeminiWorkoutService(@Value("${gemini.api-key:}") String googleApiKey) {
         this.googleApiKey = googleApiKey;
         this.objectMapper = new ObjectMapper();
         this.restTemplate = new RestTemplate();
@@ -49,14 +51,14 @@ public class GeminiWorkoutService {
 
                 String workoutsListJson = objectMapper.writeValueAsString(workoutsForPrompt);
 
-                String userIntensity = user.getIntensityLevel() == null ? "unspecified" : user.getIntensityLevel().toString();
+                String userIntensity = user.getIntensityLevel() == null ? "unspecified"
+                        : user.getIntensityLevel().toString();
                 String userContext = user.getContext() == null ? "" : user.getContext();
 
                 String promptData = String.format(
                         "User Profile Data:\n- Name: %s\n- Intensity Level (reference): %s\n- Context / Preferences: %s\n\nAvailable Workout Options (JSON array):\n%s\n\n"
                                 + "Pick exactly one workout that best matches the user's profile, the reasoning behind the decision, and return a strict JSON object structure matching: {\"workoutId\": 1, \"reasoning\": \"string text\"}.",
-                        user.getName(), userIntensity, userContext, workoutsListJson
-                );
+                        user.getName(), userIntensity, userContext, workoutsListJson);
 
                 // 2. Build official REST payload according to Google API layout guidelines
                 Map<String, Object> textPart = Map.of("text", promptData);
@@ -65,16 +67,16 @@ public class GeminiWorkoutService {
 
                 // Nest config data safely inside official parameter tokens
                 Map<String, Object> generationConfig = Map.of(
-                        "responseMimeType", "application/json"
-                );
+                        "responseMimeType", "application/json");
 
                 Map<String, Object> requestBody = Map.of(
                         "contents", List.of(contentsBlock),
-                        "generationConfig", generationConfig
-                );
+                        "generationConfig", generationConfig);
 
-                // 3. Fire synchronous execution inside the CompletableFuture background worker thread
-                String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + googleApiKey;
+                // 3. Fire synchronous execution inside the CompletableFuture background worker
+                // thread
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="
+                        + googleApiKey;
                 String rawResponse = restTemplate.postForObject(url, requestBody, String.class);
 
                 // 4. Dig out text node value from Google response packaging layers
@@ -92,7 +94,8 @@ public class GeminiWorkoutService {
 
             } catch (Exception e) {
                 System.err.println("[Gemini-Debug] Execution failure: " + e.getMessage());
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to resolve recommendation: " + e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Failed to resolve recommendation: " + e.getMessage());
             }
         });
     }
