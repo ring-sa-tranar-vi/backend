@@ -1,3 +1,39 @@
 spring:
   application:
     name: Ring.2.0
+
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:.envlocal[.properties]
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:ring20;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CLERK_JWT_ISSUER_URI}
+  web:
+    error:
+      include-message: always
+
+server:
+  port: ${PORT:8080}
+
+supabase:
+  url: ${SUPABASE_URL:}
+  api-key: ${SUPABASE_API_KEY:}
+  bucket-name: ${SUPABASE_BUCKET_NAME:}
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
