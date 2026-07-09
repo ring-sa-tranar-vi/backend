@@ -18,7 +18,7 @@ spotless {
 	java {
 		importOrder()
 		removeUnusedImports()
-		googleJavaFormat()
+		googleJavaFormat().aosp()
 	}
 }
 
@@ -44,6 +44,10 @@ dependencies {
 	testCompileOnly("org.projectlombok:lombok")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testAnnotationProcessor("org.projectlombok:lombok")
+}
+
+tasks.named("classes") {
+	dependsOn("spotlessInstallGitPrePushHook")
 }
 
 tasks.withType<Test> {
