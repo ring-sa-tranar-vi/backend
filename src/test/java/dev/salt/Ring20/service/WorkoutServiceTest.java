@@ -1,9 +1,15 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,25 +20,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkoutService Tests")
 class WorkoutServiceTest {
 
-    @Mock
-    private WorkoutRepository workoutRepository;
+    @Mock private WorkoutRepository workoutRepository;
 
-    @Mock
-    private ActivityLogRepository activityLogRepository;
+    @Mock private ActivityLogRepository activityLogRepository;
 
-    @InjectMocks
-    private WorkoutService workoutService;
+    @InjectMocks private WorkoutService workoutService;
 
     private Workout workout;
 
@@ -57,7 +53,9 @@ class WorkoutServiceTest {
         workout.setWorkoutAudio(" ");
         when(workoutRepository.findById(1L)).thenReturn(Optional.of(workout));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> workoutService.getWorkoutAudioUrl(1L));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class, () -> workoutService.getWorkoutAudioUrl(1L));
         assertEquals("Workout audio not found", ex.getReason());
     }
 
@@ -71,7 +69,8 @@ class WorkoutServiceTest {
     @Test
     void startWorkoutCreatesActivityLogWhenUserPresent() {
         when(workoutRepository.findById(1L)).thenReturn(Optional.of(workout));
-        when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(activityLogRepository.save(any(ActivityLog.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         workoutService.startWorkout(1L, 55L);
 
@@ -86,13 +85,18 @@ class WorkoutServiceTest {
     void createWorkoutRejectsBlankName() {
         workout.setName(" ");
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> workoutService.createWorkout(workout));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class, () -> workoutService.createWorkout(workout));
         assertEquals("Workout name is required", ex.getReason());
     }
 
     @Test
     void updateWorkoutRejectsInvalidId() {
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> workoutService.updateWorkout(0L, workout));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () -> workoutService.updateWorkout(0L, workout));
         assertEquals("id must be a positive number", ex.getReason());
     }
 

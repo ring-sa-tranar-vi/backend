@@ -4,4 +4,3 @@ public enum UserWorkoutPreferenceType {
     DISLIKED,
     FAVORITE
 }
-

@@ -1,10 +1,16 @@
 package dev.salt.Ring20.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.dto.FeedbackRequestDTO;
 import dev.salt.Ring20.dto.FeedbackResponseDTO;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,32 +19,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FeedbackController Tests")
 class FeedbackControllerTest {
 
-    @Mock
-    private FeedbackService feedbackService;
+    @Mock private FeedbackService feedbackService;
 
     @Test
     void createFeedbackReturnsSavedEntity() {
         FeedbackController controller = new FeedbackController(feedbackService);
-        FeedbackRequestDTO request = new FeedbackRequestDTO(
-                1L,
-                2L,
-                null,
-                FeedbackDifficulty.JUST_RIGHT,
-                true,
-                4,
-                "Great"
-        );
+        FeedbackRequestDTO request =
+                new FeedbackRequestDTO(
+                        1L, 2L, null, FeedbackDifficulty.JUST_RIGHT, true, 4, "Great");
         Feedback feedback = new Feedback();
         feedback.setId(9L);
         feedback.setUserId(1L);

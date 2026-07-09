@@ -13,16 +13,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private Integer intensityLevel;
     private String context;
+
     @Column(unique = true)
     private String clerkId;
+
     private String role;
     private Long trainerId;
 
-    public User() {
-    }
+    public User() {}
 
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;

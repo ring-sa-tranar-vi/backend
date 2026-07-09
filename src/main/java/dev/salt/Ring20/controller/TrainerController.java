@@ -3,10 +3,14 @@ package dev.salt.Ring20.controller;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+import dev.salt.Ring20.dto.RecommendWorkoutDTO;
+import dev.salt.Ring20.dto.TrainerRequestDto;
+import dev.salt.Ring20.dto.TrainerResponseDto;
+import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.service.TrainerService;
+import dev.salt.Ring20.service.UserService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import dev.salt.Ring20.dto.RecommendWorkoutDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -21,18 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import dev.salt.Ring20.dto.TrainerRequestDto;
-import dev.salt.Ring20.dto.TrainerResponseDto;
-import dev.salt.Ring20.entity.Trainer;
-import dev.salt.Ring20.service.TrainerService;
-import dev.salt.Ring20.service.UserService;
-
 @RestController
 @RequestMapping("/api/trainers")
-@CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://frontend-training.up.railway.app"
-})
+@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class TrainerController {
 
     private final TrainerService trainerService;
@@ -45,7 +40,8 @@ public class TrainerController {
 
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Missing or invalid authentication token");
+            throw new ResponseStatusException(
+                    UNAUTHORIZED, "Missing or invalid authentication token");
         }
         return jwt;
     }
@@ -73,31 +69,33 @@ public class TrainerController {
 
     @GetMapping
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
-        return ResponseEntity.ok(trainerService.getAllTrainers()
-                .stream()
-                .map(this::toResponseDto)
-                .toList());
+        return ResponseEntity.ok(
+                trainerService.getAllTrainers().stream().map(this::toResponseDto).toList());
     }
 
     @PostMapping
-    public ResponseEntity<TrainerResponseDto> createTrainer(@RequestBody TrainerRequestDto request,
-            Authentication authentication) {
+    public ResponseEntity<TrainerResponseDto> createTrainer(
+            @RequestBody TrainerRequestDto request, Authentication authentication) {
         assertAdmin(authentication);
         Trainer trainer = trainerService.createTrainer(request);
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TrainerResponseDto> updateTrainer(@PathVariable Long id,
-            @RequestBody TrainerRequestDto request, Authentication authentication) {
+    public ResponseEntity<TrainerResponseDto> updateTrainer(
+            @PathVariable Long id,
+            @RequestBody TrainerRequestDto request,
+            Authentication authentication) {
         assertAdmin(authentication);
         Trainer trainer = trainerService.updateTrainer(id, request);
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<TrainerResponseDto> updateTrainerViaPost(@PathVariable Long id,
-            @RequestBody TrainerRequestDto request, Authentication authentication) {
+    public ResponseEntity<TrainerResponseDto> updateTrainerViaPost(
+            @PathVariable Long id,
+            @RequestBody TrainerRequestDto request,
+            Authentication authentication) {
         assertAdmin(authentication);
         Trainer trainer = trainerService.updateTrainer(id, request);
         return ResponseEntity.ok(toResponseDto(trainer));
@@ -110,7 +108,8 @@ public class TrainerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTrainer(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Void> deleteTrainer(
+            @PathVariable Long id, Authentication authentication) {
         assertAdmin(authentication);
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();
@@ -118,10 +117,10 @@ public class TrainerController {
 
     @GetMapping("/trainer/{trainerId}/recommend-for/{userId}")
     public CompletableFuture<ResponseEntity<RecommendWorkoutDTO>> getTrainerAiRecommendation(
-            @PathVariable Long trainerId,
-            @PathVariable Long userId) {
+            @PathVariable Long trainerId, @PathVariable Long userId) {
 
-        return trainerService.getAiRecommendedWorkout(trainerId, userId)
+        return trainerService
+                .getAiRecommendedWorkout(trainerId, userId)
                 .thenApply(ResponseEntity::ok);
     }
 }

@@ -1,19 +1,18 @@
 package dev.salt.Ring20.repository;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dev.salt.Ring20.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @DataJpaTest
 @DisplayName("UserRepository Tests")
 class UserRepositoryTest {
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
     @Test
     void saveAndFindByClerkIdWork() {

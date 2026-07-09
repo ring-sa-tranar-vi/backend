@@ -1,7 +1,12 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,21 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserService Tests")
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
-    @InjectMocks
-    private UserService userService;
+    @InjectMocks private UserService userService;
 
     private User user;
 
@@ -48,7 +45,8 @@ class UserServiceTest {
     @Test
     void createUserCreatesNewUserWithProvidedName() {
         when(userRepository.findByClerkId("clerk_2")).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         User created = userService.createUser("clerk_2", "  New User  ");
 
@@ -60,7 +58,8 @@ class UserServiceTest {
     @Test
     void createUserUsesDefaultNameWhenBlank() {
         when(userRepository.findByClerkId("clerk_3")).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         User created = userService.createUser("clerk_3", "   ");
 
@@ -71,16 +70,21 @@ class UserServiceTest {
     void getByClerkIdOrThrowThrowsWhenMissing() {
         when(userRepository.findByClerkId("missing")).thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> userService.getByClerkIdOrThrow("missing"));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () -> userService.getByClerkIdOrThrow("missing"));
         assertEquals("User not found", ex.getReason());
     }
 
     @Test
     void updateUserPreferencesByClerkIdUpdatesAndSaves() {
         when(userRepository.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        User updated = userService.updateUserPreferencesByClerkId("clerk_1", "  Updated  ", 4, "new", 7L);
+        User updated =
+                userService.updateUserPreferencesByClerkId("clerk_1", "  Updated  ", 4, "new", 7L);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
@@ -90,8 +94,12 @@ class UserServiceTest {
 
     @Test
     void updateUserPreferencesByClerkIdRejectsMissingTrainer() {
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> userService.updateUserPreferencesByClerkId("clerk_1", "Name", 3, "context", null));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () ->
+                                userService.updateUserPreferencesByClerkId(
+                                        "clerk_1", "Name", 3, "context", null));
 
         assertEquals("Trainer is required", ex.getReason());
     }
@@ -100,7 +108,8 @@ class UserServiceTest {
     void getUserByIdThrowsWhenMissing() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> userService.getUserById(99L));
+        ResponseStatusException ex =
+                assertThrows(ResponseStatusException.class, () -> userService.getUserById(99L));
         assertEquals("User not found", ex.getReason());
     }
 }

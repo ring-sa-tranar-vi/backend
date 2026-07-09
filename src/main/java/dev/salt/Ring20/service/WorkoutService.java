@@ -1,21 +1,20 @@
 package dev.salt.Ring20.service;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 import dev.salt.Ring20.dto.WorkoutResponseDTO;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class WorkoutService {
@@ -23,14 +22,20 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
 
-    public WorkoutService(WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository, TrainerRepository trainerRepository) {
+    public WorkoutService(
+            WorkoutRepository workoutRepository,
+            ActivityLogRepository activityLogRepository,
+            TrainerRepository trainerRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
     }
 
     public String getWorkoutAudioUrl(Long id) {
-        Workout workout = workoutRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+        Workout workout =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
 
         if (workout.getWorkoutAudio() == null || workout.getWorkoutAudio().isBlank()) {
             throw new ResponseStatusException(NOT_FOUND, "Workout audio not found");
@@ -39,23 +44,23 @@ public class WorkoutService {
         return workout.getWorkoutAudio();
     }
 
-
     @Transactional
     public List<WorkoutResponseDTO> getAllWorkouts(boolean includeDisabled) {
-        List<Workout> workouts = includeDisabled
-                ? workoutRepository.findAll()
-                : workoutRepository.findByEnabledTrue();
+        List<Workout> workouts =
+                includeDisabled
+                        ? workoutRepository.findAll()
+                        : workoutRepository.findByEnabledTrue();
 
-        return workouts
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+        return workouts.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Transactional
     public WorkoutResponseDTO getWorkoutById(Long id, boolean includeDisabled) {
-        Workout workout = workoutRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+        Workout workout =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
 
         if (!includeDisabled && Boolean.FALSE.equals(workout.getEnabled())) {
             throw new ResponseStatusException(NOT_FOUND, "Workout not found");
@@ -93,8 +98,11 @@ public class WorkoutService {
         validateId(id);
         validateWorkoutForWrite(workout);
 
-        Workout existing = workoutRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+        Workout existing =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
 
         workout.setId(existing.getId());
         workout.setEnabled(existing.getEnabled());
@@ -106,8 +114,11 @@ public class WorkoutService {
     public WorkoutResponseDTO setWorkoutEnabled(Long id, boolean enabled) {
         validateId(id);
 
-        Workout existing = workoutRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+        Workout existing =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
 
         existing.setEnabled(enabled);
         Workout updated = workoutRepository.save(existing);
@@ -156,8 +167,7 @@ public class WorkoutService {
                 workout.getSeated(),
                 workout.getBeginnerFriendly(),
                 workout.getEnabled(),
-                trainerDTO
-        );
+                trainerDTO);
     }
 
     private void validateId(Long id) {

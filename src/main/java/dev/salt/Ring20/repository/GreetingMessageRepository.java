@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GreetingMessageRepository extends ListCrudRepository<GreetingMessage, Long> {
-  <T> Optional<GreetingMessage> findTopByOrderByIdAsc();
+    <T> Optional<GreetingMessage> findTopByOrderByIdAsc();
 }

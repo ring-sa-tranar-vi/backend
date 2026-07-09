@@ -9,7 +9,4 @@ public record FeedbackRequestDTO(
         FeedbackDifficulty difficulty,
         Boolean liked,
         Integer rating,
-        String comment
-) {
-}
-
+        String comment) {}

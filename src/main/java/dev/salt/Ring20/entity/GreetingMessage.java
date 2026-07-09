@@ -16,8 +16,7 @@ public class GreetingMessage {
     @Column(nullable = false, unique = true)
     private String message;
 
-    protected GreetingMessage() {
-    }
+    protected GreetingMessage() {}
 
     public GreetingMessage(String message) {
         this.message = message;
@@ -31,4 +30,3 @@ public class GreetingMessage {
         return message;
     }
 }
-

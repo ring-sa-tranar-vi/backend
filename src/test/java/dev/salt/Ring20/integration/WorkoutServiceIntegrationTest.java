@@ -1,5 +1,7 @@
 package dev.salt.Ring20.integration;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dev.salt.Ring20.dto.WorkoutResponseDTO;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
@@ -11,21 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @DataJpaTest
 @Import(WorkoutService.class)
 @DisplayName("WorkoutService Integration Tests")
 class WorkoutServiceIntegrationTest {
 
-    @Autowired
-    private WorkoutService workoutService;
+    @Autowired private WorkoutService workoutService;
 
-    @Autowired
-    private WorkoutRepository workoutRepository;
+    @Autowired private WorkoutRepository workoutRepository;
 
-    @Autowired
-    private ActivityLogRepository activityLogRepository;
+    @Autowired private ActivityLogRepository activityLogRepository;
 
     @Test
     void createWorkoutPersistsWorkout() {

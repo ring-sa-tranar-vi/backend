@@ -9,7 +9,4 @@ public record ActivityLogResponseDTO(
         LocalDateTime completedAt,
         Integer durationSeconds,
         String feedback,
-        String status
-) {
-}
-
+        String status) {}

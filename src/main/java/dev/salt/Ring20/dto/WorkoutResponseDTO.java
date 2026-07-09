@@ -23,8 +23,6 @@ public record WorkoutResponseDTO(
         Boolean seated,
         Boolean beginnerFriendly,
         Boolean enabled,
-        TrainerIdDTO trainer
-) {
-    public record TrainerIdDTO(Long id) {
-    }
+        TrainerIdDTO trainer) {
+    public record TrainerIdDTO(Long id) {}
 }

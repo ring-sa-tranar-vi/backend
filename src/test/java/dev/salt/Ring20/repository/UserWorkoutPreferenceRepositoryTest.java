@@ -1,5 +1,7 @@
 package dev.salt.Ring20.repository;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dev.salt.Ring20.entity.UserWorkoutPreference;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import org.junit.jupiter.api.DisplayName;
@@ -7,14 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @DataJpaTest
 @DisplayName("UserWorkoutPreferenceRepository Tests")
 class UserWorkoutPreferenceRepositoryTest {
 
-    @Autowired
-    private UserWorkoutPreferenceRepository preferenceRepository;
+    @Autowired private UserWorkoutPreferenceRepository preferenceRepository;
 
     @Test
     void saveAndQueryPreferenceWork() {
@@ -25,6 +24,10 @@ class UserWorkoutPreferenceRepositoryTest {
 
         preferenceRepository.save(preference);
 
-        assertTrue(preferenceRepository.findByUserIdAndWorkoutIdAndPreferenceType(1L, 2L, UserWorkoutPreferenceType.DISLIKED).isPresent());
+        assertTrue(
+                preferenceRepository
+                        .findByUserIdAndWorkoutIdAndPreferenceType(
+                                1L, 2L, UserWorkoutPreferenceType.DISLIKED)
+                        .isPresent());
     }
 }

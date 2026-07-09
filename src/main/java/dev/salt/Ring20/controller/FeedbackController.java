@@ -4,6 +4,7 @@ import dev.salt.Ring20.dto.FeedbackRequestDTO;
 import dev.salt.Ring20.dto.FeedbackResponseDTO;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,14 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/feedbacks")
-@CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://frontend-training.up.railway.app"
-})
+@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
@@ -53,19 +49,20 @@ public class FeedbackController {
                 feedback.getLiked(),
                 feedback.getRating(),
                 feedback.getComment(),
-                feedback.getCreatedAt()
-        );
+                feedback.getCreatedAt());
     }
 
     @PostMapping
-    public ResponseEntity<FeedbackResponseDTO> createFeedback(@RequestBody FeedbackRequestDTO feedbackRequest) {
+    public ResponseEntity<FeedbackResponseDTO> createFeedback(
+            @RequestBody FeedbackRequestDTO feedbackRequest) {
         Feedback saved = feedbackService.saveFeedback(toEntity(feedbackRequest));
         return ResponseEntity.ok(toResponse(saved));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<FeedbackResponseDTO> getFeedbackById(@PathVariable Long id) {
-        return feedbackService.getFeedbackById(id)
+        return feedbackService
+                .getFeedbackById(id)
                 .map(this::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -74,8 +71,7 @@ public class FeedbackController {
     @GetMapping
     public ResponseEntity<List<FeedbackResponseDTO>> getFeedback(
             @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Long workoutId
-    ) {
+            @RequestParam(required = false) Long workoutId) {
         List<Feedback> feedbacks;
 
         if (userId != null && workoutId != null) {
@@ -100,4 +96,3 @@ public class FeedbackController {
         return ResponseEntity.noContent().build();
     }
 }
-

@@ -1,13 +1,16 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.WorkoutRequestDTO;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import dev.salt.Ring20.dto.WorkoutEnabledRequestDTO;
+import dev.salt.Ring20.dto.WorkoutRequestDTO;
 import dev.salt.Ring20.dto.WorkoutResponseDTO;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,23 +27,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 @RestController
 @RequestMapping("/api/workouts")
-@CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://frontend-training.up.railway.app"
-})
+@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class WorkoutController {
 
     private final WorkoutService workoutService;
     private final UserService userService;
     private final GeminiWorkoutService geminiWorkoutService;
 
-    public WorkoutController(WorkoutService workoutService, UserService userService, GeminiWorkoutService geminiWorkoutService) {
+    public WorkoutController(
+            WorkoutService workoutService,
+            UserService userService,
+            GeminiWorkoutService geminiWorkoutService) {
         this.workoutService = workoutService;
         this.userService = userService;
         this.geminiWorkoutService = geminiWorkoutService;
@@ -80,7 +79,8 @@ public class WorkoutController {
 
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Missing or invalid authentication token");
+            throw new ResponseStatusException(
+                    UNAUTHORIZED, "Missing or invalid authentication token");
         }
         return jwt;
     }
@@ -108,18 +108,21 @@ public class WorkoutController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorkoutResponseDTO> getWorkoutById(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<WorkoutResponseDTO> getWorkoutById(
+            @PathVariable Long id, Authentication authentication) {
         boolean includeDisabled = isAdminIfAuthenticated(authentication);
         return ResponseEntity.ok().body(workoutService.getWorkoutById(id, includeDisabled));
     }
 
     @PostMapping("/{id}/start")
-    public ResponseEntity<WorkoutResponseDTO> startWorkout(@PathVariable Long id, @RequestParam(required = false) Long userId) {
+    public ResponseEntity<WorkoutResponseDTO> startWorkout(
+            @PathVariable Long id, @RequestParam(required = false) Long userId) {
         return ResponseEntity.ok().body(workoutService.startWorkout(id, userId));
     }
 
     @PostMapping
-    public ResponseEntity<WorkoutResponseDTO> createWorkout(@RequestBody WorkoutRequestDTO workoutRequest, Authentication authentication) {
+    public ResponseEntity<WorkoutResponseDTO> createWorkout(
+            @RequestBody WorkoutRequestDTO workoutRequest, Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();
         }
@@ -130,8 +133,7 @@ public class WorkoutController {
     public ResponseEntity<WorkoutResponseDTO> updateWorkout(
             @PathVariable Long id,
             @RequestBody WorkoutRequestDTO workoutRequest,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();
         }
@@ -139,7 +141,8 @@ public class WorkoutController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkout(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Void> deleteWorkout(
+            @PathVariable Long id, Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();
         }
@@ -151,8 +154,7 @@ public class WorkoutController {
     public ResponseEntity<WorkoutResponseDTO> setWorkoutEnabled(
             @PathVariable Long id,
             @RequestBody WorkoutEnabledRequestDTO request,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();
         }

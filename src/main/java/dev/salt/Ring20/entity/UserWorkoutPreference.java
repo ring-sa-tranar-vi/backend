@@ -9,18 +9,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.Data;
-
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "user_workout_preferences", indexes = {
-        @Index(name = "idx_user_workout_pref_user_id", columnList = "userId"),
-        @Index(name = "idx_user_workout_pref_workout_id", columnList = "workoutId")
-}, uniqueConstraints = {
-        @UniqueConstraint(name = "uk_user_workout_pref", columnNames = {"userId", "workoutId", "preferenceType"})
-})
+@Table(
+        name = "user_workout_preferences",
+        indexes = {
+            @Index(name = "idx_user_workout_pref_user_id", columnList = "userId"),
+            @Index(name = "idx_user_workout_pref_workout_id", columnList = "workoutId")
+        },
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uk_user_workout_pref",
+                    columnNames = {"userId", "workoutId", "preferenceType"})
+        })
 public class UserWorkoutPreference {
 
     @Id
@@ -36,4 +40,3 @@ public class UserWorkoutPreference {
 
     private LocalDateTime createdAt;
 }
-

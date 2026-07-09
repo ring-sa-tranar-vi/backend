@@ -1,8 +1,13 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.repository.TrainerRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,21 +17,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TrainerService Tests")
 class TrainerServiceTest {
 
-    @Mock
-    private TrainerRepository trainerRepository;
+    @Mock private TrainerRepository trainerRepository;
 
-    @InjectMocks
-    private TrainerService trainerService;
+    @InjectMocks private TrainerService trainerService;
 
     private Trainer trainer;
     private TrainerRequestDto trainerRequest;
@@ -41,13 +38,17 @@ class TrainerServiceTest {
         trainer.setIntro("Intro");
         trainer.setLanguage("en");
 
-        trainerRequest = new TrainerRequestDto("Alice Coach", "Prompt", "Voice", "Intro", "en", null, null, null, null);
+        trainerRequest =
+                new TrainerRequestDto(
+                        "Alice Coach", "Prompt", "Voice", "Intro", "en", null, null, null, null);
     }
 
     @Test
     void createTrainerSavesValidRequest() {
-        when(trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase("Alice Coach", "en")).thenReturn(false);
-        when(trainerRepository.save(any(Trainer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase("Alice Coach", "en"))
+                .thenReturn(false);
+        when(trainerRepository.save(any(Trainer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         Trainer created = trainerService.createTrainer(trainerRequest);
 
@@ -56,15 +57,21 @@ class TrainerServiceTest {
 
     @Test
     void createTrainerRejectsNullBody() {
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> trainerService.createTrainer(null));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class, () -> trainerService.createTrainer(null));
         assertEquals("Request body is required", ex.getReason());
     }
 
     @Test
     void createTrainerRejectsDuplicateNameAndLanguage() {
-        when(trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase("Alice Coach", "en")).thenReturn(true);
+        when(trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase("Alice Coach", "en"))
+                .thenReturn(true);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> trainerService.createTrainer(trainerRequest));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () -> trainerService.createTrainer(trainerRequest));
         assertEquals("Trainer already exists for this language", ex.getReason());
     }
 
@@ -72,7 +79,9 @@ class TrainerServiceTest {
     void getTrainerByIdThrowsWhenMissing() {
         when(trainerRepository.findById(9L)).thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> trainerService.getTrainerById(9L));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class, () -> trainerService.getTrainerById(9L));
         assertEquals("Trainer not found", ex.getReason());
     }
 

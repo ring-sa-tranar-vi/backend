@@ -1,19 +1,18 @@
 package dev.salt.Ring20.repository;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dev.salt.Ring20.entity.Feedback;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @DataJpaTest
 @DisplayName("FeedbackRepository Tests")
 class FeedbackRepositoryTest {
 
-    @Autowired
-    private FeedbackRepository feedbackRepository;
+    @Autowired private FeedbackRepository feedbackRepository;
 
     @Test
     void saveAndQueryByUserAndWorkoutWork() {

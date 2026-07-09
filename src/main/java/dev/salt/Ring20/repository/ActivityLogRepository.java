@@ -1,23 +1,26 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.ActivityLog;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
-	List<ActivityLog> findByUserIdAndStatusOrderByCompletedAtDesc(Long userId, String status);
+    List<ActivityLog> findByUserIdAndStatusOrderByCompletedAtDesc(Long userId, String status);
 
-	boolean existsByUserIdAndStatusAndCompletedAtBetween(Long userId, String status, LocalDateTime start, LocalDateTime end);
+    boolean existsByUserIdAndStatusAndCompletedAtBetween(
+            Long userId, String status, LocalDateTime start, LocalDateTime end);
 
-	Optional<ActivityLog> findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(Long userId, Long workoutId, String status);
+    Optional<ActivityLog> findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
+            Long userId, Long workoutId, String status);
 
-	Optional<ActivityLog> findTopByUserIdAndWorkoutIdOrderByCompletedAtDesc(Long userId, Long workoutId);
+    Optional<ActivityLog> findTopByUserIdAndWorkoutIdOrderByCompletedAtDesc(
+            Long userId, Long workoutId);
 
-	@Query("SELECT COUNT(DISTINCT a.userId) FROM ActivityLog a WHERE a.status = 'COMPLETED' AND a.completedAt >= :since")
-	long countDistinctActiveUsersSince(@Param("since") LocalDateTime since);
+    @Query(
+            "SELECT COUNT(DISTINCT a.userId) FROM ActivityLog a WHERE a.status = 'COMPLETED' AND a.completedAt >= :since")
+    long countDistinctActiveUsersSince(@Param("since") LocalDateTime since);
 }

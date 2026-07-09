@@ -1,5 +1,9 @@
 package dev.salt.Ring20.service;
 
+import static org.springframework.http.HttpStatus.*;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.dto.RecommendWorkoutDTO;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.entity.Trainer;
@@ -8,15 +12,10 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import static org.springframework.http.HttpStatus.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TrainerService {
@@ -27,8 +26,12 @@ public class TrainerService {
     private final WorkoutRepository workoutRepository;
     private final ObjectMapper objectMapper; // Needed to process json chunks locally
 
-
-    public TrainerService(TrainerRepository trainerRepository, UserRepository userRepository, GeminiWorkoutService geminiWorkoutService, WorkoutRepository workoutRepository, ObjectMapper objectMapper) {
+    public TrainerService(
+            TrainerRepository trainerRepository,
+            UserRepository userRepository,
+            GeminiWorkoutService geminiWorkoutService,
+            WorkoutRepository workoutRepository,
+            ObjectMapper objectMapper) {
         this.trainerRepository = trainerRepository;
         this.userRepository = userRepository;
         this.geminiWorkoutService = geminiWorkoutService;
@@ -76,8 +79,11 @@ public class TrainerService {
             throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
         }
 
-        Trainer trainer = trainerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
+        Trainer trainer =
+                trainerRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
 
         String name = normalizeRequired(request.name(), "name", 120);
         String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
@@ -87,7 +93,7 @@ public class TrainerService {
 
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
-                || !language.equalsIgnoreCase(trainer.getLanguage()))) {
+                        || !language.equalsIgnoreCase(trainer.getLanguage()))) {
             throw new ResponseStatusException(CONFLICT, "Trainer already exists for this language");
         }
 
@@ -106,7 +112,8 @@ public class TrainerService {
 
     public Trainer getTrainerById(Long id) {
         validateId(id);
-        return trainerRepository.findById(id)
+        return trainerRepository
+                .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
     }
 
@@ -135,7 +142,8 @@ public class TrainerService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
+            throw new ResponseStatusException(
+                    BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
@@ -152,52 +160,75 @@ public class TrainerService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
+            throw new ResponseStatusException(
+                    BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
     }
 
-    public CompletableFuture<RecommendWorkoutDTO> getAiRecommendedWorkout(Long trainerId, Long userId) {
+    public CompletableFuture<RecommendWorkoutDTO> getAiRecommendedWorkout(
+            Long trainerId, Long userId) {
         validateId(trainerId);
         validateId(userId);
 
         // 1. Verify workouts matching this specific trainer exist
         List<Workout> trainerWorkouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
         if (trainerWorkouts.isEmpty()) {
-            throw new ResponseStatusException(NOT_FOUND, "No workouts found for trainer ID: " + trainerId);
+            throw new ResponseStatusException(
+                    NOT_FOUND, "No workouts found for trainer ID: " + trainerId);
         }
 
         // 2. Pull the complete user profile data dependency
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found with ID: " + userId));
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(
+                                () ->
+                                        new ResponseStatusException(
+                                                NOT_FOUND, "User not found with ID: " + userId));
 
         // 3. Fire the non-blocking asynchronous REST pipeline call
-        return geminiWorkoutService.recommendWorkoutWithReasoning(user, trainerWorkouts)
-                .thenApply(jsonStringResponse -> {
-                    try {
-                        JsonNode aiResultNode = objectMapper.readTree(jsonStringResponse);
+        return geminiWorkoutService
+                .recommendWorkoutWithReasoning(user, trainerWorkouts)
+                .thenApply(
+                        jsonStringResponse -> {
+                            try {
+                                JsonNode aiResultNode = objectMapper.readTree(jsonStringResponse);
 
-                        // Extract the values using .path() to avoid NullPointerExceptions
-                        JsonNode idNode = aiResultNode.path("workoutId");
-                        Long workoutId = (idNode.isNull() || idNode.isMissingNode()) ? null : idNode.asLong();
-                        String reasoning = aiResultNode.path("reasoning").asText("No reasoning provided.");
+                                // Extract the values using .path() to avoid NullPointerExceptions
+                                JsonNode idNode = aiResultNode.path("workoutId");
+                                Long workoutId =
+                                        (idNode.isNull() || idNode.isMissingNode())
+                                                ? null
+                                                : idNode.asLong();
+                                String reasoning =
+                                        aiResultNode
+                                                .path("reasoning")
+                                                .asText("No reasoning provided.");
 
-                        // 4. Validate entity integrity if a match was successfully found
-                        if (workoutId != null && !workoutRepository.existsByIdAndEnabledTrue(workoutId)) {
-                            throw new ResponseStatusException(INTERNAL_SERVER_ERROR,
-                                    "AI recommended a workout ID (" + workoutId + ") that does not exist in the database.");
-                        }
+                                // 4. Validate entity integrity if a match was successfully found
+                                if (workoutId != null
+                                        && !workoutRepository.existsByIdAndEnabledTrue(workoutId)) {
+                                    throw new ResponseStatusException(
+                                            INTERNAL_SERVER_ERROR,
+                                            "AI recommended a workout ID ("
+                                                    + workoutId
+                                                    + ") that does not exist in the database.");
+                                }
 
-                        // 5. Build and return your exact custom DTO record payload
-                        return new RecommendWorkoutDTO(workoutId, reasoning);
+                                // 5. Build and return your exact custom DTO record payload
+                                return new RecommendWorkoutDTO(workoutId, reasoning);
 
-                    } catch (ResponseStatusException rse) {
-                        throw rse; // Pass along our validated entity exceptions cleanly
-                    } catch (Exception e) {
-                        throw new ResponseStatusException(INTERNAL_SERVER_ERROR,
-                                "Failed to parse structured AI recommendation payload. Raw response content: " + jsonStringResponse, e);
-                    }
-                });
+                            } catch (ResponseStatusException rse) {
+                                throw rse; // Pass along our validated entity exceptions cleanly
+                            } catch (Exception e) {
+                                throw new ResponseStatusException(
+                                        INTERNAL_SERVER_ERROR,
+                                        "Failed to parse structured AI recommendation payload. Raw response content: "
+                                                + jsonStringResponse,
+                                        e);
+                            }
+                        });
     }
 }

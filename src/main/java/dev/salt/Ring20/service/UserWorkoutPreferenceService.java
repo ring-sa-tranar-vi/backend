@@ -3,12 +3,11 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.UserWorkoutPreference;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserWorkoutPreferenceService {
@@ -20,17 +19,19 @@ public class UserWorkoutPreferenceService {
     }
 
     public Map<String, List<Long>> getPreferences(Long userId) {
-        List<Long> dislikedWorkoutIds = preferenceRepository
-                .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.DISLIKED)
-                .stream()
-                .map(UserWorkoutPreference::getWorkoutId)
-                .toList();
+        List<Long> dislikedWorkoutIds =
+                preferenceRepository
+                        .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.DISLIKED)
+                        .stream()
+                        .map(UserWorkoutPreference::getWorkoutId)
+                        .toList();
 
-        List<Long> favoriteWorkoutIds = preferenceRepository
-                .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.FAVORITE)
-                .stream()
-                .map(UserWorkoutPreference::getWorkoutId)
-                .toList();
+        List<Long> favoriteWorkoutIds =
+                preferenceRepository
+                        .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.FAVORITE)
+                        .stream()
+                        .map(UserWorkoutPreference::getWorkoutId)
+                        .toList();
 
         Map<String, List<Long>> response = new HashMap<>();
         response.put("dislikedWorkoutIds", dislikedWorkoutIds);
@@ -38,10 +39,13 @@ public class UserWorkoutPreferenceService {
         return response;
     }
 
-    public void addPreference(Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
-        boolean exists = preferenceRepository
-                .findByUserIdAndWorkoutIdAndPreferenceType(userId, workoutId, preferenceType)
-                .isPresent();
+    public void addPreference(
+            Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
+        boolean exists =
+                preferenceRepository
+                        .findByUserIdAndWorkoutIdAndPreferenceType(
+                                userId, workoutId, preferenceType)
+                        .isPresent();
 
         if (exists) {
             return;
@@ -55,8 +59,9 @@ public class UserWorkoutPreferenceService {
         preferenceRepository.save(preference);
     }
 
-    public void removePreference(Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
-        preferenceRepository.deleteByUserIdAndWorkoutIdAndPreferenceType(userId, workoutId, preferenceType);
+    public void removePreference(
+            Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
+        preferenceRepository.deleteByUserIdAndWorkoutIdAndPreferenceType(
+                userId, workoutId, preferenceType);
     }
 }
-

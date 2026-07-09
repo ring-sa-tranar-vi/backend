@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class HiService {
 
-    private static final String DEFAULT_MESSAGE = "https://mizofvemlvooaycnevys.supabase.co/storage/v1/object/public/audio_files/ElevenLabs_sample_instructions_jj-pvc.mp3";
+    private static final String DEFAULT_MESSAGE =
+            "https://mizofvemlvooaycnevys.supabase.co/storage/v1/object/public/audio_files/ElevenLabs_sample_instructions_jj-pvc.mp3";
 
     private final GreetingRepository greetingRepository;
 
@@ -16,8 +17,8 @@ public class HiService {
     }
 
     public GreetingMessage getOrCreateGreeting() {
-        return greetingRepository.findTopByOrderByIdAsc()
+        return greetingRepository
+                .findTopByOrderByIdAsc()
                 .orElseGet(() -> greetingRepository.save(new GreetingMessage(DEFAULT_MESSAGE)));
     }
 }
-

@@ -1,11 +1,14 @@
 package dev.salt.Ring20.controller;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import dev.salt.Ring20.dto.AdminRecentFeedbackDTO;
 import dev.salt.Ring20.dto.AdminUserCountDTO;
 import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDTO;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -15,23 +18,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://frontend-training.up.railway.app"
-})
+@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class AdminController {
     private final UserService service;
     private final FeedbackService feedbackService;
     private final ActivityLogService activityLogService;
 
-
-    public AdminController(UserService service, FeedbackService feedbackService, ActivityLogService activityLogService) {
+    public AdminController(
+            UserService service,
+            FeedbackService feedbackService,
+            ActivityLogService activityLogService) {
         this.service = service;
         this.feedbackService = feedbackService;
         this.activityLogService = activityLogService;
@@ -39,7 +37,8 @@ public class AdminController {
 
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Missing or invalid authentication token");
+            throw new ResponseStatusException(
+                    UNAUTHORIZED, "Missing or invalid authentication token");
         }
         return jwt;
     }
@@ -58,11 +57,15 @@ public class AdminController {
         }
         final String name = service.getByClerkIdOrThrow(clerkId).getName();
 
-        return ResponseEntity.ok("Congrats, " + name + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
+        return ResponseEntity.ok(
+                "Congrats, "
+                        + name
+                        + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
     @GetMapping("/workouts/feedback-summary")
-    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDTO>> getWorkoutFeedbackSummary(Authentication authentication) {
+    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDTO>> getWorkoutFeedbackSummary(
+            Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
@@ -73,7 +76,8 @@ public class AdminController {
     }
 
     @GetMapping("/feedbacks")
-    public ResponseEntity<List<AdminRecentFeedbackDTO>> getRecentFeedbackEntries(Authentication authentication) {
+    public ResponseEntity<List<AdminRecentFeedbackDTO>> getRecentFeedbackEntries(
+            Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
@@ -95,5 +99,4 @@ public class AdminController {
         long active = activityLogService.getActiveUserCount();
         return ResponseEntity.ok(new AdminUserCountDTO(total, active));
     }
-
 }

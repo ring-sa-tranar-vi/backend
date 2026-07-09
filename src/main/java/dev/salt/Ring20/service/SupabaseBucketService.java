@@ -11,8 +11,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class SupabaseBucketService {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    @Autowired private RestTemplate restTemplate;
 
     @Value("${supabase.url}")
     private String supabaseUrl;

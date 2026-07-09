@@ -1,14 +1,13 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.repository.UserRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
-
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.repository.UserRepository;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -22,16 +21,12 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public boolean isAdmin(String clerkID){
-        return getByClerkIdOrThrow(clerkID)
-                .getRole()
-                .equals("ADMIN");
-
+    public boolean isAdmin(String clerkID) {
+        return getByClerkIdOrThrow(clerkID).getRole().equals("ADMIN");
     }
+
     private String sanitizeDisplayName(String name) {
-        return (name == null || name.isBlank())
-                ? DEFAULT_DISPLAY_NAME
-                : name.trim();
+        return (name == null || name.isBlank()) ? DEFAULT_DISPLAY_NAME : name.trim();
     }
 
     private User normalizeDisplayNameIfMissing(User user) {
@@ -47,21 +42,27 @@ public class UserService {
         String displayName = sanitizeDisplayName(name);
         boolean hasRealDisplayName = !DEFAULT_DISPLAY_NAME.equals(displayName);
 
-        return userRepository.findByClerkId(clerkId)
-                .map(existingUser -> {
-                    boolean missingName = existingUser.getName() == null || existingUser.getName().isBlank();
-                    boolean hasPlaceholder = DEFAULT_DISPLAY_NAME.equals(existingUser.getName());
+        return userRepository
+                .findByClerkId(clerkId)
+                .map(
+                        existingUser -> {
+                            boolean missingName =
+                                    existingUser.getName() == null
+                                            || existingUser.getName().isBlank();
+                            boolean hasPlaceholder =
+                                    DEFAULT_DISPLAY_NAME.equals(existingUser.getName());
 
-                    if (missingName || (hasPlaceholder && hasRealDisplayName)) {
-                        existingUser.setName(displayName);
-                        return userRepository.save(existingUser);
-                    }
+                            if (missingName || (hasPlaceholder && hasRealDisplayName)) {
+                                existingUser.setName(displayName);
+                                return userRepository.save(existingUser);
+                            }
 
-                    return existingUser;
-                })
-                .orElseGet(() -> userRepository.save(
-                        new User(displayName, STARTING_INTENSITY, "", clerkId)
-                ));
+                            return existingUser;
+                        })
+                .orElseGet(
+                        () ->
+                                userRepository.save(
+                                        new User(displayName, STARTING_INTENSITY, "", clerkId)));
     }
 
     public Optional<User> findByClerkId(String clerkId) {
@@ -69,20 +70,14 @@ public class UserService {
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
-        return userRepository.findByClerkId(clerkId)
-            .map(this::normalizeDisplayNameIfMissing)
-                .orElseThrow(() ->
-                        new ResponseStatusException(NOT_FOUND, "User not found")
-                );
+        return userRepository
+                .findByClerkId(clerkId)
+                .map(this::normalizeDisplayNameIfMissing)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
     }
 
     public User updateUserPreferencesByClerkId(
-            String clerkId,
-            String name,
-            int intensityLevel,
-            String context,
-            Long trainerId
-    ) {
+            String clerkId, String name, int intensityLevel, String context, Long trainerId) {
         if (trainerId == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Trainer is required");
         }
@@ -97,7 +92,8 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userRepository.findById(id)
+        return userRepository
+                .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
     }
 

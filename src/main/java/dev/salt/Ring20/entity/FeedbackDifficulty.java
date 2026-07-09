@@ -5,4 +5,3 @@ public enum FeedbackDifficulty {
     JUST_RIGHT,
     TOO_HARD
 }
-

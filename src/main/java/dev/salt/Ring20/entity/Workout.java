@@ -1,7 +1,7 @@
 package dev.salt.Ring20.entity;
 
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +18,7 @@ public class Workout {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
 
     @Column(name = "description")
@@ -60,7 +61,6 @@ public class Workout {
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
-
     @JsonProperty("durationSeconds")
     public Integer getDurationSeconds() {
         return durationSeconds;
@@ -78,6 +78,4 @@ public class Workout {
         }
         this.durationSeconds = durationSeconds;
     }
-
-
 }

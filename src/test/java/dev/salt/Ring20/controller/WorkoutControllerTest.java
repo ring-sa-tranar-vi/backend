@@ -1,10 +1,15 @@
 package dev.salt.Ring20.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.dto.WorkoutRequestDTO;
 import dev.salt.Ring20.dto.WorkoutResponseDTO;
+import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
-
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,40 +20,52 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import dev.salt.Ring20.service.GeminiWorkoutService;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkoutController Tests")
 class WorkoutControllerTest {
 
-    @Mock
-    private WorkoutService workoutService;
+    @Mock private WorkoutService workoutService;
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private GeminiWorkoutService geminiWorkoutService;
+    @Mock private GeminiWorkoutService geminiWorkoutService;
 
     @Test
     void getAllWorkoutsReturnsData() {
-        WorkoutController controller = new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller =
+                new WorkoutController(workoutService, userService, geminiWorkoutService);
 
-        WorkoutResponseDTO workout = new WorkoutResponseDTO(
-                1L, "Push Ups", null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, true, null
-        );
+        WorkoutResponseDTO workout =
+                new WorkoutResponseDTO(
+                        1L,
+                        "Push Ups",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        null);
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
         when(workoutService.getAllWorkouts(true)).thenReturn(List.of(workout));
 
-        ResponseEntity<List<WorkoutResponseDTO>> response = controller.getAllWorkouts(auth("admin_1"));
+        ResponseEntity<List<WorkoutResponseDTO>> response =
+                controller.getAllWorkouts(auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
@@ -57,30 +74,31 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsForbiddenForNonAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService, geminiWorkoutService);
-        WorkoutRequestDTO request = new WorkoutRequestDTO(
-                "Test Workout",
-                "desc",
-                null,
-                null,
-                null,
-                null,
-                1,
-                "strength",
-                300,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                true,
-                false,
-                false,
-                true,
-                null
-        );
+        WorkoutController controller =
+                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutRequestDTO request =
+                new WorkoutRequestDTO(
+                        "Test Workout",
+                        "desc",
+                        null,
+                        null,
+                        null,
+                        null,
+                        1,
+                        "strength",
+                        300,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        false,
+                        false,
+                        true,
+                        null);
 
         when(userService.isAdmin("user_1")).thenReturn(false);
 
@@ -93,37 +111,59 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsOkForAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService, geminiWorkoutService);
-        WorkoutRequestDTO request = new WorkoutRequestDTO(
-                "Test Workout",
-                "desc",
-                null,
-                null,
-                null,
-                null,
-                1,
-                "strength",
-                300,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                true,
-                false,
-                false,
-                true,
-                null
-        );
+        WorkoutController controller =
+                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutRequestDTO request =
+                new WorkoutRequestDTO(
+                        "Test Workout",
+                        "desc",
+                        null,
+                        null,
+                        null,
+                        null,
+                        1,
+                        "strength",
+                        300,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        false,
+                        false,
+                        true,
+                        null);
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        WorkoutResponseDTO workout = new WorkoutResponseDTO(
-                null, "Test Workout", null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, true, null
-        );
+        WorkoutResponseDTO workout =
+                new WorkoutResponseDTO(
+                        null,
+                        "Test Workout",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        null);
 
         when(workoutService.createWorkout(any())).thenReturn(workout);
 
@@ -136,12 +176,12 @@ class WorkoutControllerTest {
 
     @Test
     void deleteWorkoutReturnsNoContentForAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller =
+                new WorkoutController(workoutService, userService, geminiWorkoutService);
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        ResponseEntity<Void> response =
-                controller.deleteWorkout(1L, auth("admin_1"));
+        ResponseEntity<Void> response = controller.deleteWorkout(1L, auth("admin_1"));
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(workoutService).deleteWorkout(1L);
@@ -149,14 +189,15 @@ class WorkoutControllerTest {
 
     @Test
     void setWorkoutEnabledReturnsForbiddenForNonAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller =
+                new WorkoutController(workoutService, userService, geminiWorkoutService);
         when(userService.isAdmin("user_1")).thenReturn(false);
 
-        ResponseEntity<WorkoutResponseDTO> response = controller.setWorkoutEnabled(
-                1L,
-                new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
-                auth("user_1")
-        );
+        ResponseEntity<WorkoutResponseDTO> response =
+                controller.setWorkoutEnabled(
+                        1L,
+                        new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
+                        auth("user_1"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(workoutService, never()).setWorkoutEnabled(anyLong(), anyBoolean());
@@ -164,20 +205,42 @@ class WorkoutControllerTest {
 
     @Test
     void setWorkoutEnabledReturnsOkForAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller =
+                new WorkoutController(workoutService, userService, geminiWorkoutService);
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        WorkoutResponseDTO updated = new WorkoutResponseDTO(
-                1L, "Push Ups", null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, null, null, null, null, false, null
-        );
+        WorkoutResponseDTO updated =
+                new WorkoutResponseDTO(
+                        1L,
+                        "Push Ups",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        false,
+                        null);
         when(workoutService.setWorkoutEnabled(1L, false)).thenReturn(updated);
 
-        ResponseEntity<WorkoutResponseDTO> response = controller.setWorkoutEnabled(
-                1L,
-                new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
-                auth("admin_1")
-        );
+        ResponseEntity<WorkoutResponseDTO> response =
+                controller.setWorkoutEnabled(
+                        1L,
+                        new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
+                        auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -193,5 +256,4 @@ class WorkoutControllerTest {
 
         return auth;
     }
-
 }

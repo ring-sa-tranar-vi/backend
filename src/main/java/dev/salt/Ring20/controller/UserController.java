@@ -1,11 +1,15 @@
 package dev.salt.Ring20.controller;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
+import dev.salt.Ring20.dto.UserCreateRequestDTO;
 import dev.salt.Ring20.dto.UserRequestDTO;
 import dev.salt.Ring20.dto.UserResponseDTO;
-import dev.salt.Ring20.dto.UserCreateRequestDTO;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.UserService;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,17 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://frontend-training.up.railway.app"
-})
+@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class UserController {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
@@ -44,7 +40,8 @@ public class UserController {
 
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Missing or invalid authentication token");
+            throw new ResponseStatusException(
+                    UNAUTHORIZED, "Missing or invalid authentication token");
         }
         return jwt;
     }
@@ -55,7 +52,7 @@ public class UserController {
 
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {
@@ -66,11 +63,13 @@ public class UserController {
 
         String givenName = jwt.getClaimAsString("given_name");
         String familyName = jwt.getClaimAsString("family_name");
-        String fullName = String.join(" ",
-                Stream.of(givenName, familyName)
-                        .filter(part -> part != null && !part.isBlank())
-                        .toList()
-        ).trim();
+        String fullName =
+                String.join(
+                                " ",
+                                Stream.of(givenName, familyName)
+                                        .filter(part -> part != null && !part.isBlank())
+                                        .toList())
+                        .trim();
 
         if (!fullName.isEmpty()) {
             return fullName;
@@ -92,8 +91,7 @@ public class UserController {
                 user.getIntensityLevel(),
                 user.getContext(),
                 userService.isAdmin(clerkId),
-                user.getTrainerId()
-        );
+                user.getTrainerId());
     }
 
     private UserResponseDTO toResponse(User user) {
@@ -103,24 +101,22 @@ public class UserController {
                 user.getIntensityLevel(),
                 user.getContext(),
                 "ADMIN".equals(user.getRole()),
-                user.getTrainerId()
-        );
+                user.getTrainerId());
     }
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(
             @RequestBody(required = false) UserCreateRequestDTO request,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         Jwt jwt = getJwtOrThrow(authentication);
         String requestedName = request != null ? request.displayName() : null;
 
-        User created = userService.createUser(
-                jwt.getSubject(),
-                requestedName != null && !requestedName.isBlank()
-                        ? requestedName
-                        : resolveDisplayName(jwt)
-        );
+        User created =
+                userService.createUser(
+                        jwt.getSubject(),
+                        requestedName != null && !requestedName.isBlank()
+                                ? requestedName
+                                : resolveDisplayName(jwt));
 
         return ResponseEntity.ok(toResponse(created, jwt.getSubject()));
     }
@@ -135,17 +131,15 @@ public class UserController {
 
     @PutMapping("/me/profile")
     public ResponseEntity<UserResponseDTO> updateCurrentUserProfile(
-            @RequestBody UserRequestDTO userRequest,
-            Authentication authentication
-    ) {
+            @RequestBody UserRequestDTO userRequest, Authentication authentication) {
         String clerkId = getClerkId(authentication);
-        User updated = userService.updateUserPreferencesByClerkId(
-                clerkId,
-                userRequest.name(),
-                userRequest.intensityLevel(),
-                userRequest.context(),
-                userRequest.trainerId()
-        );
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId());
 
         return ResponseEntity.ok(toResponse(updated, clerkId));
     }
@@ -154,8 +148,7 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> updateUserPreferences(
             @PathVariable Long id,
             @RequestBody UserRequestDTO userRequest,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         String clerkId = getClerkId(authentication);
         User currentUser = userService.findByClerkId(clerkId).orElseThrow();
 
@@ -163,31 +156,27 @@ public class UserController {
             return ResponseEntity.status(403).build();
         }
 
-        User updated = userService.updateUserPreferencesByClerkId(
-                clerkId,
-                userRequest.name(),
-                userRequest.intensityLevel(),
-                userRequest.context(),
-                userRequest.trainerId()
-        );
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId());
 
         return ResponseEntity.ok(toResponse(updated, clerkId));
     }
 
     @GetMapping("/me/progress")
     public ResponseEntity<Map<String, Object>> getMyProgress(Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication))
-                .orElseThrow();
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
     }
 
-
     @GetMapping("/by-clerk/{clerkId}")
     public ResponseEntity<UserResponseDTO> getUserByClerkId(
-            @PathVariable String clerkId,
-            Authentication authentication
-    ) {
+            @PathVariable String clerkId, Authentication authentication) {
         getJwtOrThrow(authentication);
         User user = userService.getByClerkIdOrThrow(clerkId);
 

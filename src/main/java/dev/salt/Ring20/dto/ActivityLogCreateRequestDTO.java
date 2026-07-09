@@ -8,7 +8,4 @@ public record ActivityLogCreateRequestDTO(
         LocalDateTime completedAt,
         Integer durationSeconds,
         String feedback,
-        String status
-) {
-}
-
+        String status) {}

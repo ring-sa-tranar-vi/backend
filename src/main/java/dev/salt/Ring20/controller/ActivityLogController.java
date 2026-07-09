@@ -4,6 +4,7 @@ import dev.salt.Ring20.dto.ActivityLogCreateRequestDTO;
 import dev.salt.Ring20.dto.ActivityLogResponseDTO;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/activity-logs")
-@CrossOrigin(origins = {
-        "http://localhost:5173",
-        "https://frontend-training.up.railway.app"
-})
+@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
@@ -49,18 +45,19 @@ public class ActivityLogController {
                 activityLog.getCompletedAt(),
                 activityLog.getDurationSeconds(),
                 activityLog.getFeedback(),
-                activityLog.getStatus()
-        );
+                activityLog.getStatus());
     }
 
     @GetMapping("/users/{userId}/has-completed-today")
-    public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(@PathVariable Long userId) {
+    public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
+            @PathVariable Long userId) {
         boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
         return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
     }
 
     @PostMapping
-    public ResponseEntity<ActivityLogResponseDTO> createActivityLog(@RequestBody ActivityLogCreateRequestDTO activityLogRequest) {
+    public ResponseEntity<ActivityLogResponseDTO> createActivityLog(
+            @RequestBody ActivityLogCreateRequestDTO activityLogRequest) {
         ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
         return ResponseEntity.ok().body(toResponse(created));
     }

@@ -21,8 +21,6 @@ public record WorkoutRequestDTO(
         Boolean lowImpact,
         Boolean seated,
         Boolean beginnerFriendly,
-        TrainerIdDTO trainer
-) {
-    public record TrainerIdDTO(Long id) {
-    }
+        TrainerIdDTO trainer) {
+    public record TrainerIdDTO(Long id) {}
 }

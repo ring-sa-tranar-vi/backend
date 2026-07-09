@@ -1,7 +1,6 @@
 package dev.salt.Ring20.controller;
 
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -34,26 +33,39 @@ public class LiveTokenController {
         }
 
         try {
-            ResponseEntity<Map<String, Object>> googleResponse = restClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .scheme("https")
-                            .host("generativelanguage.googleapis.com")
-                            .path("/v1alpha/auth_tokens")
-                            .queryParam("key", googleApiKey)
-                            .build())
-                    .body(Map.of("uses", uses))
-                    .retrieve()
-                    .toEntity(new ParameterizedTypeReference<>() {
-                    });
+            ResponseEntity<Map<String, Object>> googleResponse =
+                    restClient
+                            .post()
+                            .uri(
+                                    uriBuilder ->
+                                            uriBuilder
+                                                    .scheme("https")
+                                                    .host("generativelanguage.googleapis.com")
+                                                    .path("/v1alpha/auth_tokens")
+                                                    .queryParam("key", googleApiKey)
+                                                    .build())
+                            .body(Map.of("uses", uses))
+                            .retrieve()
+                            .toEntity(new ParameterizedTypeReference<>() {});
 
             return ResponseEntity.status(googleResponse.getStatusCode())
                     .body(googleResponse.getBody());
         } catch (RestClientResponseException ex) {
             return ResponseEntity.status(ex.getStatusCode())
-                    .body(Map.of("error", "Google API error", "details", ex.getResponseBodyAsString()));
+                    .body(
+                            Map.of(
+                                    "error",
+                                    "Google API error",
+                                    "details",
+                                    ex.getResponseBodyAsString()));
         } catch (Exception ex) {
             return ResponseEntity.internalServerError()
-                    .body(Map.of("error", "Failed to create ephemeral token", "details", ex.getMessage()));
+                    .body(
+                            Map.of(
+                                    "error",
+                                    "Failed to create ephemeral token",
+                                    "details",
+                                    ex.getMessage()));
         }
     }
 }

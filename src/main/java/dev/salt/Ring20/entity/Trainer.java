@@ -1,9 +1,8 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 @Entity
@@ -35,4 +34,3 @@ public class Trainer {
     @OneToMany(mappedBy = "trainer")
     private List<Workout> workouts;
 }
-

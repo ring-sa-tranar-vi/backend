@@ -1,9 +1,17 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,32 +20,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ActivityLogService Tests")
 class ActivityLogServiceTest {
 
-    @Mock
-    private ActivityLogRepository activityLogRepository;
+    @Mock private ActivityLogRepository activityLogRepository;
 
-    @Mock
-    private WorkoutRepository workoutRepository;
+    @Mock private WorkoutRepository workoutRepository;
 
-    @InjectMocks
-    private ActivityLogService activityLogService;
+    @InjectMocks private ActivityLogService activityLogService;
 
     @Test
     void createActivityLogAddsTimestamp() {
         ActivityLog log = new ActivityLog();
-        when(activityLogRepository.save(any(ActivityLog.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(activityLogRepository.save(any(ActivityLog.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         ActivityLog saved = activityLogService.createActivityLog(log);
 
@@ -48,13 +45,17 @@ class ActivityLogServiceTest {
     void completeActivityLogThrowsWhenMissing() {
         when(activityLogRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> activityLogService.completeActivityLog(1L));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () -> activityLogService.completeActivityLog(1L));
         assertEquals("ActivityLog not found", ex.getReason());
     }
 
     @Test
     void getUserProgressReturnsZeroWhenNoLogsExist() {
-        when(activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(1L, "COMPLETED")).thenReturn(List.of());
+        when(activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(1L, "COMPLETED"))
+                .thenReturn(List.of());
 
         Map<String, Object> progress = activityLogService.getUserProgress(1L);
 
@@ -73,13 +74,15 @@ class ActivityLogServiceTest {
         workout.setId(7L);
         workout.setName("Squats");
 
-        when(activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(1L, "COMPLETED")).thenReturn(List.of(log));
+        when(activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(1L, "COMPLETED"))
+                .thenReturn(List.of(log));
         when(workoutRepository.findById(7L)).thenReturn(Optional.of(workout));
 
         Map<String, Object> progress = activityLogService.getUserProgress(1L);
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> completed = (List<Map<String, Object>>) progress.get("completedWorkouts");
+        List<Map<String, Object>> completed =
+                (List<Map<String, Object>>) progress.get("completedWorkouts");
 
         assertEquals(1, completed.size());
         assertEquals("Squats", completed.get(0).get("workoutName"));

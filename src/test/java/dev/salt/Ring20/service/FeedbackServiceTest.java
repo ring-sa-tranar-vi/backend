@@ -1,14 +1,22 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDTO;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
-import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,40 +26,27 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FeedbackService Tests")
 class FeedbackServiceTest {
 
-    @Mock
-    private FeedbackRepository feedbackRepository;
+    @Mock private FeedbackRepository feedbackRepository;
 
-    @Mock
-    private WorkoutRepository workoutRepository;
+    @Mock private WorkoutRepository workoutRepository;
 
-    @Mock
-    private UserWorkoutPreferenceService preferenceService;
+    @Mock private UserWorkoutPreferenceService preferenceService;
 
-    @Mock
-    private ActivityLogRepository activityLogRepository;
+    @Mock private ActivityLogRepository activityLogRepository;
 
-    @InjectMocks
-    private FeedbackService feedbackService;
+    @InjectMocks private FeedbackService feedbackService;
 
     private Feedback feedback;
     private Workout workout;
     private ActivityLog activityLog;
 
     private void stubActivityLogLookup() {
-        when(activityLogRepository.findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(anyLong(), anyLong(), anyString()))
+        when(activityLogRepository.findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
+                        anyLong(), anyLong(), anyString()))
                 .thenReturn(Optional.of(activityLog));
     }
 
@@ -78,7 +73,8 @@ class FeedbackServiceTest {
     @Test
     void saveFeedbackStoresTimestampAndSaves() {
         stubActivityLogLookup();
-        when(feedbackRepository.save(any(Feedback.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(feedbackRepository.save(any(Feedback.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         Feedback saved = feedbackService.saveFeedback(feedback);
 
@@ -90,7 +86,8 @@ class FeedbackServiceTest {
     void saveFeedbackAddsDislikedPreferenceWhenLikedIsFalse() {
         stubActivityLogLookup();
         feedback.setLiked(false);
-        when(feedbackRepository.save(any(Feedback.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(feedbackRepository.save(any(Feedback.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         feedbackService.saveFeedback(feedback);
 
@@ -101,7 +98,10 @@ class FeedbackServiceTest {
     void saveFeedbackRejectsMissingUserOrWorkoutId() {
         feedback.setUserId(null);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> feedbackService.saveFeedback(feedback));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () -> feedbackService.saveFeedback(feedback));
         assertEquals("userId and workoutId are required", ex.getReason());
     }
 
@@ -109,7 +109,10 @@ class FeedbackServiceTest {
     void saveFeedbackRejectsRatingOutsideRange() {
         feedback.setRating(6);
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () -> feedbackService.saveFeedback(feedback));
+        ResponseStatusException ex =
+                assertThrows(
+                        ResponseStatusException.class,
+                        () -> feedbackService.saveFeedback(feedback));
         assertEquals("rating must be between 1 and 5", ex.getReason());
     }
 

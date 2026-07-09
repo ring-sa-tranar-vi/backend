@@ -1,10 +1,15 @@
 package dev.salt.Ring20.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import dev.salt.Ring20.dto.UserCreateRequestDTO;
 import dev.salt.Ring20.dto.UserRequestDTO;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.UserService;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,21 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserController Tests")
 class UserControllerTest {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private ActivityLogService activityLogService;
+    @Mock private ActivityLogService activityLogService;
 
     @Test
     void createUserReturnsResponseBody() {
@@ -39,7 +36,8 @@ class UserControllerTest {
         when(userService.createUser(eq("clerk_1"), any())).thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
-        ResponseEntity<?> response = controller.createUser(new UserCreateRequestDTO("Jane"), auth("clerk_1", "Jane"));
+        ResponseEntity<?> response =
+                controller.createUser(new UserCreateRequestDTO("Jane"), auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(userService).createUser(eq("clerk_1"), any());
@@ -50,10 +48,13 @@ class UserControllerTest {
         UserController controller = new UserController(userService, activityLogService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
-        when(userService.updateUserPreferencesByClerkId("clerk_1", "Jane", 3, "context", 4L)).thenReturn(user);
+        when(userService.updateUserPreferencesByClerkId("clerk_1", "Jane", 3, "context", 4L))
+                .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
-        ResponseEntity<?> response = controller.updateCurrentUserProfile(new UserRequestDTO("Jane", 3, "context", 4L), auth("clerk_1", "Jane"));
+        ResponseEntity<?> response =
+                controller.updateCurrentUserProfile(
+                        new UserRequestDTO("Jane", 3, "context", 4L), auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -65,7 +66,9 @@ class UserControllerTest {
         currentUser.setId(1L);
         when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(currentUser));
 
-        ResponseEntity<?> response = controller.updateUserPreferences(9L, new UserRequestDTO("Other", 2, "x", 1L), auth("clerk_1", "Jane"));
+        ResponseEntity<?> response =
+                controller.updateUserPreferences(
+                        9L, new UserRequestDTO("Other", 2, "x", 1L), auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }

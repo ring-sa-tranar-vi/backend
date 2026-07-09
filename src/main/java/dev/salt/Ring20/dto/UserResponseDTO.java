@@ -6,6 +6,4 @@ public record UserResponseDTO(
         int intensityLevel,
         String context,
         boolean isAdmin,
-        Long trainerId
-) {
-}
+        Long trainerId) {}

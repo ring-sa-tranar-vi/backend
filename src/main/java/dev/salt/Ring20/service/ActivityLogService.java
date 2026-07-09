@@ -4,8 +4,6 @@ import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityLogService {
@@ -24,7 +23,8 @@ public class ActivityLogService {
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
 
-    public ActivityLogService(ActivityLogRepository activityLogRepository, WorkoutRepository workoutRepository) {
+    public ActivityLogService(
+            ActivityLogRepository activityLogRepository, WorkoutRepository workoutRepository) {
         this.activityLogRepository = activityLogRepository;
         this.workoutRepository = workoutRepository;
     }
@@ -35,21 +35,28 @@ public class ActivityLogService {
     }
 
     public ActivityLog completeActivityLog(Long id) {
-        ActivityLog log = activityLogRepository.findById(id)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND, "ActivityLog not found"));
+        ActivityLog log =
+                activityLogRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new org.springframework.web.server.ResponseStatusException(
+                                                org.springframework.http.HttpStatus.NOT_FOUND,
+                                                "ActivityLog not found"));
         log.setStatus("COMPLETED");
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
     }
 
     public Map<String, Object> getUserProgress(Long userId) {
-        List<ActivityLog> completedLogs = activityLogRepository
-                .findByUserIdAndStatusOrderByCompletedAtDesc(userId, "COMPLETED");
+        List<ActivityLog> completedLogs =
+                activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(
+                        userId, "COMPLETED");
 
         Map<Long, String> workoutNameById = new HashMap<>();
         Map<LocalDate, LinkedHashSet<String>> workoutsByDate = new LinkedHashMap<>();
-        DateTimeFormatter labelFormatter = DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.ENGLISH);
+        DateTimeFormatter labelFormatter =
+                DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.ENGLISH);
 
         for (ActivityLog log : completedLogs) {
             if (log.getCompletedAt() == null) {
@@ -109,7 +116,8 @@ public class ActivityLogService {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
-        return activityLogRepository.existsByUserIdAndStatusAndCompletedAtBetween(userId, "COMPLETED", startOfDay, endOfDay);
+        return activityLogRepository.existsByUserIdAndStatusAndCompletedAtBetween(
+                userId, "COMPLETED", startOfDay, endOfDay);
     }
 
     public long getActiveUserCount() {
