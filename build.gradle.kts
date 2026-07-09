@@ -50,6 +50,10 @@ tasks.named("classes") {
 	dependsOn("spotlessInstallGitPrePushHook")
 }
 
+tasks.named("jar") {
+	enabled = false
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
