@@ -1,0 +1,25 @@
+name: 'PR Checks'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-java:
+    name: 'Spring Boot Tests'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Run tests
+        run: ./gradlew test
