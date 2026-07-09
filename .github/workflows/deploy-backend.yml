@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy-staging
     environment:
-      name: 'prod'
+      name: 'production'
       url: 'https://prod-backend-service-49973934534.europe-west3.run.app'
 
     steps:
