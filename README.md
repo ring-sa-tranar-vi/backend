@@ -235,7 +235,11 @@ We use **Trunk-Based Development** and deploy our Spring Boot application to **G
 3.  **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built Docker image.
 4.  **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production, ensuring zero environment drift.
 
+### Linting and Formatting
+We use **Spotless** for linting and formatting with the google-java-format (Android Open Source Project) ruleset. The CI pipeline runs Spotless on all code and fails the build if any formatting issues are found. This ensures that all code is consistently formatted before being merged.
+
 ### Local Development
+The application automatically installs a pre-push Git hook to run Spotless on staged files. This ensures that all code is formatted consistently before being pushed.
 When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`).
 
 ## Business Logic
