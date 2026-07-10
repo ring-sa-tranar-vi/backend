@@ -21,5 +21,8 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Run lint check
+        run: ./gradlew spotlessCheck
+
       - name: Run tests
         run: ./gradlew test
