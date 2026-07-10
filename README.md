@@ -222,6 +222,22 @@ Mention migrations (e.g., Flyway or Liquibase).
 
 ---
 
+## 🚀 Deployment & CI/CD
+
+We use **Trunk-Based Development** and deploy our Spring Boot application to **Google Cloud Run** via GitHub Actions. The pipeline ensures code is thoroughly tested and built once before moving through the environments.
+
+### The Workflow
+
+1.  **Pull Requests (Testing):** Any PR opened against `main` automatically runs the test suite (`./gradlew test`). The code cannot be merged until all tests pass.
+2.  **Merge to `main` (Build & Push):** * The Java code (Java 21) is packaged using Gradle.
+    * A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
+    * The image is pushed to the shared GCP Artifact Registry.
+3.  **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built Docker image.
+4.  **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production, ensuring zero environment drift.
+
+### Local Development
+When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`).
+
 ## Business Logic
 
 Describe the service layer.
