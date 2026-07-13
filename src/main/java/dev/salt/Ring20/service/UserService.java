@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,9 +17,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final int STARTING_INTENSITY = 2;
+    private final MeterRegistry meterRegistry;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, MeterRegistry meterRegistry) {
         this.userRepository = userRepository;
+        this.meterRegistry = meterRegistry;
     }
 
     public boolean isAdmin(String clerkID) {
@@ -60,9 +63,11 @@ public class UserService {
                             return existingUser;
                         })
                 .orElseGet(
-                        () ->
-                                userRepository.save(
-                                        new User(displayName, STARTING_INTENSITY, "", clerkId)));
+                        () -> {
+                            meterRegistry.counter("app.users.created").increment();
+                            return userRepository.save(
+                                    new User(displayName, STARTING_INTENSITY, "", clerkId));
+                        });
     }
 
     public Optional<User> findByClerkId(String clerkId) {
@@ -88,6 +93,7 @@ public class UserService {
         user.setIntensityLevel(intensityLevel);
         user.setContext(context);
         user.setTrainerId(trainerId);
+        meterRegistry.counter("app.users.updated").increment();
         return userRepository.save(user);
     }
 
