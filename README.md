@@ -1,382 +1,83 @@
-## PLACEHOLDER- Overview
+# Ring så Tränar Vi - Backend
 
-Describe the purpose of the backend.
+## Overview
 
-Example:
+This backend powers the Ring så Tränar vi fitness app for older adults. It provides REST APIs for managing users, workouts, trainers, activity logs, and feedback, while handling authentication, data storage, and AI-generated workout suggestions.
 
-The backend provides REST APIs for managing users, orders, and inventory. It handles authentication, business logic, database access, and integrations with external services.
+## Responsibilities
 
----
+- Provide REST APIs for users, workouts, trainers, activity logs, feedback, and admin operations
+- Validate Clerk-issued JWTs and apply role-based access control
+- Store and manage application data using JPA repositories
+- Generate workout recommendations using Gemini AI
+- storage
+- Provide API documentation via OpenAPI/Swagger
 
-## Architecture
-
-Describe the overall architecture.
-
-Example:
-
-```
-Client
-   │
-   ▼
-API Gateway
-   │
-   ▼
-Controllers
-   │
-   ▼
-Services
-   │
-   ▼
-Repositories
-   │
-   ▼
-Database
-```
-
-Explain each layer and its responsibility.
-
----
-
-## Technology Stack
-
-| Technology       | Purpose           |
-| ---------------- | ----------------- |
-| Java Spring Boot | Backend framework |
-| PostgreSQL       | Database          |
-| Redis            | Caching           |
-| Docker           | Containerization  |
-| JWT              | Authentication    |
-| JUnit            | Testing           |
-| Swagger/OpenAPI  | API documentation |
-
----
-
-## Getting Started
-
-### Prerequisites
+## Tech Stack
 
 - Java 21
-- Gradle Wrapper (`./gradlew`)
-- PostgreSQL
-- Docker (optional)
-
-### Installation
-
-```bash
-git clone ...
-cd backend
-```
-
-### Install dependencies
-
-```bash
-./gradlew build
-```
-
-### Run locally
-
-```bash
-./gradlew bootRun
-```
-
-### Run all tests
-
-```bash
-./gradlew test
-```
-
-If you only want to compile the tests without executing them:
-
-```bash
-./gradlew testClasses
-```
-
----
-
-## Configuration
-
-Explain configuration files.
-
-Example:
-
-```
-application.yml
-application-dev.yml
-application-prod.yml
-```
-
-Environment variables:
-
-| Variable   | Description         |
-| ---------- | ------------------- |
-| DB_URL     | Database connection |
-| DB_USER    | Database username   |
-| JWT_SECRET | JWT signing key     |
-| REDIS_HOST | Redis server        |
-
----
+- Spring Boot 4
+- Spring Web
+- Spring Data JPA
+- Spring Security
+- OAuth2 Resource Server with JWT
+- Spring WebSocket
+- OpenAPI/Swagger UI via springdoc-openapi
+- H2 Database for local development
+- PostgreSQL runtime support
+- Clerk for authentication token issuance and validation
+- Supabase for file storage
+- Google Gemini for AI token and workout recommendation flows
 
 ## Project Structure
 
-```
-src/
-├── controller/
-├── service/
-├── repository/
-├── entity/
-├── dto/
-├── mapper/
-├── config/
-├── security/
-├── exception/
-├── util/
-└── test/
-```
+Follows an MVC-based structure:
 
-Describe what belongs in each package.
-
----
+- config/ – security and app configuration
+- controller/ – API endpoints
+- dto/ – data transfer objects
+- entity/ – database models
+- repository/ – data access layer
+- service/ – business logic
 
 ## API
 
-Document available endpoints.
+- Base URL: http://localhost:8080
 
-### Authentication
+- Swagger UI:
+http://localhost:8080/swagger-ui/index.html
 
-POST /auth/login
+- Main route groups: 
+   /api/users, /api/workouts, /api/trainers, /api/activity-logs, /api/feedbacks, /api/admin, /api/live-token, /api
 
-Request
+## Environment Variables
 
-```json
-{
-  "email": "...",
-  "password": "..."
-}
-```
+- CLERK_JWT_ISSUER_URI
+- SUPABASE_URL
+- SUPABASE_API_KEY
+- SUPABASE_BUCKET_NAME
+- GEMINI_API_KEY
 
-Response
+## Getting Started
 
-```json
-{
-  "token": "..."
-}
-```
+./gradlew build
 
-Repeat for important endpoints.
+./gradlew bootRun
 
----
+- Runs locally on http://localhost:8080
+- Uses H2 database by default but later will use postgres
+- Set environment variables to enable authentication, storage, and AI features
 
-## Authentication & Authorization
-
-Explain:
-
-- JWT
-- OAuth
-- Roles
-- Permissions
-- Refresh tokens
-
-Example flow:
-
-```
-Login
-   ↓
-JWT issued
-   ↓
-Client sends JWT
-   ↓
-Backend validates token
-   ↓
-Access granted
-```
-
----
-
-## Database
-
-Describe the database.
-
-Example:
-
-Tables
-
-- Users
-- Orders
-- Products
-- Payments
-
-Explain relationships.
-
-```
-Users
-   │1
-   │
-   │*
-Orders
-   │
-   │*
-OrderItems
-```
-
-Mention migrations (e.g., Flyway or Liquibase).
-
----
-
-## 🚀 Deployment & CI/CD
-
-We use **Trunk-Based Development** and deploy our Spring Boot application to **Google Cloud Run** via GitHub Actions. The pipeline ensures code is thoroughly tested and built once before moving through the environments.
-
-### The Workflow
-
-1.  **Pull Requests (Testing):** Any PR opened against `main` automatically runs the test suite (`./gradlew test`). The code cannot be merged until all tests pass.
-2.  **Merge to `main` (Build & Push):** * The Java code (Java 21) is packaged using Gradle.
-    * A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
-    * The image is pushed to the shared GCP Artifact Registry.
-3.  **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built Docker image.
-4.  **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production, ensuring zero environment drift.
-
-### Linting and Formatting
-We use **Spotless** for linting and formatting with the google-java-format (Android Open Source Project) ruleset. The CI pipeline runs Spotless on all code and fails the build if any formatting issues are found. This ensures that all code is consistently formatted before being merged.
-
-### Local Development
-The application automatically installs a pre-push Git hook to run Spotless on staged files. This ensures that all code is formatted consistently before being pushed.
-When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`).
-
-## Business Logic
-
-Describe the service layer.
-
-Example:
-
-OrderService
-
-Responsibilities:
-
-- Validate order
-- Calculate totals
-- Reserve inventory
-- Persist order
-- Publish events
-
----
-
-## Error Handling
-
-Explain:
-
-- Exception handling
-- Error codes
-- Validation responses
-
-Example:
-
-```json
-{
-  "status": 400,
-  "message": "Invalid email"
-}
-```
-
----
-
-## Logging
-
-Explain:
-
-- Logging framework
-- Log levels
-- Correlation IDs
-- Request logging
-
----
-
-## Security
-
-Document:
-
-- Authentication
-- Authorization
-- Password hashing
-- Input validation
-- CORS
-- CSRF
-- Rate limiting
-
----
-
-## Testing
-
-Describe:
-
-- Unit tests
-- Integration tests
-- Test containers
-- Mocking strategy
-
-Run tests:
-
-```bash
-mvn test
-```
-
----
 
 ## Deployment
 
-Explain:
+Production backend:
+https://prod-backend-service-49973934534.europe-west3.run.app/
 
-- Docker
-- Kubernetes
-- CI/CD
-- Environment configuration
+- Uses PostgreSQL (Neon) in production
+- CI/CD and infrastructure setup are documented in the infrastructure repository
 
-Example:
+## Related Repositories
 
-```bash
-docker compose up
-```
-
----
-
-## Monitoring
-
-Explain:
-
-- Health endpoint
-- Metrics
-- Logging
-- Tracing
-
-Example:
-
-```
-GET /actuator/health
-GET /actuator/metrics
-```
-
----
-
-## Troubleshooting
-
-Common issues.
-
-Example:
-
-Database connection failed
-
-- Check PostgreSQL is running
-- Verify DB_URL
-- Run migrations
-
----
-
-## Contributing
-
-Describe development workflow.
-
-Example:
-
-1. Create feature branch
-2. Add tests
-3. Run formatter
-4. Open pull request
+- Frontend: <[repository link](https://github.com/ring-sa-tranar-vi/frontend)>
+- Infrastructure: <[repository link](https://github.com/ring-sa-tranar-vi/infrastructure)>
