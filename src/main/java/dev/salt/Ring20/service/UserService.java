@@ -2,10 +2,10 @@ package dev.salt.Ring20.service;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import io.micrometer.core.instrument.MeterRegistry;
 
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +21,7 @@ public class UserService {
 
     public UserService(UserRepository userRepository, MeterRegistry meterRegistry) {
         this.userRepository = userRepository;
-        this.meterRegistry = meterRegistry
+        this.meterRegistry = meterRegistry;
     }
 
     public boolean isAdmin(String clerkID) {
