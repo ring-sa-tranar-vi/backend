@@ -12,7 +12,6 @@ public class MetricsConfig {
 
     @Bean
     public MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
-        return registry -> registry.config()
-            .commonTags("env", activeProfile); 
+        return registry -> registry.config().commonTags("env", activeProfile);
     }
 }
