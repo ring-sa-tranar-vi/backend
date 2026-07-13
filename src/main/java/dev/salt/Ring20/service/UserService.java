@@ -5,7 +5,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
-import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
