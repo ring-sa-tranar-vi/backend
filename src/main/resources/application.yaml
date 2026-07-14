@@ -40,3 +40,20 @@ supabase:
 
 gemini:
   api-key: ${GEMINI_API_KEY:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  otlp:
+    metrics:
+      export:
+        enabled: true
+        url: ${GRAFANA_OTLP_URL}
+        headers:
+          authorization: ${OTEL_EXPORTER_OTLP_HEADERS}
+        step: 15s
+  metrics:
+    tags:
+      environment: ${APP_ENVIRONMENT:local}
