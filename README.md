@@ -163,13 +163,25 @@ The API returns standard HTTP status codes:
 
 Errors follow a consistent response format.
 
-## Deployment
+## Deployment & CI/CD
 
-Production backend:
-https://prod-backend-service-49973934534.europe-west3.run.app/
+We use **Trunk-Based Development** and deploy the Spring Boot application to **Google Cloud Run** via GitHub Actions. The pipeline ensures code is thoroughly tested and built once before moving through the environments.
 
-- Uses PostgreSQL (Neon) in production
-- CI/CD and infrastructure setup are documented in the infrastructure repository
+### The Workflow
+
+1.  **Pull Requests (Testing):** Any PR opened against `main` automatically runs the test suite (`./gradlew test`). The code cannot be merged until all tests pass.
+2.  **Merge to `main` (Build & Push):** * The Java code (Java 21) is packaged using Gradle.
+    * A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
+    * The image is pushed to the shared GCP Artifact Registry.
+3.  **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built Docker image.
+4.  **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production, ensuring zero environment drift.
+
+### Linting and Formatting
+We use **Spotless** for linting and formatting with the google-java-format (Android Open Source Project) ruleset. The CI pipeline runs Spotless on all code and fails the build if any formatting issues are found. This ensures that all code is consistently formatted before being merged.
+
+### Local Development
+The application automatically installs a pre-push Git hook to run Spotless on staged files. This ensures that all code is formatted consistently before being pushed.
+When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`) if gradle commands in the terminal doesn't work.
 
 ## Troubleshooting
 
