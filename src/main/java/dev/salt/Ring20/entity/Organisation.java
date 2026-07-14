@@ -14,5 +14,5 @@ public class Organisation {
     private Long id;
     private String name;
     private String description;
-    private List<String> events;
+    private List<Event> events;
 }
