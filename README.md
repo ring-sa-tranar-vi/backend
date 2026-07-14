@@ -119,23 +119,24 @@ Relationships and database schema are managed through JPA entity mappings.
 
 ### Installation
 
-1. Clone the repository:
+
+#### 1. Clone the repository:
 ```bash
 git clone https://github.com/ring-sa-tranar-vi/backend.git
 ```
-# 2. Set environment variables (see below)
+#### 2. Set environment variables (see below)
 
-# 3. Build the app
+#### 3. Build the app
 ```bash
 ./gradlew build
 ```
-# 4. Run the app locally
+#### 4. Run the app locally
 ```bash
 ./gradlew bootRun
 ```
 The application will run locally at http://localhost:8080
 
-# 4. Open Swagger
+#### 5. Open Swagger
 http://localhost:8080/swagger-ui/index.html
 
 
