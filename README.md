@@ -191,5 +191,5 @@ Authorization: Bearer <token>
 
 ## Related Repositories
 
-- Frontend: <[repository link](https://github.com/ring-sa-tranar-vi/frontend)>
+- Frontend: [repository link](https://github.com/ring-sa-tranar-vi/frontend)
 - Infrastructure: <[repository link](https://github.com/ring-sa-tranar-vi/infrastructure)>
