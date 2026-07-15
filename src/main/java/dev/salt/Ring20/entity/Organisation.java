@@ -14,7 +14,7 @@ public class Organisation {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "organization")
+    @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL)
     private List<Event> events;
 
     public Organisation(String name, String description, List<Event> events) {
