@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -17,5 +18,6 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "organisation_id")
+    @JsonIgnore
     private Organisation organisation;
 }
