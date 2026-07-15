@@ -1,230 +1,171 @@
+# Ring så Tränar Vi - Backend
+
 ## Overview
 
-Describe the purpose of the backend.
-
-Example:
-
-The backend provides REST APIs for managing users, orders, and inventory. It handles authentication, business logic, database access, and integrations with external services.
-
----
+This backend powers the Ring så Tränar vi fitness app for older adults. It provides REST APIs for managing users, workouts, trainers, activity logs, and feedback, while handling authentication, data storage, and AI-generated workout suggestions.
 
 ## Architecture
 
-Describe the overall architecture.
+The backend follows a layered MVC architecture:
 
-Example:
-
-```
-Client
-   │
-   ▼
-API Gateway
-   │
-   ▼
-Controllers
-   │
-   ▼
-Services
-   │
-   ▼
-Repositories
-   │
-   ▼
-Database
+```text
+Client (Frontend)
+        |
+        ▼
+Controllers (REST API)
+        |
+        ▼
+Services (Business Logic)
+        |
+        ▼
+Repositories (Data Access)
+        |
+        ▼
+Database (H2 / PostgreSQL)
 ```
 
-Explain each layer and its responsibility.
+- Controllers handle incoming API requests
+- Services contain application logic
+- Repositories manage database operations
+- Entities represent database models
+- DTOs handle API request and response objects
 
----
+## Responsibilities
 
-## Technology Stack
+- Provide REST APIs for users, workouts, trainers, activity logs, feedback, and admin operations
+- Validate Clerk-issued JWTs and apply role-based access control
+- Store and manage application data using JPA repositories
+- Generate workout recommendations using Gemini AI
+- Provide API documentation via OpenAPI/Swagger
 
-| Technology       | Purpose           |
-| ---------------- | ----------------- |
-| Java Spring Boot | Backend framework |
-| PostgreSQL       | Database          |
-| Redis            | Caching           |
-| Docker           | Containerization  |
-| JWT              | Authentication    |
-| JUnit            | Testing           |
-| Swagger/OpenAPI  | API documentation |
-
----
-
-## Getting Started
-
-### Prerequisites
+## Tech Stack
 
 - Java 21
-- Gradle Wrapper (`./gradlew`)
-- PostgreSQL
-- Docker (optional)
+- Spring Boot 4
+- Spring Web
+- Spring Data JPA
+- Spring Security
+- OAuth2 Resource Server with JWT
+- Spring WebSocket
+- OpenAPI/Swagger UI via springdoc-openapi
+- H2 Database for local development
+- PostgreSQL runtime support
+- Clerk for authentication token issuance and validation
+- Supabase for file storage
+- Google Gemini for AI token and workout recommendation flows
+
+
+## Authentication
+
+- All protected endpoints require a valid Clerk JWT
+- Include token in header:
+  Authorization: Bearer <token>
+
+- Roles supported:
+  - USER
+  - ADMIN
+ 
+- CORS is configured to allow requests from the frontend application
+
+## API
+
+- Base URL: http://localhost:8080
+
+- Swagger UI:
+http://localhost:8080/swagger-ui/index.html
+
+- Main route groups: 
+   /api/users, /api/workouts, /api/trainers, /api/activity-logs, /api/feedbacks, /api/admin, /api/live-token, /api
+
+## Example Request
+
+GET /api/workouts
+
+Headers:
+Authorization: Bearer <token>
+
+## Database
+The application uses JPA/Hibernate for database management.
+
+Local development:
+- H2 in-memory database
+
+Production:
+- PostgreSQL database hosted on Neon
+
+Main entities:
+
+- User
+- Trainer
+- Workout
+- Activity Log
+- Feedback
+
+Relationships and database schema are managed through JPA entity mappings.
+
+## Environment Variables
+
+- CLERK_JWT_ISSUER_URI
+- SUPABASE_URL
+- SUPABASE_API_KEY
+- SUPABASE_BUCKET_NAME
+- GEMINI_API_KEY
+
+
+## Getting Started
+### Prerequisites
+- Java 21+
+- Gradle Wrapper
 
 ### Installation
 
+
+#### 1. Clone the repository:
 ```bash
-git clone ...
-cd backend
+git clone https://github.com/ring-sa-tranar-vi/backend.git
 ```
+#### 2. Set environment variables (see below)
 
-### Install dependencies
-
+#### 3. Build the app
 ```bash
 ./gradlew build
 ```
-
-### Run locally
-
+#### 4. Run the app locally
 ```bash
 ./gradlew bootRun
 ```
+The application will run locally at http://localhost:8080
 
-### Run all tests
+#### 5. Open Swagger
+http://localhost:8080/swagger-ui/index.html
+
+
+## Testing
+
+The project uses Spring Boot testing tools for validating backend functionality.
+
+Run tests with:
 
 ```bash
 ./gradlew test
 ```
 
-If you only want to compile the tests without executing them:
+## Error Handling
 
-```bash
-./gradlew testClasses
-```
+The API returns standard HTTP status codes:
 
----
+- 200 - Successful request
+- 400 - Invalid request
+- 401 - Authentication required
+- 403 - Insufficient permissions
+- 404 - Resource not found
+- 500 - Server error
 
-## Configuration
+Errors follow a consistent response format.
 
-Explain configuration files.
+## Deployment & CI/CD
 
-Example:
-
-```
-application.yml
-application-dev.yml
-application-prod.yml
-```
-
-Environment variables:
-
-| Variable   | Description         |
-| ---------- | ------------------- |
-| DB_URL     | Database connection |
-| DB_USER    | Database username   |
-| JWT_SECRET | JWT signing key     |
-| REDIS_HOST | Redis server        |
-
----
-
-## Project Structure
-
-```
-src/
-├── controller/
-├── service/
-├── repository/
-├── entity/
-├── dto/
-├── mapper/
-├── config/
-├── security/
-├── exception/
-├── util/
-└── test/
-```
-
-Describe what belongs in each package.
-
----
-
-## API
-
-Document available endpoints.
-
-### Authentication
-
-POST /auth/login
-
-Request
-
-```json
-{
-  "email": "...",
-  "password": "..."
-}
-```
-
-Response
-
-```json
-{
-  "token": "..."
-}
-```
-
-Repeat for important endpoints.
-
----
-
-## Authentication & Authorization
-
-Explain:
-
-- JWT
-- OAuth
-- Roles
-- Permissions
-- Refresh tokens
-
-Example flow:
-
-```
-Login
-   ↓
-JWT issued
-   ↓
-Client sends JWT
-   ↓
-Backend validates token
-   ↓
-Access granted
-```
-
----
-
-## Database
-
-Describe the database.
-
-Example:
-
-Tables
-
-- Users
-- Orders
-- Products
-- Payments
-
-Explain relationships.
-
-```
-Users
-   │1
-   │
-   │*
-Orders
-   │
-   │*
-OrderItems
-```
-
-Mention migrations (e.g., Flyway or Liquibase).
-
----
-
-## 🚀 Deployment & CI/CD
-
-We use **Trunk-Based Development** and deploy our Spring Boot application to **Google Cloud Run** via GitHub Actions. The pipeline ensures code is thoroughly tested and built once before moving through the environments.
+We use **Trunk-Based Development** and deploy the Spring Boot application to **Google Cloud Run** via GitHub Actions. The pipeline ensures code is thoroughly tested and built once before moving through the environments.
 
 ### The Workflow
 
@@ -240,143 +181,27 @@ We use **Spotless** for linting and formatting with the google-java-format (Andr
 
 ### Local Development
 The application automatically installs a pre-push Git hook to run Spotless on staged files. This ensures that all code is formatted consistently before being pushed.
-When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`).
-
-## Business Logic
-
-Describe the service layer.
-
-Example:
-
-OrderService
-
-Responsibilities:
-
-- Validate order
-- Calculate totals
-- Reserve inventory
-- Persist order
-- Publish events
-
----
-
-## Error Handling
-
-Explain:
-
-- Exception handling
-- Error codes
-- Validation responses
-
-Example:
-
-```json
-{
-  "status": 400,
-  "message": "Invalid email"
-}
-```
-
----
-
-## Logging
-
-Explain:
-
-- Logging framework
-- Log levels
-- Correlation IDs
-- Request logging
-
----
-
-## Security
-
-Document:
-
-- Authentication
-- Authorization
-- Password hashing
-- Input validation
-- CORS
-- CSRF
-- Rate limiting
-
----
-
-## Testing
-
-Describe:
-
-- Unit tests
-- Integration tests
-- Test containers
-- Mocking strategy
-
-Run tests:
-
-```bash
-mvn test
-```
-
----
-
-## Deployment
-
-Explain:
-
-- Docker
-- Kubernetes
-- CI/CD
-- Environment configuration
-
-Example:
-
-```bash
-docker compose up
-```
-
----
-
-## Monitoring
-
-Explain:
-
-- Health endpoint
-- Metrics
-- Logging
-- Tracing
-
-Example:
-
-```
-GET /actuator/health
-GET /actuator/metrics
-```
-
----
+When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`) if gradle commands in the terminal doesn't work.
 
 ## Troubleshooting
 
-Common issues.
+### Application fails to start
 
-Example:
+Check that:
+- Required environment variables are configured
+- Java 21 is installed
+- Gradle wrapper has execution permissions
 
-Database connection failed
+### Authentication fails
 
-- Check PostgreSQL is running
-- Verify DB_URL
-- Run migrations
+Check:
+- Clerk issuer URI is correct
+- JWT token is valid
+- Authorization header uses:
 
----
+Authorization: Bearer <token>
 
-## Contributing
+## Related Repositories
 
-Describe development workflow.
-
-Example:
-
-1. Create feature branch
-2. Add tests
-3. Run formatter
-4. Open pull request
+- Frontend: [Repository Link](https://github.com/ring-sa-tranar-vi/frontend)
+- Infrastructure: [Repository Link](https://github.com/ring-sa-tranar-vi/infrastructure)
