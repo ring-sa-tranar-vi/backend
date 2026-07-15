@@ -2,7 +2,9 @@ package dev.salt.Ring20.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+
 import lombok.Data;
 
 @Entity

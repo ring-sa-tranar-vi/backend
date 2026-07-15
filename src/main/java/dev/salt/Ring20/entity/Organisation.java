@@ -1,7 +1,9 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
+
 import java.util.List;
+
 import lombok.Data;
 
 @Entity
@@ -23,5 +25,6 @@ public class Organisation {
         this.events = events;
     }
 
-    public Organisation() {}
+    public Organisation() {
+    }
 }
