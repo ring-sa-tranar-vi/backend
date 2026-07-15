@@ -15,16 +15,19 @@ public class OrganisationService {
         this.repo = repo;
     }
 
+    @Transactional
     public Organisation createOrganisation(String name, String description, List<Event> events) {
-        Organisation newOrg = new Organisation(name, description, events);
-        attachOrganisationToEvents(newOrg, events);
-        return repo.save(newOrg);
+        Organisation organisation = new Organisation(name, description, events);
+        attachOrganisationToEvents(organisation, events);
+        return repo.save(organisation);
     }
 
+    @Transactional(readOnly = true)
     public List<Organisation> getAllOrganisations() {
         return repo.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Organisation getOrganisationById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organisation not found with id: " + id));

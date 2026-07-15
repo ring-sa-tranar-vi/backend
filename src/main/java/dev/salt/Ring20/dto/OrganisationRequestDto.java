@@ -1,6 +1,10 @@
 package dev.salt.Ring20.dto;
 
-import dev.salt.Ring20.entity.Event;
 import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
-public record OrganisationRequestDto(String name, String description, List<Event> events) {}
+public record OrganisationRequestDto(
+	@NotBlank String name,
+	String description,
+	List<@Valid EventRequestDto> events) {}

@@ -1,7 +1,6 @@
 package dev.salt.Ring20.dto;
 
-import dev.salt.Ring20.entity.Event;
 import java.util.List;
 
 public record OrganisationResponseDto(
-        Long id, String name, String description, List<Event> events) {}
+        Long id, String name, String description, List<EventResponseDto> events) {}
