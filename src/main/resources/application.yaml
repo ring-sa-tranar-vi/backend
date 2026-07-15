@@ -57,3 +57,10 @@ management:
   metrics:
     tags:
       environment: ${APP_ENVIRONMENT:local}
+
+logging:
+  level:
+    io:
+      micrometer: DEBUG
+      registry:
+        otlp: DEBUG
