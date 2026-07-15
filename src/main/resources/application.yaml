@@ -50,7 +50,6 @@ management:
     metrics:
       export:
         enabled: true
-        url: ${GRAFANA_OTLP_URL}
         step: 15s
   metrics:
     tags:
