@@ -8,11 +8,10 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Controller
+@RestController
 @RequestMapping("/api/organisations")
 @CrossOrigin(
         origins = {"http://localhost:5173", "https://https://prod-ringsatranarvi-app.web.app/"})
