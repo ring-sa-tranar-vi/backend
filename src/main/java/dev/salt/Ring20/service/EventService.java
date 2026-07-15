@@ -1,8 +1,12 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.Event;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.EventRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EventService {
@@ -12,11 +16,11 @@ public class EventService {
         this.repo = repo;
     }
 
-    public Event createEvent() {
-        return new Event();
+    public Event createEvent(String name, String description, LocalDateTime time, Organisation organisation) {
+        return repo.save(new Event(name, description, time, organisation));
     }
 
-    public Event getAllEvents() {
+    public List<Event> getAllEvents() {
         return new Event();
     }
 

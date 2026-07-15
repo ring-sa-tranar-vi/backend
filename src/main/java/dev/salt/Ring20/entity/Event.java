@@ -27,4 +27,11 @@ public class Event {
     @JoinColumn(name = "organisation_id", nullable = false)
     @JsonIgnore
     private Organisation organisation;
+
+    public Event(String name, String description, LocalDateTime time, Organisation organisation) {
+        this.name = name;
+        this.description = description;
+        this.time = time;
+        this.organisation = organisation;
+    }
 }

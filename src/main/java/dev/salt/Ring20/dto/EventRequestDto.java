@@ -1,6 +1,8 @@
 package dev.salt.Ring20.dto;
 
 import java.time.LocalDateTime;
+
+import dev.salt.Ring20.entity.Organisation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -8,4 +10,7 @@ public record EventRequestDto(
         @NotBlank
         String name,
         String description,
-        @NotNull LocalDateTime time) {}
+        @NotNull LocalDateTime time,
+        @NotNull Organisation organisation
+) {
+}
