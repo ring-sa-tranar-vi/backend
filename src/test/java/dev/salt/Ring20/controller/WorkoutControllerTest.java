@@ -196,9 +196,7 @@ class WorkoutControllerTest {
 
         ResponseEntity<WorkoutResponseDto> response =
                 controller.setWorkoutEnabled(
-                        1L,
-                        new WorkoutEnabledRequestDto(false),
-                        auth("user_1"));
+                        1L, new WorkoutEnabledRequestDto(false), auth("user_1"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(workoutService, never()).setWorkoutEnabled(anyLong(), anyBoolean());
@@ -239,9 +237,7 @@ class WorkoutControllerTest {
 
         ResponseEntity<WorkoutResponseDto> response =
                 controller.setWorkoutEnabled(
-                        1L,
-                        new WorkoutEnabledRequestDto(false),
-                        auth("admin_1"));
+                        1L, new WorkoutEnabledRequestDto(false), auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

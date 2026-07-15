@@ -50,7 +50,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleResponseStatus(
             ResponseStatusException ex, HttpServletRequest request) {
         String message = ex.getReason() == null ? "Request failed" : ex.getReason();
-        return build(HttpStatus.valueOf(ex.getStatusCode().value()), message, request.getRequestURI());
+        return build(
+                HttpStatus.valueOf(ex.getStatusCode().value()), message, request.getRequestURI());
     }
 
     @ExceptionHandler(NoSuchElementException.class)
@@ -71,8 +72,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetail> handleGeneric(
-            Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ProblemDetail> handleGeneric(Exception ex, HttpServletRequest request) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", request.getRequestURI());
     }
 

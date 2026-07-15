@@ -2,9 +2,7 @@ package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-
 import java.util.List;
-
 import lombok.Data;
 
 @Entity
@@ -14,8 +12,7 @@ public class Organisation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String name;
+    @NotBlank private String name;
     private String description;
 
     @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -27,6 +24,5 @@ public class Organisation {
         this.events = events;
     }
 
-    public Organisation() {
-    }
+    public Organisation() {}
 }

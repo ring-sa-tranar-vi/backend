@@ -4,13 +4,11 @@ import dev.salt.Ring20.dto.EventRequestDto;
 import dev.salt.Ring20.dto.EventResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/events")
@@ -24,17 +22,28 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto request) {
-        Event event = service.createEvent(request.name(), request.description(), request.time(), request.organisation());
+        Event event =
+                service.createEvent(
+                        request.name(),
+                        request.description(),
+                        request.time(),
+                        request.organisation());
         EventResponseDto response = toResponse(event);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(event.getId())
-                .toUri();
+        URI location =
+                ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{id}")
+                        .buildAndExpand(event.getId())
+                        .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     private EventResponseDto toResponse(Event event) {
-        return new EventResponseDto(event.getId(), event.getName(), event.getDescription(), event.getTime(), event.getOrganisation().getId());
+        return new EventResponseDto(
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getTime(),
+                event.getOrganisation().getId());
     }
 
     @GetMapping
@@ -56,9 +65,16 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventResponseDto> updateEventById(@PathVariable Long id, @RequestBody EventRequestDto request) {
+    public ResponseEntity<EventResponseDto> updateEventById(
+            @PathVariable Long id, @RequestBody EventRequestDto request) {
         validatePositiveId(id);
-        Event updatedEvent = service.updateEvent(id, request.name(), request.description(), request.time(), request.organisation());
+        Event updatedEvent =
+                service.updateEvent(
+                        id,
+                        request.name(),
+                        request.description(),
+                        request.time(),
+                        request.organisation());
         return ResponseEntity.ok(toResponse(updatedEvent));
     }
 
@@ -67,5 +83,4 @@ public class EventController {
             throw new IllegalArgumentException("id must be a positive number");
         }
     }
-
 }

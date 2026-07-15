@@ -8,15 +8,13 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
-
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
-
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 @RequestMapping("/api/organisations")
@@ -31,13 +29,13 @@ public class OrganisationController {
         this.eventService = eventService;
     }
 
-
     @PostMapping
     @Transactional
     public ResponseEntity<OrganisationResponseDto> createOrganisation(
             @Valid @RequestBody OrganisationRequestDto request) {
-        Organisation newOrg = service.createOrganisation(
-                request.name(), request.description(), toEvents(request.events()));
+        Organisation newOrg =
+                service.createOrganisation(
+                        request.name(), request.description(), toEvents(request.events()));
         OrganisationResponseDto response = toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -50,16 +48,14 @@ public class OrganisationController {
     @GetMapping
     @Transactional(readOnly = true)
     public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
-        return ResponseEntity.ok(service.getAllOrganisations().stream().map(this::toResponseDto).toList());
+        return ResponseEntity.ok(
+                service.getAllOrganisations().stream().map(this::toResponseDto).toList());
     }
 
     @GetMapping("/{id}/events")
     public List<EventResponseDto> getEventsByOrganisation(@PathVariable Long id) {
         validatePositiveId(id);
-        return eventService.getAllEventsByOrgId(id)
-                .stream()
-                .map(this::toEventResponseDto)
-                .toList();
+        return eventService.getAllEventsByOrgId(id).stream().map(this::toEventResponseDto).toList();
     }
 
     @GetMapping("/{id}")
@@ -81,8 +77,9 @@ public class OrganisationController {
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganisationRequestDto request) {
         validatePositiveId(id);
-        Organisation updatedOrg = service.updateOrganisationById(
-                id, request.name(), request.description(), toEvents(request.events()));
+        Organisation updatedOrg =
+                service.updateOrganisationById(
+                        id, request.name(), request.description(), toEvents(request.events()));
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
@@ -114,12 +111,20 @@ public class OrganisationController {
                         ? List.of()
                         : organisation.getEvents().stream().map(this::toEventResponseDto).toList();
         return new OrganisationResponseDto(
-                organisation.getId(), organisation.getName(), organisation.getDescription(), events);
+                organisation.getId(),
+                organisation.getName(),
+                organisation.getDescription(),
+                events);
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
-        Long organisationId = event.getOrganisation() == null ? null : event.getOrganisation().getId();
+        Long organisationId =
+                event.getOrganisation() == null ? null : event.getOrganisation().getId();
         return new EventResponseDto(
-                event.getId(), event.getName(), event.getDescription(), event.getTime(), organisationId);
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getTime(),
+                organisationId);
     }
 }
