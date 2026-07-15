@@ -51,8 +51,6 @@ management:
       export:
         enabled: true
         url: ${GRAFANA_OTLP_URL}
-        headers:
-          authorization: ${OTEL_EXPORTER_OTLP_HEADERS}
         step: 15s
   metrics:
     tags:
