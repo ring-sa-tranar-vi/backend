@@ -55,6 +55,7 @@ public class OrganisationController {
 
     @GetMapping("/{id}/events")
     public List<EventResponseDto> getEventsByOrganisation(@PathVariable Long id) {
+        validatePositiveId(id);
         return eventService.getAllEventsByOrgId(id)
                 .stream()
                 .map(this::toEventResponseDto)
@@ -64,11 +65,13 @@ public class OrganisationController {
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
+        validatePositiveId(id);
         return ResponseEntity.ok(toResponseDto(service.getOrganisationById(id)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
+        validatePositiveId(id);
         service.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
     }
@@ -77,9 +80,16 @@ public class OrganisationController {
     @Transactional
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganisationRequestDto request) {
+        validatePositiveId(id);
         Organisation updatedOrg = service.updateOrganisationById(
                 id, request.name(), request.description(), toEvents(request.events()));
         return ResponseEntity.ok(toResponseDto(updatedOrg));
+    }
+
+    private void validatePositiveId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("id must be a positive number");
+        }
     }
 
     private List<Event> toEvents(List<EventRequestDto> requests) {
