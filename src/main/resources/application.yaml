@@ -49,6 +49,7 @@ management:
   otlp:
     metrics:
       export:
+        enabled: true
         url: ${GRAFANA_OTLP_URL}
         headers:
           Authorization: ${GRAFANA_OTLP_AUTH}
