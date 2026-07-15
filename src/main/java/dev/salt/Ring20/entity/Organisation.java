@@ -14,6 +14,16 @@ public class Organisation {
     private String name;
     private String description;
 
-    @OneToMany(mappedBy = "organisation")
+    @OneToMany(mappedBy = "organization")
     private List<Event> events;
+
+    public Organisation(String name, String description, List<Event> events) {
+        this.name = name;
+        this.description = description;
+        this.events = events;
+    }
+
+    public Organisation() {
+
+    }
 }

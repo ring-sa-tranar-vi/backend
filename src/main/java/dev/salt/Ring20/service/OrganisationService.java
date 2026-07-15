@@ -16,22 +16,26 @@ public class OrganisationService {
         this.repo = repo;
     }
 
-    public Organisation createOrganisation(String name, String description, List<Event> events){
+    public Organisation createOrganisation(String name, String description, List<Event> events) {
         Organisation newOrg = new Organisation(name, description, events);
         return repo.save(newOrg);
     }
-    public List<Organisation> getAllOrganisations(){
+
+    public List<Organisation> getAllOrganisations() {
         return repo.findAll();
     }
-    public Organisation getOrganisationById(Long id){
+
+    public Organisation getOrganisationById(Long id) {
         return repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organisation not found with id: " + id));
     }
-    public void deleteOrganisationById(Long id){
+
+    public void deleteOrganisationById(Long id) {
         repo.deleteById(id);
     }
+
     @Transactional
-    public Organisation updateOrganisationById(Long id, String name, String description, List<Event> events){
+    public Organisation updateOrganisationById(Long id, String name, String description, List<Event> events) {
         Organisation foundOrg = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organisation not found with id: " + id));
         foundOrg.setName(name);
