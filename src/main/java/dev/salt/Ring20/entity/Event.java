@@ -34,4 +34,5 @@ public class Event {
         this.time = time;
         this.organisation = organisation;
     }
+    public Event(){};
 }

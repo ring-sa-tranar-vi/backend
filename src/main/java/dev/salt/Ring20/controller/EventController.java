@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 @CrossOrigin("http://localhost:5173")
-@Transactional
 public class EventController {
     private final EventService service;
 
@@ -43,23 +42,18 @@ public class EventController {
         return ResponseEntity.ok(service.getAllEvents().stream().map(this::toResponse).toList());
     }
 
-    @GetMapping("{/organisations/org_id}")
-    public ResponseEntity<List<EventResponseDto>> getAllEventsByOrganisation(@PathVariable Long organisationId) {
-        return ResponseEntity.ok(service.getAllEventsByOrgId(organisationId).stream().map(this::toResponse).toList());
-    }
-
-    @GetMapping("{/id}")
+    @GetMapping("/{id}")
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
         return ResponseEntity.ok(toResponse(service.getEventById(id)));
     }
 
-    @DeleteMapping("{/id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         service.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("{/id}")
+    @PutMapping("/{id}")
     public ResponseEntity<EventResponseDto> updateEventById(@PathVariable Long id, @RequestBody EventRequestDto request) {
         Event updatedEvent = service.updateEvent(id, request.name(), request.description(), request.time(), request.organisation());
         return ResponseEntity.ok(toResponse(updatedEvent));
