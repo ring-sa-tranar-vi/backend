@@ -6,10 +6,12 @@ import dev.salt.Ring20.dto.OrganisationRequestDto;
 import dev.salt.Ring20.dto.OrganisationResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
+
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
+
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +24,11 @@ import org.springframework.transaction.annotation.Transactional;
         origins = {"http://localhost:5173", "https://https://prod-ringsatranarvi-app.web.app/"})
 public class OrganisationController {
     private final OrganisationService service;
+    private final EventService eventService;
 
-    public OrganisationController(OrganisationService service) {
+    public OrganisationController(OrganisationService service, EventService eventService) {
         this.service = service;
+        this.eventService = eventService;
     }
 
 
@@ -47,6 +51,14 @@ public class OrganisationController {
     @Transactional(readOnly = true)
     public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
         return ResponseEntity.ok(service.getAllOrganisations().stream().map(this::toResponseDto).toList());
+    }
+
+    @GetMapping("/{id}/events")
+    public List<EventResponseDto> getEventsByOrganisation(@PathVariable Long id) {
+        return eventService.getAllEventsByOrgId(id)
+                .stream()
+                .map(this::toEventResponseDto)
+                .toList();
     }
 
     @GetMapping("/{id}")
