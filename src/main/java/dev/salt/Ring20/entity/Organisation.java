@@ -23,7 +23,5 @@ public class Organisation {
         this.events = events;
     }
 
-    public Organisation() {
-
-    }
+    public Organisation() {}
 }

@@ -3,10 +3,9 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.OrganisationRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class OrganisationService {
@@ -35,13 +34,17 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation updateOrganisationById(Long id, String name, String description, List<Event> events) {
-        Organisation foundOrg = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Organisation not found with id: " + id));
+    public Organisation updateOrganisationById(
+            Long id, String name, String description, List<Event> events) {
+        Organisation foundOrg =
+                repo.findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Organisation not found with id: " + id));
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setEvents(events);
         return repo.save(foundOrg);
     }
-
 }
