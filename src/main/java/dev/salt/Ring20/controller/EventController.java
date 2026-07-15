@@ -4,18 +4,16 @@ import dev.salt.Ring20.dto.EventRequestDto;
 import dev.salt.Ring20.dto.EventResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/events")
 @CrossOrigin("http://localhost:5173")
 @Transactional
 public class EventController {
@@ -44,8 +42,20 @@ public class EventController {
     public ResponseEntity<List<EventResponseDto>> getAllEvents() {
         return ResponseEntity.ok(service.getAllEvents().stream().map(this::toResponse).toList());
     }
-    @GetMapping("{/Org_id}")
+
+    @GetMapping("{/organisations/org_id}")
     public ResponseEntity<List<EventResponseDto>> getAllEventsByOrganisation(@PathVariable Long organisationId) {
-        return ResponseEntity.ok(service.getAllEventsByOrg(organisationId).stream().map(this::toResponse).toList());
+        return ResponseEntity.ok(service.getAllEventsByOrgId(organisationId).stream().map(this::toResponse).toList());
+    }
+
+    @GetMapping("{/id}")
+    public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
+        return ResponseEntity.ok(toResponse(service.getEventById(id)));
+    }
+
+    @DeleteMapping("{/id}")
+    public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
+        service.deleteEventById(id);
+        return ResponseEntity.noContent().build();
     }
 }
