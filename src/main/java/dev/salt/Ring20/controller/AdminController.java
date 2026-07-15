@@ -2,9 +2,9 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.AdminRecentFeedbackDTO;
-import dev.salt.Ring20.dto.AdminUserCountDTO;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDTO;
+import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
+import dev.salt.Ring20.dto.AdminUserCountDto;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
@@ -64,7 +64,7 @@ public class AdminController {
     }
 
     @GetMapping("/workouts/feedback-summary")
-    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDTO>> getWorkoutFeedbackSummary(
+    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDto>> getWorkoutFeedbackSummary(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
@@ -76,7 +76,7 @@ public class AdminController {
     }
 
     @GetMapping("/feedbacks")
-    public ResponseEntity<List<AdminRecentFeedbackDTO>> getRecentFeedbackEntries(
+    public ResponseEntity<List<AdminRecentFeedbackDto>> getRecentFeedbackEntries(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
@@ -88,7 +88,7 @@ public class AdminController {
     }
 
     @GetMapping("/users/count")
-    public ResponseEntity<AdminUserCountDTO> getUserCount(Authentication authentication) {
+    public ResponseEntity<AdminUserCountDto> getUserCount(Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
@@ -97,6 +97,6 @@ public class AdminController {
 
         long total = service.getUserCount();
         long active = activityLogService.getActiveUserCount();
-        return ResponseEntity.ok(new AdminUserCountDTO(total, active));
+        return ResponseEntity.ok(new AdminUserCountDto(total, active));
     }
 }

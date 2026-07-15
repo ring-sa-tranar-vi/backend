@@ -4,7 +4,7 @@ import static org.springframework.http.HttpStatus.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.salt.Ring20.dto.RecommendWorkoutDTO;
+import dev.salt.Ring20.dto.RecommendWorkoutDto;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
@@ -167,7 +167,7 @@ public class TrainerService {
         return normalized;
     }
 
-    public CompletableFuture<RecommendWorkoutDTO> getAiRecommendedWorkout(
+    public CompletableFuture<RecommendWorkoutDto> getAiRecommendedWorkout(
             Long trainerId, Long userId) {
         validateId(trainerId);
         validateId(userId);
@@ -218,7 +218,7 @@ public class TrainerService {
                                 }
 
                                 // 5. Build and return your exact custom DTO record payload
-                                return new RecommendWorkoutDTO(workoutId, reasoning);
+                                return new RecommendWorkoutDto(workoutId, reasoning);
 
                             } catch (ResponseStatusException rse) {
                                 throw rse; // Pass along our validated entity exceptions cleanly

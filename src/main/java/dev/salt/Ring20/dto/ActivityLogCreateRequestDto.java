@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto;
 
 import java.time.LocalDateTime;
 
-public record ActivityLogCreateRequestDTO(
+public record ActivityLogCreateRequestDto(
         Long userId,
         Long workoutId,
         LocalDateTime completedAt,

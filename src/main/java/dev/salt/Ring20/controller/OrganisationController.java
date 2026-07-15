@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.OrganisationRequestDTO;
-import dev.salt.Ring20.dto.OrganisationResponseDTO;
+import dev.salt.Ring20.dto.OrganisationRequestDto;
+import dev.salt.Ring20.dto.OrganisationResponseDto;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.OrganisationService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -21,7 +21,7 @@ public class OrganisationController {
 
     @PostMapping
     private ResponseEntity<Organisation> createOrganisation(
-            @RequestBody OrganisationRequestDTO request) {
+            @RequestBody OrganisationRequestDto request) {
         Organisation newOrg =
                 service.createOrganisation(request.name(), request.description(), request.events());
         URI location =
@@ -33,16 +33,16 @@ public class OrganisationController {
     }
 
     @GetMapping
-    private ResponseEntity<List<OrganisationResponseDTO>> getAllOrganisations() {
+    private ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
         List<Organisation> listOfAllOrgs = service.getAllOrganisations();
         return ResponseEntity.ok(listOfAllOrgs.stream().map(this::toResponseDto).toList());
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<OrganisationResponseDTO> getOrganisationById(@PathVariable Long id) {
+    private ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
         Organisation org = service.getOrganisationById(id);
         return ResponseEntity.ok(
-                new OrganisationResponseDTO(
+                new OrganisationResponseDto(
                         org.getId(), org.getName(), org.getDescription(), org.getEvents()));
     }
 
@@ -54,15 +54,15 @@ public class OrganisationController {
 
     @PutMapping("/{id}")
     private ResponseEntity<Organisation> updateOrganisation(
-            @PathVariable Long id, @RequestBody OrganisationRequestDTO request) {
+            @PathVariable Long id, @RequestBody OrganisationRequestDto request) {
         Organisation updatedOrg =
                 service.updateOrganisationById(
                         id, request.name(), request.description(), request.events());
         return ResponseEntity.ok(updatedOrg);
     }
 
-    private OrganisationResponseDTO toResponseDto(Organisation organisation) {
-        return new OrganisationResponseDTO(
+    private OrganisationResponseDto toResponseDto(Organisation organisation) {
+        return new OrganisationResponseDto(
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),

@@ -2,9 +2,9 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.UserCreateRequestDTO;
-import dev.salt.Ring20.dto.UserRequestDTO;
-import dev.salt.Ring20.dto.UserResponseDTO;
+import dev.salt.Ring20.dto.UserCreateRequestDto;
+import dev.salt.Ring20.dto.UserRequestDto;
+import dev.salt.Ring20.dto.UserResponseDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.UserService;
@@ -84,8 +84,8 @@ public class UserController {
         return DEFAULT_DISPLAY_NAME;
     }
 
-    private UserResponseDTO toResponse(User user, String clerkId) {
-        return new UserResponseDTO(
+    private UserResponseDto toResponse(User user, String clerkId) {
+        return new UserResponseDto(
                 user.getId(),
                 user.getName(),
                 user.getIntensityLevel(),
@@ -94,8 +94,8 @@ public class UserController {
                 user.getTrainerId());
     }
 
-    private UserResponseDTO toResponse(User user) {
-        return new UserResponseDTO(
+    private UserResponseDto toResponse(User user) {
+        return new UserResponseDto(
                 user.getId(),
                 user.getName(),
                 user.getIntensityLevel(),
@@ -105,8 +105,8 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(
-            @RequestBody(required = false) UserCreateRequestDTO request,
+    public ResponseEntity<UserResponseDto> createUser(
+            @RequestBody(required = false) UserCreateRequestDto request,
             Authentication authentication) {
         Jwt jwt = getJwtOrThrow(authentication);
         String requestedName = request != null ? request.displayName() : null;
@@ -122,7 +122,7 @@ public class UserController {
     }
 
     @GetMapping("/me/profile")
-    public ResponseEntity<UserResponseDTO> getCurrentUserProfile(Authentication authentication) {
+    public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
         String clerkId = getClerkId(authentication);
         User currentUser = userService.getByClerkIdOrThrow(clerkId);
 
@@ -130,8 +130,8 @@ public class UserController {
     }
 
     @PutMapping("/me/profile")
-    public ResponseEntity<UserResponseDTO> updateCurrentUserProfile(
-            @RequestBody UserRequestDTO userRequest, Authentication authentication) {
+    public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
+            @RequestBody UserRequestDto userRequest, Authentication authentication) {
         String clerkId = getClerkId(authentication);
         User updated =
                 userService.updateUserPreferencesByClerkId(
@@ -145,9 +145,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUserPreferences(
+    public ResponseEntity<UserResponseDto> updateUserPreferences(
             @PathVariable Long id,
-            @RequestBody UserRequestDTO userRequest,
+            @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
         User currentUser = userService.findByClerkId(clerkId).orElseThrow();
@@ -175,7 +175,7 @@ public class UserController {
     }
 
     @GetMapping("/by-clerk/{clerkId}")
-    public ResponseEntity<UserResponseDTO> getUserByClerkId(
+    public ResponseEntity<UserResponseDto> getUserByClerkId(
             @PathVariable String clerkId, Authentication authentication) {
         getJwtOrThrow(authentication);
         User user = userService.getByClerkIdOrThrow(clerkId);
@@ -189,7 +189,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(toResponse(user));
     }

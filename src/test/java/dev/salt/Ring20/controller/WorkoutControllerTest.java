@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.WorkoutRequestDTO;
-import dev.salt.Ring20.dto.WorkoutResponseDTO;
+import dev.salt.Ring20.dto.WorkoutEnabledRequestDto;
+import dev.salt.Ring20.dto.WorkoutRequestDto;
+import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
@@ -35,8 +36,8 @@ class WorkoutControllerTest {
         WorkoutController controller =
                 new WorkoutController(workoutService, userService, geminiWorkoutService);
 
-        WorkoutResponseDTO workout =
-                new WorkoutResponseDTO(
+        WorkoutResponseDto workout =
+                new WorkoutResponseDto(
                         1L,
                         "Push Ups",
                         null,
@@ -64,7 +65,7 @@ class WorkoutControllerTest {
         when(userService.isAdmin("admin_1")).thenReturn(true);
         when(workoutService.getAllWorkouts(true)).thenReturn(List.of(workout));
 
-        ResponseEntity<List<WorkoutResponseDTO>> response =
+        ResponseEntity<List<WorkoutResponseDto>> response =
                 controller.getAllWorkouts(auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -76,8 +77,8 @@ class WorkoutControllerTest {
     void createWorkoutReturnsForbiddenForNonAdmin() {
         WorkoutController controller =
                 new WorkoutController(workoutService, userService, geminiWorkoutService);
-        WorkoutRequestDTO request =
-                new WorkoutRequestDTO(
+        WorkoutRequestDto request =
+                new WorkoutRequestDto(
                         "Test Workout",
                         "desc",
                         null,
@@ -102,7 +103,7 @@ class WorkoutControllerTest {
 
         when(userService.isAdmin("user_1")).thenReturn(false);
 
-        ResponseEntity<WorkoutResponseDTO> response =
+        ResponseEntity<WorkoutResponseDto> response =
                 controller.createWorkout(request, auth("user_1"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -113,8 +114,8 @@ class WorkoutControllerTest {
     void createWorkoutReturnsOkForAdmin() {
         WorkoutController controller =
                 new WorkoutController(workoutService, userService, geminiWorkoutService);
-        WorkoutRequestDTO request =
-                new WorkoutRequestDTO(
+        WorkoutRequestDto request =
+                new WorkoutRequestDto(
                         "Test Workout",
                         "desc",
                         null,
@@ -139,8 +140,8 @@ class WorkoutControllerTest {
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        WorkoutResponseDTO workout =
-                new WorkoutResponseDTO(
+        WorkoutResponseDto workout =
+                new WorkoutResponseDto(
                         null,
                         "Test Workout",
                         null,
@@ -167,7 +168,7 @@ class WorkoutControllerTest {
 
         when(workoutService.createWorkout(any())).thenReturn(workout);
 
-        ResponseEntity<WorkoutResponseDTO> response =
+        ResponseEntity<WorkoutResponseDto> response =
                 controller.createWorkout(request, auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -193,10 +194,10 @@ class WorkoutControllerTest {
                 new WorkoutController(workoutService, userService, geminiWorkoutService);
         when(userService.isAdmin("user_1")).thenReturn(false);
 
-        ResponseEntity<WorkoutResponseDTO> response =
+        ResponseEntity<WorkoutResponseDto> response =
                 controller.setWorkoutEnabled(
                         1L,
-                        new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
+                        new WorkoutEnabledRequestDto(false),
                         auth("user_1"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -209,8 +210,8 @@ class WorkoutControllerTest {
                 new WorkoutController(workoutService, userService, geminiWorkoutService);
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        WorkoutResponseDTO updated =
-                new WorkoutResponseDTO(
+        WorkoutResponseDto updated =
+                new WorkoutResponseDto(
                         1L,
                         "Push Ups",
                         null,
@@ -236,10 +237,10 @@ class WorkoutControllerTest {
                         null);
         when(workoutService.setWorkoutEnabled(1L, false)).thenReturn(updated);
 
-        ResponseEntity<WorkoutResponseDTO> response =
+        ResponseEntity<WorkoutResponseDto> response =
                 controller.setWorkoutEnabled(
                         1L,
-                        new dev.salt.Ring20.dto.WorkoutEnabledRequestDTO(false),
+                        new WorkoutEnabledRequestDto(false),
                         auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());

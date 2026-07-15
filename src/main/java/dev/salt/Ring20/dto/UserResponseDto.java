@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record UserResponseDTO(
+public record UserResponseDto(
         Long id,
         String name,
         int intensityLevel,

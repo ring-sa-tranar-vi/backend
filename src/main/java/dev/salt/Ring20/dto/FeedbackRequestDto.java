@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto;
 
 import dev.salt.Ring20.entity.FeedbackDifficulty;
 
-public record FeedbackRequestDTO(
+public record FeedbackRequestDto(
         Long userId,
         Long workoutId,
         Long activityLogId,

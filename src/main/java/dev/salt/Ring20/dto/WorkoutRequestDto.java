@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record WorkoutRequestDTO(
+public record WorkoutRequestDto(
         String name,
         String description,
         String dashboardName,
