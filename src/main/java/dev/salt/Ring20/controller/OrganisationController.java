@@ -4,7 +4,6 @@ import dev.salt.Ring20.dto.OrganisationRequestDto;
 import dev.salt.Ring20.dto.OrganisationResponseDto;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.OrganisationService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +15,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @CrossOrigin(
         origins = {"http://localhost:5173", "https://https://prod-ringsatranarvi-app.web.app/"})
 public class OrganisationController {
-    private OrganisationService service;
+    private final OrganisationService service;
+
+    public OrganisationController(OrganisationService service) {
+        this.service = service;
+    }
+
 
     @PostMapping
-    private ResponseEntity<Organisation> createOrganisation(
+    public ResponseEntity<Organisation> createOrganisation(
             @RequestBody OrganisationRequestDto request) {
         Organisation newOrg =
                 service.createOrganisation(request.name(), request.description(), request.events());
@@ -32,13 +36,13 @@ public class OrganisationController {
     }
 
     @GetMapping
-    private ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
+    public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
         List<Organisation> listOfAllOrgs = service.getAllOrganisations();
         return ResponseEntity.ok(listOfAllOrgs.stream().map(this::toResponseDto).toList());
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
+    public ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
         Organisation org = service.getOrganisationById(id);
         return ResponseEntity.ok(
                 new OrganisationResponseDto(
@@ -46,13 +50,13 @@ public class OrganisationController {
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         service.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    private ResponseEntity<Organisation> updateOrganisation(
+    public ResponseEntity<Organisation> updateOrganisation(
             @PathVariable Long id, @RequestBody OrganisationRequestDto request) {
         Organisation updatedOrg =
                 service.updateOrganisationById(

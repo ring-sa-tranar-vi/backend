@@ -17,6 +17,7 @@ public class OrganisationService {
 
     public Organisation createOrganisation(String name, String description, List<Event> events) {
         Organisation newOrg = new Organisation(name, description, events);
+        attachOrganisationToEvents(newOrg, events);
         return repo.save(newOrg);
     }
 
@@ -45,6 +46,17 @@ public class OrganisationService {
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setEvents(events);
+        attachOrganisationToEvents(foundOrg, events);
         return repo.save(foundOrg);
+    }
+
+    private void attachOrganisationToEvents(Organisation organisation, List<Event> events) {
+        if (events == null) {
+            return;
+        }
+
+        for (Event event : events) {
+            event.setOrganisation(organisation);
+        }
     }
 }
