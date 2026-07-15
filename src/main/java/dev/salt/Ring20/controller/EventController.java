@@ -12,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping
@@ -23,9 +24,10 @@ public class EventController {
     public EventController(EventService service) {
         this.service = service;
     }
+
     @PostMapping
     public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto request) {
-        Event event = service.createEvent(request.name(), request.description(), request.time());
+        Event event = service.createEvent(request.name(), request.description(), request.time(), request.organisation());
         EventResponseDto response = toResponse(event);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -38,8 +40,8 @@ public class EventController {
         return new EventResponseDto(event.getId(), event.getName(), event.getDescription(), event.getTime(), event.getOrganisation().getId());
     }
 
-//    @GetMapping
-//    public ResponseEntity<EventResponseDto> getAllEvents() {
-//        return ResponseEntity.ok(service.getAllEvents().stream.map);
-//    }
+    @GetMapping
+    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
+        return ResponseEntity.ok(service.getAllEvents().stream().map(this::toResponse).toList());
+    }
 }

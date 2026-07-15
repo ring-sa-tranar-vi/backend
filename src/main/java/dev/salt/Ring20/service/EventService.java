@@ -21,7 +21,7 @@ public class EventService {
     }
 
     public List<Event> getAllEvents() {
-        return new Event();
+        return repo.findAll();
     }
 
     public Event getEventById() {
