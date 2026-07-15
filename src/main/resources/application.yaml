@@ -60,7 +60,5 @@ management:
 
 logging:
   level:
-    io:
-      micrometer: DEBUG
-      registry:
-        otlp: DEBUG
+    io.micrometer: DEBUG
+    io.micrometer.registry.otlp: DEBUG
