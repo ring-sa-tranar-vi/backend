@@ -44,4 +44,8 @@ public class EventController {
     public ResponseEntity<List<EventResponseDto>> getAllEvents() {
         return ResponseEntity.ok(service.getAllEvents().stream().map(this::toResponse).toList());
     }
+    @GetMapping("{/Org_id}")
+    public ResponseEntity<List<EventResponseDto>> getAllEventsByOrganisation(@PathVariable Long organisationId) {
+        return ResponseEntity.ok(service.getAllEventsByOrg(organisationId).stream().map(this::toResponse).toList());
+    }
 }

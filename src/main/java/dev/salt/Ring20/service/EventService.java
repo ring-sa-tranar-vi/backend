@@ -6,6 +6,7 @@ import dev.salt.Ring20.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -23,6 +24,9 @@ public class EventService {
     public List<Event> getAllEvents() {
         return repo.findAll();
     }
+    public List<Event> getAllEventsByOrg(Long id) {
+        return repo.findByOrganisationId(id);
+    }
 
     public Event getEventById() {
         return new Event();
@@ -35,4 +39,6 @@ public class EventService {
     public Event updateEvent() {
         return new Event();
     }
+
+
 }
