@@ -37,8 +37,8 @@ class UserControllerTest {
     @Test
     void createUserReturnsResponseBody() {
         UserController controller =
-            new UserController(
-                userService, activityLogService, organisationService, eventService);
+                new UserController(
+                        userService, activityLogService, organisationService, eventService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(1L);
         when(userService.createUser(eq("clerk_1"), any())).thenReturn(user);
@@ -54,8 +54,8 @@ class UserControllerTest {
     @Test
     void updateCurrentUserProfileReturnsOk() {
         UserController controller =
-            new UserController(
-                userService, activityLogService, organisationService, eventService);
+                new UserController(
+                        userService, activityLogService, organisationService, eventService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
         when(userService.updateUserPreferencesByClerkId("clerk_1", "Jane", 3, "context", 4L))
@@ -72,8 +72,8 @@ class UserControllerTest {
     @Test
     void updateUserPreferencesReturnsForbiddenWhenNotOwner() {
         UserController controller =
-            new UserController(
-                userService, activityLogService, organisationService, eventService);
+                new UserController(
+                        userService, activityLogService, organisationService, eventService);
         User currentUser = new User("Jane", 2, "context", "clerk_1");
         currentUser.setId(1L);
         when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(currentUser));
@@ -88,8 +88,8 @@ class UserControllerTest {
     @Test
     void getUserByIdReturnsMappedResponse() {
         UserController controller =
-            new UserController(
-                userService, activityLogService, organisationService, eventService);
+                new UserController(
+                        userService, activityLogService, organisationService, eventService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(9L);
         when(userService.getUserById(1L)).thenReturn(user);
