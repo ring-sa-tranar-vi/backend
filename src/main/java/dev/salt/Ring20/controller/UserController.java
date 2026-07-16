@@ -9,6 +9,8 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.EventService;
+import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
 
 import java.util.List;
@@ -37,10 +39,15 @@ public class UserController {
 
     private final UserService userService;
     private final ActivityLogService activityLogService;
+    private final OrganisationService organisationService;
+    private final EventService eventService;
 
-    public UserController(UserService userService, ActivityLogService activityLogService) {
+
+    public UserController(UserService userService, ActivityLogService activityLogService, OrganisationService organisationService, EventService eventService) {
         this.userService = userService;
         this.activityLogService = activityLogService;
+        this.organisationService = organisationService;
+        this.eventService = eventService;
     }
 
     private Jwt getJwtOrThrow(Authentication authentication) {
@@ -180,7 +187,7 @@ public class UserController {
     }
 
     @GetMapping("/me/followedOrg")
-    public ResponseEntity<List<Organisation>> getAllFollowedOrgs(Authentication authentication) {
+    public ResponseEntity<List<Organisation>> attendEvent(Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         return ResponseEntity.ok(userService.getUserOrgsById(currentUser.getId()));
@@ -191,6 +198,20 @@ public class UserController {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         return ResponseEntity.ok(userService.getUserEventsById(currentUser.getId()));
+    }
+
+    @PostMapping("/me/followedOrg/{orgId}")
+    public ResponseEntity<User> followedOrg(Authentication authentication, @PathVariable Long orgId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated = userService.addFollowOrganization(currentUser.getId(), organisationService.getOrganisationById(orgId));
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/me/attendingEvent/{eventId}")
+    public ResponseEntity<User> attendEvent(Authentication authentication, @PathVariable Long eventId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated = userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
+        return ResponseEntity.ok(updated);
     }
 
 
