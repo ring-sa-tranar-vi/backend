@@ -54,6 +54,10 @@ management:
         headers:
           Authorization: ${GRAFANA_OTLP_AUTH}
         step: 15s
+        resource-attributes:
+          "service.name": ${spring.application.name:Ring.2.0}
+          "service.namespace": "ringsatranarvi"
+          "deployment.environment.name": ${APP_ENVIRONMENT:local}
   metrics:
     tags:
       environment: ${APP_ENVIRONMENT:local}
