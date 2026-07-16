@@ -3,6 +3,9 @@ package dev.salt.Ring20.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "users")
@@ -23,6 +26,10 @@ public class User {
 
     private String role;
     private Long trainerId;
+    @ManyToMany
+    private List<Organisation> followedOrganisations = new ArrayList<>();
+    @ManyToMany
+    private List<Event> attendingEvents = new ArrayList<>();
 
     public User() {}
 
