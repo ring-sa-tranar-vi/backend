@@ -3,9 +3,14 @@ package dev.salt.Ring20.service;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import dev.salt.Ring20.entity.Event;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
+
+import java.util.List;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -97,6 +102,41 @@ public class UserService {
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
     }
+
+    public List<Organisation> getUserOrgsById(Long id) {
+        User user = getUserById(id);
+        return user.getFollowedOrganisations();
+    }
+
+    public List<Event> getUserEventsById(Long id) {
+        User user = getUserById(id);
+        return user.getAttendingEvents();
+    }
+
+    public User addFollowOrganization(Long id, Organisation org) {
+        User user = getUserById(id);
+        user.getFollowedOrganisations().add(org);
+        return userRepository.save(user);
+    }
+
+    public User addAttendEvent(Long id, Event event) {
+        User user = getUserById(id);
+        user.getAttendingEvents().add(event);
+        return userRepository.save(user);
+    }
+
+    public User removeFollowOrganization(Long id, Organisation org) {
+        User user = getUserById(id);
+        user.getFollowedOrganisations().remove(org);
+        return userRepository.save(user);
+    }
+
+    public User removeAttendEvent(Long id, Event event) {
+        User user = getUserById(id);
+        user.getAttendingEvents().remove(event);
+        return userRepository.save(user);
+    }
+
 
     public long getUserCount() {
         return userRepository.count();
