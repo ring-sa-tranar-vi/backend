@@ -10,11 +10,9 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -33,8 +31,11 @@ public class UserController {
     private final OrganisationService organisationService;
     private final EventService eventService;
 
-
-    public UserController(UserService userService, ActivityLogService activityLogService, OrganisationService organisationService, EventService eventService) {
+    public UserController(
+            UserService userService,
+            ActivityLogService activityLogService,
+            OrganisationService organisationService,
+            EventService eventService) {
         this.userService = userService;
         this.activityLogService = activityLogService;
         this.organisationService = organisationService;
@@ -55,7 +56,7 @@ public class UserController {
 
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {
@@ -178,46 +179,63 @@ public class UserController {
     }
 
     @GetMapping("/me/followedOrg")
-    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(Authentication authentication) {
+    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
+            Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
-        return ResponseEntity.ok(userService.getUserOrgsById(currentUser.getId())
-                .stream().map(this::toOrgResponseDto).toList());
+        return ResponseEntity.ok(
+                userService.getUserOrgsById(currentUser.getId()).stream()
+                        .map(this::toOrgResponseDto)
+                        .toList());
     }
 
     @GetMapping("/me/attendingEvent")
-    public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(Authentication authentication) {
+    public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(
+            Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
-        return ResponseEntity.ok(userService.getUserEventsById(currentUser.getId())
-                .stream().map(this::toEventResponseDto).toList());
+        return ResponseEntity.ok(
+                userService.getUserEventsById(currentUser.getId()).stream()
+                        .map(this::toEventResponseDto)
+                        .toList());
     }
 
     @PostMapping("/me/followedOrg/{orgId}")
-    public ResponseEntity<UserResponseDto> followedOrg(Authentication authentication, @PathVariable Long orgId) {
+    public ResponseEntity<UserResponseDto> followedOrg(
+            Authentication authentication, @PathVariable Long orgId) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated = userService.addFollowOrganization(currentUser.getId(), organisationService.getOrganisationById(orgId));
+        User updated =
+                userService.addFollowOrganization(
+                        currentUser.getId(), organisationService.getOrganisationById(orgId));
         return ResponseEntity.status(201).body(toResponse(updated));
     }
 
     @PostMapping("/me/attendingEvent/{eventId}")
-    public ResponseEntity<UserResponseDto> attendEvent(Authentication authentication, @PathVariable Long eventId) {
+    public ResponseEntity<UserResponseDto> attendEvent(
+            Authentication authentication, @PathVariable Long eventId) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated = userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
+        User updated =
+                userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
         return ResponseEntity.status(201).body(toResponse(updated));
     }
 
     @DeleteMapping("/me/followedOrg/{orgId}")
-    public ResponseEntity<UserResponseDto> removeFollowedOrg(Authentication authentication, @PathVariable Long orgId) {
+    public ResponseEntity<UserResponseDto> removeFollowedOrg(
+            Authentication authentication, @PathVariable Long orgId) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated = userService.removeFollowOrganization(currentUser.getId(), organisationService.getOrganisationById(orgId));
+        User updated =
+                userService.removeFollowOrganization(
+                        currentUser.getId(), organisationService.getOrganisationById(orgId));
         return ResponseEntity.ok(toResponse(updated));
     }
 
     @DeleteMapping("/me/attendingEvent/{eventId}")
-    public ResponseEntity<UserResponseDto> removeAttendEvent(Authentication authentication, @PathVariable Long eventId) {
+    public ResponseEntity<UserResponseDto> removeAttendEvent(
+            Authentication authentication, @PathVariable Long eventId) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated = userService.removeAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
+        User updated =
+                userService.removeAttendEvent(
+                        currentUser.getId(), eventService.getEventById(eventId));
         return ResponseEntity.ok(toResponse(updated));
     }
 
