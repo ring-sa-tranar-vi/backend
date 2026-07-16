@@ -3,7 +3,7 @@ package dev.salt.Ring20.service;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import dev.salt.Ring20.dto.WorkoutResponseDTO;
+import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
@@ -45,7 +45,7 @@ public class WorkoutService {
     }
 
     @Transactional
-    public List<WorkoutResponseDTO> getAllWorkouts(boolean includeDisabled) {
+    public List<WorkoutResponseDto> getAllWorkouts(boolean includeDisabled) {
         List<Workout> workouts =
                 includeDisabled
                         ? workoutRepository.findAll()
@@ -55,7 +55,7 @@ public class WorkoutService {
     }
 
     @Transactional
-    public WorkoutResponseDTO getWorkoutById(Long id, boolean includeDisabled) {
+    public WorkoutResponseDto getWorkoutById(Long id, boolean includeDisabled) {
         Workout workout =
                 workoutRepository
                         .findById(id)
@@ -70,9 +70,9 @@ public class WorkoutService {
     }
 
     @Transactional
-    public WorkoutResponseDTO startWorkout(Long id, Long userId) {
+    public WorkoutResponseDto startWorkout(Long id, Long userId) {
         // Reuse the logic from getWorkoutById to ensure mapping and session handling
-        WorkoutResponseDTO workout = getWorkoutById(id, false);
+        WorkoutResponseDto workout = getWorkoutById(id, false);
 
         if (userId != null) {
             ActivityLog activityLog = new ActivityLog();
@@ -87,14 +87,14 @@ public class WorkoutService {
     }
 
     @Transactional
-    public WorkoutResponseDTO createWorkout(Workout workout) {
+    public WorkoutResponseDto createWorkout(Workout workout) {
         validateWorkoutForWrite(workout);
         Workout saved = workoutRepository.save(workout);
         return mapToResponse(saved);
     }
 
     @Transactional
-    public WorkoutResponseDTO updateWorkout(Long id, Workout workout) {
+    public WorkoutResponseDto updateWorkout(Long id, Workout workout) {
         validateId(id);
         validateWorkoutForWrite(workout);
 
@@ -111,7 +111,7 @@ public class WorkoutService {
     }
 
     @Transactional
-    public WorkoutResponseDTO setWorkoutEnabled(Long id, boolean enabled) {
+    public WorkoutResponseDto setWorkoutEnabled(Long id, boolean enabled) {
         validateId(id);
 
         Workout existing =
@@ -135,16 +135,16 @@ public class WorkoutService {
         workoutRepository.deleteById(id);
     }
 
-    private WorkoutResponseDTO mapToResponse(Workout workout) {
-        WorkoutResponseDTO.TrainerIdDTO trainerDTO = null;
+    private WorkoutResponseDto mapToResponse(Workout workout) {
+        WorkoutResponseDto.TrainerIdDTO trainerDTO = null;
 
         // This is where the @Transactional is key:
         // It keeps the session open to check if a trainer exists and get their ID.
         if (workout.getTrainer() != null) {
-            trainerDTO = new WorkoutResponseDTO.TrainerIdDTO(workout.getTrainer().getId());
+            trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
         }
 
-        return new WorkoutResponseDTO(
+        return new WorkoutResponseDto(
                 workout.getId(),
                 workout.getName(),
                 workout.getDescription(),

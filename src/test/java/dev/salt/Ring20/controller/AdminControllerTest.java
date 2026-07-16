@@ -3,7 +3,7 @@ package dev.salt.Ring20.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminUserCountDTO;
+import dev.salt.Ring20.dto.AdminUserCountDto;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
@@ -36,7 +36,7 @@ class AdminControllerTest {
         when(userService.getUserCount()).thenReturn(42L);
         when(activityLogService.getActiveUserCount()).thenReturn(7L);
 
-        ResponseEntity<AdminUserCountDTO> response = controller.getUserCount(auth("clerk_admin"));
+        ResponseEntity<AdminUserCountDto> response = controller.getUserCount(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -51,7 +51,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<AdminUserCountDTO> response = controller.getUserCount(auth("clerk_user"));
+        ResponseEntity<AdminUserCountDto> response = controller.getUserCount(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(userService, never()).getUserCount();

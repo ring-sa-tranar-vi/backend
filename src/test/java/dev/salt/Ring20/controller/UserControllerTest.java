@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.UserCreateRequestDTO;
-import dev.salt.Ring20.dto.UserRequestDTO;
+import dev.salt.Ring20.dto.UserCreateRequestDto;
+import dev.salt.Ring20.dto.UserRequestDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.UserService;
@@ -37,7 +37,7 @@ class UserControllerTest {
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
         ResponseEntity<?> response =
-                controller.createUser(new UserCreateRequestDTO("Jane"), auth("clerk_1", "Jane"));
+                controller.createUser(new UserCreateRequestDto("Jane"), auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(userService).createUser(eq("clerk_1"), any());
@@ -54,7 +54,7 @@ class UserControllerTest {
 
         ResponseEntity<?> response =
                 controller.updateCurrentUserProfile(
-                        new UserRequestDTO("Jane", 3, "context", 4L), auth("clerk_1", "Jane"));
+                        new UserRequestDto("Jane", 3, "context", 4L), auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -68,7 +68,7 @@ class UserControllerTest {
 
         ResponseEntity<?> response =
                 controller.updateUserPreferences(
-                        9L, new UserRequestDTO("Other", 2, "x", 1L), auth("clerk_1", "Jane"));
+                        9L, new UserRequestDto("Other", 2, "x", 1L), auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }

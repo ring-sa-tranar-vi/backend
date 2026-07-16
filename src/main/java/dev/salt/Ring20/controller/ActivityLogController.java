@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.ActivityLogCreateRequestDTO;
-import dev.salt.Ring20.dto.ActivityLogResponseDTO;
+import dev.salt.Ring20.dto.ActivityLogCreateRequestDto;
+import dev.salt.Ring20.dto.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-    private ActivityLog toEntity(ActivityLogCreateRequestDTO request) {
+    private ActivityLog toEntity(ActivityLogCreateRequestDto request) {
         ActivityLog activityLog = new ActivityLog();
         activityLog.setUserId(request.userId());
         activityLog.setWorkoutId(request.workoutId());
@@ -37,8 +37,8 @@ public class ActivityLogController {
         return activityLog;
     }
 
-    private ActivityLogResponseDTO toResponse(ActivityLog activityLog) {
-        return new ActivityLogResponseDTO(
+    private ActivityLogResponseDto toResponse(ActivityLog activityLog) {
+        return new ActivityLogResponseDto(
                 activityLog.getId(),
                 activityLog.getUserId(),
                 activityLog.getWorkoutId(),
@@ -56,14 +56,14 @@ public class ActivityLogController {
     }
 
     @PostMapping
-    public ResponseEntity<ActivityLogResponseDTO> createActivityLog(
-            @RequestBody ActivityLogCreateRequestDTO activityLogRequest) {
+    public ResponseEntity<ActivityLogResponseDto> createActivityLog(
+            @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
         ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
         return ResponseEntity.ok().body(toResponse(created));
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<ActivityLogResponseDTO> completeActivityLog(@PathVariable Long id) {
+    public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
         ActivityLog completed = activityLogService.completeActivityLog(id);
         return ResponseEntity.ok().body(toResponse(completed));
     }

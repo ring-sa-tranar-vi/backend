@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.FeedbackRequestDTO;
-import dev.salt.Ring20.dto.FeedbackResponseDTO;
+import dev.salt.Ring20.dto.FeedbackRequestDto;
+import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
 import java.util.List;
@@ -27,7 +27,7 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
-    private Feedback toEntity(FeedbackRequestDTO request) {
+    private Feedback toEntity(FeedbackRequestDto request) {
         Feedback feedback = new Feedback();
         feedback.setUserId(request.userId());
         feedback.setWorkoutId(request.workoutId());
@@ -39,8 +39,8 @@ public class FeedbackController {
         return feedback;
     }
 
-    private FeedbackResponseDTO toResponse(Feedback feedback) {
-        return new FeedbackResponseDTO(
+    private FeedbackResponseDto toResponse(Feedback feedback) {
+        return new FeedbackResponseDto(
                 feedback.getId(),
                 feedback.getUserId(),
                 feedback.getWorkoutId(),
@@ -53,14 +53,14 @@ public class FeedbackController {
     }
 
     @PostMapping
-    public ResponseEntity<FeedbackResponseDTO> createFeedback(
-            @RequestBody FeedbackRequestDTO feedbackRequest) {
+    public ResponseEntity<FeedbackResponseDto> createFeedback(
+            @RequestBody FeedbackRequestDto feedbackRequest) {
         Feedback saved = feedbackService.saveFeedback(toEntity(feedbackRequest));
         return ResponseEntity.ok(toResponse(saved));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FeedbackResponseDTO> getFeedbackById(@PathVariable Long id) {
+    public ResponseEntity<FeedbackResponseDto> getFeedbackById(@PathVariable Long id) {
         return feedbackService
                 .getFeedbackById(id)
                 .map(this::toResponse)
@@ -69,7 +69,7 @@ public class FeedbackController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FeedbackResponseDTO>> getFeedback(
+    public ResponseEntity<List<FeedbackResponseDto>> getFeedback(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long workoutId) {
         List<Feedback> feedbacks;

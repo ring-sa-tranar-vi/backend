@@ -10,8 +10,8 @@ class WorkoutRequestDTOTest {
 
     @Test
     void recordStoresValues() {
-        WorkoutRequestDTO dto =
-                new WorkoutRequestDTO(
+        WorkoutRequestDto dto =
+                new WorkoutRequestDto(
                         "Push Ups",
                         "Upper body",
                         "Push Ups",
@@ -32,7 +32,7 @@ class WorkoutRequestDTOTest {
                         false,
                         false,
                         true,
-                        new WorkoutRequestDTO.TrainerIdDTO(7L));
+                        new WorkoutRequestDto.TrainerIdDTO(7L));
 
         assertEquals("Push Ups", dto.name());
         assertEquals("Push Ups", dto.dashboardName());

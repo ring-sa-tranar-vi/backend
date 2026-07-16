@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record AdminWorkoutFeedbackSummaryDTO(
+public record AdminWorkoutFeedbackSummaryDto(
         Long workoutId,
         String workoutName,
         int feedbackCount,

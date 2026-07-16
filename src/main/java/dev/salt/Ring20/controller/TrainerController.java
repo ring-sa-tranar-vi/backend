@@ -3,7 +3,7 @@ package dev.salt.Ring20.controller;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.RecommendWorkoutDTO;
+import dev.salt.Ring20.dto.RecommendWorkoutDto;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
@@ -116,7 +116,7 @@ public class TrainerController {
     }
 
     @GetMapping("/trainer/{trainerId}/recommend-for/{userId}")
-    public CompletableFuture<ResponseEntity<RecommendWorkoutDTO>> getTrainerAiRecommendation(
+    public CompletableFuture<ResponseEntity<RecommendWorkoutDto>> getTrainerAiRecommendation(
             @PathVariable Long trainerId, @PathVariable Long userId) {
 
         return trainerService
