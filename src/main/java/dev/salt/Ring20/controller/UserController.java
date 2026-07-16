@@ -5,11 +5,15 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import dev.salt.Ring20.dto.UserCreateRequestDto;
 import dev.salt.Ring20.dto.UserRequestDto;
 import dev.salt.Ring20.dto.UserResponseDto;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.UserService;
+
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -52,7 +56,7 @@ public class UserController {
 
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {
@@ -172,6 +176,13 @@ public class UserController {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
+    }
+
+    @GetMapping("/me/followedOrg")
+    public ResponseEntity<List<Organisation>> getMyFollowedOrg(Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(userService.getUserOrgsById(currentUser.getId()));
     }
 
     @GetMapping("/by-clerk/{clerkId}")
