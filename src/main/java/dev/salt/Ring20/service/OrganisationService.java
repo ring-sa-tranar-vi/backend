@@ -17,7 +17,7 @@ public class OrganisationService {
 
     @Transactional
     public Organisation createOrganisation(String name, String description, List<Event> events) {
-        Organisation organisation = new Organisation(name, description, events);
+        Organisation organisation = new Organisation(name, description);
         attachOrganisationToEvents(organisation, events);
         return repo.save(organisation);
     }
