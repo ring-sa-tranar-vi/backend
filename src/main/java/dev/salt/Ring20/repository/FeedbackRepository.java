@@ -1,7 +1,9 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.Feedback;
+
 import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
