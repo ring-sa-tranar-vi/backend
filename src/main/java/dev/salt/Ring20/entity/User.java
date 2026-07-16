@@ -1,12 +1,11 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +29,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
     private Long trainerId;
 
     @ManyToMany

@@ -67,5 +67,4 @@ public class Workout {
     @ManyToOne
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
-
 }

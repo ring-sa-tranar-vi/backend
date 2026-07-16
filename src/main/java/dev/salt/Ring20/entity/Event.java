@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,12 +18,10 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String name;
+    @NotBlank private String name;
     private String description;
 
-    @NotNull
-    private LocalDateTime time;
+    @NotNull private LocalDateTime time;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "organisation_id", nullable = false)
@@ -38,5 +34,4 @@ public class Event {
         this.time = time;
         this.organisation = organisation;
     }
-
 }
