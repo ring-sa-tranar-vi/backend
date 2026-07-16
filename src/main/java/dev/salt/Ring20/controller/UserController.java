@@ -178,7 +178,7 @@ public class UserController {
     }
 
     @GetMapping("/me/followedOrg")
-    public ResponseEntity<List<OrganisationResponseDto>> attendEvent(Authentication authentication) {
+    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         return ResponseEntity.ok(userService.getUserOrgsById(currentUser.getId())
@@ -221,7 +221,7 @@ public class UserController {
         return ResponseEntity.ok(toResponse(updated));
     }
 
-    @PostMapping("/by-clerk/{clerkId}")
+    @GetMapping("/by-clerk/{clerkId}")
     public ResponseEntity<UserResponseDto> getUserByClerkId(
             @PathVariable String clerkId, Authentication authentication) {
         getJwtOrThrow(authentication);
