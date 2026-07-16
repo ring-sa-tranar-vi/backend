@@ -1,12 +1,17 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
 
-@Data
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -23,19 +28,24 @@ public class User {
     @Column(unique = true)
     private String clerkId;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     private Long trainerId;
-    @ManyToMany private List<Organisation> followedOrganisations = new ArrayList<>();
-    @ManyToMany private List<Event> attendingEvents = new ArrayList<>();
 
-    public User() {}
+    @ManyToMany
+    @JoinTable(name = "user_organisations")
+    private List<Organisation> followedOrganisations = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(name = "user_events")
+    private List<Event> attendingEvents = new ArrayList<>();
 
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;
         this.intensityLevel = intensityLevel;
         this.context = context;
         this.clerkId = clerkId;
-        this.role = "USER";
+        this.role = UserRole.USER;
         this.trainerId = DEFAULT_TRAINER_ID;
     }
 }
