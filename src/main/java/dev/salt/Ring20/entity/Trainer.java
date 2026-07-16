@@ -1,11 +1,17 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
-import lombok.Data;
 
-@Data
+import java.util.List;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "trainers")
 public class Trainer {
 
