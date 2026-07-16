@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import dev.salt.Ring20.dto.UserCreateRequestDto;
 import dev.salt.Ring20.dto.UserRequestDto;
 import dev.salt.Ring20.dto.UserResponseDto;
+import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
@@ -179,11 +180,19 @@ public class UserController {
     }
 
     @GetMapping("/me/followedOrg")
-    public ResponseEntity<List<Organisation>> getMyFollowedOrg(Authentication authentication) {
+    public ResponseEntity<List<Organisation>> getAllFollowedOrgs(Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         return ResponseEntity.ok(userService.getUserOrgsById(currentUser.getId()));
     }
+
+    @GetMapping("/me/attendingEvent")
+    public ResponseEntity<List<Event>> getAllAttendingEvents(Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(userService.getUserEventsById(currentUser.getId()));
+    }
+
 
     @GetMapping("/by-clerk/{clerkId}")
     public ResponseEntity<UserResponseDto> getUserByClerkId(
