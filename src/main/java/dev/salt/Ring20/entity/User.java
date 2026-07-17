@@ -27,6 +27,7 @@ public class User {
     private Long trainerId;
     @ManyToMany private List<Organisation> followedOrganisations = new ArrayList<>();
     @ManyToMany private List<Event> attendingEvents = new ArrayList<>();
+    private String city;
 
     public User() {}
 

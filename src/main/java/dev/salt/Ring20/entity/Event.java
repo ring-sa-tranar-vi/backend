@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
-
 import lombok.Data;
 
 @Entity
@@ -17,29 +15,35 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank
-    private String name;
+    @NotBlank private String name;
     private String description;
 
-    @NotNull
-    private LocalDateTime time;
+    @NotNull private LocalDateTime time;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "organisation_id", nullable = false)
     @JsonIgnore
     private Organisation organisation;
-    @NotNull
-    private String city;
+
+    @NotNull private String city;
     private String venue;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private EventType eventType;
+
     @NotNull
     @Min(0)
     private int usersAttending;
 
-
-    public Event(String name, String description, LocalDateTime time, Organisation organisation, String city, String venue, EventType eventType) {
+    public Event(
+            String name,
+            String description,
+            LocalDateTime time,
+            Organisation organisation,
+            String city,
+            String venue,
+            EventType eventType) {
         this.name = name;
         this.description = description;
         this.time = time;
@@ -50,6 +54,5 @@ public class Event {
         this.usersAttending = 0;
     }
 
-    public Event() {
-    }
+    public Event() {}
 }

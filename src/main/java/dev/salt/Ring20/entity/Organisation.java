@@ -3,10 +3,8 @@ package dev.salt.Ring20.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-
-import java.util.List;
-
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.Data;
 
 @Entity
@@ -16,12 +14,12 @@ public class Organisation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String name;
+    @NotBlank private String name;
     private String description;
 
     @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Event> events;
+
     @NotNull
     @Min(0)
     private int usersFollowing;
@@ -33,6 +31,5 @@ public class Organisation {
         this.usersFollowing = 0;
     }
 
-    public Organisation() {
-    }
+    public Organisation() {}
 }

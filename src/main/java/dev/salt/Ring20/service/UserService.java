@@ -7,10 +7,8 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
-
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -83,7 +81,12 @@ public class UserService {
     }
 
     public User updateUserPreferencesByClerkId(
-            String clerkId, String name, int intensityLevel, String context, Long trainerId) {
+            String clerkId,
+            String name,
+            int intensityLevel,
+            String context,
+            Long trainerId,
+            String city) {
         if (trainerId == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Trainer is required");
         }
@@ -94,6 +97,7 @@ public class UserService {
         user.setIntensityLevel(intensityLevel);
         user.setContext(context);
         user.setTrainerId(trainerId);
+        user.setCity(city);
         return userRepository.save(user);
     }
 
