@@ -116,6 +116,7 @@ public class UserService {
     public User addFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         user.getFollowedOrganisations().add(org);
+        int followCount = org.getUsersFollowing() + 1;
         return userRepository.save(user);
     }
 
@@ -129,6 +130,7 @@ public class UserService {
     public User removeFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         user.getFollowedOrganisations().remove(org);
+        int followCount = org.getUsersFollowing() + 1;
         return userRepository.save(user);
     }
 
