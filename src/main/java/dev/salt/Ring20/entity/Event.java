@@ -2,6 +2,7 @@ package dev.salt.Ring20.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -33,6 +34,9 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @NotNull
     private EventType eventType;
+    @NotNull
+    @Min(0)
+    private int usersAttending;
 
 
     public Event(String name, String description, LocalDateTime time, Organisation organisation, String city, String venue, EventType eventType) {
@@ -43,6 +47,7 @@ public class Event {
         this.city = city;
         this.venue = venue;
         this.eventType = eventType;
+        this.usersAttending = 0;
     }
 
     public Event() {
