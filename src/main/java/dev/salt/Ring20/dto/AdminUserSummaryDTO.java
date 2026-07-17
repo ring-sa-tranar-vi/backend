@@ -10,4 +10,3 @@ public record AdminUserSummaryDTO(
         Integer intensityLevel,
         Long trainerId,
         LocalDateTime lastCompletedWorkoutAt) {}
-

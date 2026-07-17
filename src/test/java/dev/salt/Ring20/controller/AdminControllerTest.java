@@ -3,22 +3,22 @@ package dev.salt.Ring20.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminUserCountDto;
-import dev.salt.Ring20.dto.AdminRecentActivityDTO;
 import dev.salt.Ring20.dto.AdminEventRequestDTO;
 import dev.salt.Ring20.dto.AdminEventResponseDTO;
 import dev.salt.Ring20.dto.AdminOrganisationRequestDTO;
 import dev.salt.Ring20.dto.AdminOrganisationResponseDTO;
+import dev.salt.Ring20.dto.AdminRecentActivityDTO;
 import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
+import dev.salt.Ring20.dto.AdminUserCountDto;
 import dev.salt.Ring20.dto.AdminUserSummaryDTO;
 import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
 import dev.salt.Ring20.entity.User;
-import java.time.LocalDateTime;
-import java.util.List;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,9 +79,13 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_admin")).thenReturn(true);
         when(adminService.getUserSummaries())
-                .thenReturn(List.of(new AdminUserSummaryDTO(1L, "Ada", "clerk_1", "USER", 2, 1L, null)));
+                .thenReturn(
+                        List.of(
+                                new AdminUserSummaryDTO(
+                                        1L, "Ada", "clerk_1", "USER", 2, 1L, null)));
 
-        ResponseEntity<List<AdminUserSummaryDTO>> response = controller.getUsers(auth("clerk_admin"));
+        ResponseEntity<List<AdminUserSummaryDTO>> response =
+                controller.getUsers(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -96,7 +100,8 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminUserSummaryDTO>> response = controller.getUsers(auth("clerk_user"));
+        ResponseEntity<List<AdminUserSummaryDTO>> response =
+                controller.getUsers(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(adminService, never()).getUserSummaries();
@@ -262,7 +267,8 @@ class AdminControllerTest {
         updated.setId(5L);
         when(adminService.updateUser(5L, updateData)).thenReturn(updated);
 
-        ResponseEntity<String> response = controller.updateUser(5L, updateData, auth("clerk_admin"));
+        ResponseEntity<String> response =
+                controller.updateUser(5L, updateData, auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("User with ID 5 updated successfully", response.getBody());
@@ -432,14 +438,10 @@ class AdminControllerTest {
                 .thenReturn(
                         List.of(
                                 new AdminEventResponseDTO(
-                                        10L,
-                                        "Event A",
-                                        "Desc",
-                                        LocalDateTime.now(),
-                                        1L,
-                                        "Org A")));
+                                        10L, "Event A", "Desc", LocalDateTime.now(), 1L, "Org A")));
 
-        ResponseEntity<List<AdminEventResponseDTO>> response = controller.getEvents(auth("clerk_admin"));
+        ResponseEntity<List<AdminEventResponseDTO>> response =
+                controller.getEvents(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -454,7 +456,8 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminEventResponseDTO>> response = controller.getEvents(auth("clerk_user"));
+        ResponseEntity<List<AdminEventResponseDTO>> response =
+                controller.getEvents(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(adminService, never()).getEvents();

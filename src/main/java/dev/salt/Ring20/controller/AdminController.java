@@ -2,19 +2,19 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
-import dev.salt.Ring20.dto.AdminUserCountDto;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
-import dev.salt.Ring20.dto.AdminRecentActivityDTO;
 import dev.salt.Ring20.dto.AdminEventRequestDTO;
 import dev.salt.Ring20.dto.AdminEventResponseDTO;
 import dev.salt.Ring20.dto.AdminOrganisationRequestDTO;
 import dev.salt.Ring20.dto.AdminOrganisationResponseDTO;
+import dev.salt.Ring20.dto.AdminRecentActivityDTO;
+import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
 import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
+import dev.salt.Ring20.dto.AdminUserCountDto;
 import dev.salt.Ring20.dto.AdminUserSummaryDTO;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
 import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
-import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
 import java.util.List;
@@ -141,7 +141,8 @@ public class AdminController {
     }
 
     @GetMapping("/workouts/usage")
-    public ResponseEntity<List<AdminWorkoutUsageDTO>> getWorkoutUsage(Authentication authentication) {
+    public ResponseEntity<List<AdminWorkoutUsageDTO>> getWorkoutUsage(
+            Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
@@ -251,8 +252,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(
-            @PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {

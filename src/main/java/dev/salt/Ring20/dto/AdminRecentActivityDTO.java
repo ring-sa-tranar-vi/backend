@@ -11,4 +11,3 @@ public record AdminRecentActivityDTO(
         String status,
         Integer durationSeconds,
         LocalDateTime completedAt) {}
-

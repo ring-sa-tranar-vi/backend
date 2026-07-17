@@ -7,4 +7,3 @@ public record AdminTrainerOverviewDTO(
         long assignedUserCount,
         long workoutCount,
         long enabledWorkoutCount) {}
-

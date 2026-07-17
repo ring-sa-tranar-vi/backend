@@ -71,8 +71,7 @@ public class AdminService {
             lastCompletedAtByUserId.merge(
                     activityLog.getUserId(),
                     activityLog.getCompletedAt(),
-                    (current, candidate) ->
-                            candidate.isAfter(current) ? candidate : current);
+                    (current, candidate) -> candidate.isAfter(current) ? candidate : current);
         }
 
         return users.stream()
@@ -157,7 +156,9 @@ public class AdminService {
                                 new AdminWorkoutUsageDTO(
                                         workout.getId(),
                                         workout.getName(),
-                                        workout.getTrainer() == null ? null : workout.getTrainer().getName(),
+                                        workout.getTrainer() == null
+                                                ? null
+                                                : workout.getTrainer().getName(),
                                         startedCountByWorkoutId.getOrDefault(workout.getId(), 0L),
                                         completedCountByWorkoutId.getOrDefault(workout.getId(), 0L),
                                         lastCompletedAtByWorkoutId.get(workout.getId())))
@@ -194,9 +195,11 @@ public class AdminService {
                                         trainer.getId(),
                                         trainer.getName(),
                                         trainer.getLanguage(),
-                                        assignedUserCountByTrainerId.getOrDefault(trainer.getId(), 0L),
+                                        assignedUserCountByTrainerId.getOrDefault(
+                                                trainer.getId(), 0L),
                                         workoutCountByTrainerId.getOrDefault(trainer.getId(), 0L),
-                                        enabledWorkoutCountByTrainerId.getOrDefault(trainer.getId(), 0L)))
+                                        enabledWorkoutCountByTrainerId.getOrDefault(
+                                                trainer.getId(), 0L)))
                 .toList();
     }
 
@@ -240,7 +243,10 @@ public class AdminService {
     public List<AdminOrganisationResponseDTO> getOrganisations() {
         return organisationRepository.findAll().stream()
                 .sorted(Comparator.comparing(Organisation::getId))
-                .map(org -> new AdminOrganisationResponseDTO(org.getId(), org.getName(), org.getDescription()))
+                .map(
+                        org ->
+                                new AdminOrganisationResponseDTO(
+                                        org.getId(), org.getName(), org.getDescription()))
                 .toList();
     }
 
@@ -261,7 +267,8 @@ public class AdminService {
         organisation.setDescription(description);
 
         Organisation saved = organisationRepository.save(organisation);
-        return new AdminOrganisationResponseDTO(saved.getId(), saved.getName(), saved.getDescription());
+        return new AdminOrganisationResponseDTO(
+                saved.getId(), saved.getName(), saved.getDescription());
     }
 
     public void deleteOrganisation(Long id) {
@@ -277,7 +284,9 @@ public class AdminService {
 
     public List<AdminEventResponseDTO> getEvents() {
         return eventRepository.findAll().stream()
-                .sorted(Comparator.comparing(Event::getTime, Comparator.nullsLast(Comparator.naturalOrder())))
+                .sorted(
+                        Comparator.comparing(
+                                Event::getTime, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(this::toAdminEventResponse)
                 .toList();
     }
@@ -298,7 +307,10 @@ public class AdminService {
         Organisation organisation =
                 organisationRepository
                         .findById(request.organisationId())
-                        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Organisation not found"));
+                        .orElseThrow(
+                                () ->
+                                        new ResponseStatusException(
+                                                NOT_FOUND, "Organisation not found"));
 
         Event event = new Event();
         event.setName(name);
@@ -361,7 +373,8 @@ public class AdminService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(BAD_REQUEST, "description exceeds max length " + maxLength);
+            throw new ResponseStatusException(
+                    BAD_REQUEST, "description exceeds max length " + maxLength);
         }
 
         return normalized;

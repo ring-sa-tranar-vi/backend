@@ -9,4 +9,3 @@ public record AdminEventResponseDTO(
         LocalDateTime time,
         Long organisationId,
         String organisationName) {}
-

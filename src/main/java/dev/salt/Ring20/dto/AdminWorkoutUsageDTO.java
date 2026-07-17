@@ -9,4 +9,3 @@ public record AdminWorkoutUsageDTO(
         long startedCount,
         long completedCount,
         LocalDateTime lastCompletedAt) {}
-
