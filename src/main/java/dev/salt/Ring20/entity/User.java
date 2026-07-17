@@ -1,10 +1,8 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Data;
 
 @Data
@@ -27,16 +25,14 @@ public class User {
 
     private String role;
     private Long trainerId;
-    @ManyToMany
-    private List<Organisation> followedOrganisations = new ArrayList<>();
-    @ManyToMany
-    private List<Event> attendingEvents = new ArrayList<>();
+    @ManyToMany private List<Organisation> followedOrganisations = new ArrayList<>();
+    @ManyToMany private List<Event> attendingEvents = new ArrayList<>();
     private String city;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CallbackPreference> callbackPreferences = new ArrayList<>();
 
-    public User() {
-    }
+    public User() {}
 
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;
