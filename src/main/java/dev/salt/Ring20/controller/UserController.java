@@ -2,25 +2,21 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.UserCreateRequestDto;
-import dev.salt.Ring20.dto.UserRequestDto;
-import dev.salt.Ring20.dto.UserResponseDto;
+import dev.salt.Ring20.dto.*;
+import dev.salt.Ring20.entity.Event;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.EventService;
+import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
@@ -32,10 +28,18 @@ public class UserController {
 
     private final UserService userService;
     private final ActivityLogService activityLogService;
+    private final OrganisationService organisationService;
+    private final EventService eventService;
 
-    public UserController(UserService userService, ActivityLogService activityLogService) {
+    public UserController(
+            UserService userService,
+            ActivityLogService activityLogService,
+            OrganisationService organisationService,
+            EventService eventService) {
         this.userService = userService;
         this.activityLogService = activityLogService;
+        this.organisationService = organisationService;
+        this.eventService = eventService;
     }
 
     private Jwt getJwtOrThrow(Authentication authentication) {
@@ -174,6 +178,67 @@ public class UserController {
         return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
     }
 
+    @GetMapping("/me/followedOrg")
+    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
+            Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(
+                userService.getUserOrgsById(currentUser.getId()).stream()
+                        .map(this::toOrgResponseDto)
+                        .toList());
+    }
+
+    @GetMapping("/me/attendingEvent")
+    public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(
+            Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(
+                userService.getUserEventsById(currentUser.getId()).stream()
+                        .map(this::toEventResponseDto)
+                        .toList());
+    }
+
+    @PostMapping("/me/followedOrg/{orgId}")
+    public ResponseEntity<UserResponseDto> followedOrg(
+            Authentication authentication, @PathVariable Long orgId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.addFollowOrganization(
+                        currentUser.getId(), organisationService.getOrganisationById(orgId));
+        return ResponseEntity.status(201).body(toResponse(updated));
+    }
+
+    @PostMapping("/me/attendingEvent/{eventId}")
+    public ResponseEntity<UserResponseDto> attendEvent(
+            Authentication authentication, @PathVariable Long eventId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
+        return ResponseEntity.status(201).body(toResponse(updated));
+    }
+
+    @DeleteMapping("/me/followedOrg/{orgId}")
+    public ResponseEntity<UserResponseDto> removeFollowedOrg(
+            Authentication authentication, @PathVariable Long orgId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.removeFollowOrganization(
+                        currentUser.getId(), organisationService.getOrganisationById(orgId));
+        return ResponseEntity.ok(toResponse(updated));
+    }
+
+    @DeleteMapping("/me/attendingEvent/{eventId}")
+    public ResponseEntity<UserResponseDto> removeAttendEvent(
+            Authentication authentication, @PathVariable Long eventId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.removeAttendEvent(
+                        currentUser.getId(), eventService.getEventById(eventId));
+        return ResponseEntity.ok(toResponse(updated));
+    }
+
     @GetMapping("/by-clerk/{clerkId}")
     public ResponseEntity<UserResponseDto> getUserByClerkId(
             @PathVariable String clerkId, Authentication authentication) {
@@ -192,5 +257,28 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(toResponse(user));
+    }
+
+    private EventResponseDto toEventResponseDto(Event event) {
+        Long organisationId =
+                event.getOrganisation() == null ? null : event.getOrganisation().getId();
+        return new EventResponseDto(
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getTime(),
+                organisationId);
+    }
+
+    private OrganisationResponseDto toOrgResponseDto(Organisation organisation) {
+        List<EventResponseDto> events =
+                organisation.getEvents() == null
+                        ? List.of()
+                        : organisation.getEvents().stream().map(this::toEventResponseDto).toList();
+        return new OrganisationResponseDto(
+                organisation.getId(),
+                organisation.getName(),
+                organisation.getDescription(),
+                events);
     }
 }
