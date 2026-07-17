@@ -1,6 +1,6 @@
 package dev.salt.Ring20.entity;
 
-public enum DayType {
+public enum DayOfWeekType {
     MONDAY,
     TUESDAY,
     WEDNESDAY,

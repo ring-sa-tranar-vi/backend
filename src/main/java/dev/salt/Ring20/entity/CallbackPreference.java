@@ -1,0 +1,30 @@
+package dev.salt.Ring20.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+public class CallbackPreference {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private DayOfWeekType day;
+
+    private LocalTime time;
+
+    @Enumerated(EnumType.STRING)
+    private RepeatType repeat;
+
+    private LocalDate validUntil;
+}
