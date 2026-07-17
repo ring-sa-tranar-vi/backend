@@ -1,5 +1,5 @@
 package dev.salt.Ring20.entity;
 
-public enum EvenType {
+public enum EventType {
     IN_PERSON, ONLINE
 }

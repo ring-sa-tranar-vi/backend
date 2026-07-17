@@ -1,11 +1,14 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.Event;
+import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.EventRepository;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,8 +21,8 @@ public class EventService {
     }
 
     public Event createEvent(
-            String name, String description, LocalDateTime time, Organisation organisation) {
-        return repo.save(new Event(name, description, time, organisation));
+            String name, String description, LocalDateTime time, Organisation organisation, String city, String venue, EventType eventType) {
+        return repo.save(new Event(name, description, time, organisation, city, venue, eventType));
     }
 
     public List<Event> getAllEvents() {
@@ -39,12 +42,15 @@ public class EventService {
             String name,
             String description,
             LocalDateTime time,
-            Organisation organisation) {
+            Organisation organisation, String city, String venue, EventType eventType) {
         Event event = repo.findById(id).orElseThrow();
         event.setName(name);
         event.setDescription(description);
         event.setTime(time);
         event.setOrganisation(organisation);
+        event.setCity(city);
+        event.setVenue(venue);
+        event.setEventType(eventType);
         return repo.save(event);
     }
 

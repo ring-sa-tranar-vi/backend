@@ -4,8 +4,10 @@ import dev.salt.Ring20.dto.EventRequestDto;
 import dev.salt.Ring20.dto.EventResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
+
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,7 +29,11 @@ public class EventController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation());
+                        request.organisation(),
+                        request.city(),
+                        request.venue(),
+                        request.eventType());
+
         EventResponseDto response = toResponse(event);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -43,7 +49,10 @@ public class EventController {
                 event.getName(),
                 event.getDescription(),
                 event.getTime(),
-                event.getOrganisation().getId());
+                event.getOrganisation().getId(),
+                event.getCity(),
+                event.getVenue(),
+                event.getEventType());
     }
 
     @GetMapping
@@ -74,7 +83,10 @@ public class EventController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation());
+                        request.organisation(),
+                        request.city(),
+                        request.venue(),
+                        request.eventType());
         return ResponseEntity.ok(toResponse(updatedEvent));
     }
 

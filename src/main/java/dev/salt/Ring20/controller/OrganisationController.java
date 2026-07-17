@@ -9,8 +9,10 @@ import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -125,6 +127,9 @@ public class OrganisationController {
                 event.getName(),
                 event.getDescription(),
                 event.getTime(),
-                organisationId);
+                organisationId,
+                event.getCity(),
+                event.getVenue(),
+                event.getEventType());
     }
 }
