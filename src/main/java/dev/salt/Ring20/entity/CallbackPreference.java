@@ -27,4 +27,8 @@ public class CallbackPreference {
     private RepeatType repeat;
 
     private LocalDate validUntil;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }
