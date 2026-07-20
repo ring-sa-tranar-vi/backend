@@ -17,11 +17,14 @@ public class CallbackPreference {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "callback_day")
     private DayOfWeekType day;
 
+    @Column(name = "callback_time")
     private LocalTime time;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "repeat_type")
     private RepeatType repeat;
 
     @ManyToOne
