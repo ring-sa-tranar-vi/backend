@@ -6,7 +6,9 @@ import static org.mockito.Mockito.*;
 
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.UserRepository;
+
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,9 +22,11 @@ import org.springframework.web.server.ResponseStatusException;
 @DisplayName("UserService Tests")
 class UserServiceTest {
 
-    @Mock private UserRepository userRepository;
+    @Mock
+    private UserRepository userRepository;
 
-    @InjectMocks private UserService userService;
+    @InjectMocks
+    private UserService userService;
 
     private User user;
 
@@ -84,12 +88,13 @@ class UserServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         User updated =
-                userService.updateUserPreferencesByClerkId("clerk_1", "  Updated  ", 4, "new", 7L);
+                userService.updateUserPreferencesByClerkId("clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm");
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
         assertEquals("new", updated.getContext());
         assertEquals(7L, updated.getTrainerId());
+        assertEquals("Stockholm", updated.getCity());
     }
 
     @Test
@@ -99,7 +104,7 @@ class UserServiceTest {
                         ResponseStatusException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", null));
+                                        "clerk_1", "Name", 3, "context", null, "Stockholm"));
 
         assertEquals("Trainer is required", ex.getReason());
     }
