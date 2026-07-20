@@ -13,10 +13,8 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,17 +29,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @DisplayName("AdminController Tests")
 class AdminControllerTest {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private FeedbackService feedbackService;
+    @Mock private FeedbackService feedbackService;
 
-    @Mock
-    private ActivityLogService activityLogService;
+    @Mock private ActivityLogService activityLogService;
 
-    @Mock
-    private AdminService adminService;
+    @Mock private AdminService adminService;
 
     @Test
     @DisplayName("getUserCount returns count DTO for admin")
