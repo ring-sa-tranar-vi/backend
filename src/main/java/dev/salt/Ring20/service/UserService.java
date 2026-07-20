@@ -3,9 +3,7 @@ package dev.salt.Ring20.service;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
-import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -144,6 +142,34 @@ public class UserService {
         int attendeesCount = event.getUsersAttending() - 1;
         return userRepository.save(user);
     }
+
+    public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
+        User user = getUserById(userId);
+
+        Optional<CallbackPreference> existing = user.getCallbackPreferences()
+                .stream()
+                .filter(c -> c.getDay() == callback.getDay())
+                .findFirst();
+
+        if (existing.isPresent()) {
+            existing.get().setTime(callback.getTime());
+            existing.get().setRepeat(callback.getRepeat());
+        } else {
+            callback.setUser(user);
+            user.getCallbackPreferences().add(callback);
+        }
+
+        return userRepository.save(user);
+    }
+    public User removeCallbackPreference(Long userId, DayOfWeekType day) {
+        User user = getUserById(userId);
+
+        user.getCallbackPreferences()
+                .removeIf(c -> c.getDay() == day);
+
+        return userRepository.save(user);
+    }
+
 
     public long getUserCount() {
         return userRepository.count();

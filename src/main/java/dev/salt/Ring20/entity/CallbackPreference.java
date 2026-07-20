@@ -24,8 +24,6 @@ public class CallbackPreference {
     @Enumerated(EnumType.STRING)
     private RepeatType repeat;
 
-    private LocalDate validUntil;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
