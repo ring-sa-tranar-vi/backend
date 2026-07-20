@@ -11,9 +11,7 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
-
 import java.util.Optional;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,17 +26,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @DisplayName("UserController Tests")
 class UserControllerTest {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private ActivityLogService activityLogService;
+    @Mock private ActivityLogService activityLogService;
 
-    @Mock
-    private OrganisationService organisationService;
+    @Mock private OrganisationService organisationService;
 
-    @Mock
-    private EventService eventService;
+    @Mock private EventService eventService;
 
     @Test
     void createUserReturnsResponseBody() {
@@ -64,13 +58,15 @@ class UserControllerTest {
                         userService, activityLogService, organisationService, eventService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
-        when(userService.updateUserPreferencesByClerkId("clerk_1", "Jane", 3, "context", 4L, "Stockholm"))
+        when(userService.updateUserPreferencesByClerkId(
+                        "clerk_1", "Jane", 3, "context", 4L, "Stockholm"))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
         ResponseEntity<?> response =
                 controller.updateCurrentUserProfile(
-                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm"), auth("clerk_1", "Jane"));
+                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm"),
+                        auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -86,7 +82,9 @@ class UserControllerTest {
 
         ResponseEntity<?> response =
                 controller.updateUserPreferences(
-                        9L, new UserRequestDto("Other", 2, "x", 1L, "Stockholm"), auth("clerk_1", "Jane"));
+                        9L,
+                        new UserRequestDto("Other", 2, "x", 1L, "Stockholm"),
+                        auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
