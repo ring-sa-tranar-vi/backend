@@ -9,8 +9,10 @@ import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +37,7 @@ public class OrganisationController {
             @Valid @RequestBody OrganisationRequestDto request) {
         Organisation newOrg =
                 service.createOrganisation(
-                        request.name(), request.description(), toEvents(request.events()));
+                        request.name(), request.description(), toEvents(request.events()), request.orgCity());
         OrganisationResponseDto response = toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -79,7 +81,7 @@ public class OrganisationController {
         validatePositiveId(id);
         Organisation updatedOrg =
                 service.updateOrganisationById(
-                        id, request.name(), request.description(), toEvents(request.events()));
+                        id, request.name(), request.description(), toEvents(request.events()), request.orgCity());
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
@@ -114,7 +116,8 @@ public class OrganisationController {
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
-                events);
+                events,
+                organisation.getOrgCity());
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
