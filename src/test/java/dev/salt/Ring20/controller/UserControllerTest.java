@@ -58,13 +58,15 @@ class UserControllerTest {
                         userService, activityLogService, organisationService, eventService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
-        when(userService.updateUserPreferencesByClerkId("clerk_1", "Jane", 3, "context", 4L))
+        when(userService.updateUserPreferencesByClerkId(
+                        "clerk_1", "Jane", 3, "context", 4L, "Stockholm"))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
         ResponseEntity<?> response =
                 controller.updateCurrentUserProfile(
-                        new UserRequestDto("Jane", 3, "context", 4L), auth("clerk_1", "Jane"));
+                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm"),
+                        auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -80,7 +82,9 @@ class UserControllerTest {
 
         ResponseEntity<?> response =
                 controller.updateUserPreferences(
-                        9L, new UserRequestDto("Other", 2, "x", 1L), auth("clerk_1", "Jane"));
+                        9L,
+                        new UserRequestDto("Other", 2, "x", 1L, "Stockholm"),
+                        auth("clerk_1", "Jane"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }

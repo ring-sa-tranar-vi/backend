@@ -35,7 +35,10 @@ public class OrganisationController {
             @Valid @RequestBody OrganisationRequestDto request) {
         Organisation newOrg =
                 service.createOrganisation(
-                        request.name(), request.description(), toEvents(request.events()));
+                        request.name(),
+                        request.description(),
+                        toEvents(request.events()),
+                        request.orgCity());
         OrganisationResponseDto response = toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -79,7 +82,11 @@ public class OrganisationController {
         validatePositiveId(id);
         Organisation updatedOrg =
                 service.updateOrganisationById(
-                        id, request.name(), request.description(), toEvents(request.events()));
+                        id,
+                        request.name(),
+                        request.description(),
+                        toEvents(request.events()),
+                        request.orgCity());
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
@@ -114,7 +121,8 @@ public class OrganisationController {
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
-                events);
+                events,
+                organisation.getOrgCity());
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
@@ -125,6 +133,9 @@ public class OrganisationController {
                 event.getName(),
                 event.getDescription(),
                 event.getTime(),
-                organisationId);
+                organisationId,
+                event.getCity(),
+                event.getVenue(),
+                event.getEventType());
     }
 }

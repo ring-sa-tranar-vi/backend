@@ -6,4 +6,5 @@ public record UserResponseDto(
         int intensityLevel,
         String context,
         boolean isAdmin,
-        Long trainerId) {}
+        Long trainerId,
+        String city) {}

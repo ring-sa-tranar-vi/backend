@@ -5,4 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 public record OrganisationRequestDto(
-        @NotBlank String name, String description, List<@Valid EventRequestDto> events) {}
+        @NotBlank String name,
+        String description,
+        List<@Valid EventRequestDto> events,
+        @NotBlank String orgCity) {}

@@ -27,10 +27,14 @@ public class User {
     @Column(unique = true)
     private String clerkId;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
-
+    private String role;
     private Long trainerId;
+    @ManyToMany private List<Organisation> followedOrganisations = new ArrayList<>();
+    @ManyToMany private List<Event> attendingEvents = new ArrayList<>();
+    private String city;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CallbackPreference> callbackPreferences = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "user_organisations")
@@ -45,7 +49,7 @@ public class User {
         this.intensityLevel = intensityLevel;
         this.context = context;
         this.clerkId = clerkId;
-        this.role = UserRole.USER;
+        this.role = "USER";
         this.trainerId = DEFAULT_TRAINER_ID;
     }
 }

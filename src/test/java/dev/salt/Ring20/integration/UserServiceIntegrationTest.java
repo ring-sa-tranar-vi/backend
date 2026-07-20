@@ -34,11 +34,12 @@ class UserServiceIntegrationTest {
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_int_2", "Updated", 5, "context", 7L);
+                        "clerk_int_2", "Updated", 5, "context", 7L, "Stockholm");
 
         assertEquals("Updated", updated.getName());
         assertEquals(5, updated.getIntensityLevel());
         assertEquals(7L, updated.getTrainerId());
+        assertEquals("Stockholm", updated.getCity());
         assertEquals(
                 "Updated", userRepository.findByClerkId("clerk_int_2").orElseThrow().getName());
     }

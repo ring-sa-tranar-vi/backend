@@ -3,9 +3,7 @@ package dev.salt.Ring20.controller;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import dev.salt.Ring20.dto.*;
-import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
-import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
@@ -95,7 +93,8 @@ public class UserController {
                 user.getIntensityLevel(),
                 user.getContext(),
                 userService.isAdmin(clerkId),
-                user.getTrainerId());
+                user.getTrainerId(),
+                user.getCity());
     }
 
     private UserResponseDto toResponse(User user) {
@@ -105,7 +104,8 @@ public class UserController {
                 user.getIntensityLevel(),
                 user.getContext(),
                 "ADMIN".equals(user.getRole()),
-                user.getTrainerId());
+                user.getTrainerId(),
+                user.getCity());
     }
 
     @PostMapping
@@ -143,7 +143,8 @@ public class UserController {
                         userRequest.name(),
                         userRequest.intensityLevel(),
                         userRequest.context(),
-                        userRequest.trainerId());
+                        userRequest.trainerId(),
+                        userRequest.city());
 
         return ResponseEntity.ok(toResponse(updated, clerkId));
     }
@@ -166,7 +167,8 @@ public class UserController {
                         userRequest.name(),
                         userRequest.intensityLevel(),
                         userRequest.context(),
-                        userRequest.trainerId());
+                        userRequest.trainerId(),
+                        userRequest.city());
 
         return ResponseEntity.ok(toResponse(updated, clerkId));
     }
@@ -253,6 +255,21 @@ public class UserController {
         return ResponseEntity.ok(activityLogService.getUserProgress(userId));
     }
 
+    @GetMapping("/{userId}/callback-preferance")
+    public List<CallbackPreference> getAll(@PathVariable Long userId) {
+        return userService.getUserById(userId).getCallbackPreferences();
+    }
+
+    @PostMapping("/{userId}/callback-preferance")
+    public User addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
+        return userService.addOrUpdateCallbackPreference(userId, callback);
+    }
+
+    @DeleteMapping("/{userId}/callback-preferance/{day}")
+    public User remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
+        return userService.removeCallbackPreference(userId, day);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
@@ -267,7 +284,10 @@ public class UserController {
                 event.getName(),
                 event.getDescription(),
                 event.getTime(),
-                organisationId);
+                organisationId,
+                event.getCity(),
+                event.getVenue(),
+                event.getEventType());
     }
 
     private OrganisationResponseDto toOrgResponseDto(Organisation organisation) {
@@ -279,6 +299,7 @@ public class UserController {
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
-                events);
+                events,
+                organisation.getOrgCity());
     }
 }
