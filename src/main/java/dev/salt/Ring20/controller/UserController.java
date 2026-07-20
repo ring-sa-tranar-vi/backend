@@ -3,9 +3,7 @@ package dev.salt.Ring20.controller;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import dev.salt.Ring20.dto.*;
-import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
-import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
@@ -255,6 +253,26 @@ public class UserController {
     @GetMapping("/{userId}/progress")
     public ResponseEntity<Map<String, Object>> getUserProgress(@PathVariable Long userId) {
         return ResponseEntity.ok(activityLogService.getUserProgress(userId));
+    }
+
+    @GetMapping("/{userId}/callback-preferance")
+    public List<CallbackPreference> getAll(@PathVariable Long userId) {
+        return userService.getUserById(userId).getCallbackPreferences();
+    }
+    @PostMapping("/{userId}/callback-preferance")
+    public User addOrUpdate(
+            @PathVariable Long userId,
+            @RequestBody CallbackPreference callback
+    ) {
+        return userService.addOrUpdateCallbackPreference(userId, callback);
+    }
+
+    @DeleteMapping("/{userId}/callback-preferance/{day}")
+    public User remove(
+            @PathVariable Long userId,
+            @PathVariable DayOfWeekType day
+    ) {
+        return userService.removeCallbackPreference(userId, day);
     }
 
     @GetMapping("/{id}")
