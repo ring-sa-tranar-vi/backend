@@ -10,7 +10,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Organisation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

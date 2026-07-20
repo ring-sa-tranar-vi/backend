@@ -1,8 +1,10 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,8 +31,6 @@ public class User {
 
     private String role;
     private Long trainerId;
-    @ManyToMany private List<Organisation> followedOrganisations = new ArrayList<>();
-    @ManyToMany private List<Event> attendingEvents = new ArrayList<>();
     private String city;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
