@@ -27,6 +27,10 @@ public class User {
     private Long trainerId;
     @ManyToMany private List<Organisation> followedOrganisations = new ArrayList<>();
     @ManyToMany private List<Event> attendingEvents = new ArrayList<>();
+    private String city;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CallbackPreference> callbackPreferences = new ArrayList<>();
 
     public User() {}
 

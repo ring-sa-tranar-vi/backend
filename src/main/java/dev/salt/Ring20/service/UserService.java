@@ -3,9 +3,7 @@ package dev.salt.Ring20.service;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
-import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -81,7 +79,12 @@ public class UserService {
     }
 
     public User updateUserPreferencesByClerkId(
-            String clerkId, String name, int intensityLevel, String context, Long trainerId) {
+            String clerkId,
+            String name,
+            int intensityLevel,
+            String context,
+            Long trainerId,
+            String city) {
         if (trainerId == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Trainer is required");
         }
@@ -92,6 +95,7 @@ public class UserService {
         user.setIntensityLevel(intensityLevel);
         user.setContext(context);
         user.setTrainerId(trainerId);
+        user.setCity(city);
         return userRepository.save(user);
     }
 
@@ -114,24 +118,55 @@ public class UserService {
     public User addFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         user.getFollowedOrganisations().add(org);
+        int followCount = org.getUsersFollowing() + 1;
         return userRepository.save(user);
     }
 
     public User addAttendEvent(Long id, Event event) {
         User user = getUserById(id);
         user.getAttendingEvents().add(event);
+        int attendeesCount = event.getUsersAttending() + 1;
         return userRepository.save(user);
     }
 
     public User removeFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         user.getFollowedOrganisations().remove(org);
+        int followCount = org.getUsersFollowing() + 1;
         return userRepository.save(user);
     }
 
     public User removeAttendEvent(Long id, Event event) {
         User user = getUserById(id);
         user.getAttendingEvents().remove(event);
+        int attendeesCount = event.getUsersAttending() - 1;
+        return userRepository.save(user);
+    }
+
+    public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
+        User user = getUserById(userId);
+
+        Optional<CallbackPreference> existing =
+                user.getCallbackPreferences().stream()
+                        .filter(c -> c.getDay() == callback.getDay())
+                        .findFirst();
+
+        if (existing.isPresent()) {
+            existing.get().setTime(callback.getTime());
+            existing.get().setRepeat(callback.getRepeat());
+        } else {
+            callback.setUser(user);
+            user.getCallbackPreferences().add(callback);
+        }
+
+        return userRepository.save(user);
+    }
+
+    public User removeCallbackPreference(Long userId, DayOfWeekType day) {
+        User user = getUserById(userId);
+
+        user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
+
         return userRepository.save(user);
     }
 

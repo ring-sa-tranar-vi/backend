@@ -27,7 +27,11 @@ public class EventController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation());
+                        request.organisation(),
+                        request.city(),
+                        request.venue(),
+                        request.eventType());
+
         EventResponseDto response = toResponse(event);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -43,7 +47,10 @@ public class EventController {
                 event.getName(),
                 event.getDescription(),
                 event.getTime(),
-                event.getOrganisation().getId());
+                event.getOrganisation().getId(),
+                event.getCity(),
+                event.getVenue(),
+                event.getEventType());
     }
 
     @GetMapping
@@ -74,7 +81,10 @@ public class EventController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation());
+                        request.organisation(),
+                        request.city(),
+                        request.venue(),
+                        request.eventType());
         return ResponseEntity.ok(toResponse(updatedEvent));
     }
 

@@ -84,12 +84,14 @@ class UserServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         User updated =
-                userService.updateUserPreferencesByClerkId("clerk_1", "  Updated  ", 4, "new", 7L);
+                userService.updateUserPreferencesByClerkId(
+                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm");
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
         assertEquals("new", updated.getContext());
         assertEquals(7L, updated.getTrainerId());
+        assertEquals("Stockholm", updated.getCity());
     }
 
     @Test
@@ -99,7 +101,7 @@ class UserServiceTest {
                         ResponseStatusException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", null));
+                                        "clerk_1", "Name", 3, "context", null, "Stockholm"));
 
         assertEquals("Trainer is required", ex.getReason());
     }

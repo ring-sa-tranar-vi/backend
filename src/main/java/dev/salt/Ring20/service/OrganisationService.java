@@ -16,8 +16,9 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation createOrganisation(String name, String description, List<Event> events) {
-        Organisation organisation = new Organisation(name, description, events);
+    public Organisation createOrganisation(
+            String name, String description, List<Event> events, String orgCity) {
+        Organisation organisation = new Organisation(name, description, events, orgCity);
         attachOrganisationToEvents(organisation, events);
         return repo.save(organisation);
     }
@@ -39,7 +40,7 @@ public class OrganisationService {
 
     @Transactional
     public Organisation updateOrganisationById(
-            Long id, String name, String description, List<Event> events) {
+            Long id, String name, String description, List<Event> events, String orgCity) {
         Organisation foundOrg =
                 repo.findById(id)
                         .orElseThrow(
@@ -49,6 +50,7 @@ public class OrganisationService {
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setEvents(events);
+        foundOrg.setOrgCity(orgCity);
         attachOrganisationToEvents(foundOrg, events);
         return repo.save(foundOrg);
     }
