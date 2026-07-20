@@ -8,11 +8,9 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -56,7 +54,7 @@ public class UserController {
 
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {
@@ -263,18 +261,12 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/callback-preferance")
-    public User addOrUpdate(
-            @PathVariable Long userId,
-            @RequestBody CallbackPreference callback
-    ) {
+    public User addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
         return userService.addOrUpdateCallbackPreference(userId, callback);
     }
 
     @DeleteMapping("/{userId}/callback-preferance/{day}")
-    public User remove(
-            @PathVariable Long userId,
-            @PathVariable DayOfWeekType day
-    ) {
+    public User remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
         return userService.removeCallbackPreference(userId, day);
     }
 

@@ -3,9 +3,7 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.OrganisationRepository;
-
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +16,8 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation createOrganisation(String name, String description, List<Event> events, String orgCity) {
+    public Organisation createOrganisation(
+            String name, String description, List<Event> events, String orgCity) {
         Organisation organisation = new Organisation(name, description, events, orgCity);
         attachOrganisationToEvents(organisation, events);
         return repo.save(organisation);

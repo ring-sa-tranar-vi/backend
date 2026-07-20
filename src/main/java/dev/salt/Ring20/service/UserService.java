@@ -146,10 +146,10 @@ public class UserService {
     public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
-        Optional<CallbackPreference> existing = user.getCallbackPreferences()
-                .stream()
-                .filter(c -> c.getDay() == callback.getDay())
-                .findFirst();
+        Optional<CallbackPreference> existing =
+                user.getCallbackPreferences().stream()
+                        .filter(c -> c.getDay() == callback.getDay())
+                        .findFirst();
 
         if (existing.isPresent()) {
             existing.get().setTime(callback.getTime());
@@ -161,15 +161,14 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
     public User removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        user.getCallbackPreferences()
-                .removeIf(c -> c.getDay() == day);
+        user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
 
         return userRepository.save(user);
     }
-
 
     public long getUserCount() {
         return userRepository.count();
