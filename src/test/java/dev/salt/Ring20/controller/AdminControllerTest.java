@@ -3,10 +3,6 @@ package dev.salt.Ring20.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminEventRequestDTO;
-import dev.salt.Ring20.dto.AdminEventResponseDTO;
-import dev.salt.Ring20.dto.AdminOrganisationRequestDTO;
-import dev.salt.Ring20.dto.AdminOrganisationResponseDTO;
 import dev.salt.Ring20.dto.AdminRecentActivityDTO;
 import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
 import dev.salt.Ring20.dto.AdminUserCountDto;
@@ -17,8 +13,10 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,13 +31,17 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @DisplayName("AdminController Tests")
 class AdminControllerTest {
 
-    @Mock private UserService userService;
+    @Mock
+    private UserService userService;
 
-    @Mock private FeedbackService feedbackService;
+    @Mock
+    private FeedbackService feedbackService;
 
-    @Mock private ActivityLogService activityLogService;
+    @Mock
+    private ActivityLogService activityLogService;
 
-    @Mock private AdminService adminService;
+    @Mock
+    private AdminService adminService;
 
     @Test
     @DisplayName("getUserCount returns count DTO for admin")
@@ -222,38 +224,6 @@ class AdminControllerTest {
     }
 
     @Test
-    @DisplayName("getOrganisations returns data for admin")
-    void getOrganisationsReturnsDataForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-        when(adminService.getOrganisations())
-                .thenReturn(List.of(new AdminOrganisationResponseDTO(1L, "Org A", "Desc")));
-
-        ResponseEntity<List<AdminOrganisationResponseDTO>> response =
-                controller.getOrganisations(auth("clerk_admin"));
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(adminService).getOrganisations();
-    }
-
-    @Test
-    @DisplayName("getOrganisations returns 403 for non-admin")
-    void getOrganisationsReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<List<AdminOrganisationResponseDTO>> response =
-                controller.getOrganisations(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).getOrganisations();
-    }
-
-    @Test
     @DisplayName("updateUser returns 200 and delegates to service for admin")
     void updateUserReturnsOkForAdmin() {
         AdminController controller =
@@ -300,167 +270,6 @@ class AdminControllerTest {
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(adminService).deleteUser(7L);
-    }
-
-    @Test
-    @DisplayName("createOrganisation returns 200 for admin")
-    void createOrganisationReturnsOkForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-
-        AdminOrganisationRequestDTO request = new AdminOrganisationRequestDTO("Org A", "Desc");
-        AdminOrganisationResponseDTO responseDto =
-                new AdminOrganisationResponseDTO(1L, "Org A", "Desc");
-        when(adminService.createOrganisation(request)).thenReturn(responseDto);
-
-        ResponseEntity<AdminOrganisationResponseDTO> response =
-                controller.createOrganisation(request, auth("clerk_admin"));
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1L, response.getBody().id());
-        verify(adminService).createOrganisation(request);
-    }
-
-    @Test
-    @DisplayName("createOrganisation returns 403 for non-admin")
-    void createOrganisationReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        AdminOrganisationRequestDTO request = new AdminOrganisationRequestDTO("Org A", "Desc");
-        ResponseEntity<AdminOrganisationResponseDTO> response =
-                controller.createOrganisation(request, auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).createOrganisation(any());
-    }
-
-    @Test
-    @DisplayName("createEvent returns 200 for admin")
-    void createEventReturnsOkForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-
-        AdminEventRequestDTO request =
-                new AdminEventRequestDTO("Event A", "Desc", LocalDateTime.now(), 1L);
-        AdminEventResponseDTO responseDto =
-                new AdminEventResponseDTO(10L, "Event A", "Desc", LocalDateTime.now(), 1L, "Org A");
-        when(adminService.createEvent(request)).thenReturn(responseDto);
-
-        ResponseEntity<AdminEventResponseDTO> response =
-                controller.createEvent(request, auth("clerk_admin"));
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(10L, response.getBody().id());
-        verify(adminService).createEvent(request);
-    }
-
-    @Test
-    @DisplayName("createEvent returns 403 for non-admin")
-    void createEventReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        AdminEventRequestDTO request =
-                new AdminEventRequestDTO("Event A", "Desc", LocalDateTime.now(), 1L);
-        ResponseEntity<AdminEventResponseDTO> response =
-                controller.createEvent(request, auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).createEvent(any());
-    }
-
-    @Test
-    @DisplayName("deleteEvent returns 204 for admin")
-    void deleteEventReturnsNoContentForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-
-        ResponseEntity<Void> response = controller.deleteEvent(3L, auth("clerk_admin"));
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(adminService).deleteEvent(3L);
-    }
-
-    @Test
-    @DisplayName("deleteEvent returns 403 for non-admin")
-    void deleteEventReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<Void> response = controller.deleteEvent(3L, auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).deleteEvent(anyLong());
-    }
-
-    @Test
-    @DisplayName("deleteOrganisation returns 204 for admin")
-    void deleteOrganisationReturnsNoContentForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-
-        ResponseEntity<Void> response = controller.deleteOrganisation(2L, auth("clerk_admin"));
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(adminService).deleteOrganisation(2L);
-    }
-
-    @Test
-    @DisplayName("deleteOrganisation returns 403 for non-admin")
-    void deleteOrganisationReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<Void> response = controller.deleteOrganisation(2L, auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).deleteOrganisation(anyLong());
-    }
-
-    @Test
-    @DisplayName("getEvents returns data for admin")
-    void getEventsReturnsDataForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-        when(adminService.getEvents())
-                .thenReturn(
-                        List.of(
-                                new AdminEventResponseDTO(
-                                        10L, "Event A", "Desc", LocalDateTime.now(), 1L, "Org A")));
-
-        ResponseEntity<List<AdminEventResponseDTO>> response =
-                controller.getEvents(auth("clerk_admin"));
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().size());
-        verify(adminService).getEvents();
-    }
-
-    @Test
-    @DisplayName("getEvents returns 403 for non-admin")
-    void getEventsReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<List<AdminEventResponseDTO>> response =
-                controller.getEvents(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).getEvents();
     }
 
     private Authentication auth(String subject) {

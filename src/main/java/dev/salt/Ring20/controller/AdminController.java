@@ -2,10 +2,6 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.AdminEventRequestDTO;
-import dev.salt.Ring20.dto.AdminEventResponseDTO;
-import dev.salt.Ring20.dto.AdminOrganisationRequestDTO;
-import dev.salt.Ring20.dto.AdminOrganisationResponseDTO;
 import dev.salt.Ring20.dto.AdminRecentActivityDTO;
 import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
 import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
@@ -162,78 +158,6 @@ public class AdminController {
         }
 
         return ResponseEntity.ok(adminService.getTrainerOverview());
-    }
-
-    @GetMapping("/organisations")
-    public ResponseEntity<List<AdminOrganisationResponseDTO>> getOrganisations(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getOrganisations());
-    }
-
-    @PostMapping("/organisations")
-    public ResponseEntity<AdminOrganisationResponseDTO> createOrganisation(
-            @RequestBody AdminOrganisationRequestDTO request, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.createOrganisation(request));
-    }
-
-    @DeleteMapping("/organisations/{id}")
-    public ResponseEntity<Void> deleteOrganisation(
-            @PathVariable Long id, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        adminService.deleteOrganisation(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/events")
-    public ResponseEntity<List<AdminEventResponseDTO>> getEvents(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getEvents());
-    }
-
-    @PostMapping("/events")
-    public ResponseEntity<AdminEventResponseDTO> createEvent(
-            @RequestBody AdminEventRequestDTO request, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.createEvent(request));
-    }
-
-    @DeleteMapping("/events/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        adminService.deleteEvent(id);
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/users/{id}")

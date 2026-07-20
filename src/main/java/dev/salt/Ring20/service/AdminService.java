@@ -1,20 +1,10 @@
 package dev.salt.Ring20.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
-import dev.salt.Ring20.dto.AdminEventRequestDTO;
-import dev.salt.Ring20.dto.AdminEventResponseDTO;
-import dev.salt.Ring20.dto.AdminOrganisationRequestDTO;
-import dev.salt.Ring20.dto.AdminOrganisationResponseDTO;
 import dev.salt.Ring20.dto.AdminRecentActivityDTO;
 import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
 import dev.salt.Ring20.dto.AdminUserSummaryDTO;
 import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
 import dev.salt.Ring20.entity.ActivityLog;
-import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.Workout;
@@ -30,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AdminService {
@@ -238,145 +227,5 @@ public class AdminService {
                     org.springframework.http.HttpStatus.NOT_FOUND, "User not found");
         }
         userRepository.deleteById(id);
-    }
-
-    public List<AdminOrganisationResponseDTO> getOrganisations() {
-        return organisationRepository.findAll().stream()
-                .sorted(Comparator.comparing(Organisation::getId))
-                .map(
-                        org ->
-                                new AdminOrganisationResponseDTO(
-                                        org.getId(), org.getName(), org.getDescription()))
-                .toList();
-    }
-
-    public AdminOrganisationResponseDTO createOrganisation(AdminOrganisationRequestDTO request) {
-        if (request == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
-        }
-
-        String name = normalizeRequired(request.name(), 150);
-        String description = normalizeOptional(request.description(), 2048);
-
-        if (organisationRepository.existsByNameIgnoreCase(name)) {
-            throw new ResponseStatusException(CONFLICT, "Organisation already exists");
-        }
-
-        Organisation organisation = new Organisation();
-        organisation.setName(name);
-        organisation.setDescription(description);
-
-        Organisation saved = organisationRepository.save(organisation);
-        return new AdminOrganisationResponseDTO(
-                saved.getId(), saved.getName(), saved.getDescription());
-    }
-
-    public void deleteOrganisation(Long id) {
-        validateId(id);
-
-        if (!organisationRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND, "Organisation not found");
-        }
-
-        eventRepository.deleteByOrganisationId(id);
-        organisationRepository.deleteById(id);
-    }
-
-    public List<AdminEventResponseDTO> getEvents() {
-        return eventRepository.findAll().stream()
-                .sorted(
-                        Comparator.comparing(
-                                Event::getTime, Comparator.nullsLast(Comparator.naturalOrder())))
-                .map(this::toAdminEventResponse)
-                .toList();
-    }
-
-    public AdminEventResponseDTO createEvent(AdminEventRequestDTO request) {
-        if (request == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
-        }
-
-        String name = normalizeRequired(request.name(), 180);
-        String description = normalizeOptional(request.description(), 4096);
-        validateId(request.organisationId());
-
-        if (request.time() == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "time is required");
-        }
-
-        Organisation organisation =
-                organisationRepository
-                        .findById(request.organisationId())
-                        .orElseThrow(
-                                () ->
-                                        new ResponseStatusException(
-                                                NOT_FOUND, "Organisation not found"));
-
-        Event event = new Event();
-        event.setName(name);
-        event.setDescription(description);
-        event.setTime(request.time());
-        event.setOrganisation(organisation);
-
-        Event saved = eventRepository.save(event);
-        return toAdminEventResponse(saved);
-    }
-
-    public void deleteEvent(Long id) {
-        validateId(id);
-
-        if (!eventRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND, "Event not found");
-        }
-
-        eventRepository.deleteById(id);
-    }
-
-    private AdminEventResponseDTO toAdminEventResponse(Event event) {
-        Organisation organisation = event.getOrganisation();
-        return new AdminEventResponseDTO(
-                event.getId(),
-                event.getName(),
-                event.getDescription(),
-                event.getTime(),
-                organisation == null ? null : organisation.getId(),
-                organisation == null ? null : organisation.getName());
-    }
-
-    private void validateId(Long id) {
-        if (id == null || id <= 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "id must be a positive number");
-        }
-    }
-
-    private String normalizeRequired(String value, int maxLength) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new ResponseStatusException(BAD_REQUEST, "name is required");
-        }
-
-        String normalized = value.trim();
-        if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(BAD_REQUEST, "name exceeds max length " + maxLength);
-        }
-
-        return normalized;
-    }
-
-    private String normalizeOptional(String value, int maxLength) {
-        if (value == null) {
-            return null;
-        }
-
-        String normalized = value.trim();
-        if (normalized.isEmpty()) {
-            return null;
-        }
-
-        if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(
-                    BAD_REQUEST, "description exceeds max length " + maxLength);
-        }
-
-        return normalized;
     }
 }
