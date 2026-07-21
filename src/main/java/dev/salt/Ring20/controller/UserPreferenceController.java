@@ -11,7 +11,6 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/users/me/preferences")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class UserPreferenceController {
 
     private final UserService userService;
@@ -32,20 +30,6 @@ public class UserPreferenceController {
             UserService userService, UserWorkoutPreferenceService preferenceService) {
         this.userService = userService;
         this.preferenceService = preferenceService;
-    }
-
-    private Jwt getJwtOrThrow(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(
-                    UNAUTHORIZED, "Missing or invalid authentication token");
-        }
-        return jwt;
-    }
-
-    private Long getCurrentUserId(Authentication authentication) {
-        Jwt jwt = getJwtOrThrow(authentication);
-        User user = userService.getByClerkIdOrThrow(jwt.getSubject());
-        return user.getId();
     }
 
     @GetMapping
@@ -84,5 +68,18 @@ public class UserPreferenceController {
         Long userId = getCurrentUserId(authentication);
         preferenceService.removePreference(userId, workoutId, UserWorkoutPreferenceType.DISLIKED);
         return ResponseEntity.noContent().build();
+    }
+    private Jwt getJwtOrThrow(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            throw new ResponseStatusException(
+                    UNAUTHORIZED, "Missing or invalid authentication token");
+        }
+        return jwt;
+    }
+
+    private Long getCurrentUserId(Authentication authentication) {
+        Jwt jwt = getJwtOrThrow(authentication);
+        User user = userService.getByClerkIdOrThrow(jwt.getSubject());
+        return user.getId();
     }
 }

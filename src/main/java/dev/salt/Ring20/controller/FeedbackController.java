@@ -4,9 +4,10 @@ import dev.salt.Ring20.dto.FeedbackRequestDto;
 import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
+
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,13 +19,59 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/feedbacks")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
     public FeedbackController(FeedbackService feedbackService) {
         this.feedbackService = feedbackService;
+    }
+
+
+    @GetMapping
+    public ResponseEntity<List<FeedbackResponseDto>> getFeedback(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) Long workoutId) {
+        List<Feedback> feedbacks;
+
+        if (userId != null && workoutId != null) {
+            feedbacks = feedbackService.getFeedbackByUserAndWorkout(userId, workoutId);
+        } else if (userId != null) {
+            feedbacks = feedbackService.getFeedbackByUserId(userId);
+        } else if (workoutId != null) {
+            feedbacks = feedbackService.getFeedbackByWorkoutId(workoutId);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(feedbacks.stream().map(this::toResponse).toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FeedbackResponseDto> getFeedbackById(@PathVariable Long id) {
+        Feedback feedback = feedbackService.getFeedbackById(id);
+
+        if (feedback == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(toResponse(feedback));
+    }
+
+    @PostMapping
+    public ResponseEntity<FeedbackResponseDto> createFeedback(
+            @RequestBody FeedbackRequestDto feedbackRequest) {
+        Feedback saved = feedbackService.addFeedback(toEntity(feedbackRequest));
+        return ResponseEntity.ok(toResponse(saved));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
+        if (feedbackService.getFeedbackById(id) == null) {
+            return ResponseEntity.notFound().build();
+        }
+        feedbackService.deleteFeedback(id);
+        return ResponseEntity.noContent().build();
     }
 
     private Feedback toEntity(FeedbackRequestDto request) {
@@ -50,51 +97,5 @@ public class FeedbackController {
                 feedback.getRating(),
                 feedback.getComment(),
                 feedback.getCreatedAt());
-    }
-
-    @PostMapping
-    public ResponseEntity<FeedbackResponseDto> createFeedback(
-            @RequestBody FeedbackRequestDto feedbackRequest) {
-        Feedback saved = feedbackService.addFeedback(toEntity(feedbackRequest));
-        return ResponseEntity.ok(toResponse(saved));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<FeedbackResponseDto> getFeedbackById(@PathVariable Long id) {
-        Feedback feedback = feedbackService.getFeedbackById(id);
-
-        if (feedback == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(toResponse(feedback));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<FeedbackResponseDto>> getFeedback(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false) Long workoutId) {
-        List<Feedback> feedbacks;
-
-        if (userId != null && workoutId != null) {
-            feedbacks = feedbackService.getFeedbackByUserAndWorkout(userId, workoutId);
-        } else if (userId != null) {
-            feedbacks = feedbackService.getFeedbackByUserId(userId);
-        } else if (workoutId != null) {
-            feedbacks = feedbackService.getFeedbackByWorkoutId(workoutId);
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(feedbacks.stream().map(this::toResponse).toList());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
-        if (feedbackService.getFeedbackById(id) == null) {
-            return ResponseEntity.notFound().build();
-        }
-        feedbackService.deleteFeedback(id);
-        return ResponseEntity.noContent().build();
     }
 }

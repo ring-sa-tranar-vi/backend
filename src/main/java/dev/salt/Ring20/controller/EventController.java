@@ -12,7 +12,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin("http://localhost:5173")
 public class EventController {
     private final EventService service;
 
