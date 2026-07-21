@@ -19,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class UserController {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
