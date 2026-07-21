@@ -7,6 +7,7 @@ import dev.salt.Ring20.dto.RecommendWorkoutDto;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.TrainerService;
 import dev.salt.Ring20.service.UserService;
 import java.util.List;
@@ -32,10 +33,15 @@ public class TrainerController {
 
     private final TrainerService trainerService;
     private final UserService userService;
+    private final FileStorageService fileStorageService;
 
-    public TrainerController(TrainerService trainerService, UserService userService) {
+    public TrainerController(
+            TrainerService trainerService,
+            UserService userService,
+            FileStorageService fileStorageService) {
         this.trainerService = trainerService;
         this.userService = userService;
+        this.fileStorageService = fileStorageService;
     }
 
     private Jwt getJwtOrThrow(Authentication authentication) {
@@ -59,11 +65,12 @@ public class TrainerController {
                 trainer.getName(),
                 trainer.getPrompt(),
                 trainer.getVoice(),
-                trainer.getIntro(),
+                fileStorageService.getFileAccess(trainer.getIntro(), 15),
                 trainer.getLanguage(),
-                trainer.getImageSelect(),
-                trainer.getImageCall(),
-                trainer.getImageStart(),
+
+                fileStorageService.getFileAccess(trainer.getImageSelect(), 15),
+                fileStorageService.getFileAccess(trainer.getImageCall(), 15),
+                fileStorageService.getFileAccess(trainer.getImageStart(), 15),
                 trainer.getAmbience());
     }
 
