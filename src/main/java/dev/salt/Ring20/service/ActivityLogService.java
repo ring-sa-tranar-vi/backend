@@ -5,19 +5,21 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityLogService {
 
+    private static final String STATUS_COMPLETED = "COMPLETED";
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
-    private static final String STATUS_COMPLETED = "COMPLETED";
 
     public ActivityLogService(
             ActivityLogRepository activityLogRepository, WorkoutRepository workoutRepository) {
@@ -27,7 +29,7 @@ public class ActivityLogService {
 
     @Transactional
     public ActivityLog createActivityLog(ActivityLog activityLog) {
-        activityLog.setCompletedAt(LocalDateTime.now());
+        activityLog.setCreatedAt(LocalDateTime.now());
         return activityLogRepository.save(activityLog);
     }
 
@@ -41,7 +43,7 @@ public class ActivityLogService {
                                         new NoSuchElementException(
                                                 "ActivityLog not found with id:" + id));
         log.setStatus(STATUS_COMPLETED);
-        log.setCompletedAt(LocalDateTime.now());
+        log.setCreatedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
     }
 
@@ -51,7 +53,7 @@ public class ActivityLogService {
                         userId, STATUS_COMPLETED);
 
         List<ActivityLog> validLogs =
-                completedLogs.stream().filter(log -> log.getCompletedAt() != null).toList();
+                completedLogs.stream().filter(log -> log.getCreatedAt() != null).toList();
 
         Set<Long> workoutIds =
                 validLogs.stream().map(ActivityLog::getWorkoutId).collect(Collectors.toSet());
@@ -68,7 +70,7 @@ public class ActivityLogService {
         Map<LocalDate, LinkedHashSet<String>> workoutsByDate = new LinkedHashMap<>();
 
         for (ActivityLog log : validLogs) {
-            LocalDate date = log.getCompletedAt().toLocalDate();
+            LocalDate date = log.getCreatedAt().toLocalDate();
             String workoutName =
                     workoutNameById.getOrDefault(log.getWorkoutId(), "Unknown workout");
 

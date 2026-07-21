@@ -12,9 +12,8 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
-
-    private final UserRepository userRepository;
     private static final int STARTING_INTENSITY = 2;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;

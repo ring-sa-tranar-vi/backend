@@ -15,22 +15,25 @@ import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdminService {
 
+
+    private static final String STATUS_COMPLETED = "COMPLETED";
+    private static final String UNKNOWN_USER = "Unknown user";
+    private static final String UNKNOWN_WORKOUT = "Unknown workout";
+    private static final int RECENT_ACTIVITY_LIMIT = 25;
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
     private final TrainerRepository trainerRepository;
-    private static final String STATUS_COMPLETED = "COMPLETED";
-    private static final int RECENT_ACTIVITY_LIMIT = 25;
-    private static final String UNKNOWN_USER = "Unknown user";
-    private static final String UNKNOWN_WORKOUT = "Unknown workout";
 
     public AdminService(
             UserRepository userRepository,
@@ -49,11 +52,11 @@ public class AdminService {
         List<User> users = userRepository.findAll();
         Map<Long, LocalDateTime> lastCompletedAtByUserId =
                 activityLogRepository.findByStatus(STATUS_COMPLETED).stream()
-                        .filter(log -> log.getUserId() != null && log.getCompletedAt() != null)
+                        .filter(log -> log.getUserId() != null && log.getCreatedAt() != null)
                         .collect(
                                 Collectors.toMap(
                                         ActivityLog::getUserId,
-                                        ActivityLog::getCompletedAt,
+                                        ActivityLog::getCreatedAt,
                                         (existingTime, newTime) ->
                                                 newTime.isAfter(existingTime)
                                                         ? newTime
@@ -86,7 +89,7 @@ public class AdminService {
         return activityLogRepository.findAll().stream()
                 .sorted(
                         Comparator.comparing(
-                                        ActivityLog::getCompletedAt,
+                                        ActivityLog::getCreatedAt,
                                         Comparator.nullsLast(Comparator.reverseOrder()))
                                 .thenComparing(ActivityLog::getId, Comparator.reverseOrder()))
                 .limit(RECENT_ACTIVITY_LIMIT)
@@ -102,7 +105,7 @@ public class AdminService {
                                                 activityLog.getWorkoutId(), UNKNOWN_WORKOUT),
                                         activityLog.getStatus(),
                                         activityLog.getDurationSeconds(),
-                                        activityLog.getCompletedAt()))
+                                        activityLog.getCreatedAt()))
                 .toList();
     }
 
@@ -122,10 +125,10 @@ public class AdminService {
 
             if (STATUS_COMPLETED.equalsIgnoreCase(activityLog.getStatus())) {
                 completedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
-                if (activityLog.getCompletedAt() != null) {
+                if (activityLog.getCreatedAt() != null) {
                     lastCompletedAtByWorkoutId.merge(
                             workoutId,
-                            activityLog.getCompletedAt(),
+                            activityLog.getCreatedAt(),
                             (current, candidate) ->
                                     candidate.isAfter(current) ? candidate : current);
                 }
