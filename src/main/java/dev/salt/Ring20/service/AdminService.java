@@ -19,9 +19,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AdminService {
@@ -107,6 +106,7 @@ public class AdminService {
         return trainerRepository.findAll().stream().sorted(Comparator.comparing(Trainer::getId)).map(trainer -> new AdminTrainerOverviewDTO(trainer.getId(), trainer.getName(), trainer.getLanguage(), assignedUserCountByTrainerId.getOrDefault(trainer.getId(), 0L), workoutCountByTrainerId.getOrDefault(trainer.getId(), 0L), enabledWorkoutCountByTrainerId.getOrDefault(trainer.getId(), 0L))).toList();
     }
 
+    @Transactional
     public User updateUser(Long id, User updateData) {
         User existing = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
 
@@ -129,6 +129,7 @@ public class AdminService {
         return userRepository.save(existing);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
         userRepository.delete(user);

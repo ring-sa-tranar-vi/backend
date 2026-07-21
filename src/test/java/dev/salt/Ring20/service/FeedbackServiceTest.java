@@ -71,48 +71,48 @@ class FeedbackServiceTest {
     }
 
     @Test
-    void saveFeedbackStoresTimestampAndSaves() {
+    void addFeedbackStoresTimestampAndSaves() {
         stubActivityLogLookup();
         when(feedbackRepository.save(any(Feedback.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Feedback saved = feedbackService.saveFeedback(feedback);
+        Feedback saved = feedbackService.addFeedback(feedback);
 
         assertNotNull(saved.getCreatedAt());
         verify(feedbackRepository).save(feedback);
     }
 
     @Test
-    void saveFeedbackAddsDislikedPreferenceWhenLikedIsFalse() {
+    void addFeedbackAddsDislikedPreferenceWhenLikedIsFalse() {
         stubActivityLogLookup();
         feedback.setLiked(false);
         when(feedbackRepository.save(any(Feedback.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        feedbackService.saveFeedback(feedback);
+        feedbackService.addFeedback(feedback);
 
         verify(preferenceService).addPreference(2L, 3L, UserWorkoutPreferenceType.DISLIKED);
     }
 
     @Test
-    void saveFeedbackRejectsMissingUserOrWorkoutId() {
+    void addFeedbackRejectsMissingUserOrWorkoutId() {
         feedback.setUserId(null);
 
         ResponseStatusException ex =
                 assertThrows(
                         ResponseStatusException.class,
-                        () -> feedbackService.saveFeedback(feedback));
+                        () -> feedbackService.addFeedback(feedback));
         assertEquals("userId and workoutId are required", ex.getReason());
     }
 
     @Test
-    void saveFeedbackRejectsRatingOutsideRange() {
+    void addFeedbackRejectsRatingOutsideRange() {
         feedback.setRating(6);
 
         ResponseStatusException ex =
                 assertThrows(
                         ResponseStatusException.class,
-                        () -> feedbackService.saveFeedback(feedback));
+                        () -> feedbackService.addFeedback(feedback));
         assertEquals("rating must be between 1 and 5", ex.getReason());
     }
 

@@ -4,7 +4,9 @@ import dev.salt.Ring20.dto.FeedbackRequestDto;
 import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
+
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -55,17 +57,19 @@ public class FeedbackController {
     @PostMapping
     public ResponseEntity<FeedbackResponseDto> createFeedback(
             @RequestBody FeedbackRequestDto feedbackRequest) {
-        Feedback saved = feedbackService.saveFeedback(toEntity(feedbackRequest));
+        Feedback saved = feedbackService.addFeedback(toEntity(feedbackRequest));
         return ResponseEntity.ok(toResponse(saved));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<FeedbackResponseDto> getFeedbackById(@PathVariable Long id) {
-        return feedbackService
-                .getFeedbackById(id)
-                .map(this::toResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Feedback feedback = feedbackService.getFeedbackById(id);
+
+        if (feedback == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(toResponse(feedback));
     }
 
     @GetMapping
@@ -89,7 +93,7 @@ public class FeedbackController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
-        if (feedbackService.getFeedbackById(id).isEmpty()) {
+        if (feedbackService.getFeedbackById(id) == null) {
             return ResponseEntity.notFound().build();
         }
         feedbackService.deleteFeedback(id);

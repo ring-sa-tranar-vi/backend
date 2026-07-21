@@ -13,7 +13,6 @@ import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
 public class EventService {
     private final EventRepository repo;
 
@@ -44,6 +43,7 @@ public class EventService {
         return repo.findById(id).orElseThrow();
     }
 
+    @Transactional
     public Event updateEvent(
             Long id,
             String name,
@@ -64,6 +64,7 @@ public class EventService {
         return repo.save(event);
     }
 
+    @Transactional
     public void deleteEventById(Long id) {
         repo.deleteById(id);
     }

@@ -4,11 +4,14 @@ import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,16 +28,18 @@ public class ActivityLogService {
         this.workoutRepository = workoutRepository;
     }
 
+    @Transactional
     public ActivityLog createActivityLog(ActivityLog activityLog) {
         activityLog.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(activityLog);
     }
 
+    @Transactional
     public ActivityLog completeActivityLog(Long id) {
         ActivityLog log =
                 activityLogRepository
                         .findById(id)
-                        .orElseThrow(()-> new NoSuchElementException("ActivityLog not found with id:" + id));
+                        .orElseThrow(() -> new NoSuchElementException("ActivityLog not found with id:" + id));
         log.setStatus(STATUS_COMPLETED);
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);

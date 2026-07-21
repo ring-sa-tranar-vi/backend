@@ -36,7 +36,7 @@ class FeedbackControllerTest {
         feedback.setUserId(1L);
         feedback.setWorkoutId(2L);
         feedback.setDifficulty(FeedbackDifficulty.JUST_RIGHT);
-        when(feedbackService.saveFeedback(any(Feedback.class))).thenReturn(feedback);
+        when(feedbackService.addFeedback(any(Feedback.class))).thenReturn(feedback);
 
         ResponseEntity<FeedbackResponseDto> response = controller.createFeedback(request);
 
@@ -48,7 +48,7 @@ class FeedbackControllerTest {
     @Test
     void getFeedbackByIdReturnsNotFoundWhenMissing() {
         FeedbackController controller = new FeedbackController(feedbackService);
-        when(feedbackService.getFeedbackById(1L)).thenReturn(Optional.empty());
+        when(feedbackService.getFeedbackById(1L)).thenReturn(null);
 
         ResponseEntity<FeedbackResponseDto> response = controller.getFeedbackById(1L);
 
@@ -58,7 +58,7 @@ class FeedbackControllerTest {
     @Test
     void deleteFeedbackReturnsNoContentWhenPresent() {
         FeedbackController controller = new FeedbackController(feedbackService);
-        when(feedbackService.getFeedbackById(1L)).thenReturn(Optional.of(new Feedback()));
+        when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
 
         ResponseEntity<Void> response = controller.deleteFeedback(1L);
 
