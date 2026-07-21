@@ -17,7 +17,6 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +28,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class AdminController {
     private final UserService service;
     private final FeedbackService feedbackService;
@@ -75,29 +73,6 @@ public class AdminController {
                         + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
-    @GetMapping("/workouts/feedback-summary")
-    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDto>> getWorkoutFeedbackSummary(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(feedbackService.getWorkoutFeedbackSummary());
-    }
-
-    @GetMapping("/feedbacks")
-    public ResponseEntity<List<AdminRecentFeedbackDto>> getRecentFeedbackEntries(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(feedbackService.getRecentFeedbackEntries());
-    }
 
     @GetMapping("/users/count")
     public ResponseEntity<AdminUserCountDto> getUserCount(Authentication authentication) {
@@ -121,42 +96,6 @@ public class AdminController {
         }
 
         return ResponseEntity.ok(adminService.getUserSummaries());
-    }
-
-    @GetMapping("/activity-logs/recent")
-    public ResponseEntity<List<AdminRecentActivityDTO>> getRecentActivityLogs(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getRecentActivityLogs());
-    }
-
-    @GetMapping("/workouts/usage")
-    public ResponseEntity<List<AdminWorkoutUsageDTO>> getWorkoutUsage(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getWorkoutUsage());
-    }
-
-    @GetMapping("/trainers/overview")
-    public ResponseEntity<List<AdminTrainerOverviewDTO>> getTrainerOverview(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getTrainerOverview());
     }
 
     @PutMapping("/users/{id}")
@@ -185,4 +124,63 @@ public class AdminController {
         adminService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/activity-logs/recent")
+    public ResponseEntity<List<AdminRecentActivityDTO>> getRecentActivityLogs(
+            Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+
+        if (!service.isAdmin(clerkId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(adminService.getRecentActivityLogs());
+    }
+
+    @GetMapping("/workouts/usage")
+    public ResponseEntity<List<AdminWorkoutUsageDTO>> getWorkoutUsage(
+            Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+
+        if (!service.isAdmin(clerkId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(adminService.getWorkoutUsage());
+    }
+    @GetMapping("/workouts/feedback-summary")
+    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDto>> getWorkoutFeedbackSummary(
+            Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+
+        if (!service.isAdmin(clerkId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(feedbackService.getWorkoutFeedbackSummary());
+    }
+
+    @GetMapping("/feedbacks")
+    public ResponseEntity<List<AdminRecentFeedbackDto>> getRecentFeedbackEntries(
+            Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+
+        if (!service.isAdmin(clerkId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(feedbackService.getRecentFeedbackEntries());
+    }
+
+    @GetMapping("/trainers/overview")
+    public ResponseEntity<List<AdminTrainerOverviewDTO>> getTrainerOverview(
+            Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+
+        if (!service.isAdmin(clerkId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(adminService.getTrainerOverview());
+    }
+
 }

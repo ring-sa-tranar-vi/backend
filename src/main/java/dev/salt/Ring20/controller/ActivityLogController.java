@@ -24,6 +24,27 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
+
+    @GetMapping("/users/{userId}/has-completed-today")
+    public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
+            @PathVariable Long userId) {
+        boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
+        return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
+    }
+
+    @PostMapping
+    public ResponseEntity<ActivityLogResponseDto> createActivityLog(
+            @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
+        ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
+        return ResponseEntity.ok().body(toResponse(created));
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
+        ActivityLog completed = activityLogService.completeActivityLog(id);
+        return ResponseEntity.ok().body(toResponse(completed));
+    }
+
     private ActivityLog toEntity(ActivityLogCreateRequestDto request) {
         ActivityLog activityLog = new ActivityLog();
         activityLog.setUserId(request.userId());
@@ -44,25 +65,5 @@ public class ActivityLogController {
                 activityLog.getDurationSeconds(),
                 activityLog.getFeedback(),
                 activityLog.getStatus());
-    }
-
-    @GetMapping("/users/{userId}/has-completed-today")
-    public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
-            @PathVariable Long userId) {
-        boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
-        return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
-    }
-
-    @PostMapping
-    public ResponseEntity<ActivityLogResponseDto> createActivityLog(
-            @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
-        ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
-        return ResponseEntity.ok().body(toResponse(created));
-    }
-
-    @PutMapping("/{id}/complete")
-    public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
-        ActivityLog completed = activityLogService.completeActivityLog(id);
-        return ResponseEntity.ok().body(toResponse(completed));
     }
 }
