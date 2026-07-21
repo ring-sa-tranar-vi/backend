@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TrainerService {

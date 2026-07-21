@@ -6,7 +6,10 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,6 +42,7 @@ public class UserService {
         return user;
     }
 
+    @Transactional
     public User createUser(String clerkId, String name) {
         String displayName = sanitizeDisplayName(name);
         boolean hasRealDisplayName = !DEFAULT_DISPLAY_NAME.equals(displayName);
@@ -75,9 +79,10 @@ public class UserService {
         return userRepository
                 .findByClerkId(clerkId)
                 .map(this::normalizeDisplayNameIfMissing)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 
+    @Transactional
     public User updateUserPreferencesByClerkId(
             String clerkId,
             String name,
@@ -86,7 +91,7 @@ public class UserService {
             Long trainerId,
             String city) {
         if (trainerId == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Trainer is required");
+            throw new IllegalArgumentException("Trainer is required");
         }
 
         User user = getByClerkIdOrThrow(clerkId);
@@ -102,7 +107,7 @@ public class UserService {
     public User getUserById(Long id) {
         return userRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
@@ -115,31 +120,33 @@ public class UserService {
         return user.getAttendingEvents();
     }
 
+    @Transactional
     public User addFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         user.getFollowedOrganisations().add(org);
-        int followCount = org.getUsersFollowing() + 1;
+        org.setUsersFollowing(org.getUsersFollowing() + 1);
         return userRepository.save(user);
     }
 
+    @Transactional
     public User addAttendEvent(Long id, Event event) {
         User user = getUserById(id);
         user.getAttendingEvents().add(event);
-        int attendeesCount = event.getUsersAttending() + 1;
+        event.setUsersAttending(event.getUsersAttending() + 1);
         return userRepository.save(user);
     }
 
     public User removeFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         user.getFollowedOrganisations().remove(org);
-        int followCount = org.getUsersFollowing() + 1;
+        org.setUsersFollowing(org.getUsersFollowing() - 1);
         return userRepository.save(user);
     }
 
     public User removeAttendEvent(Long id, Event event) {
         User user = getUserById(id);
         user.getAttendingEvents().remove(event);
-        int attendeesCount = event.getUsersAttending() - 1;
+        event.setUsersAttending(event.getUsersAttending() - 1);
         return userRepository.save(user);
     }
 
