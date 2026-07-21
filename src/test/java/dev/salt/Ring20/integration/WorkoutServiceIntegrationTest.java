@@ -6,12 +6,15 @@ import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.ActivityLogService;
+import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.WorkoutService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DataJpaTest
 @Import(WorkoutService.class)
@@ -23,6 +26,8 @@ class WorkoutServiceIntegrationTest {
     @Autowired private WorkoutRepository workoutRepository;
 
     @Autowired private ActivityLogRepository activityLogRepository;
+
+    @MockitoBean private FileStorageService fileStorageService;
 
     @Test
     void createWorkoutPersistsWorkout() {
