@@ -30,7 +30,7 @@ public class ActivityLog {
 
     private Long workoutId;
 
-    private LocalDateTime completedAt;
+    private LocalDateTime createdAt;
 
     private Integer durationSeconds;
     private String feedback;

@@ -1,9 +1,11 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.ActivityLog;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +25,8 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
             Long userId, Long workoutId);
 
     @Query(
-            "SELECT COUNT(DISTINCT a.userId) FROM ActivityLog a WHERE a.status = 'COMPLETED' AND a.completedAt >= :since")
+            "SELECT COUNT(DISTINCT a.userId) FROM ActivityLog a WHERE a.status = 'COMPLETED' AND a.createdAt >= :since")
     long countDistinctActiveUsersSince(@Param("since") LocalDateTime since);
+
+    boolean existsByUserIdAndWorkoutIdAndStatus(Long userId, Long id, String statusStarted);
 }
