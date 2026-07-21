@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -83,14 +82,11 @@ public class ActivityLogService {
         List<LocalDate> ascendingDates = new ArrayList<>(workoutsByDate.keySet());
         Collections.sort(ascendingDates);
 
-        List<String> completedDates = ascendingDates.stream()
-                .map(LocalDate::toString)
-                .toList();
+        List<String> completedDates = ascendingDates.stream().map(LocalDate::toString).toList();
 
         LocalDate startOfWeek = LocalDate.now().with(java.time.DayOfWeek.MONDAY);
-        int completedThisWeek = (int) ascendingDates.stream()
-                .filter(date -> !date.isBefore(startOfWeek))
-                .count();
+        int completedThisWeek =
+                (int) ascendingDates.stream().filter(date -> !date.isBefore(startOfWeek)).count();
 
         int personalBestStreak = calculateBestStreak(ascendingDates);
 
@@ -106,6 +102,7 @@ public class ActivityLogService {
 
         return response;
     }
+
     private int calculateBestStreak(List<LocalDate> sortedDates) {
         if (sortedDates == null || sortedDates.isEmpty()) return 0;
 

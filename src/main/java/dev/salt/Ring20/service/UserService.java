@@ -143,7 +143,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public CallbackPreference addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
+    public CallbackPreference addOrUpdateCallbackPreference(
+            Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
         Optional<CallbackPreference> existing =
