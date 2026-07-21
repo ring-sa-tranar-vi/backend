@@ -1,17 +1,14 @@
 package dev.salt.Ring20.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -19,14 +16,15 @@ public class UserService {
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
 
     private final UserRepository userRepository;
-    private final int STARTING_INTENSITY = 2;
+    private static final int STARTING_INTENSITY = 2;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public boolean isAdmin(String clerkID) {
-        return getByClerkIdOrThrow(clerkID).getRole().equals("ADMIN");
+
+        return "ADMIN".equals(getByClerkIdOrThrow(clerkID).getRole());
     }
 
     private String sanitizeDisplayName(String name) {
@@ -45,30 +43,22 @@ public class UserService {
     @Transactional
     public User createUser(String clerkId, String name) {
         String displayName = sanitizeDisplayName(name);
-        boolean hasRealDisplayName = !DEFAULT_DISPLAY_NAME.equals(displayName);
+        Optional<User> existing = userRepository.findByClerkId(clerkId);
+        if (existing.isPresent()) {
+            User user = existing.get();
 
-        return userRepository
-                .findByClerkId(clerkId)
-                .map(
-                        existingUser -> {
-                            boolean missingName =
-                                    existingUser.getName() == null
-                                            || existingUser.getName().isBlank();
-                            boolean hasPlaceholder =
-                                    DEFAULT_DISPLAY_NAME.equals(existingUser.getName());
+            if (user.getName() == null || user.getName().isBlank()
+                    || DEFAULT_DISPLAY_NAME.equals(user.getName())) {
+                user.setName(displayName);
+                return userRepository.save(user);
+            }
 
-                            if (missingName || (hasPlaceholder && hasRealDisplayName)) {
-                                existingUser.setName(displayName);
-                                return userRepository.save(existingUser);
-                            }
+            return user;
+        }
 
-                            return existingUser;
-                        })
-                .orElseGet(
-                        () -> {
-                            return userRepository.save(
-                                    new User(displayName, STARTING_INTENSITY, "", clerkId));
-                        });
+        return userRepository.save(
+                new User(displayName, STARTING_INTENSITY, "", clerkId)
+        );
     }
 
     public Optional<User> findByClerkId(String clerkId) {
@@ -76,20 +66,12 @@ public class UserService {
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
-        return userRepository
-                .findByClerkId(clerkId)
-                .map(this::normalizeDisplayNameIfMissing)
+        return userRepository.findByClerkId(clerkId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 
     @Transactional
-    public User updateUserPreferencesByClerkId(
-            String clerkId,
-            String name,
-            int intensityLevel,
-            String context,
-            Long trainerId,
-            String city) {
+    public User updateUserPreferencesByClerkId(String clerkId, String name, int intensityLevel, String context, Long trainerId, String city) {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
@@ -105,9 +87,7 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userRepository
-                .findById(id)
-                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+        return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
@@ -123,40 +103,46 @@ public class UserService {
     @Transactional
     public User addFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
-        user.getFollowedOrganisations().add(org);
-        org.setUsersFollowing(org.getUsersFollowing() + 1);
+        if (!user.getFollowedOrganisations().contains(org)) {
+            user.getFollowedOrganisations().add(org);
+            org.setUsersFollowing(org.getUsersFollowing() + 1);
+        }
         return userRepository.save(user);
     }
 
     @Transactional
     public User addAttendEvent(Long id, Event event) {
         User user = getUserById(id);
-        user.getAttendingEvents().add(event);
-        event.setUsersAttending(event.getUsersAttending() + 1);
+        if (!user.getAttendingEvents().contains(event)) {
+            user.getAttendingEvents().add(event);
+            event.setUsersAttending(event.getUsersAttending() + 1);
+        }
         return userRepository.save(user);
     }
 
+    @Transactional
     public User removeFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
-        user.getFollowedOrganisations().remove(org);
-        org.setUsersFollowing(org.getUsersFollowing() - 1);
+        if (user.getFollowedOrganisations().remove(org)) {
+            org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
+        }
         return userRepository.save(user);
     }
 
+    @Transactional
     public User removeAttendEvent(Long id, Event event) {
         User user = getUserById(id);
-        user.getAttendingEvents().remove(event);
-        event.setUsersAttending(event.getUsersAttending() - 1);
+        if (user.getAttendingEvents().remove(event)) {
+            event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
+        }
         return userRepository.save(user);
     }
 
+    @Transactional
     public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
-        Optional<CallbackPreference> existing =
-                user.getCallbackPreferences().stream()
-                        .filter(c -> c.getDay() == callback.getDay())
-                        .findFirst();
+        Optional<CallbackPreference> existing = user.getCallbackPreferences().stream().filter(c -> c.getDay() == callback.getDay()).findFirst();
 
         if (existing.isPresent()) {
             existing.get().setTime(callback.getTime());
@@ -169,6 +155,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
