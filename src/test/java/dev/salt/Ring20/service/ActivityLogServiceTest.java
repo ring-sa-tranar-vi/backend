@@ -38,7 +38,7 @@ class ActivityLogServiceTest {
 
         ActivityLog saved = activityLogService.createActivityLog(log);
 
-        assertNotNull(saved.getCreatedAt());
+        assertNotNull(saved.getCompletedAt());
     }
 
     @Test
@@ -68,7 +68,7 @@ class ActivityLogServiceTest {
         log.setUserId(1L);
         log.setWorkoutId(7L);
         log.setStatus("COMPLETED");
-        log.setCreatedAt(LocalDateTime.now());
+        log.setCompletedAt(LocalDateTime.now());
 
         Workout workout = new Workout();
         workout.setId(7L);

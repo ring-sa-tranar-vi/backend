@@ -5,13 +5,11 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +27,7 @@ public class ActivityLogService {
 
     @Transactional
     public ActivityLog createActivityLog(ActivityLog activityLog) {
-        activityLog.setCreatedAt(LocalDateTime.now());
+        activityLog.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(activityLog);
     }
 
@@ -43,7 +41,7 @@ public class ActivityLogService {
                                         new NoSuchElementException(
                                                 "ActivityLog not found with id:" + id));
         log.setStatus(STATUS_COMPLETED);
-        log.setCreatedAt(LocalDateTime.now());
+        log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
     }
 
@@ -53,7 +51,7 @@ public class ActivityLogService {
                         userId, STATUS_COMPLETED);
 
         List<ActivityLog> validLogs =
-                completedLogs.stream().filter(log -> log.getCreatedAt() != null).toList();
+                completedLogs.stream().filter(log -> log.getCompletedAt() != null).toList();
 
         Set<Long> workoutIds =
                 validLogs.stream().map(ActivityLog::getWorkoutId).collect(Collectors.toSet());
@@ -70,7 +68,7 @@ public class ActivityLogService {
         Map<LocalDate, LinkedHashSet<String>> workoutsByDate = new LinkedHashMap<>();
 
         for (ActivityLog log : validLogs) {
-            LocalDate date = log.getCreatedAt().toLocalDate();
+            LocalDate date = log.getCompletedAt().toLocalDate();
             String workoutName =
                     workoutNameById.getOrDefault(log.getWorkoutId(), "Unknown workout");
 

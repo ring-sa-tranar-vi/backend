@@ -5,11 +5,9 @@ import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +18,21 @@ public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
 
-    public WorkoutService(WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository) {
+    public WorkoutService(
+            WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
     }
 
     public String getWorkoutAudioUrl(Long id) {
         validateId(id);
-        Workout workout = workoutRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Workout not found with id: " + id));
+        Workout workout =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         if (workout.getWorkoutAudio() == null || workout.getWorkoutAudio().isBlank()) {
             throw new NoSuchElementException("Workout audio not found with id: " + id);
@@ -38,7 +43,10 @@ public class WorkoutService {
 
     @Transactional(readOnly = true)
     public List<WorkoutResponseDto> getAllWorkouts(boolean includeDisabled) {
-        List<Workout> workouts = includeDisabled ? workoutRepository.findAll() : workoutRepository.findByEnabledTrue();
+        List<Workout> workouts =
+                includeDisabled
+                        ? workoutRepository.findAll()
+                        : workoutRepository.findByEnabledTrue();
 
         return workouts.stream().map(this::mapToResponse).toList();
     }
@@ -46,7 +54,13 @@ public class WorkoutService {
     @Transactional(readOnly = true)
     public WorkoutResponseDto getWorkoutById(Long id, boolean includeDisabled) {
         validateId(id);
-        Workout workout = workoutRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Workout not found with id: " + id));
+        Workout workout =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         if (!includeDisabled && Boolean.FALSE.equals(workout.getEnabled())) {
             throw new NoSuchElementException("Workout not found with id: " + id);
@@ -65,12 +79,12 @@ public class WorkoutService {
                     activityLogRepository.existsByUserIdAndWorkoutIdAndStatus(
                             userId, id, STATUS_STARTED);
 
-            if(!alreadyStarted){
+            if (!alreadyStarted) {
                 ActivityLog activityLog = new ActivityLog();
                 activityLog.setUserId(userId);
                 activityLog.setWorkoutId(workout.id()); // Record uses accessor style
                 activityLog.setStatus(STATUS_STARTED);
-                activityLog.setCreatedAt(LocalDateTime.now());
+                activityLog.setCompletedAt(LocalDateTime.now());
                 activityLogRepository.save(activityLog);
             }
         }
@@ -89,7 +103,13 @@ public class WorkoutService {
         validateId(id);
         validateWorkoutForWrite(workout);
 
-        Workout existing = workoutRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Workout not found with id: " + id));
+        Workout existing =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         existing.setName(workout.getName());
         existing.setDescription(workout.getDescription());
@@ -122,7 +142,13 @@ public class WorkoutService {
     public WorkoutResponseDto setWorkoutEnabled(Long id, boolean enabled) {
         validateId(id);
 
-        Workout existing = workoutRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Workout not found with id: " + id));
+        Workout existing =
+                workoutRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         existing.setEnabled(enabled);
         Workout updated = workoutRepository.save(existing);
@@ -149,7 +175,30 @@ public class WorkoutService {
             trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
         }
 
-        return new WorkoutResponseDto(workout.getId(), workout.getName(), workout.getDescription(), workout.getDashboardName(), workout.getDashboardDescription(), workout.getSubtitleText(), workout.getInstructionsSubtitleText(), workout.getLevel(), workout.getType(), workout.getDurationSeconds(), workout.getInstructionsAudio(), workout.getWorkoutAudio(), workout.getInstructionsImage(), workout.getWorkoutImage(), workout.getInstructionsVideo(), workout.getInstructionsVideoStart(), workout.getInstructionsVideoStop(), workout.getKneeFriendly(), workout.getLowImpact(), workout.getSeated(), workout.getBeginnerFriendly(), workout.getEnabled(), trainerDTO);
+        return new WorkoutResponseDto(
+                workout.getId(),
+                workout.getName(),
+                workout.getDescription(),
+                workout.getDashboardName(),
+                workout.getDashboardDescription(),
+                workout.getSubtitleText(),
+                workout.getInstructionsSubtitleText(),
+                workout.getLevel(),
+                workout.getType(),
+                workout.getDurationSeconds(),
+                workout.getInstructionsAudio(),
+                workout.getWorkoutAudio(),
+                workout.getInstructionsImage(),
+                workout.getWorkoutImage(),
+                workout.getInstructionsVideo(),
+                workout.getInstructionsVideoStart(),
+                workout.getInstructionsVideoStop(),
+                workout.getKneeFriendly(),
+                workout.getLowImpact(),
+                workout.getSeated(),
+                workout.getBeginnerFriendly(),
+                workout.getEnabled(),
+                trainerDTO);
     }
 
     private void validateId(Long id) {

@@ -30,7 +30,7 @@ public class ActivityLogController {
         ActivityLog activityLog = new ActivityLog();
         activityLog.setUserId(request.userId());
         activityLog.setWorkoutId(request.workoutId());
-        activityLog.setCreatedAt(request.completedAt());
+        activityLog.setCompletedAt(request.completedAt());
         activityLog.setDurationSeconds(request.durationSeconds());
         activityLog.setFeedback(request.feedback());
         activityLog.setStatus(request.status());
@@ -42,7 +42,7 @@ public class ActivityLogController {
                 activityLog.getId(),
                 activityLog.getUserId(),
                 activityLog.getWorkoutId(),
-                activityLog.getCreatedAt(),
+                activityLog.getCompletedAt(),
                 activityLog.getDurationSeconds(),
                 activityLog.getFeedback(),
                 activityLog.getStatus());
