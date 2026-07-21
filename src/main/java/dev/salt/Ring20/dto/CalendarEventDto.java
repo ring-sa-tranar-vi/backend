@@ -8,5 +8,4 @@ public record CalendarEventDto(
         String title,
         String description,
         LocalDateTime time,
-        boolean completed
-) {}
+        boolean completed) {}

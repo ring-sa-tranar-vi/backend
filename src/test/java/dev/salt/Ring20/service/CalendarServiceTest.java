@@ -1,11 +1,20 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
 import dev.salt.Ring20.dto.CalendarEventDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,30 +22,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class CalendarServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private ActivityLogRepository activityLogRepository;
-    @Mock
-    private CallbackPreferenceRepository callbackPreferenceRepository;
-    @Mock
-    private WorkoutRepository workoutRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private ActivityLogRepository activityLogRepository;
+    @Mock private CallbackPreferenceRepository callbackPreferenceRepository;
+    @Mock private WorkoutRepository workoutRepository;
 
-    @InjectMocks
-    private CalendarService calendarService;
+    @InjectMocks private CalendarService calendarService;
 
     private User testUser;
 
@@ -62,7 +56,10 @@ class CalendarServiceTest {
         workout.setName("Test Workout");
 
         when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
-                eq(1L), eq("COMPLETED"), any(LocalDateTime.class), any(LocalDateTime.class)))
+                        eq(1L),
+                        eq("COMPLETED"),
+                        any(LocalDateTime.class),
+                        any(LocalDateTime.class)))
                 .thenReturn(List.of(workoutLog));
         when(workoutRepository.findById(10L)).thenReturn(Optional.of(workout));
 
@@ -84,16 +81,13 @@ class CalendarServiceTest {
         assertEquals(7, result.size());
         for (int i = 0; i < result.size() - 1; i++) {
             assertTrue(
-                    result.get(i).time().isBefore(result.get(i + 1).time()) ||
-                            result.get(i).time().isEqual(result.get(i + 1).time()),
-                    "The list is not sorted correctly!"
-            );
+                    result.get(i).time().isBefore(result.get(i + 1).time())
+                            || result.get(i).time().isEqual(result.get(i + 1).time()),
+                    "The list is not sorted correctly!");
         }
 
-        CalendarEventDto eventDto = result.stream()
-                .filter(e -> e.type().equals("EVENT"))
-                .findFirst()
-                .orElseThrow();
+        CalendarEventDto eventDto =
+                result.stream().filter(e -> e.type().equals("EVENT")).findFirst().orElseThrow();
         assertEquals("Yoga Event", eventDto.title());
         assertEquals("EVENT-200", eventDto.id());
     }
@@ -102,9 +96,10 @@ class CalendarServiceTest {
     void getMonthlyCalendar_shouldThrowException_whenUserNotFound() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                calendarService.getMonthlyCalendar(99L, 2026, 8)
-        );
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> calendarService.getMonthlyCalendar(99L, 2026, 8));
 
         assertEquals("User not found", exception.getMessage());
     }
@@ -149,17 +144,19 @@ class CalendarServiceTest {
         List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
         assertEquals(1, result.size());
-        assertEquals("A fun workshop - Salt HQ, Stockholm", result.get(0).description(),
+        assertEquals(
+                "A fun workshop - Salt HQ, Stockholm",
+                result.get(0).description(),
                 "The description was not formatted correctly!");
     }
 
     @Test
     void getMonthlyCalendar_shouldReturnEmptyList_whenNoDataExists() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
-        when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(any(), any(), any(), any()))
+        when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
+                        any(), any(), any(), any()))
                 .thenReturn(List.of());
-        when(callbackPreferenceRepository.findByUserId(1L))
-                .thenReturn(List.of());
+        when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of());
 
         List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
@@ -193,7 +190,8 @@ class CalendarServiceTest {
         workoutLog.setCompletedAt(LocalDateTime.of(2026, 8, 10, 14, 0));
 
         when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
-                eq(1L), eq("COMPLETED"), any(), any())).thenReturn(List.of(workoutLog));
+                        eq(1L), eq("COMPLETED"), any(), any()))
+                .thenReturn(List.of(workoutLog));
 
         when(workoutRepository.findById(999L)).thenReturn(Optional.empty());
 

@@ -17,9 +17,7 @@ public class CalendarController {
 
     @GetMapping
     public ResponseEntity<List<CalendarEventDto>> getCalendar(
-            @RequestParam Long userId,
-            @RequestParam int year,
-            @RequestParam int month) {
+            @RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
 
         if (month < 1 || month > 12) {
             return ResponseEntity.badRequest().build();
