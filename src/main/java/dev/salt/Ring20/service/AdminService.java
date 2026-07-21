@@ -28,8 +28,7 @@ public class AdminService {
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
     private final TrainerRepository trainerRepository;
-    private final OrganisationRepository organisationRepository;
-    private final EventRepository eventRepository;
+    private static final String STATUS_COMPLETED = "COMPLETED";
 
     public AdminService(
             UserRepository userRepository,
@@ -42,8 +41,6 @@ public class AdminService {
         this.activityLogRepository = activityLogRepository;
         this.workoutRepository = workoutRepository;
         this.trainerRepository = trainerRepository;
-        this.organisationRepository = organisationRepository;
-        this.eventRepository = eventRepository;
     }
 
     public List<AdminUserSummaryDTO> getUserSummaries() {
@@ -51,7 +48,7 @@ public class AdminService {
         Map<Long, LocalDateTime> lastCompletedAtByUserId = new HashMap<>();
 
         for (ActivityLog activityLog : activityLogRepository.findAll()) {
-            if (!"COMPLETED".equalsIgnoreCase(activityLog.getStatus())
+            if (!STATUS_COMPLETED.equalsIgnoreCase(activityLog.getStatus())
                     || activityLog.getUserId() == null
                     || activityLog.getCompletedAt() == null) {
                 continue;
@@ -126,7 +123,7 @@ public class AdminService {
 
             startedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
 
-            if ("COMPLETED".equalsIgnoreCase(activityLog.getStatus())) {
+            if (STATUS_COMPLETED.equalsIgnoreCase(activityLog.getStatus())) {
                 completedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
                 if (activityLog.getCompletedAt() != null) {
                     lastCompletedAtByWorkoutId.merge(
