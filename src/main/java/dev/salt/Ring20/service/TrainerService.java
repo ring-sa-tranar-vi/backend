@@ -1,7 +1,4 @@
 package dev.salt.Ring20.service;
-
-import static org.springframework.http.HttpStatus.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.dto.RecommendWorkoutDto;
@@ -13,8 +10,11 @@ import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -43,9 +43,10 @@ public class TrainerService {
         return trainerRepository.findAll();
     }
 
+    @Transactional
     public Trainer createTrainer(TrainerRequestDto request) {
         if (request == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
+            throw new IllegalArgumentException("Request body is required");
         }
 
         String name = normalizeRequired(request.name(), "name", 120);
@@ -55,7 +56,7 @@ public class TrainerService {
         String language = normalizeRequired(request.language(), "language", 40);
 
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)) {
-            throw new ResponseStatusException(CONFLICT, "Trainer already exists for this language");
+            throw new IllegalArgumentException("Trainer already exists for this language");
         }
 
         Trainer trainer = new Trainer();
@@ -72,18 +73,19 @@ public class TrainerService {
         return trainerRepository.save(trainer);
     }
 
+    @Transactional
     public Trainer updateTrainer(Long id, TrainerRequestDto request) {
         validateId(id);
 
         if (request == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
+            throw new IllegalArgumentException("Request body is required");
         }
 
         Trainer trainer =
                 trainerRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
+                                () -> new NoSuchElementException("Trainer not found with id: "+ id));
 
         String name = normalizeRequired(request.name(), "name", 120);
         String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
@@ -94,7 +96,7 @@ public class TrainerService {
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
                         || !language.equalsIgnoreCase(trainer.getLanguage()))) {
-            throw new ResponseStatusException(CONFLICT, "Trainer already exists for this language");
+            throw new IllegalArgumentException("Trainer already exists for this language");
         }
 
         trainer.setName(name);
@@ -114,36 +116,34 @@ public class TrainerService {
         validateId(id);
         return trainerRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
+                .orElseThrow(() -> new NoSuchElementException( "Trainer not found with id: " + id));
     }
 
+    @Transactional
     public void deleteTrainer(Long id) {
         validateId(id);
-        if (!trainerRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND, "Trainer not found");
-        }
-        trainerRepository.deleteById(id);
+        Trainer trainer = getTrainerById(id);
+        trainerRepository.delete(trainer);
     }
 
     private void validateId(Long id) {
         if (id == null || id <= 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "id must be a positive number");
+            throw new IllegalArgumentException("Id must be a positive number");
         }
     }
 
     private String normalizeRequired(String value, String fieldName, int maxLength) {
         if (value == null) {
-            throw new ResponseStatusException(BAD_REQUEST, fieldName + " is required");
+            throw new IllegalArgumentException( fieldName + " is required");
         }
 
         String normalized = value.trim();
         if (normalized.isEmpty()) {
-            throw new ResponseStatusException(BAD_REQUEST, fieldName + " is required");
+            throw new IllegalArgumentException(fieldName + " is required");
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(
-                    BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
+            throw new IllegalArgumentException( fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
@@ -160,8 +160,7 @@ public class TrainerService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(
-                    BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
+            throw new IllegalArgumentException( fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
@@ -175,8 +174,7 @@ public class TrainerService {
         // 1. Verify workouts matching this specific trainer exist
         List<Workout> trainerWorkouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
         if (trainerWorkouts.isEmpty()) {
-            throw new ResponseStatusException(
-                    NOT_FOUND, "No workouts found for trainer ID: " + trainerId);
+            throw new NoSuchElementException("No workouts found for trainer ID: " + trainerId);
         }
 
         // 2. Pull the complete user profile data dependency
@@ -185,8 +183,7 @@ public class TrainerService {
                         .findById(userId)
                         .orElseThrow(
                                 () ->
-                                        new ResponseStatusException(
-                                                NOT_FOUND, "User not found with ID: " + userId));
+                                        new NoSuchElementException( "User not found with ID: " + userId));
 
         // 3. Fire the non-blocking asynchronous REST pipeline call
         return geminiWorkoutService
@@ -210,21 +207,15 @@ public class TrainerService {
                                 // 4. Validate entity integrity if a match was successfully found
                                 if (workoutId != null
                                         && !workoutRepository.existsByIdAndEnabledTrue(workoutId)) {
-                                    throw new ResponseStatusException(
-                                            INTERNAL_SERVER_ERROR,
-                                            "AI recommended a workout ID ("
-                                                    + workoutId
-                                                    + ") that does not exist in the database.");
+                                    throw new IllegalStateException(
+                                            "AI recommended an invalid workout id: " + workoutId + "that does not exist in the database.");
                                 }
 
                                 // 5. Build and return your exact custom DTO record payload
                                 return new RecommendWorkoutDto(workoutId, reasoning);
 
-                            } catch (ResponseStatusException rse) {
-                                throw rse; // Pass along our validated entity exceptions cleanly
                             } catch (Exception e) {
-                                throw new ResponseStatusException(
-                                        INTERNAL_SERVER_ERROR,
+                                throw new IllegalStateException(
                                         "Failed to parse structured AI recommendation payload. Raw response content: "
                                                 + jsonStringResponse,
                                         e);
