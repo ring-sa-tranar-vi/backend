@@ -1,18 +1,15 @@
 package dev.salt.Ring20.service;
 
-
 import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
 import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,7 +30,11 @@ public class FeedbackService {
     private static final double GOOD_MAX_DISLIKE_RATE = 0.20;
     private static final double GOOD_MAX_TOO_HARD_RATE = 0.30;
 
-    public FeedbackService(FeedbackRepository feedbackRepository, WorkoutRepository workoutRepository, UserWorkoutPreferenceService preferenceService, ActivityLogRepository activityLogRepository) {
+    public FeedbackService(
+            FeedbackRepository feedbackRepository,
+            WorkoutRepository workoutRepository,
+            UserWorkoutPreferenceService preferenceService,
+            ActivityLogRepository activityLogRepository) {
         this.feedbackRepository = feedbackRepository;
         this.workoutRepository = workoutRepository;
         this.preferenceService = preferenceService;
@@ -48,11 +49,17 @@ public class FeedbackService {
         Feedback savedFeedback = feedbackRepository.save(feedback);
 
         if (Boolean.FALSE.equals(feedback.getLiked())) {
-            preferenceService.addPreference(feedback.getUserId(), feedback.getWorkoutId(), UserWorkoutPreferenceType.DISLIKED);
+            preferenceService.addPreference(
+                    feedback.getUserId(),
+                    feedback.getWorkoutId(),
+                    UserWorkoutPreferenceType.DISLIKED);
         }
 
         if (Boolean.TRUE.equals(feedback.getLiked())) {
-            preferenceService.removePreference(feedback.getUserId(), feedback.getWorkoutId(), UserWorkoutPreferenceType.DISLIKED);
+            preferenceService.removePreference(
+                    feedback.getUserId(),
+                    feedback.getWorkoutId(),
+                    UserWorkoutPreferenceType.DISLIKED);
         }
 
         return savedFeedback;
@@ -69,19 +76,26 @@ public class FeedbackService {
         }
 
         if (feedback.getDifficulty() == null && rating == null && feedback.getLiked() == null) {
-            throw new IllegalArgumentException("At least one of difficulty, liked, or rating must be provided.");
+            throw new IllegalArgumentException(
+                    "At least one of difficulty, liked, or rating must be provided.");
         }
 
         Long activityLogId = feedback.getActivityLogId();
         if (activityLogId != null) {
-            ActivityLog activityLog = activityLogRepository.findById(activityLogId).orElseThrow(() -> new IllegalArgumentException("ActivityLogId does not exist"));
+            ActivityLog activityLog =
+                    activityLogRepository
+                            .findById(activityLogId)
+                            .orElseThrow(
+                                    () ->
+                                            new IllegalArgumentException(
+                                                    "ActivityLogId does not exist"));
 
-            if (!Objects.equals(activityLog.getUserId(), feedback.getUserId()) || !Objects.equals(activityLog.getWorkoutId(), feedback.getWorkoutId())) {
+            if (!Objects.equals(activityLog.getUserId(), feedback.getUserId())
+                    || !Objects.equals(activityLog.getWorkoutId(), feedback.getWorkoutId())) {
                 throw new IllegalArgumentException("ActivityLogId must match userId and workoutId");
             }
         }
     }
-
 
     private void attachActivityLog(Feedback feedback) {
         if (feedback.getActivityLogId() != null) {
@@ -91,7 +105,16 @@ public class FeedbackService {
         Long userId = feedback.getUserId();
         Long workoutId = feedback.getWorkoutId();
 
-        Optional<Long> matchedActivityLogId = activityLogRepository.findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(userId, workoutId, STATUS_COMPLETED).or(() -> activityLogRepository.findTopByUserIdAndWorkoutIdOrderByCompletedAtDesc(userId, workoutId)).map(ActivityLog::getId);
+        Optional<Long> matchedActivityLogId =
+                activityLogRepository
+                        .findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
+                                userId, workoutId, STATUS_COMPLETED)
+                        .or(
+                                () ->
+                                        activityLogRepository
+                                                .findTopByUserIdAndWorkoutIdOrderByCompletedAtDesc(
+                                                        userId, workoutId))
+                        .map(ActivityLog::getId);
 
         if (matchedActivityLogId.isPresent()) {
             feedback.setActivityLogId(matchedActivityLogId.get());
@@ -108,7 +131,9 @@ public class FeedbackService {
     }
 
     public Feedback getFeedbackById(Long id) {
-        return feedbackRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Feedback not found with id: " + id));
+        return feedbackRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Feedback not found with id: " + id));
     }
 
     public List<Feedback> getFeedbackByUserId(Long userId) {
@@ -125,7 +150,13 @@ public class FeedbackService {
 
     @Transactional
     public void deleteFeedback(Long id) {
-        Feedback feedback = feedbackRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Feedback not found with id: " + id));
+        Feedback feedback =
+                feedbackRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Feedback not found with id: " + id));
 
         feedbackRepository.delete(feedback);
     }
@@ -133,49 +164,95 @@ public class FeedbackService {
     public List<AdminWorkoutFeedbackSummaryDto> getWorkoutFeedbackSummary() {
         List<Workout> workouts = workoutRepository.findAll();
 
-        Map<Long, List<Feedback>> feedbackByWorkoutId = feedbackRepository.findAll().stream().filter(feedback -> feedback.getWorkoutId() != null).collect(Collectors.groupingBy(Feedback::getWorkoutId));
+        Map<Long, List<Feedback>> feedbackByWorkoutId =
+                feedbackRepository.findAll().stream()
+                        .filter(feedback -> feedback.getWorkoutId() != null)
+                        .collect(Collectors.groupingBy(Feedback::getWorkoutId));
 
-        return workouts.stream().map(workout -> createWorkoutSummary(workout, feedbackByWorkoutId.getOrDefault(workout.getId(), List.of()))).toList();
+        return workouts.stream()
+                .map(
+                        workout ->
+                                createWorkoutSummary(
+                                        workout,
+                                        feedbackByWorkoutId.getOrDefault(
+                                                workout.getId(), List.of())))
+                .toList();
     }
 
-    private AdminWorkoutFeedbackSummaryDto createWorkoutSummary(Workout workout, List<Feedback> feedbacks) {
+    private AdminWorkoutFeedbackSummaryDto createWorkoutSummary(
+            Workout workout, List<Feedback> feedbacks) {
         int feedbackCount = feedbacks.size();
 
-        long ratingCount = feedbacks.stream().filter(feedback -> feedback.getRating() != null).count();
+        long ratingCount =
+                feedbacks.stream().filter(feedback -> feedback.getRating() != null).count();
 
-        double ratingSum = feedbacks.stream().filter(feedback -> feedback.getRating() != null).mapToDouble(Feedback::getRating).sum();
+        double ratingSum =
+                feedbacks.stream()
+                        .filter(feedback -> feedback.getRating() != null)
+                        .mapToDouble(Feedback::getRating)
+                        .sum();
 
-        long dislikedCount = feedbacks.stream().filter(feedback -> Boolean.FALSE.equals(feedback.getLiked())).count();
+        long dislikedCount =
+                feedbacks.stream()
+                        .filter(feedback -> Boolean.FALSE.equals(feedback.getLiked()))
+                        .count();
 
-        long tooHardCount = feedbacks.stream().filter(feedback -> feedback.getDifficulty() == FeedbackDifficulty.TOO_HARD).count();
+        long tooHardCount =
+                feedbacks.stream()
+                        .filter(feedback -> feedback.getDifficulty() == FeedbackDifficulty.TOO_HARD)
+                        .count();
 
         double avgRating = calculateRate(ratingSum, ratingCount);
         double dislikeRate = calculateRate(dislikedCount, feedbackCount);
         double tooHardRate = calculateRate(tooHardCount, feedbackCount);
 
-        return new AdminWorkoutFeedbackSummaryDto(workout.getId(), workout.getName(), feedbackCount, avgRating, dislikeRate, tooHardRate, deriveStatus(feedbackCount, avgRating, dislikeRate, tooHardRate));
+        return new AdminWorkoutFeedbackSummaryDto(
+                workout.getId(),
+                workout.getName(),
+                feedbackCount,
+                avgRating,
+                dislikeRate,
+                tooHardRate,
+                deriveStatus(feedbackCount, avgRating, dislikeRate, tooHardRate));
     }
 
     private double calculateRate(double numerator, double denominator) {
         return denominator == 0 ? 0 : roundTwoDecimals(numerator / denominator);
     }
 
-
     public List<AdminRecentFeedbackDto> getRecentFeedbackEntries() {
         List<Feedback> feedbacks = new ArrayList<>(feedbackRepository.findAll());
-        feedbacks.sort(Comparator.comparing(Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
+        feedbacks.sort(
+                Comparator.comparing(
+                        Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
 
         List<AdminRecentFeedbackDto> result = new ArrayList<>();
         for (Feedback feedback : feedbacks) {
-            String workoutName = workoutRepository.findById(feedback.getWorkoutId()).map(Workout::getName).orElse(UNKNOWN_WORKOUT);
+            String workoutName =
+                    workoutRepository
+                            .findById(feedback.getWorkoutId())
+                            .map(Workout::getName)
+                            .orElse(UNKNOWN_WORKOUT);
 
-            result.add(new AdminRecentFeedbackDto(feedback.getId(), feedback.getUserId(), feedback.getWorkoutId(), feedback.getActivityLogId(), workoutName, feedback.getDifficulty(), feedback.getLiked(), feedback.getRating(), feedback.getComment(), feedback.getCreatedAt()));
+            result.add(
+                    new AdminRecentFeedbackDto(
+                            feedback.getId(),
+                            feedback.getUserId(),
+                            feedback.getWorkoutId(),
+                            feedback.getActivityLogId(),
+                            workoutName,
+                            feedback.getDifficulty(),
+                            feedback.getLiked(),
+                            feedback.getRating(),
+                            feedback.getComment(),
+                            feedback.getCreatedAt()));
         }
 
         return result;
     }
 
-    private String deriveStatus(int feedbackCount, double avgRating, double dislikeRate, double tooHardRate) {
+    private String deriveStatus(
+            int feedbackCount, double avgRating, double dislikeRate, double tooHardRate) {
         if (feedbackCount < MIN_FEEDBACK_FOR_REVIEW) {
             return FeedbackStatus.NEEDS_REVIEW.toString();
         }
@@ -191,21 +268,13 @@ public class FeedbackService {
         return FeedbackStatus.NEEDS_REVIEW.toString();
     }
 
-    private boolean isBadFeedback(
-            double avgRating,
-            double dislikeRate,
-            double tooHardRate
-    ) {
+    private boolean isBadFeedback(double avgRating, double dislikeRate, double tooHardRate) {
         return dislikeRate >= BAD_DISLIKE_RATE
                 || tooHardRate >= BAD_TOO_HARD_RATE
                 || (avgRating > 0 && avgRating < BAD_MIN_RATING);
     }
 
-    private boolean isGoodFeedback(
-            double avgRating,
-            double dislikeRate,
-            double tooHardRate
-    ) {
+    private boolean isGoodFeedback(double avgRating, double dislikeRate, double tooHardRate) {
         return avgRating >= GOOD_MIN_RATING
                 && dislikeRate <= GOOD_MAX_DISLIKE_RATE
                 && tooHardRate <= GOOD_MAX_TOO_HARD_RATE;

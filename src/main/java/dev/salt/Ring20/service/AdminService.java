@@ -14,12 +14,10 @@ import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +32,13 @@ public class AdminService {
     private static final String UNKNOWN_USER = "Unknown user";
     private static final String UNKNOWN_WORKOUT = "Unknown workout";
 
-    public AdminService(UserRepository userRepository, ActivityLogRepository activityLogRepository, WorkoutRepository workoutRepository, TrainerRepository trainerRepository, OrganisationRepository organisationRepository, EventRepository eventRepository) {
+    public AdminService(
+            UserRepository userRepository,
+            ActivityLogRepository activityLogRepository,
+            WorkoutRepository workoutRepository,
+            TrainerRepository trainerRepository,
+            OrganisationRepository organisationRepository,
+            EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.activityLogRepository = activityLogRepository;
         this.workoutRepository = workoutRepository;
@@ -43,17 +47,63 @@ public class AdminService {
 
     public List<AdminUserSummaryDTO> getUserSummaries() {
         List<User> users = userRepository.findAll();
-        Map<Long, LocalDateTime> lastCompletedAtByUserId = activityLogRepository.findByStatus(STATUS_COMPLETED).stream().filter(log -> log.getUserId() != null && log.getCompletedAt() != null).collect(Collectors.toMap(ActivityLog::getUserId, ActivityLog::getCompletedAt, (existingTime, newTime) -> newTime.isAfter(existingTime) ? newTime : existingTime));
+        Map<Long, LocalDateTime> lastCompletedAtByUserId =
+                activityLogRepository.findByStatus(STATUS_COMPLETED).stream()
+                        .filter(log -> log.getUserId() != null && log.getCompletedAt() != null)
+                        .collect(
+                                Collectors.toMap(
+                                        ActivityLog::getUserId,
+                                        ActivityLog::getCompletedAt,
+                                        (existingTime, newTime) ->
+                                                newTime.isAfter(existingTime)
+                                                        ? newTime
+                                                        : existingTime));
 
-        return users.stream().sorted(Comparator.comparing(User::getId)).map(user -> new AdminUserSummaryDTO(user.getId(), user.getName(), user.getClerkId(), user.getRole(), user.getIntensityLevel(), user.getTrainerId(), lastCompletedAtByUserId.get(user.getId()))).toList();
+        return users.stream()
+                .sorted(Comparator.comparing(User::getId))
+                .map(
+                        user ->
+                                new AdminUserSummaryDTO(
+                                        user.getId(),
+                                        user.getName(),
+                                        user.getClerkId(),
+                                        user.getRole(),
+                                        user.getIntensityLevel(),
+                                        user.getTrainerId(),
+                                        lastCompletedAtByUserId.get(user.getId())))
+                .toList();
     }
 
     public List<AdminRecentActivityDTO> getRecentActivityLogs() {
-        Map<Long, String> userNameById = userRepository.findAll().stream().collect(Collectors.toMap(User::getId, User::getName));
+        Map<Long, String> userNameById =
+                userRepository.findAll().stream()
+                        .collect(Collectors.toMap(User::getId, User::getName));
 
-        Map<Long, String> workoutNameById = workoutRepository.findAll().stream().collect(Collectors.toMap(Workout::getId, Workout::getName));
+        Map<Long, String> workoutNameById =
+                workoutRepository.findAll().stream()
+                        .collect(Collectors.toMap(Workout::getId, Workout::getName));
 
-        return activityLogRepository.findAll().stream().sorted(Comparator.comparing(ActivityLog::getCompletedAt, Comparator.nullsLast(Comparator.reverseOrder())).thenComparing(ActivityLog::getId, Comparator.reverseOrder())).limit(RECENT_ACTIVITY_LIMIT).map(activityLog -> new AdminRecentActivityDTO(activityLog.getId(), activityLog.getUserId(), userNameById.getOrDefault(activityLog.getUserId(), UNKNOWN_USER), activityLog.getWorkoutId(), workoutNameById.getOrDefault(activityLog.getWorkoutId(), UNKNOWN_WORKOUT), activityLog.getStatus(), activityLog.getDurationSeconds(), activityLog.getCompletedAt())).toList();
+        return activityLogRepository.findAll().stream()
+                .sorted(
+                        Comparator.comparing(
+                                        ActivityLog::getCompletedAt,
+                                        Comparator.nullsLast(Comparator.reverseOrder()))
+                                .thenComparing(ActivityLog::getId, Comparator.reverseOrder()))
+                .limit(RECENT_ACTIVITY_LIMIT)
+                .map(
+                        activityLog ->
+                                new AdminRecentActivityDTO(
+                                        activityLog.getId(),
+                                        activityLog.getUserId(),
+                                        userNameById.getOrDefault(
+                                                activityLog.getUserId(), UNKNOWN_USER),
+                                        activityLog.getWorkoutId(),
+                                        workoutNameById.getOrDefault(
+                                                activityLog.getWorkoutId(), UNKNOWN_WORKOUT),
+                                        activityLog.getStatus(),
+                                        activityLog.getDurationSeconds(),
+                                        activityLog.getCompletedAt()))
+                .toList();
     }
 
     public List<AdminWorkoutUsageDTO> getWorkoutUsage() {
@@ -73,12 +123,29 @@ public class AdminService {
             if (STATUS_COMPLETED.equalsIgnoreCase(activityLog.getStatus())) {
                 completedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
                 if (activityLog.getCompletedAt() != null) {
-                    lastCompletedAtByWorkoutId.merge(workoutId, activityLog.getCompletedAt(), (current, candidate) -> candidate.isAfter(current) ? candidate : current);
+                    lastCompletedAtByWorkoutId.merge(
+                            workoutId,
+                            activityLog.getCompletedAt(),
+                            (current, candidate) ->
+                                    candidate.isAfter(current) ? candidate : current);
                 }
             }
         }
 
-        return workoutRepository.findAll().stream().sorted(Comparator.comparing(Workout::getId)).map(workout -> new AdminWorkoutUsageDTO(workout.getId(), workout.getName(), workout.getTrainer() == null ? null : workout.getTrainer().getName(), startedCountByWorkoutId.getOrDefault(workout.getId(), 0L), completedCountByWorkoutId.getOrDefault(workout.getId(), 0L), lastCompletedAtByWorkoutId.get(workout.getId()))).toList();
+        return workoutRepository.findAll().stream()
+                .sorted(Comparator.comparing(Workout::getId))
+                .map(
+                        workout ->
+                                new AdminWorkoutUsageDTO(
+                                        workout.getId(),
+                                        workout.getName(),
+                                        workout.getTrainer() == null
+                                                ? null
+                                                : workout.getTrainer().getName(),
+                                        startedCountByWorkoutId.getOrDefault(workout.getId(), 0L),
+                                        completedCountByWorkoutId.getOrDefault(workout.getId(), 0L),
+                                        lastCompletedAtByWorkoutId.get(workout.getId())))
+                .toList();
     }
 
     public List<AdminTrainerOverviewDTO> getTrainerOverview() {
@@ -103,12 +170,29 @@ public class AdminService {
             }
         }
 
-        return trainerRepository.findAll().stream().sorted(Comparator.comparing(Trainer::getId)).map(trainer -> new AdminTrainerOverviewDTO(trainer.getId(), trainer.getName(), trainer.getLanguage(), assignedUserCountByTrainerId.getOrDefault(trainer.getId(), 0L), workoutCountByTrainerId.getOrDefault(trainer.getId(), 0L), enabledWorkoutCountByTrainerId.getOrDefault(trainer.getId(), 0L))).toList();
+        return trainerRepository.findAll().stream()
+                .sorted(Comparator.comparing(Trainer::getId))
+                .map(
+                        trainer ->
+                                new AdminTrainerOverviewDTO(
+                                        trainer.getId(),
+                                        trainer.getName(),
+                                        trainer.getLanguage(),
+                                        assignedUserCountByTrainerId.getOrDefault(
+                                                trainer.getId(), 0L),
+                                        workoutCountByTrainerId.getOrDefault(trainer.getId(), 0L),
+                                        enabledWorkoutCountByTrainerId.getOrDefault(
+                                                trainer.getId(), 0L)))
+                .toList();
     }
 
     @Transactional
     public User updateUser(Long id, User updateData) {
-        User existing = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+        User existing =
+                userRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new NoSuchElementException("User not found with id: " + id));
 
         if (updateData.getName() != null && !updateData.getName().isBlank()) {
             existing.setName(updateData.getName());
@@ -131,8 +215,11 @@ public class AdminService {
 
     @Transactional
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+        User user =
+                userRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new NoSuchElementException("User not found with id: " + id));
         userRepository.delete(user);
     }
-
 }

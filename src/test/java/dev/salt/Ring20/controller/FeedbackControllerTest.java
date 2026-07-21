@@ -10,7 +10,6 @@ import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

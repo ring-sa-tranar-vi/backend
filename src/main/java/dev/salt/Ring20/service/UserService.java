@@ -2,12 +2,10 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
-
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,7 +45,8 @@ public class UserService {
         if (existing.isPresent()) {
             User user = existing.get();
 
-            if (user.getName() == null || user.getName().isBlank()
+            if (user.getName() == null
+                    || user.getName().isBlank()
                     || DEFAULT_DISPLAY_NAME.equals(user.getName())) {
                 user.setName(displayName);
                 return userRepository.save(user);
@@ -56,9 +55,7 @@ public class UserService {
             return user;
         }
 
-        return userRepository.save(
-                new User(displayName, STARTING_INTENSITY, "", clerkId)
-        );
+        return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
     public Optional<User> findByClerkId(String clerkId) {
@@ -66,12 +63,19 @@ public class UserService {
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
-        return userRepository.findByClerkId(clerkId)
+        return userRepository
+                .findByClerkId(clerkId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 
     @Transactional
-    public User updateUserPreferencesByClerkId(String clerkId, String name, int intensityLevel, String context, Long trainerId, String city) {
+    public User updateUserPreferencesByClerkId(
+            String clerkId,
+            String name,
+            int intensityLevel,
+            String context,
+            Long trainerId,
+            String city) {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
@@ -87,7 +91,9 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
@@ -142,7 +148,10 @@ public class UserService {
     public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
-        Optional<CallbackPreference> existing = user.getCallbackPreferences().stream().filter(c -> c.getDay() == callback.getDay()).findFirst();
+        Optional<CallbackPreference> existing =
+                user.getCallbackPreferences().stream()
+                        .filter(c -> c.getDay() == callback.getDay())
+                        .findFirst();
 
         if (existing.isPresent()) {
             existing.get().setTime(callback.getTime());

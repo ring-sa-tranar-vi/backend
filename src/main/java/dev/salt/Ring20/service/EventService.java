@@ -5,11 +5,9 @@ import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.EventRepository;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,7 +51,12 @@ public class EventService {
             String city,
             String venue,
             EventType eventType) {
-        Event event = repo.findById(id).orElseThrow(() -> new NoSuchElementException(" Event not found with id: " + id));
+        Event event =
+                repo.findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                " Event not found with id: " + id));
         event.setName(name);
         event.setDescription(description);
         event.setTime(time);

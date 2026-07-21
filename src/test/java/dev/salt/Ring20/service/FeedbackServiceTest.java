@@ -100,8 +100,7 @@ class FeedbackServiceTest {
 
         ResponseStatusException ex =
                 assertThrows(
-                        ResponseStatusException.class,
-                        () -> feedbackService.addFeedback(feedback));
+                        ResponseStatusException.class, () -> feedbackService.addFeedback(feedback));
         assertEquals("userId and workoutId are required", ex.getReason());
     }
 
@@ -111,8 +110,7 @@ class FeedbackServiceTest {
 
         ResponseStatusException ex =
                 assertThrows(
-                        ResponseStatusException.class,
-                        () -> feedbackService.addFeedback(feedback));
+                        ResponseStatusException.class, () -> feedbackService.addFeedback(feedback));
         assertEquals("rating must be between 1 and 5", ex.getReason());
     }
 

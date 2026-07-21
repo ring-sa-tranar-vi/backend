@@ -1,4 +1,5 @@
 package dev.salt.Ring20.service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.dto.RecommendWorkoutDto;
@@ -12,7 +13,6 @@ import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,7 +84,9 @@ public class TrainerService {
                 trainerRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new NoSuchElementException("Trainer not found with id: "+ id));
+                                () ->
+                                        new NoSuchElementException(
+                                                "Trainer not found with id: " + id));
 
         String name = normalizeRequired(request.name(), "name", 120);
         String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
@@ -115,7 +117,7 @@ public class TrainerService {
         validateId(id);
         return trainerRepository
                 .findById(id)
-                .orElseThrow(() -> new NoSuchElementException( "Trainer not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Trainer not found with id: " + id));
     }
 
     @Transactional
@@ -133,7 +135,7 @@ public class TrainerService {
 
     private String normalizeRequired(String value, String fieldName, int maxLength) {
         if (value == null) {
-            throw new IllegalArgumentException( fieldName + " is required");
+            throw new IllegalArgumentException(fieldName + " is required");
         }
 
         String normalized = value.trim();
@@ -142,7 +144,7 @@ public class TrainerService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new IllegalArgumentException( fieldName + " exceeds max length " + maxLength);
+            throw new IllegalArgumentException(fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
@@ -159,7 +161,7 @@ public class TrainerService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new IllegalArgumentException( fieldName + " exceeds max length " + maxLength);
+            throw new IllegalArgumentException(fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
@@ -182,7 +184,8 @@ public class TrainerService {
                         .findById(userId)
                         .orElseThrow(
                                 () ->
-                                        new NoSuchElementException( "User not found with ID: " + userId));
+                                        new NoSuchElementException(
+                                                "User not found with ID: " + userId));
 
         // 3. Fire the non-blocking asynchronous REST pipeline call
         return geminiWorkoutService
@@ -207,7 +210,9 @@ public class TrainerService {
                                 if (workoutId != null
                                         && !workoutRepository.existsByIdAndEnabledTrue(workoutId)) {
                                     throw new IllegalStateException(
-                                            "AI recommended an invalid workout id: " + workoutId + "that does not exist in the database.");
+                                            "AI recommended an invalid workout id: "
+                                                    + workoutId
+                                                    + "that does not exist in the database.");
                                 }
 
                                 // 5. Build and return your exact custom DTO record payload

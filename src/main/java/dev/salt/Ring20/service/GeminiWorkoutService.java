@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.Workout;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,12 +20,12 @@ public class GeminiWorkoutService {
     private final String googleApiKey;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
-    private static final Logger log =
-            LoggerFactory.getLogger(GeminiWorkoutService.class);
+    private static final Logger log = LoggerFactory.getLogger(GeminiWorkoutService.class);
 
-    public GeminiWorkoutService(@Value("${gemini.api-key:}") String googleApiKey,
-                                ObjectMapper objectMapper,
-                                RestTemplate restTemplate) {
+    public GeminiWorkoutService(
+            @Value("${gemini.api-key:}") String googleApiKey,
+            ObjectMapper objectMapper,
+            RestTemplate restTemplate) {
         this.googleApiKey = googleApiKey;
         this.objectMapper = objectMapper;
         this.restTemplate = restTemplate;
@@ -122,8 +120,7 @@ public class GeminiWorkoutService {
 
                     } catch (Exception e) {
                         log.error("Gemini Execution failure: ", e);
-                        throw new RuntimeException(
-                                "Failed to generate workout recommendation");
+                        throw new RuntimeException("Failed to generate workout recommendation");
                     }
                 });
     }
