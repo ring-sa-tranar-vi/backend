@@ -67,7 +67,6 @@ public class TrainerController {
                 trainer.getVoice(),
                 fileStorageService.getFileAccess(trainer.getIntro(), 15),
                 trainer.getLanguage(),
-
                 fileStorageService.getFileAccess(trainer.getImageSelect(), 15),
                 fileStorageService.getFileAccess(trainer.getImageCall(), 15),
                 fileStorageService.getFileAccess(trainer.getImageStart(), 15),

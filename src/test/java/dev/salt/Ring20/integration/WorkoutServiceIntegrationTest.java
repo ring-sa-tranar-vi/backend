@@ -6,7 +6,6 @@ import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.WorkoutService;
 import org.junit.jupiter.api.DisplayName;
