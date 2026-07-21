@@ -24,7 +24,6 @@ public class ActivityLogController {
         this.activityLogService = activityLogService;
     }
 
-
     @GetMapping("/users/{userId}/has-completed-today")
     public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
             @PathVariable Long userId) {

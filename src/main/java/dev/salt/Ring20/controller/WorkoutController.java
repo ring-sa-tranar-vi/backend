@@ -41,7 +41,6 @@ public class WorkoutController {
         this.userService = userService;
     }
 
-
     @GetMapping
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
         boolean includeDisabled = isAdminIfAuthenticated(authentication);
@@ -54,7 +53,6 @@ public class WorkoutController {
         boolean includeDisabled = isAdminIfAuthenticated(authentication);
         return ResponseEntity.ok().body(workoutService.getWorkoutById(id, includeDisabled));
     }
-
 
     @PostMapping
     public ResponseEntity<WorkoutResponseDto> createWorkout(
@@ -99,6 +97,7 @@ public class WorkoutController {
         }
         return ResponseEntity.ok(workoutService.setWorkoutEnabled(id, request.enabled()));
     }
+
     @GetMapping("/{id}/audio")
     public ResponseEntity<String> getWorkoutAudio(@PathVariable Long id) {
         return ResponseEntity.ok().body(workoutService.getWorkoutAudioUrl(id));
@@ -109,6 +108,7 @@ public class WorkoutController {
             @PathVariable Long id, @RequestParam(required = false) Long userId) {
         return ResponseEntity.ok().body(workoutService.startWorkout(id, userId));
     }
+
     private Workout toEntity(WorkoutRequestDto request) {
         Workout workout = new Workout();
         workout.setName(request.name());

@@ -9,10 +9,8 @@ import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.service.TrainerService;
 import dev.salt.Ring20.service.UserService;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;

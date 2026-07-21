@@ -73,7 +73,6 @@ public class AdminController {
                         + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
-
     @GetMapping("/users/count")
     public ResponseEntity<AdminUserCountDto> getUserCount(Authentication authentication) {
         String clerkId = getClerkId(authentication);
@@ -124,6 +123,7 @@ public class AdminController {
         adminService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/activity-logs/recent")
     public ResponseEntity<List<AdminRecentActivityDTO>> getRecentActivityLogs(
             Authentication authentication) {
@@ -147,6 +147,7 @@ public class AdminController {
 
         return ResponseEntity.ok(adminService.getWorkoutUsage());
     }
+
     @GetMapping("/workouts/feedback-summary")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryDto>> getWorkoutFeedbackSummary(
             Authentication authentication) {
@@ -182,5 +183,4 @@ public class AdminController {
 
         return ResponseEntity.ok(adminService.getTrainerOverview());
     }
-
 }

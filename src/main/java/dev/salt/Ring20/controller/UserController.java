@@ -38,7 +38,6 @@ public class UserController {
         this.eventService = eventService;
     }
 
-
     @GetMapping("/me/profile")
     public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
         String clerkId = getClerkId(authentication);
@@ -46,6 +45,7 @@ public class UserController {
 
         return ResponseEntity.ok(toResponse(currentUser, clerkId));
     }
+
     @GetMapping("/by-clerk/{clerkId}")
     public ResponseEntity<UserResponseDto> getUserByClerkId(
             @PathVariable String clerkId, Authentication authentication) {
@@ -118,7 +118,6 @@ public class UserController {
         return ResponseEntity.ok(toResponse(updated, clerkId));
     }
 
-
     @GetMapping("/me/followed-OrgS")
     public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
             Authentication authentication) {
@@ -130,7 +129,6 @@ public class UserController {
                         .toList());
     }
 
-
     @PostMapping("/me/followed-Orgs/{orgId}")
     public ResponseEntity<UserResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
@@ -141,7 +139,6 @@ public class UserController {
         return ResponseEntity.status(201).body(toResponse(updated));
     }
 
-
     @DeleteMapping("/me/followed-orgs/{orgId}")
     public ResponseEntity<UserResponseDto> removeFollowedOrg(
             Authentication authentication, @PathVariable Long orgId) {
@@ -151,6 +148,7 @@ public class UserController {
                         currentUser.getId(), organisationService.getOrganisationById(orgId));
         return ResponseEntity.ok(toResponse(updated));
     }
+
     @GetMapping("/me/attending-events")
     public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(
             Authentication authentication) {
@@ -161,6 +159,7 @@ public class UserController {
                         .map(this::toEventResponseDto)
                         .toList());
     }
+
     @PostMapping("/me/attending-events/{eventId}")
     public ResponseEntity<UserResponseDto> attendEvent(
             Authentication authentication, @PathVariable Long eventId) {
@@ -180,11 +179,11 @@ public class UserController {
         return ResponseEntity.ok(toResponse(updated));
     }
 
-
     @GetMapping("/{userId}/progress")
     public ResponseEntity<Map<String, Object>> getUserProgress(@PathVariable Long userId) {
         return ResponseEntity.ok(activityLogService.getUserProgress(userId));
     }
+
     @GetMapping("/me/progress")
     public ResponseEntity<Map<String, Object>> getMyProgress(Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
@@ -206,8 +205,6 @@ public class UserController {
     public User remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
         return userService.removeCallbackPreference(userId, day);
     }
-
-
 
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
@@ -276,6 +273,7 @@ public class UserController {
                 user.getTrainerId(),
                 user.getCity());
     }
+
     private EventResponseDto toEventResponseDto(Event event) {
         Long organisationId =
                 event.getOrganisation() == null ? null : event.getOrganisation().getId();

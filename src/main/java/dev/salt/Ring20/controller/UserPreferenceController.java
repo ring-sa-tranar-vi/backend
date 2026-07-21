@@ -69,6 +69,7 @@ public class UserPreferenceController {
         preferenceService.removePreference(userId, workoutId, UserWorkoutPreferenceType.DISLIKED);
         return ResponseEntity.noContent().build();
     }
+
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
             throw new ResponseStatusException(

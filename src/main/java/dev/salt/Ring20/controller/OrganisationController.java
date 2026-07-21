@@ -9,10 +9,8 @@ import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import jakarta.validation.Valid;
-
 import java.net.URI;
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -63,7 +61,6 @@ public class OrganisationController {
         validatePositiveId(id);
         return eventService.getAllEventsByOrgId(id).stream().map(this::toEventResponseDto).toList();
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
