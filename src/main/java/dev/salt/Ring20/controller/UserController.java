@@ -19,7 +19,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class UserController {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
@@ -261,8 +260,19 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/callback-preferance")
-    public User addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
-        return userService.addOrUpdateCallbackPreference(userId, callback);
+    public ResponseEntity<CallbackPreferenceDto> addOrUpdate(
+            @PathVariable Long userId, @RequestBody CallbackPreference callback) {
+
+        CallbackPreference savedPref = userService.addOrUpdateCallbackPreference(userId, callback);
+
+        CallbackPreferenceDto dto =
+                new CallbackPreferenceDto(
+                        savedPref.getId(),
+                        savedPref.getDay().name(),
+                        savedPref.getTime(),
+                        savedPref.getRepeat() != null ? savedPref.getRepeat().name() : null);
+
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{userId}/callback-preferance/{day}")

@@ -143,7 +143,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
+    public CallbackPreference addOrUpdateCallbackPreference(
+            Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
         Optional<CallbackPreference> existing =
@@ -151,15 +152,19 @@ public class UserService {
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
 
+        CallbackPreference savedPreference;
+
         if (existing.isPresent()) {
             existing.get().setTime(callback.getTime());
             existing.get().setRepeat(callback.getRepeat());
+            savedPreference = existing.get();
         } else {
             callback.setUser(user);
             user.getCallbackPreferences().add(callback);
+            savedPreference = callback;
         }
-
-        return userRepository.save(user);
+        userRepository.save(user);
+        return savedPreference;
     }
 
     public User removeCallbackPreference(Long userId, DayOfWeekType day) {
