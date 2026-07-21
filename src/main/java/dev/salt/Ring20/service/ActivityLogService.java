@@ -16,6 +16,8 @@ public class ActivityLogService {
 
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
+    private static final String STATUS_COMPLETED = "COMPLETED";
+
 
     public ActivityLogService(
             ActivityLogRepository activityLogRepository, WorkoutRepository workoutRepository) {
@@ -37,7 +39,7 @@ public class ActivityLogService {
                                         new org.springframework.web.server.ResponseStatusException(
                                                 org.springframework.http.HttpStatus.NOT_FOUND,
                                                 "ActivityLog not found"));
-        log.setStatus("COMPLETED");
+        log.setStatus(STATUS_COMPLETED);
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
     }
@@ -45,7 +47,7 @@ public class ActivityLogService {
     public Map<String, Object> getUserProgress(Long userId) {
         List<ActivityLog> completedLogs =
                 activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(
-                        userId, "COMPLETED");
+                        userId, STATUS_COMPLETED);
 
         List<ActivityLog> validLogs =
                 completedLogs.stream().filter(log -> log.getCompletedAt() != null).toList();
@@ -114,7 +116,7 @@ public class ActivityLogService {
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
         return activityLogRepository.existsByUserIdAndStatusAndCompletedAtBetween(
-                userId, "COMPLETED", startOfDay, endOfDay);
+                userId, STATUS_COMPLETED, startOfDay, endOfDay);
     }
 
     public long getActiveUserCount() {
