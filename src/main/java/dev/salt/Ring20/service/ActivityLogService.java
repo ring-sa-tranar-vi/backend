@@ -34,11 +34,7 @@ public class ActivityLogService {
         ActivityLog log =
                 activityLogRepository
                         .findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new org.springframework.web.server.ResponseStatusException(
-                                                org.springframework.http.HttpStatus.NOT_FOUND,
-                                                "ActivityLog not found"));
+                        .orElseThrow(()-> new NoSuchElementException("ActivityLog not found with id:" + id));
         log.setStatus(STATUS_COMPLETED);
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
