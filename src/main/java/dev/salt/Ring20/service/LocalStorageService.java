@@ -12,7 +12,6 @@ public class LocalStorageService implements FileStorageService {
 
     public LocalStorageService(@Value("${server.port}") String serverPort) {
         this.serverPort = serverPort;
-        System.out.println("LocalStorageService initialized with server port: " + serverPort);
     }
 
     @Override

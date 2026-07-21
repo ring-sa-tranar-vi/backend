@@ -20,7 +20,6 @@ public class GcsStorageService implements FileStorageService {
     public GcsStorageService(@Value("${gcp.storage.bucket-name}") String bucketName) {
         storage = StorageOptions.getDefaultInstance().getService();
         this.bucketName = bucketName;
-        System.out.println("GcsStorageService initialized with bucket name: " + bucketName);
     }
 
     @Override
