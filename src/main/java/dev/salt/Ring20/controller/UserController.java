@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import dev.salt.Ring20.dto.*;
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
@@ -260,8 +261,20 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/callback-preferance")
-    public User addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
-        return userService.addOrUpdateCallbackPreference(userId, callback);
+    public ResponseEntity<CallbackPreferenceDto> addOrUpdate(
+            @PathVariable Long userId,
+            @RequestBody CallbackPreference callback) {
+
+        CallbackPreference savedPref = userService.addOrUpdateCallbackPreference(userId, callback);
+
+        CallbackPreferenceDto dto = new CallbackPreferenceDto(
+                savedPref.getId(),
+                savedPref.getDay().name(),
+                savedPref.getTime(),
+                savedPref.getRepeat() != null ? savedPref.getRepeat().name() : null
+        );
+
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/{userId}/callback-preferance/{day}")
