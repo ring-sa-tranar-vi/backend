@@ -5,6 +5,8 @@ import dev.salt.Ring20.dto.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +37,8 @@ public class ActivityLogController {
     public ResponseEntity<ActivityLogResponseDto> createActivityLog(
             @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
         ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
-        return ResponseEntity.ok().body(toResponse(created));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(toResponse(created));
     }
 
     @PutMapping("/{id}/complete")

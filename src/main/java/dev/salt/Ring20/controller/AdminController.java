@@ -2,13 +2,7 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
-import dev.salt.Ring20.dto.AdminRecentFeedbackResponseDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
-import dev.salt.Ring20.dto.AdminUserCountResponseDto;
-import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
-import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
+import dev.salt.Ring20.dto.*;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
@@ -91,14 +85,14 @@ public class AdminController {
 
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody dev.salt.Ring20.entity.User updateData, Authentication authentication) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UserRequestDto updateData, Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
             return ResponseEntity.status(403).build();
         }
 
-        User updated = adminService.updateUser(id, updateData);
+        User updated = adminService.updateUser(id, toUserEntity(updateData));
         return ResponseEntity.ok("User with ID " + updated.getId() + " updated successfully");
     }
 
@@ -223,5 +217,17 @@ public class AdminController {
     private List<AdminRecentFeedbackResponseDto> toAdminRecentFeedbackResponseDto(RecentFeedbackData data) {
 
         return data.feedbacks().stream().map(feedback -> new AdminRecentFeedbackResponseDto(feedback.getId(), feedback.getUserId(), feedback.getWorkoutId(), feedback.getActivityLogId(), data.workoutNameById().getOrDefault(feedback.getWorkoutId(), UNKNOWN_WORKOUT), feedback.getDifficulty(), feedback.getLiked(), feedback.getRating(), feedback.getComment(), feedback.getCreatedAt())).toList();
+    }
+
+    private User toUserEntity(UserRequestDto request){
+        User user = new User();
+
+        user.setName(request.name());
+        user.setIntensityLevel(request.intensityLevel());
+        user.setContext(request.context());
+        user.setTrainerId(request.trainerId());
+        user.setCity(request.city());
+
+        return user;
     }
 }

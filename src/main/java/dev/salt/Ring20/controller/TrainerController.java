@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -57,7 +58,8 @@ public class TrainerController {
             @RequestBody TrainerRequestDto request, Authentication authentication) {
         assertAdmin(authentication);
         Trainer trainer = trainerService.createTrainer(toTrainerData(request));
-        return ResponseEntity.ok(toResponseDto(trainer));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(toResponseDto(trainer));
     }
 
     @PutMapping("/{id}")

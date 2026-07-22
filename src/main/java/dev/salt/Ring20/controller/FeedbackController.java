@@ -5,6 +5,8 @@ import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +56,8 @@ public class FeedbackController {
     public ResponseEntity<FeedbackResponseDto> createFeedback(
             @RequestBody FeedbackRequestDto feedbackRequest) {
         Feedback saved = feedbackService.addFeedback(toEntity(feedbackRequest));
-        return ResponseEntity.ok(toResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(toResponse(saved));
     }
 
     @DeleteMapping("/{id}")

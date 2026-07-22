@@ -11,6 +11,8 @@ import dev.salt.Ring20.service.UserService;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -75,7 +77,8 @@ public class UserController {
                                 ? requestedName
                                 : resolveDisplayName(jwt));
 
-        return ResponseEntity.ok(toResponse(created, jwt.getSubject()));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(toResponse(created, jwt.getSubject()));
     }
 
     @PutMapping("/me/profile")
@@ -118,7 +121,7 @@ public class UserController {
         return ResponseEntity.ok(toResponse(updated, clerkId));
     }
 
-    @GetMapping("/me/followed-OrgS")
+    @GetMapping("/me/followed-orgs")
     public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
             Authentication authentication) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
@@ -129,7 +132,7 @@ public class UserController {
                         .toList());
     }
 
-    @PostMapping("/me/followed-Orgs/{orgId}")
+    @PostMapping("/me/followed-orgs/{orgId}")
     public ResponseEntity<UserResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
