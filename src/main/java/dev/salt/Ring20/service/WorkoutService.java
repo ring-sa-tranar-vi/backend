@@ -147,21 +147,26 @@ public class WorkoutService {
             trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
         }
 
-        String instructionsAudioUrl = (workout.getInstructionsAudio() != null)
-                ? fileStorageService.getFileAccess(workout.getInstructionsAudio(), 15)
-                : null;
-        String workoutAudioUrl = (workout.getWorkoutAudio() != null)
-                ? fileStorageService.getFileAccess(workout.getWorkoutAudio(), 15)
-                : null;
-        String instructionsImageUrl = (workout.getInstructionsImage() != null)
-                ? fileStorageService.getFileAccess(workout.getInstructionsImage(), 15)
-                : null;
-        String workoutImageUrl = (workout.getWorkoutImage() != null)
-                ? fileStorageService.getFileAccess(workout.getWorkoutImage(), 15)
-                : null;
-        String instructionsVideoUrl = (workout.getInstructionsVideo() != null)
-                ? fileStorageService.getFileAccess(workout.getInstructionsVideo(), 15)
-                : null;
+        String instructionsAudioUrl =
+                (workout.getInstructionsAudio() != null)
+                        ? fileStorageService.getFileAccess(workout.getInstructionsAudio(), 15)
+                        : null;
+        String workoutAudioUrl =
+                (workout.getWorkoutAudio() != null)
+                        ? fileStorageService.getFileAccess(workout.getWorkoutAudio(), 15)
+                        : null;
+        String instructionsImageUrl =
+                (workout.getInstructionsImage() != null)
+                        ? fileStorageService.getFileAccess(workout.getInstructionsImage(), 15)
+                        : null;
+        String workoutImageUrl =
+                (workout.getWorkoutImage() != null)
+                        ? fileStorageService.getFileAccess(workout.getWorkoutImage(), 15)
+                        : null;
+        String instructionsVideoUrl =
+                (workout.getInstructionsVideo() != null)
+                        ? fileStorageService.getFileAccess(workout.getInstructionsVideo(), 15)
+                        : null;
 
         return new WorkoutResponseDto(
                 workout.getId(),
