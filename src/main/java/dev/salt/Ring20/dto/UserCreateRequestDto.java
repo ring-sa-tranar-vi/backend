@@ -1,3 +1,8 @@
 package dev.salt.Ring20.dto;
 
-public record UserCreateRequestDto(String displayName) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record UserCreateRequestDto(
+        @NotBlank String displayName
+) {
+}

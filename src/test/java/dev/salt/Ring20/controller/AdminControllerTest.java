@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewRespnseDto;
+import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
 import dev.salt.Ring20.dto.AdminUserCountResponseDto;
 import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
 import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
@@ -192,9 +192,9 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_admin")).thenReturn(true);
         when(adminService.getTrainerOverview())
-                .thenReturn(List.of(new AdminTrainerOverviewRespnseDto(1L, "Coach A", "sv", 3, 5, 4)));
+                .thenReturn(List.of(new AdminTrainerOverviewResponseDto(1L, "Coach A", "sv", 3, 5, 4)));
 
-        ResponseEntity<List<AdminTrainerOverviewRespnseDto>> response =
+        ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
                 controller.getTrainerOverview(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -210,7 +210,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminTrainerOverviewRespnseDto>> response =
+        ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
                 controller.getTrainerOverview(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());

@@ -1,7 +1,9 @@
 package dev.salt.Ring20.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record TrainerRequestDto(
-        String name,
+        @NotBlank String name,
         String prompt,
         String voice,
         String intro,

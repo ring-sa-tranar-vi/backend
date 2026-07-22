@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewRespnseDto;
+import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
 import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
 import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
@@ -148,7 +148,7 @@ public class AdminService {
                 .toList();
     }
 
-    public List<AdminTrainerOverviewRespnseDto> getTrainerOverview() {
+    public List<AdminTrainerOverviewResponseDto> getTrainerOverview() {
         Map<Long, Long> assignedUserCountByTrainerId = new HashMap<>();
         for (User user : userRepository.findAll()) {
             if (user.getTrainerId() != null) {
@@ -174,7 +174,7 @@ public class AdminService {
                 .sorted(Comparator.comparing(Trainer::getId))
                 .map(
                         trainer ->
-                                new AdminTrainerOverviewRespnseDto(
+                                new AdminTrainerOverviewResponseDto(
                                         trainer.getId(),
                                         trainer.getName(),
                                         trainer.getLanguage(),

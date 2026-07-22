@@ -1,3 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record WorkoutEnabledRequestDto(Boolean enabled) {}
+import jakarta.validation.constraints.NotNull;
+
+public record WorkoutEnabledRequestDto(
+        @NotNull Boolean enabled) {}

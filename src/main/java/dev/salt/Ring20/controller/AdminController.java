@@ -4,7 +4,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
 import dev.salt.Ring20.dto.AdminRecentFeedbackResponseDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewRespnseDto;
+import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
 import dev.salt.Ring20.dto.AdminUserCountResponseDto;
 import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
 import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
@@ -173,7 +173,7 @@ public class AdminController {
     }
 
     @GetMapping("/trainers/overview")
-    public ResponseEntity<List<AdminTrainerOverviewRespnseDto>> getTrainerOverview(
+    public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 

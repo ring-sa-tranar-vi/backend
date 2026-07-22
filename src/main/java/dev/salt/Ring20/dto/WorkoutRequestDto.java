@@ -1,7 +1,10 @@
 package dev.salt.Ring20.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record WorkoutRequestDto(
-        String name,
+        @NotBlank String name,
         String description,
         String dashboardName,
         String dashboardDescription,
@@ -9,7 +12,7 @@ public record WorkoutRequestDto(
         String instructionsSubtitleText,
         Integer level,
         String type,
-        Integer durationSeconds,
+        @NotNull Integer durationSeconds,
         String instructionsAudio,
         String workoutAudio,
         String instructionsImage,
@@ -21,6 +24,7 @@ public record WorkoutRequestDto(
         Boolean lowImpact,
         Boolean seated,
         Boolean beginnerFriendly,
-        TrainerIdDTO trainer) {
-    public record TrainerIdDTO(Long id) {}
+        @NotNull TrainerIdDTO trainer) {
+    public record TrainerIdDTO(Long id) {
+    }
 }
