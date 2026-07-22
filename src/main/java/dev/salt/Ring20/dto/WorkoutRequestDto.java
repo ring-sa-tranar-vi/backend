@@ -1,5 +1,6 @@
 package dev.salt.Ring20.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,7 +13,7 @@ public record WorkoutRequestDto(
         String instructionsSubtitleText,
         Integer level,
         String type,
-        @NotNull Integer durationSeconds,
+        @NotNull @Min(0) Integer durationSeconds,
         String instructionsAudio,
         String workoutAudio,
         String instructionsImage,

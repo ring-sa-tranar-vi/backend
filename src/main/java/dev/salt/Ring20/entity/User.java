@@ -24,8 +24,6 @@ public class User {
     private Long id;
 
     private String name;
-    @Min(0)
-    @Max(4)
     private Integer intensityLevel;
     private String context;
 

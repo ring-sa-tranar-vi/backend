@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,6 @@ public class Workout {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
 
     @Column(name = "description")
@@ -45,8 +45,6 @@ public class Workout {
     private String type;
 
     @Column(name = "duration_seconds")
-    @NotNull
-    @Min(0)
     private Integer durationSeconds;
 
     private String instructionsAudio;
