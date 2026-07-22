@@ -21,7 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     @Value(
-            "${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,https://frontend-training.up.railway.app,https://ringsatranarvi.se,https://www.ringsatranarvi.se,https://*.ngrok-free.app,https://staging-ringsatranarvi-app.web.app/,https://prod-ringsatranarvi-app.web.app/}")
+            "${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:4173,https://frontend-training.up.railway.app,https://ringsatranarvi.se,https://www.ringsatranarvi.se,https://*.ngrok-free.app,https://staging-ringsatranarvi-app.web.app,https://prod-ringsatranarvi-app.web.app}")
     private String allowedOrigins;
 
     @Bean
