@@ -1,31 +1,29 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
-import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
-import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
-import dev.salt.Ring20.entity.ActivityLog;
-import dev.salt.Ring20.entity.Trainer;
-import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.data.RecentActivityData;
+import dev.salt.Ring20.service.data.TrainerOverviewData;
+import dev.salt.Ring20.service.data.UserSummaryData;
+import dev.salt.Ring20.service.data.WorkoutUsageData;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdminService {
 
     private static final String STATUS_COMPLETED = "COMPLETED";
-    private static final String UNKNOWN_USER = "Unknown user";
-    private static final String UNKNOWN_WORKOUT = "Unknown workout";
+
     private static final int RECENT_ACTIVITY_LIMIT = 25;
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
@@ -45,7 +43,7 @@ public class AdminService {
         this.trainerRepository = trainerRepository;
     }
 
-    public List<AdminUserSummaryResponseDto> getUserSummaries() {
+    public UserSummaryData getUserSummaries() {
         List<User> users = userRepository.findAll();
         Map<Long, LocalDateTime> lastCompletedAtByUserId =
                 activityLogRepository.findByStatus(STATUS_COMPLETED).stream()
@@ -59,22 +57,10 @@ public class AdminService {
                                                         ? newTime
                                                         : existingTime));
 
-        return users.stream()
-                .sorted(Comparator.comparing(User::getId))
-                .map(
-                        user ->
-                                new AdminUserSummaryResponseDto(
-                                        user.getId(),
-                                        user.getName(),
-                                        user.getClerkId(),
-                                        user.getRole(),
-                                        user.getIntensityLevel(),
-                                        user.getTrainerId(),
-                                        lastCompletedAtByUserId.get(user.getId())))
-                .toList();
+        return new UserSummaryData(users, lastCompletedAtByUserId);
     }
 
-    public List<AdminRecentActivityResponseDto> getRecentActivityLogs() {
+    public RecentActivityData getRecentActivityLogs() {
         Map<Long, String> userNameById =
                 userRepository.findAll().stream()
                         .collect(Collectors.toMap(User::getId, User::getName));
@@ -83,30 +69,18 @@ public class AdminService {
                 workoutRepository.findAll().stream()
                         .collect(Collectors.toMap(Workout::getId, Workout::getName));
 
-        return activityLogRepository.findAll().stream()
+        List<ActivityLog> activityLogs = activityLogRepository.findAll().stream()
                 .sorted(
                         Comparator.comparing(
                                         ActivityLog::getCompletedAt,
                                         Comparator.nullsLast(Comparator.reverseOrder()))
                                 .thenComparing(ActivityLog::getId, Comparator.reverseOrder()))
                 .limit(RECENT_ACTIVITY_LIMIT)
-                .map(
-                        activityLog ->
-                                new AdminRecentActivityResponseDto(
-                                        activityLog.getId(),
-                                        activityLog.getUserId(),
-                                        userNameById.getOrDefault(
-                                                activityLog.getUserId(), UNKNOWN_USER),
-                                        activityLog.getWorkoutId(),
-                                        workoutNameById.getOrDefault(
-                                                activityLog.getWorkoutId(), UNKNOWN_WORKOUT),
-                                        activityLog.getStatus(),
-                                        activityLog.getDurationSeconds(),
-                                        activityLog.getCompletedAt()))
                 .toList();
+        return new RecentActivityData(activityLogs, userNameById, workoutNameById);
     }
 
-    public List<AdminWorkoutUsageResponseDto> getWorkoutUsage() {
+    public WorkoutUsageData getWorkoutUsage() {
         List<ActivityLog> activityLogs = activityLogRepository.findAll();
         Map<Long, Long> startedCountByWorkoutId = new HashMap<>();
         Map<Long, Long> completedCountByWorkoutId = new HashMap<>();
@@ -132,23 +106,18 @@ public class AdminService {
             }
         }
 
-        return workoutRepository.findAll().stream()
+        List<Workout> workouts = workoutRepository.findAll().stream()
                 .sorted(Comparator.comparing(Workout::getId))
-                .map(
-                        workout ->
-                                new AdminWorkoutUsageResponseDto(
-                                        workout.getId(),
-                                        workout.getName(),
-                                        workout.getTrainer() == null
-                                                ? null
-                                                : workout.getTrainer().getName(),
-                                        startedCountByWorkoutId.getOrDefault(workout.getId(), 0L),
-                                        completedCountByWorkoutId.getOrDefault(workout.getId(), 0L),
-                                        lastCompletedAtByWorkoutId.get(workout.getId())))
                 .toList();
+        return new WorkoutUsageData(
+                workouts,
+                startedCountByWorkoutId,
+                completedCountByWorkoutId,
+                lastCompletedAtByWorkoutId
+        );
     }
 
-    public List<AdminTrainerOverviewResponseDto> getTrainerOverview() {
+    public TrainerOverviewData getTrainerOverview() {
         Map<Long, Long> assignedUserCountByTrainerId = new HashMap<>();
         for (User user : userRepository.findAll()) {
             if (user.getTrainerId() != null) {
@@ -170,20 +139,10 @@ public class AdminService {
             }
         }
 
-        return trainerRepository.findAll().stream()
+        List<Trainer> trainers = trainerRepository.findAll().stream()
                 .sorted(Comparator.comparing(Trainer::getId))
-                .map(
-                        trainer ->
-                                new AdminTrainerOverviewResponseDto(
-                                        trainer.getId(),
-                                        trainer.getName(),
-                                        trainer.getLanguage(),
-                                        assignedUserCountByTrainerId.getOrDefault(
-                                                trainer.getId(), 0L),
-                                        workoutCountByTrainerId.getOrDefault(trainer.getId(), 0L),
-                                        enabledWorkoutCountByTrainerId.getOrDefault(
-                                                trainer.getId(), 0L)))
                 .toList();
+        return new TrainerOverviewData(trainers, assignedUserCountByTrainerId, workoutCountByTrainerId, enabledWorkoutCountByTrainerId);
     }
 
     @Transactional
@@ -206,7 +165,7 @@ public class AdminService {
         if (updateData.getTrainerId() != null) {
             existing.setTrainerId(updateData.getTrainerId());
         }
-        if (updateData.getRole() != null && !updateData.getRole().isBlank()) {
+        if (updateData.getRole() != null) {
             existing.setRole(updateData.getRole());
         }
 
