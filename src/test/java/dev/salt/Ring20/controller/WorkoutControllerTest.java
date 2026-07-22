@@ -8,7 +8,6 @@ import dev.salt.Ring20.dto.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.WorkoutRequestDto;
 import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
-import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
 import java.util.List;
@@ -30,13 +29,9 @@ class WorkoutControllerTest {
 
     @Mock private UserService userService;
 
-    @Mock private GeminiWorkoutService geminiWorkoutService;
-
-
     @Test
     void getAllWorkoutsReturnsData() {
-        WorkoutController controller =
-                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller = new WorkoutController(workoutService, userService);
 
         Workout workout = new Workout();
         workout.setId(1L);
@@ -56,8 +51,7 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsForbiddenForNonAdmin() {
-        WorkoutController controller =
-                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller = new WorkoutController(workoutService, userService);
         WorkoutRequestDto request =
                 new WorkoutRequestDto(
                         "Test Workout",
@@ -93,8 +87,7 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsOkForAdmin() {
-        WorkoutController controller =
-                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller = new WorkoutController(workoutService, userService);
         WorkoutRequestDto request =
                 new WorkoutRequestDto(
                         "Test Workout",
@@ -121,31 +114,9 @@ class WorkoutControllerTest {
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        WorkoutResponseDto workout =
-                new WorkoutResponseDto(
-                        null,
-                        "Test Workout",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        true,
-                        null);
+        Workout workout = new Workout();
+        workout.setName("Test Workout");
+        workout.setEnabled(true);
 
         when(workoutService.createWorkout(any())).thenReturn(workout);
 
@@ -158,8 +129,7 @@ class WorkoutControllerTest {
 
     @Test
     void deleteWorkoutReturnsNoContentForAdmin() {
-        WorkoutController controller =
-                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller = new WorkoutController(workoutService, userService);
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
@@ -171,8 +141,7 @@ class WorkoutControllerTest {
 
     @Test
     void setWorkoutEnabledReturnsForbiddenForNonAdmin() {
-        WorkoutController controller =
-                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller = new WorkoutController(workoutService, userService);
         when(userService.isAdmin("user_1")).thenReturn(false);
 
         ResponseEntity<WorkoutResponseDto> response =
@@ -185,35 +154,14 @@ class WorkoutControllerTest {
 
     @Test
     void setWorkoutEnabledReturnsOkForAdmin() {
-        WorkoutController controller =
-                new WorkoutController(workoutService, userService, geminiWorkoutService);
+        WorkoutController controller = new WorkoutController(workoutService, userService);
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        WorkoutResponseDto updated =
-                new WorkoutResponseDto(
-                        1L,
-                        "Push Ups",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        false,
-                        null);
+        Workout updated = new Workout();
+        updated.setId(1L);
+        updated.setName("Push Ups");
+        updated.setEnabled(false);
+
         when(workoutService.setWorkoutEnabled(1L, false)).thenReturn(updated);
 
         ResponseEntity<WorkoutResponseDto> response =

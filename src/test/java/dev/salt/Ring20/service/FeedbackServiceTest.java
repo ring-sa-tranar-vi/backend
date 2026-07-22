@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FeedbackService Tests")
@@ -106,20 +105,20 @@ class FeedbackServiceTest {
     void addFeedbackRejectsMissingUserOrWorkoutId() {
         feedback.setUserId(null);
 
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class, () -> feedbackService.addFeedback(feedback));
-        assertEquals("userId and workoutId are required", ex.getReason());
+                        IllegalArgumentException.class, () -> feedbackService.addFeedback(feedback));
+        assertEquals("UserId and workoutId are required.", ex.getMessage());
     }
 
     @Test
     void addFeedbackRejectsRatingOutsideRange() {
         feedback.setRating(6);
 
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class, () -> feedbackService.addFeedback(feedback));
-        assertEquals("rating must be between 1 and 5", ex.getReason());
+                        IllegalArgumentException.class, () -> feedbackService.addFeedback(feedback));
+        assertEquals("Rating must be between 1 and 5.", ex.getMessage());
     }
 
     @Test

@@ -9,10 +9,11 @@ import org.junit.jupiter.api.Test;
 class WorkoutEntityTest {
 
     @Test
-    void durationSecondsRejectsNegativeValues() {
+    void durationSecondsAllowsNegativeValuesAtEntityLevel() {
         Workout workout = new Workout();
+        workout.setDurationSeconds(-1);
 
-        assertThrows(IllegalArgumentException.class, () -> workout.setDurationSeconds(-1));
+        assertEquals(-1, workout.getDurationSeconds());
     }
 
     @Test

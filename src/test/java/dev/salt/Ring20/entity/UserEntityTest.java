@@ -12,7 +12,7 @@ class UserEntityTest {
     void constructorSetsDefaults() {
         User user = new User("Jane", 2, "context", "clerk_1");
 
-        assertEquals("USER", user.getRole());
+        assertEquals(UserRole.USER, user.getRole());
         assertEquals(1L, user.getTrainerId());
     }
 

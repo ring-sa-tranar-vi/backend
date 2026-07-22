@@ -3,6 +3,7 @@ package dev.salt.Ring20.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.salt.Ring20.entity.Feedback;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ class FeedbackRepositoryTest {
         feedback.setUserId(1L);
         feedback.setWorkoutId(2L);
         feedback.setRating(5);
+        feedback.setCreatedAt(LocalDateTime.now());
 
         feedbackRepository.save(feedback);
 

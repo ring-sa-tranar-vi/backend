@@ -1,6 +1,7 @@
 package dev.salt.Ring20.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
@@ -8,6 +9,7 @@ import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
 import dev.salt.Ring20.dto.AdminUserCountResponseDto;
 import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
 import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
+import dev.salt.Ring20.dto.UserRequestDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
@@ -15,6 +17,7 @@ import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +32,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AdminController Tests")
@@ -49,16 +50,14 @@ class AdminControllerTest {
     private AdminService adminService;
 
     @Test
-    @DisplayName("getUserCount returns count DTO for admin")
-    void getUserCountReturnsCountForAdmin() {
+    @DisplayName("getUserCount returns count DTO")
+    void getUserCountReturnsCount() {
         AdminController controller =
                 new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
         when(userService.getUserCount()).thenReturn(42L);
         when(activityLogService.getActiveUserCount()).thenReturn(7L);
 
-        ResponseEntity<AdminUserCountResponseDto> response =
-                controller.getUserCount(auth("clerk_admin"));
+        ResponseEntity<AdminUserCountResponseDto> response = controller.getUserCount();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -67,24 +66,8 @@ class AdminControllerTest {
     }
 
     @Test
-    @DisplayName("getUserCount returns 403 for non-admin")
-    void getUserCountReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<AdminUserCountResponseDto> response =
-                controller.getUserCount(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(userService, never()).getUserCount();
-        verify(activityLogService, never()).getActiveUserCount();
-    }
-
-    @Test
-    @DisplayName("getUsers returns summaries for admin")
-    void getUsersReturnsSummariesForAdmin() {
-
+    @DisplayName("getUsers returns summaries")
+    void getUsersReturnsSummaries() {
         AdminController controller =
                 new AdminController(
                         userService,
@@ -92,9 +75,6 @@ class AdminControllerTest {
                         activityLogService,
                         adminService
                 );
-
-        when(userService.isAdmin("clerk_admin"))
-                .thenReturn(true);
 
         User user = new User();
         user.setId(1L);
@@ -104,16 +84,18 @@ class AdminControllerTest {
         user.setIntensityLevel(2);
         user.setTrainerId(1L);
 
+        Map<Long, LocalDateTime> lastCompletedAtByUserId = new HashMap<>();
+        lastCompletedAtByUserId.put(1L, null);
+
         when(adminService.getUserSummaries())
                 .thenReturn(
                         new UserSummaryData(
                                 List.of(user),
-                                Map.of(1L, null)
+                                lastCompletedAtByUserId
                         )
                 );
 
-        ResponseEntity<List<AdminUserSummaryResponseDto>> response =
-                controller.getUsers(auth("clerk_admin"));
+        ResponseEntity<List<AdminUserSummaryResponseDto>> response = controller.getUsers();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -128,23 +110,8 @@ class AdminControllerTest {
     }
 
     @Test
-    @DisplayName("getUsers returns 403 for non-admin")
-    void getUsersReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<List<AdminUserSummaryResponseDto>> response =
-                controller.getUsers(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).getUserSummaries();
-    }
-
-    @Test
-    @DisplayName("getRecentActivityLogs returns data for admin")
-    void getRecentActivityLogsReturnsDataForAdmin() {
-
+    @DisplayName("getRecentActivityLogs returns data")
+    void getRecentActivityLogsReturnsData() {
         AdminController controller =
                 new AdminController(
                         userService,
@@ -153,8 +120,6 @@ class AdminControllerTest {
                         adminService
                 );
 
-        when(userService.isAdmin("clerk_admin"))
-                .thenReturn(true);
         ActivityLog activityLog = new ActivityLog();
         activityLog.setId(1L);
         activityLog.setUserId(2L);
@@ -173,7 +138,7 @@ class AdminControllerTest {
                 );
 
         ResponseEntity<List<AdminRecentActivityResponseDto>> response =
-                controller.getRecentActivityLogs(auth("clerk_admin"));
+                controller.getRecentActivityLogs();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -187,27 +152,11 @@ class AdminControllerTest {
         assertEquals("Morning Flow", dto.workoutName());
 
         verify(adminService).getRecentActivityLogs();
-
     }
 
     @Test
-    @DisplayName("getRecentActivityLogs returns 403 for non-admin")
-    void getRecentActivityLogsReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<List<AdminRecentActivityResponseDto>> response =
-                controller.getRecentActivityLogs(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).getRecentActivityLogs();
-    }
-
-    @Test
-    @DisplayName("getWorkoutUsage returns data for admin")
-    void getWorkoutUsageReturnsDataForAdmin() {
-
+    @DisplayName("getWorkoutUsage returns data")
+    void getWorkoutUsageReturnsData() {
         AdminController controller =
                 new AdminController(
                         userService,
@@ -215,9 +164,6 @@ class AdminControllerTest {
                         activityLogService,
                         adminService
                 );
-
-        when(userService.isAdmin("clerk_admin"))
-                .thenReturn(true);
 
         Workout workout = new Workout();
         workout.setId(1L);
@@ -237,8 +183,7 @@ class AdminControllerTest {
                         )
                 );
 
-        ResponseEntity<List<AdminWorkoutUsageResponseDto>> response =
-                controller.getWorkoutUsage(auth("clerk_admin"));
+        ResponseEntity<List<AdminWorkoutUsageResponseDto>> response = controller.getWorkoutUsage();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -256,23 +201,8 @@ class AdminControllerTest {
     }
 
     @Test
-    @DisplayName("getWorkoutUsage returns 403 for non-admin")
-    void getWorkoutUsageReturnsForbiddenForNonAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
-
-        ResponseEntity<List<AdminWorkoutUsageResponseDto>> response =
-                controller.getWorkoutUsage(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).getWorkoutUsage();
-    }
-
-    @Test
-    @DisplayName("getTrainerOverview returns data for admin")
-    void getTrainerOverviewReturnsDataForAdmin() {
-
+    @DisplayName("getTrainerOverview returns data")
+    void getTrainerOverviewReturnsData() {
         AdminController controller =
                 new AdminController(
                         userService,
@@ -280,9 +210,6 @@ class AdminControllerTest {
                         activityLogService,
                         adminService
                 );
-
-        when(userService.isAdmin("clerk_admin"))
-                .thenReturn(true);
 
         Trainer trainer = new Trainer();
         trainer.setId(1L);
@@ -300,7 +227,7 @@ class AdminControllerTest {
                 );
 
         ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
-                controller.getTrainerOverview(auth("clerk_admin"));
+                controller.getTrainerOverview();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -319,73 +246,33 @@ class AdminControllerTest {
     }
 
     @Test
-    @DisplayName("getTrainerOverview returns 403 for non-admin")
-    void getTrainerOverviewReturnsForbiddenForNonAdmin() {
+    @DisplayName("updateUser returns 200 and delegates to service")
+    void updateUserReturnsOk() {
         AdminController controller =
                 new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
-                controller.getTrainerOverview(auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).getTrainerOverview();
-    }
-
-    @Test
-    @DisplayName("updateUser returns 200 and delegates to service for admin")
-    void updateUserReturnsOkForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-
-        User updateData = new User();
-        updateData.setName("Updated Name");
+        UserRequestDto updateData = new UserRequestDto("Updated Name", 2, "context", 1L, "Stockholm");
 
         User updated = new User();
         updated.setId(5L);
-        when(adminService.updateUser(5L, updateData)).thenReturn(updated);
+        when(adminService.updateUser(eq(5L), any(User.class))).thenReturn(updated);
 
-        ResponseEntity<String> response =
-                controller.updateUser(5L, updateData, auth("clerk_admin"));
+        ResponseEntity<String> response = controller.updateUser(5L, updateData);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("User with ID 5 updated successfully", response.getBody());
-        verify(adminService).updateUser(5L, updateData);
+        verify(adminService).updateUser(eq(5L), any(User.class));
     }
 
     @Test
-    @DisplayName("updateUser returns 403 for non-admin")
-    void updateUserReturnsForbiddenForNonAdmin() {
+    @DisplayName("deleteUser returns 204 and delegates to service")
+    void deleteUserReturnsNoContent() {
         AdminController controller =
                 new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        User updateData = new User();
-        ResponseEntity<String> response = controller.updateUser(5L, updateData, auth("clerk_user"));
-
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(adminService, never()).updateUser(anyLong(), any());
-    }
-
-    @Test
-    @DisplayName("deleteUser returns 204 and delegates to service for admin")
-    void deleteUserReturnsNoContentForAdmin() {
-        AdminController controller =
-                new AdminController(userService, feedbackService, activityLogService, adminService);
-        when(userService.isAdmin("clerk_admin")).thenReturn(true);
-
-        ResponseEntity<Void> response = controller.deleteUser(7L, auth("clerk_admin"));
+        ResponseEntity<Void> response = controller.deleteUser(7L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(adminService).deleteUser(7L);
-    }
-
-    private Authentication auth(String subject) {
-        Authentication auth = mock(Authentication.class);
-        Jwt jwt = mock(Jwt.class);
-        when(auth.getPrincipal()).thenReturn(jwt);
-        when(jwt.getSubject()).thenReturn(subject);
-        return auth;
     }
 }

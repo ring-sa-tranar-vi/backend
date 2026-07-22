@@ -21,7 +21,7 @@ public class UserService {
 
     public boolean isAdmin(String clerkID) {
 
-        return "ADMIN".equals(getByClerkIdOrThrow(clerkID).getRole());
+        return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
     }
 
     private String sanitizeDisplayName(String name) {

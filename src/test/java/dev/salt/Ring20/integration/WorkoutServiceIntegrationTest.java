@@ -2,7 +2,6 @@ package dev.salt.Ring20.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
@@ -30,10 +29,10 @@ class WorkoutServiceIntegrationTest {
         workout.setName("Integration Workout");
         workout.setDurationSeconds(180);
 
-        WorkoutResponseDto created = workoutService.createWorkout(workout);
+        Workout created = workoutService.createWorkout(workout);
 
-        assertNotNull(created.id());
-        assertTrue(workoutRepository.findById(created.id()).isPresent());
+        assertNotNull(created.getId());
+        assertTrue(workoutRepository.findById(created.getId()).isPresent());
     }
 
     @Test
@@ -44,10 +43,10 @@ class WorkoutServiceIntegrationTest {
 
         Workout saved = workoutRepository.save(workout);
 
-        WorkoutResponseDto started = workoutService.startWorkout(saved.getId(), null);
+        Workout started = workoutService.startWorkout(saved.getId(), null);
 
         assertNotNull(started);
-        assertEquals(saved.getId(), started.id());
+        assertEquals(saved.getId(), started.getId());
         assertEquals(0, activityLogRepository.findAll().size());
     }
 }

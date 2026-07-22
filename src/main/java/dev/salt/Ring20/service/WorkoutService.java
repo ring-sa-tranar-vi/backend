@@ -80,7 +80,7 @@ public class WorkoutService {
             if (!alreadyStarted) {
                 ActivityLog activityLog = new ActivityLog();
                 activityLog.setUserId(userId);
-                activityLog.setWorkoutId(workout.id()); // Record uses accessor style
+                activityLog.setWorkoutId(workout.getId());
                 activityLog.setStatus(STATUS_STARTED);
                 activityLog.setCompletedAt(LocalDateTime.now());
                 activityLogRepository.save(activityLog);
