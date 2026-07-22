@@ -1,7 +1,5 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.AdminRecentFeedbackResponseDto;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
