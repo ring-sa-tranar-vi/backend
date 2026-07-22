@@ -61,13 +61,11 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
-        validatePositiveId(id);
         return ResponseEntity.ok(toResponse(service.getEventById(id)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
-        validatePositiveId(id);
         service.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }
@@ -75,7 +73,6 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
-        validatePositiveId(id);
         Event updatedEvent =
                 service.updateEvent(
                         id,
@@ -89,9 +86,4 @@ public class EventController {
         return ResponseEntity.ok(toResponse(updatedEvent));
     }
 
-    private void validatePositiveId(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("id must be a positive number");
-        }
-    }
 }

@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
 @RestController
-@RequestMapping("/api/live-token")
+@RequestMapping("/api/live-tokens")
 public class LiveTokenController {
 
     private final String googleApiKey;

@@ -37,8 +37,7 @@ public class WorkoutController {
 
     public WorkoutController(
             WorkoutService workoutService,
-            UserService userService,
-            GeminiWorkoutService geminiWorkoutService) {
+            UserService userService) {
         this.workoutService = workoutService;
         this.userService = userService;
     }
@@ -120,8 +119,9 @@ public class WorkoutController {
 
     @PostMapping("/{id}/start")
     public ResponseEntity<WorkoutResponseDto> startWorkout(
-            @PathVariable Long id, @RequestParam(required = false) Long userId) {
-        Workout workout = workoutService.startWorkout(id, userId);
+            @PathVariable Long id, Authentication authentication) {
+        String clerkId = getJwtOrThrow(authentication).getSubject();
+        Workout workout = workoutService.startWorkout(id, Long.valueOf(clerkId));
         return ResponseEntity.ok().body(toWorkoutResponse(workout));
     }
 

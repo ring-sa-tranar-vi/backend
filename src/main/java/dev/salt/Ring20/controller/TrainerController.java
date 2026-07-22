@@ -1,8 +1,5 @@
 package dev.salt.Ring20.controller;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 import dev.salt.Ring20.dto.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.dto.TrainerResponseDto;
@@ -18,8 +15,7 @@ import dev.salt.Ring20.service.data.TrainerData;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,18 +24,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/trainers")
 public class TrainerController {
 
     private final TrainerService trainerService;
-    private final UserService userService;
 
     public TrainerController(TrainerService trainerService, UserService userService) {
         this.trainerService = trainerService;
-        this.userService = userService;
     }
 
     @GetMapping
@@ -54,46 +47,30 @@ public class TrainerController {
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<TrainerResponseDto> createTrainer(
-            @Valid @RequestBody TrainerRequestDto request, Authentication authentication) {
-        assertAdmin(authentication);
+            @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.createTrainer(toTrainerData(request));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(toResponseDto(trainer));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id,
-            @Valid @RequestBody TrainerRequestDto request,
-            Authentication authentication) {
-        assertAdmin(authentication);
+            @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrainer(
-            @PathVariable Long id, Authentication authentication) {
-        assertAdmin(authentication);
+            @PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private Jwt getJwtOrThrow(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(
-                    UNAUTHORIZED, "Missing or invalid authentication token");
-        }
-        return jwt;
-    }
-
-    private void assertAdmin(Authentication authentication) {
-        boolean isAdmin = userService.isAdmin(getJwtOrThrow(authentication).getSubject());
-        if (!isAdmin) {
-            throw new ResponseStatusException(FORBIDDEN, "Admin access required");
-        }
     }
 
     private TrainerResponseDto toResponseDto(Trainer trainer) {
