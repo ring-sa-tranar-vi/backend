@@ -3,9 +3,6 @@ package dev.salt.Ring20.entity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +29,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
     private Long trainerId;
     private String city;
 

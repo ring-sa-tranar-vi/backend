@@ -46,7 +46,8 @@ class AdminControllerTest {
         when(userService.getUserCount()).thenReturn(42L);
         when(activityLogService.getActiveUserCount()).thenReturn(7L);
 
-        ResponseEntity<AdminUserCountResponseDto> response = controller.getUserCount(auth("clerk_admin"));
+        ResponseEntity<AdminUserCountResponseDto> response =
+                controller.getUserCount(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -61,7 +62,8 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<AdminUserCountResponseDto> response = controller.getUserCount(auth("clerk_user"));
+        ResponseEntity<AdminUserCountResponseDto> response =
+                controller.getUserCount(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(userService, never()).getUserCount();
@@ -192,7 +194,8 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_admin")).thenReturn(true);
         when(adminService.getTrainerOverview())
-                .thenReturn(List.of(new AdminTrainerOverviewResponseDto(1L, "Coach A", "sv", 3, 5, 4)));
+                .thenReturn(
+                        List.of(new AdminTrainerOverviewResponseDto(1L, "Coach A", "sv", 3, 5, 4)));
 
         ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
                 controller.getTrainerOverview(auth("clerk_admin"));

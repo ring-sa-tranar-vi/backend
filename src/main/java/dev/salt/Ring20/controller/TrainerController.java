@@ -104,8 +104,8 @@ public class TrainerController {
     }
 
     @GetMapping("/{trainerId}/recommend-for/{userId}")
-    public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>> getTrainerAiRecommendation(
-            @PathVariable Long trainerId, @PathVariable Long userId) {
+    public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
+            getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(trainerId, userId)

@@ -125,7 +125,8 @@ class FeedbackServiceTest {
         when(workoutRepository.findAll()).thenReturn(List.of(workout));
         when(feedbackRepository.findAll()).thenReturn(List.of(feedback, other));
 
-        List<AdminWorkoutFeedbackSummaryResponseDto> summary = feedbackService.getWorkoutFeedbackSummary();
+        List<AdminWorkoutFeedbackSummaryResponseDto> summary =
+                feedbackService.getWorkoutFeedbackSummary();
 
         assertEquals(1, summary.size());
         assertEquals(2, summary.get(0).feedbackCount());

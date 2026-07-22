@@ -9,9 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-
 import java.time.LocalDateTime;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,9 +20,9 @@ import lombok.Setter;
 @Entity
 @Table(
         indexes = {
-                @Index(name = "idx_feedback_user_id", columnList = "userId"),
-                @Index(name = "idx_feedback_workout_id", columnList = "workoutId"),
-                @Index(name = "idx_feedback_activity_log_id", columnList = "activityLogId")
+            @Index(name = "idx_feedback_user_id", columnList = "userId"),
+            @Index(name = "idx_feedback_workout_id", columnList = "workoutId"),
+            @Index(name = "idx_feedback_activity_log_id", columnList = "activityLogId")
         })
 public class Feedback {
 

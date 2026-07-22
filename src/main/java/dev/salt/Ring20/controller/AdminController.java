@@ -87,7 +87,8 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers(Authentication authentication) {
+    public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers(
+            Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
