@@ -28,6 +28,8 @@ class WorkoutServiceTest {
 
     @Mock private ActivityLogRepository activityLogRepository;
 
+    @Mock private FileStorageService fileStorageService;
+
     @InjectMocks private WorkoutService workoutService;
 
     private Workout workout;

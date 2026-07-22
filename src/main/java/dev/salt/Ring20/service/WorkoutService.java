@@ -21,13 +21,16 @@ public class WorkoutService {
 
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final FileStorageService fileStorageService;
 
     public WorkoutService(
             WorkoutRepository workoutRepository,
             ActivityLogRepository activityLogRepository,
-            TrainerRepository trainerRepository) {
+            TrainerRepository trainerRepository,
+            FileStorageService fileStorageService) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     public String getWorkoutAudioUrl(Long id) {
@@ -155,11 +158,11 @@ public class WorkoutService {
                 workout.getLevel(),
                 workout.getType(),
                 workout.getDurationSeconds(),
-                workout.getInstructionsAudio(),
-                workout.getWorkoutAudio(),
-                workout.getInstructionsImage(),
-                workout.getWorkoutImage(),
-                workout.getInstructionsVideo(),
+                fileStorageService.getFileAccess(workout.getInstructionsAudio(), 15),
+                fileStorageService.getFileAccess(workout.getWorkoutAudio(), 15),
+                fileStorageService.getFileAccess(workout.getInstructionsImage(), 15),
+                fileStorageService.getFileAccess(workout.getWorkoutImage(), 15),
+                fileStorageService.getFileAccess(workout.getInstructionsVideo(), 15),
                 workout.getInstructionsVideoStart(),
                 workout.getInstructionsVideoStop(),
                 workout.getKneeFriendly(),

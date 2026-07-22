@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: ring20-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ring20_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/db/data
+
+volumes:
+  pgdata:
