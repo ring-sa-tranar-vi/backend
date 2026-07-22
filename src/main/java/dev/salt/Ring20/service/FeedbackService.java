@@ -6,10 +6,14 @@ import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.data.RecentFeedbackData;
+import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -160,7 +164,7 @@ public class FeedbackService {
         feedbackRepository.delete(feedback);
     }
 
-    public List<AdminWorkoutFeedbackSummaryResponseDto> getWorkoutFeedbackSummary() {
+    public List<WorkoutFeedbackSummaryData> getWorkoutFeedbackSummary() {
         List<Workout> workouts = workoutRepository.findAll();
 
         Map<Long, List<Feedback>> feedbackByWorkoutId =
@@ -178,7 +182,7 @@ public class FeedbackService {
                 .toList();
     }
 
-    private AdminWorkoutFeedbackSummaryResponseDto createWorkoutSummary(
+    private WorkoutFeedbackSummaryData createWorkoutSummary(
             Workout workout, List<Feedback> feedbacks) {
         int feedbackCount = feedbacks.size();
 
@@ -205,49 +209,45 @@ public class FeedbackService {
         double dislikeRate = calculateRate(dislikedCount, feedbackCount);
         double tooHardRate = calculateRate(tooHardCount, feedbackCount);
 
-        return new AdminWorkoutFeedbackSummaryResponseDto(
-                workout.getId(),
-                workout.getName(),
+        return new WorkoutFeedbackSummaryData(
+                workout,
                 feedbackCount,
                 avgRating,
                 dislikeRate,
                 tooHardRate,
-                deriveStatus(feedbackCount, avgRating, dislikeRate, tooHardRate));
+                deriveStatus(
+                        feedbackCount,
+                        avgRating,
+                        dislikeRate,
+                        tooHardRate
+                )
+        );
     }
 
     private double calculateRate(double numerator, double denominator) {
         return denominator == 0 ? 0 : roundTwoDecimals(numerator / denominator);
     }
 
-    public List<AdminRecentFeedbackResponseDto> getRecentFeedbackEntries() {
+    public RecentFeedbackData getRecentFeedbackEntries() {
         List<Feedback> feedbacks = new ArrayList<>(feedbackRepository.findAll());
         feedbacks.sort(
                 Comparator.comparing(
-                        Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
+                        Feedback::getCreatedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                )
+        );
 
-        List<AdminRecentFeedbackResponseDto> result = new ArrayList<>();
-        for (Feedback feedback : feedbacks) {
-            String workoutName =
-                    workoutRepository
-                            .findById(feedback.getWorkoutId())
-                            .map(Workout::getName)
-                            .orElse(UNKNOWN_WORKOUT);
+        Map<Long, String> workoutNameById =
+                workoutRepository.findAll().stream()
+                        .collect(Collectors.toMap(
+                                Workout::getId,
+                                Workout::getName
+                        ));
 
-            result.add(
-                    new AdminRecentFeedbackResponseDto(
-                            feedback.getId(),
-                            feedback.getUserId(),
-                            feedback.getWorkoutId(),
-                            feedback.getActivityLogId(),
-                            workoutName,
-                            feedback.getDifficulty(),
-                            feedback.getLiked(),
-                            feedback.getRating(),
-                            feedback.getComment(),
-                            feedback.getCreatedAt()));
-        }
-
-        return result;
+        return new RecentFeedbackData(
+                feedbacks,
+                workoutNameById
+        );
     }
 
     private String deriveStatus(

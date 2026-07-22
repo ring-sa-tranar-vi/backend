@@ -15,8 +15,11 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+
 import java.util.List;
 import java.util.Optional;
+
+import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,15 +33,20 @@ import org.springframework.web.server.ResponseStatusException;
 @DisplayName("FeedbackService Tests")
 class FeedbackServiceTest {
 
-    @Mock private FeedbackRepository feedbackRepository;
+    @Mock
+    private FeedbackRepository feedbackRepository;
 
-    @Mock private WorkoutRepository workoutRepository;
+    @Mock
+    private WorkoutRepository workoutRepository;
 
-    @Mock private UserWorkoutPreferenceService preferenceService;
+    @Mock
+    private UserWorkoutPreferenceService preferenceService;
 
-    @Mock private ActivityLogRepository activityLogRepository;
+    @Mock
+    private ActivityLogRepository activityLogRepository;
 
-    @InjectMocks private FeedbackService feedbackService;
+    @InjectMocks
+    private FeedbackService feedbackService;
 
     private Feedback feedback;
     private Workout workout;
@@ -46,7 +54,7 @@ class FeedbackServiceTest {
 
     private void stubActivityLogLookup() {
         when(activityLogRepository.findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
-                        anyLong(), anyLong(), anyString()))
+                anyLong(), anyLong(), anyString()))
                 .thenReturn(Optional.of(activityLog));
     }
 
@@ -125,7 +133,7 @@ class FeedbackServiceTest {
         when(workoutRepository.findAll()).thenReturn(List.of(workout));
         when(feedbackRepository.findAll()).thenReturn(List.of(feedback, other));
 
-        List<AdminWorkoutFeedbackSummaryResponseDto> summary =
+        List<WorkoutFeedbackSummaryData> summary =
                 feedbackService.getWorkoutFeedbackSummary();
 
         assertEquals(1, summary.size());
