@@ -29,19 +29,14 @@ public class FeedbackController {
     public ResponseEntity<List<FeedbackResponseDto>> getFeedback(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long workoutId) {
-        List<Feedback> feedbacks;
 
-        if (userId != null && workoutId != null) {
-            feedbacks = feedbackService.getFeedbackByUserAndWorkout(userId, workoutId);
-        } else if (userId != null) {
-            feedbacks = feedbackService.getFeedbackByUserId(userId);
-        } else if (workoutId != null) {
-            feedbacks = feedbackService.getFeedbackByWorkoutId(workoutId);
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+            List<Feedback> feedbacks = feedbackService.getFeedback(userId, workoutId);
 
-        return ResponseEntity.ok(feedbacks.stream().map(this::toResponse).toList());
+            return ResponseEntity.ok(
+                    feedbacks.stream()
+                            .map(this::toResponse)
+                            .toList()
+            );
     }
 
     @GetMapping("/{id}")

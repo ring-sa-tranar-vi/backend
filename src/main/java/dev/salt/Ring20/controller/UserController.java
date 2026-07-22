@@ -197,13 +197,13 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/callback-preference")
-    public User addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
-        return userService.addOrUpdateCallbackPreference(userId, callback);
+    public UserResponseDto addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
+        return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
     }
 
     @DeleteMapping("/{userId}/callback-preference/{day}")
-    public User remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
-        return userService.removeCallbackPreference(userId, day);
+    public UserResponseDto remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
+        return toResponse(userService.removeCallbackPreference(userId, day));
     }
 
     private Jwt getJwtOrThrow(Authentication authentication) {

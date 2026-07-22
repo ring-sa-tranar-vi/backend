@@ -137,16 +137,22 @@ public class FeedbackService {
                 .orElseThrow(() -> new NoSuchElementException("Feedback not found with id: " + id));
     }
 
-    public List<Feedback> getFeedbackByUserId(Long userId) {
-        return feedbackRepository.findByUserId(userId);
-    }
 
-    public List<Feedback> getFeedbackByWorkoutId(Long workoutId) {
-        return feedbackRepository.findByWorkoutId(workoutId);
-    }
+    public List<Feedback> getFeedback(Long userId, Long workoutId) {
+        if (userId == null && workoutId == null) {
+            throw new IllegalArgumentException("At least one filter must be provided");
+        }
 
-    public List<Feedback> getFeedbackByUserAndWorkout(Long userId, Long workoutId) {
-        return feedbackRepository.findByUserIdAndWorkoutId(userId, workoutId);
+        if (userId != null) validateId(userId);
+        if (workoutId != null) validateId(workoutId);
+
+        if (userId != null && workoutId != null) {
+            return feedbackRepository.findByUserIdAndWorkoutId(userId, workoutId);
+        } else if (userId != null) {
+            return feedbackRepository.findByUserId(userId);
+        } else {
+            return feedbackRepository.findByWorkoutId(workoutId);
+        }
     }
 
     @Transactional
@@ -279,5 +285,10 @@ public class FeedbackService {
 
     private double roundTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+    void validateId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid ID");
+        }
     }
 }
