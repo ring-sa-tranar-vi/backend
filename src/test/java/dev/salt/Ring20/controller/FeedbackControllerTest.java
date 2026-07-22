@@ -50,8 +50,7 @@ class FeedbackControllerTest {
         when(feedbackService.getFeedbackById(1L))
                 .thenThrow(new NoSuchElementException("Feedback not found with id: 1"));
 
-        assertThrows(
-                NoSuchElementException.class, () -> controller.getFeedbackById(1L));
+        assertThrows(NoSuchElementException.class, () -> controller.getFeedbackById(1L));
     }
 
     @Test
@@ -71,7 +70,6 @@ class FeedbackControllerTest {
         when(feedbackService.getFeedback(null, null))
                 .thenThrow(new IllegalArgumentException("At least one filter must be provided"));
 
-        assertThrows(
-                IllegalArgumentException.class, () -> controller.getFeedback(null, null));
+        assertThrows(IllegalArgumentException.class, () -> controller.getFeedback(null, null));
     }
 }

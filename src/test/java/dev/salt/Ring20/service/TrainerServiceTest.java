@@ -80,8 +80,7 @@ class TrainerServiceTest {
         when(trainerRepository.findById(9L)).thenReturn(Optional.empty());
 
         NoSuchElementException ex =
-                assertThrows(
-                        NoSuchElementException.class, () -> trainerService.getTrainerById(9L));
+                assertThrows(NoSuchElementException.class, () -> trainerService.getTrainerById(9L));
         assertEquals("Trainer not found with id: 9", ex.getMessage());
     }
 

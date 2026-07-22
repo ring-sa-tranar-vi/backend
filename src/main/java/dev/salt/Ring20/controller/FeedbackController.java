@@ -4,9 +4,8 @@ import dev.salt.Ring20.dto.FeedbackRequestDto;
 import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
-import java.util.List;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,13 +32,9 @@ public class FeedbackController {
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long workoutId) {
 
-            List<Feedback> feedbacks = feedbackService.getFeedback(userId, workoutId);
+        List<Feedback> feedbacks = feedbackService.getFeedback(userId, workoutId);
 
-            return ResponseEntity.ok(
-                    feedbacks.stream()
-                            .map(this::toResponse)
-                            .toList()
-            );
+        return ResponseEntity.ok(feedbacks.stream().map(this::toResponse).toList());
     }
 
     @GetMapping("/{id}")
@@ -52,8 +47,7 @@ public class FeedbackController {
     public ResponseEntity<FeedbackResponseDto> createFeedback(
             @Valid @RequestBody FeedbackRequestDto feedbackRequest) {
         Feedback saved = feedbackService.addFeedback(toEntity(feedbackRequest));
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(toResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
 
     @DeleteMapping("/{id}")

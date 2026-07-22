@@ -7,12 +7,10 @@ import dev.salt.Ring20.dto.WorkoutRequestDto;
 import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
-import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
-import java.util.List;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,9 +32,7 @@ public class WorkoutController {
     private final WorkoutService workoutService;
     private final UserService userService;
 
-    public WorkoutController(
-            WorkoutService workoutService,
-            UserService userService) {
+    public WorkoutController(WorkoutService workoutService, UserService userService) {
         this.workoutService = workoutService;
         this.userService = userService;
     }
@@ -45,20 +40,15 @@ public class WorkoutController {
     @GetMapping
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
         boolean includeDisabled = isAdminIfAuthenticated(authentication);
-        List<Workout> workouts =workoutService.getAllWorkouts(includeDisabled);
-        return ResponseEntity.ok().body(
-                workouts.stream()
-                        .map(this::toWorkoutResponse)
-                        .toList()
-        );
+        List<Workout> workouts = workoutService.getAllWorkouts(includeDisabled);
+        return ResponseEntity.ok().body(workouts.stream().map(this::toWorkoutResponse).toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<WorkoutResponseDto> getWorkoutById(
             @PathVariable Long id, Authentication authentication) {
         boolean includeDisabled = isAdminIfAuthenticated(authentication);
-        Workout workout =
-                workoutService.getWorkoutById(id, includeDisabled);
+        Workout workout = workoutService.getWorkoutById(id, includeDisabled);
 
         return ResponseEntity.ok(toWorkoutResponse(workout));
     }
@@ -107,9 +97,7 @@ public class WorkoutController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(
-                toWorkoutResponse(
-                        workoutService.setWorkoutEnabled(id, request.enabled())
-                ));
+                toWorkoutResponse(workoutService.setWorkoutEnabled(id, request.enabled())));
     }
 
     @GetMapping("/{id}/audio")

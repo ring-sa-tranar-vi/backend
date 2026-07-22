@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
@@ -15,11 +14,9 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-
+import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import java.util.List;
 import java.util.Optional;
-
-import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,20 +29,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("FeedbackService Tests")
 class FeedbackServiceTest {
 
-    @Mock
-    private FeedbackRepository feedbackRepository;
+    @Mock private FeedbackRepository feedbackRepository;
 
-    @Mock
-    private WorkoutRepository workoutRepository;
+    @Mock private WorkoutRepository workoutRepository;
 
-    @Mock
-    private UserWorkoutPreferenceService preferenceService;
+    @Mock private UserWorkoutPreferenceService preferenceService;
 
-    @Mock
-    private ActivityLogRepository activityLogRepository;
+    @Mock private ActivityLogRepository activityLogRepository;
 
-    @InjectMocks
-    private FeedbackService feedbackService;
+    @InjectMocks private FeedbackService feedbackService;
 
     private Feedback feedback;
     private Workout workout;
@@ -53,7 +45,7 @@ class FeedbackServiceTest {
 
     private void stubActivityLogLookup() {
         when(activityLogRepository.findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
-                anyLong(), anyLong(), anyString()))
+                        anyLong(), anyLong(), anyString()))
                 .thenReturn(Optional.of(activityLog));
     }
 
@@ -107,7 +99,8 @@ class FeedbackServiceTest {
 
         IllegalArgumentException ex =
                 assertThrows(
-                        IllegalArgumentException.class, () -> feedbackService.addFeedback(feedback));
+                        IllegalArgumentException.class,
+                        () -> feedbackService.addFeedback(feedback));
         assertEquals("UserId and workoutId are required.", ex.getMessage());
     }
 
@@ -117,7 +110,8 @@ class FeedbackServiceTest {
 
         IllegalArgumentException ex =
                 assertThrows(
-                        IllegalArgumentException.class, () -> feedbackService.addFeedback(feedback));
+                        IllegalArgumentException.class,
+                        () -> feedbackService.addFeedback(feedback));
         assertEquals("Rating must be between 1 and 5.", ex.getMessage());
     }
 
@@ -132,8 +126,7 @@ class FeedbackServiceTest {
         when(workoutRepository.findAll()).thenReturn(List.of(workout));
         when(feedbackRepository.findAll()).thenReturn(List.of(feedback, other));
 
-        List<WorkoutFeedbackSummaryData> summary =
-                feedbackService.getWorkoutFeedbackSummary();
+        List<WorkoutFeedbackSummaryData> summary = feedbackService.getWorkoutFeedbackSummary();
 
         assertEquals(1, summary.size());
         assertEquals(2, summary.get(0).feedbackCount());

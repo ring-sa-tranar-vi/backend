@@ -87,7 +87,8 @@ class WorkoutServiceTest {
 
         IllegalArgumentException ex =
                 assertThrows(
-                        IllegalArgumentException.class, () -> workoutService.createWorkout(workout));
+                        IllegalArgumentException.class,
+                        () -> workoutService.createWorkout(workout));
         assertEquals("Workout name is required.", ex.getMessage());
     }
 

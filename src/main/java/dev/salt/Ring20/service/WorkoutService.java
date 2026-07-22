@@ -162,8 +162,6 @@ public class WorkoutService {
         workoutRepository.deleteById(id);
     }
 
-
-
     private void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Id must be a positive number.");

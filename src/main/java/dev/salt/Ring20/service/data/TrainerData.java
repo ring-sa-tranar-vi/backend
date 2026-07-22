@@ -9,6 +9,4 @@ public record TrainerData(
         String imageSelect,
         String imageCall,
         String imageStart,
-        String ambience
-) {
-}
+        String ambience) {}

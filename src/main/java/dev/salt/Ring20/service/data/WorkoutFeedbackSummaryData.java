@@ -8,6 +8,4 @@ public record WorkoutFeedbackSummaryData(
         double avgRating,
         double dislikeRate,
         double tooHardRate,
-        String status
-) {
-}
+        String status) {}

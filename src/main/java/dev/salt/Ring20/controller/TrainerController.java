@@ -6,13 +6,11 @@ import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.service.TrainerService;
 import dev.salt.Ring20.service.UserService;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -52,23 +50,20 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.createTrainer(toTrainerData(request));
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(toResponseDto(trainer));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(trainer));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
-            @PathVariable Long id,
-            @Valid @RequestBody TrainerRequestDto request) {
+            @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTrainer(
-            @PathVariable Long id) {
+    public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();
     }
@@ -89,21 +84,15 @@ public class TrainerController {
 
     @GetMapping("/{trainerId}/recommend-for/{userId}")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-    getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
+            getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(trainerId, userId)
-                .thenApply(data ->
-                        ResponseEntity.ok(
-                                toRecommendedWorkoutResponse(data)
-                        ));
+                .thenApply(data -> ResponseEntity.ok(toRecommendedWorkoutResponse(data)));
     }
 
     private RecommendWorkoutResponseDto toRecommendedWorkoutResponse(RecommendedWorkoutData data) {
-        return new RecommendWorkoutResponseDto(
-                data.workoutId(),
-                data.reasoning()
-        );
+        return new RecommendWorkoutResponseDto(data.workoutId(), data.reasoning());
     }
 
     private TrainerData toTrainerData(TrainerRequestDto request) {

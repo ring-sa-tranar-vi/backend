@@ -4,9 +4,8 @@ import dev.salt.Ring20.dto.ActivityLogCreateRequestDto;
 import dev.salt.Ring20.dto.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
-import java.util.Map;
-
 import jakarta.validation.Valid;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,8 +37,7 @@ public class ActivityLogController {
     public ResponseEntity<ActivityLogResponseDto> createActivityLog(
             @Valid @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
         ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(toResponse(created));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
     }
 
     @PutMapping("/{id}/complete")

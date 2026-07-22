@@ -7,11 +7,9 @@ import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.RecentFeedbackData;
 import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -137,7 +135,6 @@ public class FeedbackService {
                 .orElseThrow(() -> new NoSuchElementException("Feedback not found with id: " + id));
     }
 
-
     public List<Feedback> getFeedback(Long userId, Long workoutId) {
         if (userId == null && workoutId == null) {
             throw new IllegalArgumentException("At least one filter must be provided");
@@ -219,13 +216,7 @@ public class FeedbackService {
                 avgRating,
                 dislikeRate,
                 tooHardRate,
-                deriveStatus(
-                        feedbackCount,
-                        avgRating,
-                        dislikeRate,
-                        tooHardRate
-                )
-        );
+                deriveStatus(feedbackCount, avgRating, dislikeRate, tooHardRate));
     }
 
     private double calculateRate(double numerator, double denominator) {
@@ -236,22 +227,13 @@ public class FeedbackService {
         List<Feedback> feedbacks = new ArrayList<>(feedbackRepository.findAll());
         feedbacks.sort(
                 Comparator.comparing(
-                        Feedback::getCreatedAt,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                )
-        );
+                        Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
 
         Map<Long, String> workoutNameById =
                 workoutRepository.findAll().stream()
-                        .collect(Collectors.toMap(
-                                Workout::getId,
-                                Workout::getName
-                        ));
+                        .collect(Collectors.toMap(Workout::getId, Workout::getName));
 
-        return new RecentFeedbackData(
-                feedbacks,
-                workoutNameById
-        );
+        return new RecentFeedbackData(feedbacks, workoutNameById);
     }
 
     private String deriveStatus(
@@ -286,6 +268,7 @@ public class FeedbackService {
     private double roundTwoDecimals(double value) {
         return Math.round(value * 100.0) / 100.0;
     }
+
     void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid ID");

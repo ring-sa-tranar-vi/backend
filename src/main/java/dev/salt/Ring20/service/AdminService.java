@@ -12,11 +12,9 @@ import dev.salt.Ring20.service.data.TrainerOverviewData;
 import dev.salt.Ring20.service.data.UserSummaryData;
 import dev.salt.Ring20.service.data.WorkoutUsageData;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -69,14 +67,16 @@ public class AdminService {
                 workoutRepository.findAll().stream()
                         .collect(Collectors.toMap(Workout::getId, Workout::getName));
 
-        List<ActivityLog> activityLogs = activityLogRepository.findAll().stream()
-                .sorted(
-                        Comparator.comparing(
-                                        ActivityLog::getCompletedAt,
-                                        Comparator.nullsLast(Comparator.reverseOrder()))
-                                .thenComparing(ActivityLog::getId, Comparator.reverseOrder()))
-                .limit(RECENT_ACTIVITY_LIMIT)
-                .toList();
+        List<ActivityLog> activityLogs =
+                activityLogRepository.findAll().stream()
+                        .sorted(
+                                Comparator.comparing(
+                                                ActivityLog::getCompletedAt,
+                                                Comparator.nullsLast(Comparator.reverseOrder()))
+                                        .thenComparing(
+                                                ActivityLog::getId, Comparator.reverseOrder()))
+                        .limit(RECENT_ACTIVITY_LIMIT)
+                        .toList();
         return new RecentActivityData(activityLogs, userNameById, workoutNameById);
     }
 
@@ -106,15 +106,15 @@ public class AdminService {
             }
         }
 
-        List<Workout> workouts = workoutRepository.findAll().stream()
-                .sorted(Comparator.comparing(Workout::getId))
-                .toList();
+        List<Workout> workouts =
+                workoutRepository.findAll().stream()
+                        .sorted(Comparator.comparing(Workout::getId))
+                        .toList();
         return new WorkoutUsageData(
                 workouts,
                 startedCountByWorkoutId,
                 completedCountByWorkoutId,
-                lastCompletedAtByWorkoutId
-        );
+                lastCompletedAtByWorkoutId);
     }
 
     public TrainerOverviewData getTrainerOverview() {
@@ -139,10 +139,15 @@ public class AdminService {
             }
         }
 
-        List<Trainer> trainers = trainerRepository.findAll().stream()
-                .sorted(Comparator.comparing(Trainer::getId))
-                .toList();
-        return new TrainerOverviewData(trainers, assignedUserCountByTrainerId, workoutCountByTrainerId, enabledWorkoutCountByTrainerId);
+        List<Trainer> trainers =
+                trainerRepository.findAll().stream()
+                        .sorted(Comparator.comparing(Trainer::getId))
+                        .toList();
+        return new TrainerOverviewData(
+                trainers,
+                assignedUserCountByTrainerId,
+                workoutCountByTrainerId,
+                enabledWorkoutCountByTrainerId);
     }
 
     @Transactional

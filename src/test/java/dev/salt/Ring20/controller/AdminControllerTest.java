@@ -15,16 +15,14 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import dev.salt.Ring20.service.data.RecentActivityData;
 import dev.salt.Ring20.service.data.TrainerOverviewData;
 import dev.salt.Ring20.service.data.UserSummaryData;
 import dev.salt.Ring20.service.data.WorkoutUsageData;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,17 +35,13 @@ import org.springframework.http.ResponseEntity;
 @DisplayName("AdminController Tests")
 class AdminControllerTest {
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private FeedbackService feedbackService;
+    @Mock private FeedbackService feedbackService;
 
-    @Mock
-    private ActivityLogService activityLogService;
+    @Mock private ActivityLogService activityLogService;
 
-    @Mock
-    private AdminService adminService;
+    @Mock private AdminService adminService;
 
     @Test
     @DisplayName("getUserCount returns count DTO")
@@ -69,12 +63,7 @@ class AdminControllerTest {
     @DisplayName("getUsers returns summaries")
     void getUsersReturnsSummaries() {
         AdminController controller =
-                new AdminController(
-                        userService,
-                        feedbackService,
-                        activityLogService,
-                        adminService
-                );
+                new AdminController(userService, feedbackService, activityLogService, adminService);
 
         User user = new User();
         user.setId(1L);
@@ -88,12 +77,7 @@ class AdminControllerTest {
         lastCompletedAtByUserId.put(1L, null);
 
         when(adminService.getUserSummaries())
-                .thenReturn(
-                        new UserSummaryData(
-                                List.of(user),
-                                lastCompletedAtByUserId
-                        )
-                );
+                .thenReturn(new UserSummaryData(List.of(user), lastCompletedAtByUserId));
 
         ResponseEntity<List<AdminUserSummaryResponseDto>> response = controller.getUsers();
 
@@ -113,12 +97,7 @@ class AdminControllerTest {
     @DisplayName("getRecentActivityLogs returns data")
     void getRecentActivityLogsReturnsData() {
         AdminController controller =
-                new AdminController(
-                        userService,
-                        feedbackService,
-                        activityLogService,
-                        adminService
-                );
+                new AdminController(userService, feedbackService, activityLogService, adminService);
 
         ActivityLog activityLog = new ActivityLog();
         activityLog.setId(1L);
@@ -133,9 +112,7 @@ class AdminControllerTest {
                         new RecentActivityData(
                                 List.of(activityLog),
                                 Map.of(2L, "Ada"),
-                                Map.of(3L, "Morning Flow")
-                        )
-                );
+                                Map.of(3L, "Morning Flow")));
 
         ResponseEntity<List<AdminRecentActivityResponseDto>> response =
                 controller.getRecentActivityLogs();
@@ -158,12 +135,7 @@ class AdminControllerTest {
     @DisplayName("getWorkoutUsage returns data")
     void getWorkoutUsageReturnsData() {
         AdminController controller =
-                new AdminController(
-                        userService,
-                        feedbackService,
-                        activityLogService,
-                        adminService
-                );
+                new AdminController(userService, feedbackService, activityLogService, adminService);
 
         Workout workout = new Workout();
         workout.setId(1L);
@@ -179,9 +151,7 @@ class AdminControllerTest {
                                 List.of(workout),
                                 Map.of(1L, 10L),
                                 Map.of(1L, 8L),
-                                Map.of(1L, LocalDateTime.now())
-                        )
-                );
+                                Map.of(1L, LocalDateTime.now())));
 
         ResponseEntity<List<AdminWorkoutUsageResponseDto>> response = controller.getWorkoutUsage();
 
@@ -204,12 +174,7 @@ class AdminControllerTest {
     @DisplayName("getTrainerOverview returns data")
     void getTrainerOverviewReturnsData() {
         AdminController controller =
-                new AdminController(
-                        userService,
-                        feedbackService,
-                        activityLogService,
-                        adminService
-                );
+                new AdminController(userService, feedbackService, activityLogService, adminService);
 
         Trainer trainer = new Trainer();
         trainer.setId(1L);
@@ -219,12 +184,7 @@ class AdminControllerTest {
         when(adminService.getTrainerOverview())
                 .thenReturn(
                         new TrainerOverviewData(
-                                List.of(trainer),
-                                Map.of(1L, 3L),
-                                Map.of(1L, 5L),
-                                Map.of(1L, 4L)
-                        )
-                );
+                                List.of(trainer), Map.of(1L, 3L), Map.of(1L, 5L), Map.of(1L, 4L)));
 
         ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
                 controller.getTrainerOverview();
@@ -251,7 +211,8 @@ class AdminControllerTest {
         AdminController controller =
                 new AdminController(userService, feedbackService, activityLogService, adminService);
 
-        UserRequestDto updateData = new UserRequestDto("Updated Name", 2, "context", 1L, "Stockholm");
+        UserRequestDto updateData =
+                new UserRequestDto("Updated Name", 2, "context", 1L, "Stockholm");
 
         User updated = new User();
         updated.setId(5L);

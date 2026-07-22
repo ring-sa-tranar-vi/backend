@@ -8,11 +8,10 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -201,7 +200,8 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/callback-preference")
-    public UserResponseDto addOrUpdate(@PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
+    public UserResponseDto addOrUpdate(
+            @PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
         return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
     }
 
