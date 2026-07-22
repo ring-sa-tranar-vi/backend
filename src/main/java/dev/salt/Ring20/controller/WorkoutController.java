@@ -11,6 +11,8 @@ import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -64,7 +66,7 @@ public class WorkoutController {
 
     @PostMapping
     public ResponseEntity<WorkoutResponseDto> createWorkout(
-            @RequestBody WorkoutRequestDto workoutRequest, Authentication authentication) {
+            @Valid @RequestBody WorkoutRequestDto workoutRequest, Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();
         }
@@ -75,7 +77,7 @@ public class WorkoutController {
     @PutMapping("/{id}")
     public ResponseEntity<WorkoutResponseDto> updateWorkout(
             @PathVariable Long id,
-            @RequestBody WorkoutRequestDto workoutRequest,
+            @Valid @RequestBody WorkoutRequestDto workoutRequest,
             Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();
@@ -97,7 +99,7 @@ public class WorkoutController {
     @PatchMapping("/{id}/enabled")
     public ResponseEntity<WorkoutResponseDto> setWorkoutEnabled(
             @PathVariable Long id,
-            @RequestBody WorkoutEnabledRequestDto request,
+            @Valid @RequestBody WorkoutEnabledRequestDto request,
             Authentication authentication) {
         if (!isAdmin(authentication)) {
             return ResponseEntity.status(403).build();

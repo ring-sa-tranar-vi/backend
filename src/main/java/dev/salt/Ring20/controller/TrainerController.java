@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -55,7 +56,7 @@ public class TrainerController {
 
     @PostMapping
     public ResponseEntity<TrainerResponseDto> createTrainer(
-            @RequestBody TrainerRequestDto request, Authentication authentication) {
+            @Valid @RequestBody TrainerRequestDto request, Authentication authentication) {
         assertAdmin(authentication);
         Trainer trainer = trainerService.createTrainer(toTrainerData(request));
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -65,7 +66,7 @@ public class TrainerController {
     @PutMapping("/{id}")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id,
-            @RequestBody TrainerRequestDto request,
+            @Valid @RequestBody TrainerRequestDto request,
             Authentication authentication) {
         assertAdmin(authentication);
         Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));

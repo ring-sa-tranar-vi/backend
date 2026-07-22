@@ -1,6 +1,8 @@
 package dev.salt.Ring20.controller;
 
 import java.util.Map;
+
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,7 @@ public class LiveTokenController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createToken(@RequestBody(required = false) Map<String, Integer> body) {
+    public ResponseEntity<?> createToken(@Valid @RequestBody(required = false) Map<String, Integer> body) {
         int uses = (body != null && body.get("uses") != null) ? body.get("uses") : 1;
         if (uses < 1) {
             return ResponseEntity.badRequest().body(Map.of("error", "`uses` must be >= 1"));

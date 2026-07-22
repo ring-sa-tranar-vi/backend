@@ -12,6 +12,7 @@ import dev.salt.Ring20.service.UserService;
 import java.util.List;
 
 import dev.salt.Ring20.service.data.*;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -85,7 +86,7 @@ public class AdminController {
 
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UserRequestDto updateData, Authentication authentication) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDto updateData, Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {

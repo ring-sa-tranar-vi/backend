@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -65,7 +66,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(
-            @RequestBody(required = false) UserCreateRequestDto request,
+            @Valid @RequestBody(required = false) UserCreateRequestDto request,
             Authentication authentication) {
         Jwt jwt = getJwtOrThrow(authentication);
         String requestedName = request != null ? request.displayName() : null;
@@ -83,7 +84,7 @@ public class UserController {
 
     @PutMapping("/me/profile")
     public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
-            @RequestBody UserRequestDto userRequest, Authentication authentication) {
+            @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
         String clerkId = getClerkId(authentication);
         User updated =
                 userService.updateUserPreferencesByClerkId(
@@ -100,7 +101,7 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDto> updateUserPreferences(
             @PathVariable Long id,
-            @RequestBody UserRequestDto userRequest,
+            @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
         User currentUser = userService.findByClerkId(clerkId).orElseThrow();
@@ -200,7 +201,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/callback-preference")
-    public UserResponseDto addOrUpdate(@PathVariable Long userId, @RequestBody CallbackPreference callback) {
+    public UserResponseDto addOrUpdate(@PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
         return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
     }
 

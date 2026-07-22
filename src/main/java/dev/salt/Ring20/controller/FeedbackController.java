@@ -6,6 +6,7 @@ import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +55,7 @@ public class FeedbackController {
 
     @PostMapping
     public ResponseEntity<FeedbackResponseDto> createFeedback(
-            @RequestBody FeedbackRequestDto feedbackRequest) {
+            @Valid @RequestBody FeedbackRequestDto feedbackRequest) {
         Feedback saved = feedbackService.addFeedback(toEntity(feedbackRequest));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(toResponse(saved));

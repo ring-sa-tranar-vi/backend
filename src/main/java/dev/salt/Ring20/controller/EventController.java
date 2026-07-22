@@ -6,6 +6,8 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
 import java.net.URI;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -20,7 +22,7 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto request) {
+    public ResponseEntity<EventResponseDto> createEvent(@Valid @RequestBody EventRequestDto request) {
         Event event =
                 service.createEvent(
                         request.name(),
@@ -72,7 +74,7 @@ public class EventController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EventResponseDto> updateEventById(
-            @PathVariable Long id, @RequestBody EventRequestDto request) {
+            @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
         validatePositiveId(id);
         Event updatedEvent =
                 service.updateEvent(
