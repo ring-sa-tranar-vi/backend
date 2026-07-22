@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import dev.salt.Ring20.dto.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.WorkoutRequestDto;
 import dev.salt.Ring20.dto.WorkoutResponseDto;
+import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.GeminiWorkoutService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
@@ -31,36 +32,16 @@ class WorkoutControllerTest {
 
     @Mock private GeminiWorkoutService geminiWorkoutService;
 
+
     @Test
     void getAllWorkoutsReturnsData() {
         WorkoutController controller =
                 new WorkoutController(workoutService, userService, geminiWorkoutService);
 
-        WorkoutResponseDto workout =
-                new WorkoutResponseDto(
-                        1L,
-                        "Push Ups",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        true,
-                        null);
+        Workout workout = new Workout();
+        workout.setId(1L);
+        workout.setName("Push Ups");
+        workout.setEnabled(true);
 
         when(userService.isAdmin("admin_1")).thenReturn(true);
         when(workoutService.getAllWorkouts(true)).thenReturn(List.of(workout));

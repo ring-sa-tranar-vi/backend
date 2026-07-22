@@ -1,6 +1,5 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
@@ -42,17 +41,16 @@ public class WorkoutService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkoutResponseDto> getAllWorkouts(boolean includeDisabled) {
-        List<Workout> workouts =
-                includeDisabled
-                        ? workoutRepository.findAll()
-                        : workoutRepository.findByEnabledTrue();
+    public List<Workout> getAllWorkouts(boolean includeDisabled) {
+        if (includeDisabled) {
+            return workoutRepository.findAll();
+        }
 
-        return workouts.stream().map(this::mapToResponse).toList();
+        return workoutRepository.findByEnabledTrue();
     }
 
     @Transactional(readOnly = true)
-    public WorkoutResponseDto getWorkoutById(Long id, boolean includeDisabled) {
+    public Workout getWorkoutById(Long id, boolean includeDisabled) {
         validateId(id);
         Workout workout =
                 workoutRepository
@@ -66,13 +64,13 @@ public class WorkoutService {
             throw new NoSuchElementException("Workout not found with id: " + id);
         }
 
-        return mapToResponse(workout);
+        return workout;
     }
 
     @Transactional
-    public WorkoutResponseDto startWorkout(Long id, Long userId) {
-        // Reuse the logic from getWorkoutById to ensure mapping and session handling
-        WorkoutResponseDto workout = getWorkoutById(id, false);
+    public Workout startWorkout(Long id, Long userId) {
+
+        Workout workout = getWorkoutById(id, false);
 
         if (userId != null) {
             boolean alreadyStarted =
@@ -92,14 +90,13 @@ public class WorkoutService {
     }
 
     @Transactional
-    public WorkoutResponseDto createWorkout(Workout workout) {
+    public Workout createWorkout(Workout workout) {
         validateWorkoutForWrite(workout);
-        Workout saved = workoutRepository.save(workout);
-        return mapToResponse(saved);
+        return workoutRepository.save(workout);
     }
 
     @Transactional
-    public WorkoutResponseDto updateWorkout(Long id, Workout workout) {
+    public Workout updateWorkout(Long id, Workout workout) {
         validateId(id);
         validateWorkoutForWrite(workout);
 
@@ -135,11 +132,11 @@ public class WorkoutService {
             existing.setTrainer(workout.getTrainer());
         }
 
-        return mapToResponse(workoutRepository.save(existing));
+        return workoutRepository.save(existing);
     }
 
     @Transactional
-    public WorkoutResponseDto setWorkoutEnabled(Long id, boolean enabled) {
+    public Workout setWorkoutEnabled(Long id, boolean enabled) {
         validateId(id);
 
         Workout existing =
@@ -151,8 +148,7 @@ public class WorkoutService {
                                                 "Workout not found with id: " + id));
 
         existing.setEnabled(enabled);
-        Workout updated = workoutRepository.save(existing);
-        return mapToResponse(updated);
+        return workoutRepository.save(existing);
     }
 
     @Transactional
@@ -166,40 +162,7 @@ public class WorkoutService {
         workoutRepository.deleteById(id);
     }
 
-    private WorkoutResponseDto mapToResponse(Workout workout) {
-        WorkoutResponseDto.TrainerIdDTO trainerDTO = null;
 
-        // This is where the @Transactional is key:
-        // It keeps the session open to check if a trainer exists and get their ID.
-        if (workout.getTrainer() != null) {
-            trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
-        }
-
-        return new WorkoutResponseDto(
-                workout.getId(),
-                workout.getName(),
-                workout.getDescription(),
-                workout.getDashboardName(),
-                workout.getDashboardDescription(),
-                workout.getSubtitleText(),
-                workout.getInstructionsSubtitleText(),
-                workout.getLevel(),
-                workout.getType(),
-                workout.getDurationSeconds(),
-                workout.getInstructionsAudio(),
-                workout.getWorkoutAudio(),
-                workout.getInstructionsImage(),
-                workout.getWorkoutImage(),
-                workout.getInstructionsVideo(),
-                workout.getInstructionsVideoStart(),
-                workout.getInstructionsVideoStop(),
-                workout.getKneeFriendly(),
-                workout.getLowImpact(),
-                workout.getSeated(),
-                workout.getBeginnerFriendly(),
-                workout.getEnabled(),
-                trainerDTO);
-    }
 
     private void validateId(Long id) {
         if (id == null || id <= 0) {
