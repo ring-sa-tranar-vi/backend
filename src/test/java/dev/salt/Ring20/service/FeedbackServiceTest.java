@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
@@ -125,7 +125,7 @@ class FeedbackServiceTest {
         when(workoutRepository.findAll()).thenReturn(List.of(workout));
         when(feedbackRepository.findAll()).thenReturn(List.of(feedback, other));
 
-        List<AdminWorkoutFeedbackSummaryDto> summary = feedbackService.getWorkoutFeedbackSummary();
+        List<AdminWorkoutFeedbackSummaryResponseDto> summary = feedbackService.getWorkoutFeedbackSummary();
 
         assertEquals(1, summary.size());
         assertEquals(2, summary.get(0).feedbackCount());

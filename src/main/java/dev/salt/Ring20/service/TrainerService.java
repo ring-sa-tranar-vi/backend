@@ -2,7 +2,7 @@ package dev.salt.Ring20.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.salt.Ring20.dto.RecommendWorkoutDto;
+import dev.salt.Ring20.dto.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
@@ -167,7 +167,7 @@ public class TrainerService {
         return normalized;
     }
 
-    public CompletableFuture<RecommendWorkoutDto> getAiRecommendedWorkout(
+    public CompletableFuture<RecommendWorkoutResponseDto> getAiRecommendedWorkout(
             Long trainerId, Long userId) {
         validateId(trainerId);
         validateId(userId);
@@ -216,7 +216,7 @@ public class TrainerService {
                                 }
 
                                 // 5. Build and return your exact custom DTO record payload
-                                return new RecommendWorkoutDto(workoutId, reasoning);
+                                return new RecommendWorkoutResponseDto(workoutId, reasoning);
 
                             } catch (Exception e) {
                                 throw new IllegalStateException(

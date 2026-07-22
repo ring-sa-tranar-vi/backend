@@ -2,13 +2,13 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.AdminRecentActivityDTO;
-import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
-import dev.salt.Ring20.dto.AdminUserCountDto;
-import dev.salt.Ring20.dto.AdminUserSummaryDTO;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
-import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
+import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
+import dev.salt.Ring20.dto.AdminRecentFeedbackResponseDto;
+import dev.salt.Ring20.dto.AdminTrainerOverviewRespnseDto;
+import dev.salt.Ring20.dto.AdminUserCountResponseDto;
+import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
+import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
@@ -74,7 +74,7 @@ public class AdminController {
     }
 
     @GetMapping("/users/count")
-    public ResponseEntity<AdminUserCountDto> getUserCount(Authentication authentication) {
+    public ResponseEntity<AdminUserCountResponseDto> getUserCount(Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
@@ -83,11 +83,11 @@ public class AdminController {
 
         long total = service.getUserCount();
         long active = activityLogService.getActiveUserCount();
-        return ResponseEntity.ok(new AdminUserCountDto(total, active));
+        return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<AdminUserSummaryDTO>> getUsers(Authentication authentication) {
+    public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers(Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
         if (!service.isAdmin(clerkId)) {
@@ -125,7 +125,7 @@ public class AdminController {
     }
 
     @GetMapping("/activity-logs/recent")
-    public ResponseEntity<List<AdminRecentActivityDTO>> getRecentActivityLogs(
+    public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
@@ -137,7 +137,7 @@ public class AdminController {
     }
 
     @GetMapping("/workouts/usage")
-    public ResponseEntity<List<AdminWorkoutUsageDTO>> getWorkoutUsage(
+    public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
@@ -149,7 +149,7 @@ public class AdminController {
     }
 
     @GetMapping("/workouts/feedback-summary")
-    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDto>> getWorkoutFeedbackSummary(
+    public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>> getWorkoutFeedbackSummary(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
@@ -161,7 +161,7 @@ public class AdminController {
     }
 
     @GetMapping("/feedbacks")
-    public ResponseEntity<List<AdminRecentFeedbackDto>> getRecentFeedbackEntries(
+    public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 
@@ -173,7 +173,7 @@ public class AdminController {
     }
 
     @GetMapping("/trainers/overview")
-    public ResponseEntity<List<AdminTrainerOverviewDTO>> getTrainerOverview(
+    public ResponseEntity<List<AdminTrainerOverviewRespnseDto>> getTrainerOverview(
             Authentication authentication) {
         String clerkId = getClerkId(authentication);
 

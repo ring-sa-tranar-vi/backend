@@ -1,9 +1,9 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.AdminRecentActivityDTO;
-import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
-import dev.salt.Ring20.dto.AdminUserSummaryDTO;
-import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
+import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
+import dev.salt.Ring20.dto.AdminTrainerOverviewRespnseDto;
+import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
+import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
@@ -45,7 +45,7 @@ public class AdminService {
         this.trainerRepository = trainerRepository;
     }
 
-    public List<AdminUserSummaryDTO> getUserSummaries() {
+    public List<AdminUserSummaryResponseDto> getUserSummaries() {
         List<User> users = userRepository.findAll();
         Map<Long, LocalDateTime> lastCompletedAtByUserId =
                 activityLogRepository.findByStatus(STATUS_COMPLETED).stream()
@@ -63,7 +63,7 @@ public class AdminService {
                 .sorted(Comparator.comparing(User::getId))
                 .map(
                         user ->
-                                new AdminUserSummaryDTO(
+                                new AdminUserSummaryResponseDto(
                                         user.getId(),
                                         user.getName(),
                                         user.getClerkId(),
@@ -74,7 +74,7 @@ public class AdminService {
                 .toList();
     }
 
-    public List<AdminRecentActivityDTO> getRecentActivityLogs() {
+    public List<AdminRecentActivityResponseDto> getRecentActivityLogs() {
         Map<Long, String> userNameById =
                 userRepository.findAll().stream()
                         .collect(Collectors.toMap(User::getId, User::getName));
@@ -92,7 +92,7 @@ public class AdminService {
                 .limit(RECENT_ACTIVITY_LIMIT)
                 .map(
                         activityLog ->
-                                new AdminRecentActivityDTO(
+                                new AdminRecentActivityResponseDto(
                                         activityLog.getId(),
                                         activityLog.getUserId(),
                                         userNameById.getOrDefault(
@@ -106,7 +106,7 @@ public class AdminService {
                 .toList();
     }
 
-    public List<AdminWorkoutUsageDTO> getWorkoutUsage() {
+    public List<AdminWorkoutUsageResponseDto> getWorkoutUsage() {
         List<ActivityLog> activityLogs = activityLogRepository.findAll();
         Map<Long, Long> startedCountByWorkoutId = new HashMap<>();
         Map<Long, Long> completedCountByWorkoutId = new HashMap<>();
@@ -136,7 +136,7 @@ public class AdminService {
                 .sorted(Comparator.comparing(Workout::getId))
                 .map(
                         workout ->
-                                new AdminWorkoutUsageDTO(
+                                new AdminWorkoutUsageResponseDto(
                                         workout.getId(),
                                         workout.getName(),
                                         workout.getTrainer() == null
@@ -148,7 +148,7 @@ public class AdminService {
                 .toList();
     }
 
-    public List<AdminTrainerOverviewDTO> getTrainerOverview() {
+    public List<AdminTrainerOverviewRespnseDto> getTrainerOverview() {
         Map<Long, Long> assignedUserCountByTrainerId = new HashMap<>();
         for (User user : userRepository.findAll()) {
             if (user.getTrainerId() != null) {
@@ -174,7 +174,7 @@ public class AdminService {
                 .sorted(Comparator.comparing(Trainer::getId))
                 .map(
                         trainer ->
-                                new AdminTrainerOverviewDTO(
+                                new AdminTrainerOverviewRespnseDto(
                                         trainer.getId(),
                                         trainer.getName(),
                                         trainer.getLanguage(),

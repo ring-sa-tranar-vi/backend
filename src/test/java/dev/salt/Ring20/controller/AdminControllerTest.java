@@ -3,11 +3,11 @@ package dev.salt.Ring20.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminRecentActivityDTO;
-import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
-import dev.salt.Ring20.dto.AdminUserCountDto;
-import dev.salt.Ring20.dto.AdminUserSummaryDTO;
-import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
+import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
+import dev.salt.Ring20.dto.AdminTrainerOverviewRespnseDto;
+import dev.salt.Ring20.dto.AdminUserCountResponseDto;
+import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
+import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
@@ -46,7 +46,7 @@ class AdminControllerTest {
         when(userService.getUserCount()).thenReturn(42L);
         when(activityLogService.getActiveUserCount()).thenReturn(7L);
 
-        ResponseEntity<AdminUserCountDto> response = controller.getUserCount(auth("clerk_admin"));
+        ResponseEntity<AdminUserCountResponseDto> response = controller.getUserCount(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -61,7 +61,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<AdminUserCountDto> response = controller.getUserCount(auth("clerk_user"));
+        ResponseEntity<AdminUserCountResponseDto> response = controller.getUserCount(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(userService, never()).getUserCount();
@@ -77,10 +77,10 @@ class AdminControllerTest {
         when(adminService.getUserSummaries())
                 .thenReturn(
                         List.of(
-                                new AdminUserSummaryDTO(
+                                new AdminUserSummaryResponseDto(
                                         1L, "Ada", "clerk_1", "USER", 2, 1L, null)));
 
-        ResponseEntity<List<AdminUserSummaryDTO>> response =
+        ResponseEntity<List<AdminUserSummaryResponseDto>> response =
                 controller.getUsers(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -96,7 +96,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminUserSummaryDTO>> response =
+        ResponseEntity<List<AdminUserSummaryResponseDto>> response =
                 controller.getUsers(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -112,7 +112,7 @@ class AdminControllerTest {
         when(adminService.getRecentActivityLogs())
                 .thenReturn(
                         List.of(
-                                new AdminRecentActivityDTO(
+                                new AdminRecentActivityResponseDto(
                                         1L,
                                         2L,
                                         "Ada",
@@ -122,7 +122,7 @@ class AdminControllerTest {
                                         120,
                                         LocalDateTime.now())));
 
-        ResponseEntity<List<AdminRecentActivityDTO>> response =
+        ResponseEntity<List<AdminRecentActivityResponseDto>> response =
                 controller.getRecentActivityLogs(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -138,7 +138,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminRecentActivityDTO>> response =
+        ResponseEntity<List<AdminRecentActivityResponseDto>> response =
                 controller.getRecentActivityLogs(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -154,7 +154,7 @@ class AdminControllerTest {
         when(adminService.getWorkoutUsage())
                 .thenReturn(
                         List.of(
-                                new AdminWorkoutUsageDTO(
+                                new AdminWorkoutUsageResponseDto(
                                         1L,
                                         "Morning Flow",
                                         "Coach A",
@@ -162,7 +162,7 @@ class AdminControllerTest {
                                         8,
                                         LocalDateTime.now())));
 
-        ResponseEntity<List<AdminWorkoutUsageDTO>> response =
+        ResponseEntity<List<AdminWorkoutUsageResponseDto>> response =
                 controller.getWorkoutUsage(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -178,7 +178,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminWorkoutUsageDTO>> response =
+        ResponseEntity<List<AdminWorkoutUsageResponseDto>> response =
                 controller.getWorkoutUsage(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -192,9 +192,9 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_admin")).thenReturn(true);
         when(adminService.getTrainerOverview())
-                .thenReturn(List.of(new AdminTrainerOverviewDTO(1L, "Coach A", "sv", 3, 5, 4)));
+                .thenReturn(List.of(new AdminTrainerOverviewRespnseDto(1L, "Coach A", "sv", 3, 5, 4)));
 
-        ResponseEntity<List<AdminTrainerOverviewDTO>> response =
+        ResponseEntity<List<AdminTrainerOverviewRespnseDto>> response =
                 controller.getTrainerOverview(auth("clerk_admin"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -210,7 +210,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
         when(userService.isAdmin("clerk_user")).thenReturn(false);
 
-        ResponseEntity<List<AdminTrainerOverviewDTO>> response =
+        ResponseEntity<List<AdminTrainerOverviewRespnseDto>> response =
                 controller.getTrainerOverview(auth("clerk_user"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());

@@ -3,7 +3,7 @@ package dev.salt.Ring20.dto;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
 import java.time.LocalDateTime;
 
-public record AdminRecentFeedbackDto(
+public record AdminRecentFeedbackResponseDto(
         Long id,
         Long userId,
         Long workoutId,

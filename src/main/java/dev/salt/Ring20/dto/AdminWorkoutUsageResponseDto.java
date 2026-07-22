@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto;
 
 import java.time.LocalDateTime;
 
-public record AdminWorkoutUsageDTO(
+public record AdminWorkoutUsageResponseDto(
         Long workoutId,
         String workoutName,
         String trainerName,

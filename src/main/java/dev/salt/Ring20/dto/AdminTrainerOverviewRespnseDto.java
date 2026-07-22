@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record AdminTrainerOverviewDTO(
+public record AdminTrainerOverviewRespnseDto(
         Long trainerId,
         String trainerName,
         String language,

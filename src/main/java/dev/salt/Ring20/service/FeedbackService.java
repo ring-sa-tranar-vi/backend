@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
+import dev.salt.Ring20.dto.AdminRecentFeedbackResponseDto;
+import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryResponseDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
@@ -160,7 +160,7 @@ public class FeedbackService {
         feedbackRepository.delete(feedback);
     }
 
-    public List<AdminWorkoutFeedbackSummaryDto> getWorkoutFeedbackSummary() {
+    public List<AdminWorkoutFeedbackSummaryResponseDto> getWorkoutFeedbackSummary() {
         List<Workout> workouts = workoutRepository.findAll();
 
         Map<Long, List<Feedback>> feedbackByWorkoutId =
@@ -178,7 +178,7 @@ public class FeedbackService {
                 .toList();
     }
 
-    private AdminWorkoutFeedbackSummaryDto createWorkoutSummary(
+    private AdminWorkoutFeedbackSummaryResponseDto createWorkoutSummary(
             Workout workout, List<Feedback> feedbacks) {
         int feedbackCount = feedbacks.size();
 
@@ -205,7 +205,7 @@ public class FeedbackService {
         double dislikeRate = calculateRate(dislikedCount, feedbackCount);
         double tooHardRate = calculateRate(tooHardCount, feedbackCount);
 
-        return new AdminWorkoutFeedbackSummaryDto(
+        return new AdminWorkoutFeedbackSummaryResponseDto(
                 workout.getId(),
                 workout.getName(),
                 feedbackCount,
@@ -219,13 +219,13 @@ public class FeedbackService {
         return denominator == 0 ? 0 : roundTwoDecimals(numerator / denominator);
     }
 
-    public List<AdminRecentFeedbackDto> getRecentFeedbackEntries() {
+    public List<AdminRecentFeedbackResponseDto> getRecentFeedbackEntries() {
         List<Feedback> feedbacks = new ArrayList<>(feedbackRepository.findAll());
         feedbacks.sort(
                 Comparator.comparing(
                         Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
 
-        List<AdminRecentFeedbackDto> result = new ArrayList<>();
+        List<AdminRecentFeedbackResponseDto> result = new ArrayList<>();
         for (Feedback feedback : feedbacks) {
             String workoutName =
                     workoutRepository
@@ -234,7 +234,7 @@ public class FeedbackService {
                             .orElse(UNKNOWN_WORKOUT);
 
             result.add(
-                    new AdminRecentFeedbackDto(
+                    new AdminRecentFeedbackResponseDto(
                             feedback.getId(),
                             feedback.getUserId(),
                             feedback.getWorkoutId(),
