@@ -9,8 +9,12 @@ import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.service.TrainerService;
 import dev.salt.Ring20.service.UserService;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import dev.salt.Ring20.service.data.RecommendedWorkoutData;
+import dev.salt.Ring20.service.data.TrainerData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -52,7 +56,7 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @RequestBody TrainerRequestDto request, Authentication authentication) {
         assertAdmin(authentication);
-        Trainer trainer = trainerService.createTrainer(request);
+        Trainer trainer = trainerService.createTrainer(toTrainerData(request));
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
@@ -62,7 +66,7 @@ public class TrainerController {
             @RequestBody TrainerRequestDto request,
             Authentication authentication) {
         assertAdmin(authentication);
-        Trainer trainer = trainerService.updateTrainer(id, request);
+        Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
@@ -105,10 +109,33 @@ public class TrainerController {
 
     @GetMapping("/{trainerId}/recommend-for/{userId}")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-            getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
+    getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(trainerId, userId)
-                .thenApply(ResponseEntity::ok);
+                .thenApply(data ->
+                        ResponseEntity.ok(
+                                toRecommendedWorkoutResponse(data)
+                        ));
+    }
+
+    private RecommendWorkoutResponseDto toRecommendedWorkoutResponse(RecommendedWorkoutData data) {
+        return new RecommendWorkoutResponseDto(
+                data.workoutId(),
+                data.reasoning()
+        );
+    }
+
+    private TrainerData toTrainerData(TrainerRequestDto request) {
+        return new TrainerData(
+                request.name(),
+                request.prompt(),
+                request.voice(),
+                request.intro(),
+                request.language(),
+                request.imageSelect(),
+                request.imageCall(),
+                request.imageStart(),
+                request.ambience());
     }
 }
