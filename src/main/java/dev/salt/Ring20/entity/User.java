@@ -3,6 +3,9 @@ package dev.salt.Ring20.entity;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,13 +24,16 @@ public class User {
     private Long id;
 
     private String name;
+    @Min(0)
+    @Max(4)
     private Integer intensityLevel;
     private String context;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String clerkId;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     private Long trainerId;
     private String city;
 
@@ -47,7 +53,7 @@ public class User {
         this.intensityLevel = intensityLevel;
         this.context = context;
         this.clerkId = clerkId;
-        this.role = "USER";
+        this.role = UserRole.USER;
         this.trainerId = DEFAULT_TRAINER_ID;
     }
 }
