@@ -8,12 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class GeminiWorkoutService {
@@ -21,16 +20,23 @@ public class GeminiWorkoutService {
     private final String googleApiKey;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
+    private static final Logger log = LoggerFactory.getLogger(GeminiWorkoutService.class);
 
-    public GeminiWorkoutService(@Value("${gemini.api-key:}") String googleApiKey) {
+    public GeminiWorkoutService(
+            @Value("${gemini.api-key:}") String googleApiKey,
+            ObjectMapper objectMapper,
+            RestTemplate restTemplate) {
         this.googleApiKey = googleApiKey;
-        this.objectMapper = new ObjectMapper();
-        this.restTemplate = new RestTemplate();
-        System.out.println("[Gemini-Debug] Swapped to production REST optimization engine.");
+        this.objectMapper = objectMapper;
+        this.restTemplate = restTemplate;
+        log.debug("Swapped to production REST optimization engine.");
     }
 
     public CompletableFuture<String> recommendWorkoutWithReasoning(
             User user, List<Workout> workouts) {
+        if (googleApiKey.isBlank()) {
+            throw new IllegalStateException("Gemini API key is missing");
+        }
         return CompletableFuture.supplyAsync(
                 () -> {
                     try {
@@ -52,7 +58,7 @@ public class GeminiWorkoutService {
                                                             w.getBeginnerFriendly());
                                                     return m;
                                                 })
-                                        .collect(Collectors.toList());
+                                        .toList();
 
                         String workoutsListJson =
                                 objectMapper.writeValueAsString(workoutsForPrompt);
@@ -109,15 +115,12 @@ public class GeminiWorkoutService {
                                         .path("text")
                                         .asText();
 
-                        System.out.println(
-                                "[Gemini-Debug] AI Response captured: " + resultJsonString.trim());
+                        log.debug("Gemini response captured: {}", resultJsonString);
                         return resultJsonString.trim();
 
                     } catch (Exception e) {
-                        System.err.println("[Gemini-Debug] Execution failure: " + e.getMessage());
-                        throw new ResponseStatusException(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                "Failed to resolve recommendation: " + e.getMessage());
+                        log.error("Gemini Execution failure: ", e);
+                        throw new RuntimeException("Failed to generate workout recommendation");
                     }
                 });
     }

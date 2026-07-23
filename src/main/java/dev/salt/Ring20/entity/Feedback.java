@@ -10,9 +10,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(
         indexes = {
@@ -42,5 +46,6 @@ public class Feedback {
     @Column(length = 500)
     private String comment;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 }

@@ -1,21 +1,20 @@
 package dev.salt.Ring20.service;
 
-import static org.springframework.http.HttpStatus.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.salt.Ring20.dto.RecommendWorkoutDto;
-import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.data.RecommendedWorkoutData;
+import dev.salt.Ring20.service.data.TrainerData;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TrainerService {
@@ -43,9 +42,10 @@ public class TrainerService {
         return trainerRepository.findAll();
     }
 
-    public Trainer createTrainer(TrainerRequestDto request) {
+    @Transactional
+    public Trainer createTrainer(TrainerData request) {
         if (request == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
+            throw new IllegalArgumentException("Request body is required");
         }
 
         String name = normalizeRequired(request.name(), "name", 120);
@@ -55,7 +55,7 @@ public class TrainerService {
         String language = normalizeRequired(request.language(), "language", 40);
 
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)) {
-            throw new ResponseStatusException(CONFLICT, "Trainer already exists for this language");
+            throw new IllegalArgumentException("Trainer already exists for this language");
         }
 
         Trainer trainer = new Trainer();
@@ -72,18 +72,21 @@ public class TrainerService {
         return trainerRepository.save(trainer);
     }
 
-    public Trainer updateTrainer(Long id, TrainerRequestDto request) {
+    @Transactional
+    public Trainer updateTrainer(Long id, TrainerData request) {
         validateId(id);
 
         if (request == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Request body is required");
+            throw new IllegalArgumentException("Request body is required");
         }
 
         Trainer trainer =
                 trainerRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
+                                () ->
+                                        new NoSuchElementException(
+                                                "Trainer not found with id: " + id));
 
         String name = normalizeRequired(request.name(), "name", 120);
         String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
@@ -94,7 +97,7 @@ public class TrainerService {
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
                         || !language.equalsIgnoreCase(trainer.getLanguage()))) {
-            throw new ResponseStatusException(CONFLICT, "Trainer already exists for this language");
+            throw new IllegalArgumentException("Trainer already exists for this language");
         }
 
         trainer.setName(name);
@@ -114,36 +117,34 @@ public class TrainerService {
         validateId(id);
         return trainerRepository
                 .findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Trainer not found"));
+                .orElseThrow(() -> new NoSuchElementException("Trainer not found with id: " + id));
     }
 
+    @Transactional
     public void deleteTrainer(Long id) {
         validateId(id);
-        if (!trainerRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND, "Trainer not found");
-        }
-        trainerRepository.deleteById(id);
+        Trainer trainer = getTrainerById(id);
+        trainerRepository.delete(trainer);
     }
 
     private void validateId(Long id) {
         if (id == null || id <= 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "id must be a positive number");
+            throw new IllegalArgumentException("Id must be a positive number");
         }
     }
 
     private String normalizeRequired(String value, String fieldName, int maxLength) {
         if (value == null) {
-            throw new ResponseStatusException(BAD_REQUEST, fieldName + " is required");
+            throw new IllegalArgumentException(fieldName + " is required");
         }
 
         String normalized = value.trim();
         if (normalized.isEmpty()) {
-            throw new ResponseStatusException(BAD_REQUEST, fieldName + " is required");
+            throw new IllegalArgumentException(fieldName + " is required");
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(
-                    BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
+            throw new IllegalArgumentException(fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
@@ -160,75 +161,71 @@ public class TrainerService {
         }
 
         if (normalized.length() > maxLength) {
-            throw new ResponseStatusException(
-                    BAD_REQUEST, fieldName + " exceeds max length " + maxLength);
+            throw new IllegalArgumentException(fieldName + " exceeds max length " + maxLength);
         }
 
         return normalized;
     }
 
-    public CompletableFuture<RecommendWorkoutDto> getAiRecommendedWorkout(
+    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(
             Long trainerId, Long userId) {
         validateId(trainerId);
         validateId(userId);
+        List<Workout> trainerWorkouts = getEnabledTrainerWorkouts(trainerId);
+        User user = getUser(userId);
 
-        // 1. Verify workouts matching this specific trainer exist
-        List<Workout> trainerWorkouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
-        if (trainerWorkouts.isEmpty()) {
-            throw new ResponseStatusException(
-                    NOT_FOUND, "No workouts found for trainer ID: " + trainerId);
-        }
-
-        // 2. Pull the complete user profile data dependency
-        User user =
-                userRepository
-                        .findById(userId)
-                        .orElseThrow(
-                                () ->
-                                        new ResponseStatusException(
-                                                NOT_FOUND, "User not found with ID: " + userId));
-
-        // 3. Fire the non-blocking asynchronous REST pipeline call
         return geminiWorkoutService
                 .recommendWorkoutWithReasoning(user, trainerWorkouts)
-                .thenApply(
-                        jsonStringResponse -> {
-                            try {
-                                JsonNode aiResultNode = objectMapper.readTree(jsonStringResponse);
+                .thenApply(this::parseRecommendedWorkout);
+    }
 
-                                // Extract the values using .path() to avoid NullPointerExceptions
-                                JsonNode idNode = aiResultNode.path("workoutId");
-                                Long workoutId =
-                                        (idNode.isNull() || idNode.isMissingNode())
-                                                ? null
-                                                : idNode.asLong();
-                                String reasoning =
-                                        aiResultNode
-                                                .path("reasoning")
-                                                .asText("No reasoning provided.");
+    private List<Workout> getEnabledTrainerWorkouts(Long trainerId) {
+        List<Workout> workouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
 
-                                // 4. Validate entity integrity if a match was successfully found
-                                if (workoutId != null
-                                        && !workoutRepository.existsByIdAndEnabledTrue(workoutId)) {
-                                    throw new ResponseStatusException(
-                                            INTERNAL_SERVER_ERROR,
-                                            "AI recommended a workout ID ("
-                                                    + workoutId
-                                                    + ") that does not exist in the database.");
-                                }
+        if (workouts.isEmpty()) {
+            throw new NoSuchElementException("No workouts found for trainer ID: " + trainerId);
+        }
 
-                                // 5. Build and return your exact custom DTO record payload
-                                return new RecommendWorkoutDto(workoutId, reasoning);
+        return workouts;
+    }
 
-                            } catch (ResponseStatusException rse) {
-                                throw rse; // Pass along our validated entity exceptions cleanly
-                            } catch (Exception e) {
-                                throw new ResponseStatusException(
-                                        INTERNAL_SERVER_ERROR,
-                                        "Failed to parse structured AI recommendation payload. Raw response content: "
-                                                + jsonStringResponse,
-                                        e);
-                            }
-                        });
+    private User getUser(Long userId) {
+        return userRepository
+                .findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + userId));
+    }
+
+    private RecommendedWorkoutData parseRecommendedWorkout(String jsonResponse) {
+        try {
+            JsonNode node = objectMapper.readTree(jsonResponse);
+
+            Long workoutId = extractWorkoutId(node);
+            validateRecommendedWorkout(workoutId);
+
+            String reasoning = node.path("reasoning").asText("No reasoning provided.");
+
+            return new RecommendedWorkoutData(workoutId, reasoning);
+
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to parse structured AI recommendation payload", e);
+        }
+    }
+
+    private Long extractWorkoutId(JsonNode node) {
+        JsonNode idNode = node.path("workoutId");
+
+        if (idNode.isMissingNode() || idNode.isNull()) {
+            return null;
+        }
+
+        return idNode.asLong();
+    }
+
+    private void validateRecommendedWorkout(Long workoutId) {
+        if (workoutId != null && !workoutRepository.existsByIdAndEnabledTrue(workoutId)) {
+
+            throw new IllegalStateException("AI recommended invalid workout id: " + workoutId);
+        }
     }
 }

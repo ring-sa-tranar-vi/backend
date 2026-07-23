@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
     List<ActivityLog> findByUserIdAndStatusOrderByCompletedAtDesc(Long userId, String status);
 
+    List<ActivityLog> findByStatus(String status);
+
     boolean existsByUserIdAndStatusAndCompletedAtBetween(
             Long userId, String status, LocalDateTime start, LocalDateTime end);
 
@@ -26,4 +28,6 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
     @Query(
             "SELECT COUNT(DISTINCT a.userId) FROM ActivityLog a WHERE a.status = 'COMPLETED' AND a.completedAt >= :since")
     long countDistinctActiveUsersSince(@Param("since") LocalDateTime since);
+
+    boolean existsByUserIdAndWorkoutIdAndStatus(Long userId, Long id, String statusStarted);
 }

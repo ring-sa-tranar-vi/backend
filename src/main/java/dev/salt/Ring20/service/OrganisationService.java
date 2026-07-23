@@ -4,6 +4,7 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +32,11 @@ public class OrganisationService {
     @Transactional(readOnly = true)
     public Organisation getOrganisationById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Organisation not found with id: " + id));
+                .orElseThrow(
+                        () -> new NoSuchElementException("Organisation not found with id: " + id));
     }
 
+    @Transactional
     public void deleteOrganisationById(Long id) {
         repo.deleteById(id);
     }
@@ -45,7 +48,7 @@ public class OrganisationService {
                 repo.findById(id)
                         .orElseThrow(
                                 () ->
-                                        new RuntimeException(
+                                        new NoSuchElementException(
                                                 "Organisation not found with id: " + id));
         foundOrg.setName(name);
         foundOrg.setDescription(description);

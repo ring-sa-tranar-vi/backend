@@ -7,10 +7,10 @@ import dev.salt.Ring20.repository.EventRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service
-@Transactional
 public class EventService {
     private final EventRepository repo;
 
@@ -41,6 +41,7 @@ public class EventService {
         return repo.findById(id).orElseThrow();
     }
 
+    @Transactional
     public Event updateEvent(
             Long id,
             String name,
@@ -50,7 +51,12 @@ public class EventService {
             String city,
             String venue,
             EventType eventType) {
-        Event event = repo.findById(id).orElseThrow();
+        Event event =
+                repo.findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                " Event not found with id: " + id));
         event.setName(name);
         event.setDescription(description);
         event.setTime(time);
@@ -61,6 +67,7 @@ public class EventService {
         return repo.save(event);
     }
 
+    @Transactional
     public void deleteEventById(Long id) {
         repo.deleteById(id);
     }

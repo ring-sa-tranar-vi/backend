@@ -2,30 +2,22 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.AdminEventRequestDTO;
-import dev.salt.Ring20.dto.AdminEventResponseDTO;
-import dev.salt.Ring20.dto.AdminOrganisationRequestDTO;
-import dev.salt.Ring20.dto.AdminOrganisationResponseDTO;
-import dev.salt.Ring20.dto.AdminRecentActivityDTO;
-import dev.salt.Ring20.dto.AdminRecentFeedbackDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewDTO;
-import dev.salt.Ring20.dto.AdminUserCountDto;
-import dev.salt.Ring20.dto.AdminUserSummaryDTO;
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
-import dev.salt.Ring20.dto.AdminWorkoutUsageDTO;
+import dev.salt.Ring20.dto.*;
+import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
+import dev.salt.Ring20.service.data.*;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,8 +26,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class AdminController {
+    private static final String UNKNOWN_USER = "Unknown user";
+    private static final String UNKNOWN_WORKOUT = "Unknown workout";
     private final UserService service;
     private final FeedbackService feedbackService;
     private final ActivityLogService activityLogService;
@@ -52,6 +45,87 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<String> adminPage(Authentication authentication) {
+
+        String clerkId = getClerkId(authentication);
+        final String name = service.getByClerkIdOrThrow(clerkId).getName();
+
+        return ResponseEntity.ok(
+                "Congrats, "
+                        + name
+                        + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users/count")
+    public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
+        long total = service.getUserCount();
+        long active = activityLogService.getActiveUserCount();
+        return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users")
+    public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
+        return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/users/{id}")
+    public ResponseEntity<String> updateUser(
+            @PathVariable Long id, @Valid @RequestBody UserRequestDto updateData) {
+        User updated = adminService.updateUser(id, toUserEntity(updateData));
+        return ResponseEntity.ok("User with ID " + updated.getId() + " updated successfully");
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+
+        adminService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/activity-logs/recent")
+    public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
+        return ResponseEntity.ok(
+                toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/workouts/usage")
+    public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
+
+        return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/workouts/feedback-summary")
+    public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
+            getWorkoutFeedbackSummary() {
+
+        return ResponseEntity.ok(
+                toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/feedbacks")
+    public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
+
+        return ResponseEntity.ok(
+                toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/trainers/overview")
+    public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
+        return ResponseEntity.ok(
+                toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
+    }
+
     private Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
             throw new ResponseStatusException(
@@ -64,202 +138,127 @@ public class AdminController {
         return getJwtOrThrow(authentication).getSubject();
     }
 
-    @GetMapping
-    public ResponseEntity<String> adminPage(Authentication authentication) {
-
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).body("Forbidden");
-        }
-        final String name = service.getByClerkIdOrThrow(clerkId).getName();
-
-        return ResponseEntity.ok(
-                "Congrats, "
-                        + name
-                        + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
+    private List<AdminWorkoutFeedbackSummaryResponseDto> toWorkoutFeedbackSummaryDto(
+            List<WorkoutFeedbackSummaryData> data) {
+        return data.stream()
+                .map(
+                        summary ->
+                                new AdminWorkoutFeedbackSummaryResponseDto(
+                                        summary.workout().getId(),
+                                        summary.workout().getName(),
+                                        summary.feedbackCount(),
+                                        summary.avgRating(),
+                                        summary.dislikeRate(),
+                                        summary.tooHardRate(),
+                                        summary.status()))
+                .toList();
     }
 
-    @GetMapping("/workouts/feedback-summary")
-    public ResponseEntity<List<AdminWorkoutFeedbackSummaryDto>> getWorkoutFeedbackSummary(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(feedbackService.getWorkoutFeedbackSummary());
+    private List<AdminUserSummaryResponseDto> toAdminUserSummaryResponseDto(UserSummaryData data) {
+        return data.users().stream()
+                .map(
+                        user ->
+                                new AdminUserSummaryResponseDto(
+                                        user.getId(),
+                                        user.getName(),
+                                        user.getClerkId(),
+                                        user.getRole(),
+                                        user.getIntensityLevel(),
+                                        user.getTrainerId(),
+                                        data.lastCompletedAtByUserId().get(user.getId())))
+                .toList();
     }
 
-    @GetMapping("/feedbacks")
-    public ResponseEntity<List<AdminRecentFeedbackDto>> getRecentFeedbackEntries(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(feedbackService.getRecentFeedbackEntries());
+    private List<AdminRecentActivityResponseDto> toAdminRecentActivityResponseDto(
+            RecentActivityData data) {
+        return data.activityLogs().stream()
+                .map(
+                        activityLog ->
+                                new AdminRecentActivityResponseDto(
+                                        activityLog.getId(),
+                                        activityLog.getUserId(),
+                                        data.userNameById()
+                                                .getOrDefault(
+                                                        activityLog.getUserId(), UNKNOWN_USER),
+                                        activityLog.getWorkoutId(),
+                                        data.workoutNameById()
+                                                .getOrDefault(
+                                                        activityLog.getWorkoutId(),
+                                                        UNKNOWN_WORKOUT),
+                                        activityLog.getStatus(),
+                                        activityLog.getDurationSeconds(),
+                                        activityLog.getCompletedAt()))
+                .toList();
     }
 
-    @GetMapping("/users/count")
-    public ResponseEntity<AdminUserCountDto> getUserCount(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        long total = service.getUserCount();
-        long active = activityLogService.getActiveUserCount();
-        return ResponseEntity.ok(new AdminUserCountDto(total, active));
+    private List<AdminWorkoutUsageResponseDto> toAdminWorkoutUsageResponseDto(
+            WorkoutUsageData data) {
+        return data.workouts().stream()
+                .map(
+                        workout ->
+                                new AdminWorkoutUsageResponseDto(
+                                        workout.getId(),
+                                        workout.getName(),
+                                        workout.getTrainer() == null
+                                                ? null
+                                                : workout.getTrainer().getName(),
+                                        data.startedCountByWorkoutId()
+                                                .getOrDefault(workout.getId(), 0L),
+                                        data.completedCountByWorkoutId()
+                                                .getOrDefault(workout.getId(), 0L),
+                                        data.lastCompletedAtByWorkoutId().get(workout.getId())))
+                .toList();
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<AdminUserSummaryDTO>> getUsers(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getUserSummaries());
+    private List<AdminTrainerOverviewResponseDto> toAdminTrainerOverviewsponseDto(
+            TrainerOverviewData data) {
+        return data.trainers().stream()
+                .map(
+                        trainer ->
+                                new AdminTrainerOverviewResponseDto(
+                                        trainer.getId(),
+                                        trainer.getName(),
+                                        trainer.getLanguage(),
+                                        data.assignedUserCountByTrainerId()
+                                                .getOrDefault(trainer.getId(), 0L),
+                                        data.workoutCountByTrainerId()
+                                                .getOrDefault(trainer.getId(), 0L),
+                                        data.enabledWorkoutCountByTrainerId()
+                                                .getOrDefault(trainer.getId(), 0L)))
+                .toList();
     }
 
-    @GetMapping("/activity-logs/recent")
-    public ResponseEntity<List<AdminRecentActivityDTO>> getRecentActivityLogs(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
+    private List<AdminRecentFeedbackResponseDto> toAdminRecentFeedbackResponseDto(
+            RecentFeedbackData data) {
 
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getRecentActivityLogs());
+        return data.feedbacks().stream()
+                .map(
+                        feedback ->
+                                new AdminRecentFeedbackResponseDto(
+                                        feedback.getId(),
+                                        feedback.getUserId(),
+                                        feedback.getWorkoutId(),
+                                        feedback.getActivityLogId(),
+                                        data.workoutNameById()
+                                                .getOrDefault(
+                                                        feedback.getWorkoutId(), UNKNOWN_WORKOUT),
+                                        feedback.getDifficulty(),
+                                        feedback.getLiked(),
+                                        feedback.getRating(),
+                                        feedback.getComment(),
+                                        feedback.getCreatedAt()))
+                .toList();
     }
 
-    @GetMapping("/workouts/usage")
-    public ResponseEntity<List<AdminWorkoutUsageDTO>> getWorkoutUsage(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
+    private User toUserEntity(UserRequestDto request) {
+        User user = new User();
 
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
+        user.setName(request.name());
+        user.setIntensityLevel(request.intensityLevel());
+        user.setContext(request.context());
+        user.setTrainerId(request.trainerId());
+        user.setCity(request.city());
 
-        return ResponseEntity.ok(adminService.getWorkoutUsage());
-    }
-
-    @GetMapping("/trainers/overview")
-    public ResponseEntity<List<AdminTrainerOverviewDTO>> getTrainerOverview(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getTrainerOverview());
-    }
-
-    @GetMapping("/organisations")
-    public ResponseEntity<List<AdminOrganisationResponseDTO>> getOrganisations(
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getOrganisations());
-    }
-
-    @PostMapping("/organisations")
-    public ResponseEntity<AdminOrganisationResponseDTO> createOrganisation(
-            @RequestBody AdminOrganisationRequestDTO request, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.createOrganisation(request));
-    }
-
-    @DeleteMapping("/organisations/{id}")
-    public ResponseEntity<Void> deleteOrganisation(
-            @PathVariable Long id, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        adminService.deleteOrganisation(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/events")
-    public ResponseEntity<List<AdminEventResponseDTO>> getEvents(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.getEvents());
-    }
-
-    @PostMapping("/events")
-    public ResponseEntity<AdminEventResponseDTO> createEvent(
-            @RequestBody AdminEventRequestDTO request, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        return ResponseEntity.ok(adminService.createEvent(request));
-    }
-
-    @DeleteMapping("/events/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        adminService.deleteEvent(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(
-            @PathVariable Long id,
-            @RequestBody dev.salt.Ring20.entity.User updateData,
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        dev.salt.Ring20.entity.User updated = adminService.updateUser(id, updateData);
-        return ResponseEntity.ok("User with ID " + updated.getId() + " updated successfully");
-    }
-
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-
-        if (!service.isAdmin(clerkId)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        adminService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return user;
     }
 }

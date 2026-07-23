@@ -5,7 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.UserRole;
 import dev.salt.Ring20.repository.UserRepository;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserService Tests")
@@ -30,13 +31,13 @@ class UserServiceTest {
     void setUp() {
         user = new User("Jane Doe", 2, "context", "clerk_1");
         user.setId(1L);
-        user.setRole("USER");
+        user.setRole(UserRole.USER);
         user.setTrainerId(2L);
     }
 
     @Test
     void isAdminReturnsTrueForAdminRole() {
-        user.setRole("ADMIN");
+        user.setRole(UserRole.ADMIN);
         when(userRepository.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
 
         assertTrue(userService.isAdmin("clerk_1"));
@@ -51,7 +52,7 @@ class UserServiceTest {
         User created = userService.createUser("clerk_2", "  New User  ");
 
         assertEquals("New User", created.getName());
-        assertEquals("USER", created.getRole());
+        assertEquals(UserRole.USER, created.getRole());
         verify(userRepository).save(any(User.class));
     }
 
@@ -70,11 +71,11 @@ class UserServiceTest {
     void getByClerkIdOrThrowThrowsWhenMissing() {
         when(userRepository.findByClerkId("missing")).thenReturn(Optional.empty());
 
-        ResponseStatusException ex =
+        NoSuchElementException ex =
                 assertThrows(
-                        ResponseStatusException.class,
+                        NoSuchElementException.class,
                         () -> userService.getByClerkIdOrThrow("missing"));
-        assertEquals("User not found", ex.getReason());
+        assertEquals("User not found", ex.getMessage());
     }
 
     @Test
@@ -96,22 +97,22 @@ class UserServiceTest {
 
     @Test
     void updateUserPreferencesByClerkIdRejectsMissingTrainer() {
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class,
+                        IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
                                         "clerk_1", "Name", 3, "context", null, "Stockholm"));
 
-        assertEquals("Trainer is required", ex.getReason());
+        assertEquals("Trainer is required", ex.getMessage());
     }
 
     @Test
     void getUserByIdThrowsWhenMissing() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        ResponseStatusException ex =
-                assertThrows(ResponseStatusException.class, () -> userService.getUserById(99L));
-        assertEquals("User not found", ex.getReason());
+        NoSuchElementException ex =
+                assertThrows(NoSuchElementException.class, () -> userService.getUserById(99L));
+        assertEquals("User not found with id: 99", ex.getMessage());
     }
 }

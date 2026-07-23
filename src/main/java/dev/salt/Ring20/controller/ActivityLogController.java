@@ -4,9 +4,10 @@ import dev.salt.Ring20.dto.ActivityLogCreateRequestDto;
 import dev.salt.Ring20.dto.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
+import jakarta.validation.Valid;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,13 +18,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/activity-logs")
-@CrossOrigin(origins = {"http://localhost:5173", "https://frontend-training.up.railway.app"})
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
 
     public ActivityLogController(ActivityLogService activityLogService) {
         this.activityLogService = activityLogService;
+    }
+
+    @GetMapping("/users/{userId}/has-completed-today")
+    public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
+            @PathVariable Long userId) {
+        boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
+        return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
+    }
+
+    @PostMapping
+    public ResponseEntity<ActivityLogResponseDto> createActivityLog(
+            @Valid @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
+        ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
+        ActivityLog completed = activityLogService.completeActivityLog(id);
+        return ResponseEntity.ok().body(toResponse(completed));
     }
 
     private ActivityLog toEntity(ActivityLogCreateRequestDto request) {
@@ -46,25 +66,5 @@ public class ActivityLogController {
                 activityLog.getDurationSeconds(),
                 activityLog.getFeedback(),
                 activityLog.getStatus());
-    }
-
-    @GetMapping("/users/{userId}/has-completed-today")
-    public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
-            @PathVariable Long userId) {
-        boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
-        return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
-    }
-
-    @PostMapping
-    public ResponseEntity<ActivityLogResponseDto> createActivityLog(
-            @RequestBody ActivityLogCreateRequestDto activityLogRequest) {
-        ActivityLog created = activityLogService.createActivityLog(toEntity(activityLogRequest));
-        return ResponseEntity.ok().body(toResponse(created));
-    }
-
-    @PutMapping("/{id}/complete")
-    public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
-        ActivityLog completed = activityLogService.completeActivityLog(id);
-        return ResponseEntity.ok().body(toResponse(completed));
     }
 }

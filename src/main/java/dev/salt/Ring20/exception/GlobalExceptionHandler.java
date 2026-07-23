@@ -1,4 +1,4 @@
-package dev.salt.Ring20.config;
+package dev.salt.Ring20.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;

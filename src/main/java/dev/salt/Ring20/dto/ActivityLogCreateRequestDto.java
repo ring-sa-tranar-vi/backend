@@ -1,11 +1,13 @@
 package dev.salt.Ring20.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record ActivityLogCreateRequestDto(
-        Long userId,
-        Long workoutId,
-        LocalDateTime completedAt,
-        Integer durationSeconds,
-        String feedback,
-        String status) {}
+        @NotNull Long userId,
+        @NotNull Long workoutId,
+        @NotNull LocalDateTime completedAt,
+        @NotNull Integer durationSeconds,
+        @NotNull String feedback,
+        @NotBlank String status) {}

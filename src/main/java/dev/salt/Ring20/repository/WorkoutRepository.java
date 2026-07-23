@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WorkoutRepository extends JpaRepository<Workout, Long> {
-    List<Workout> findByTrainerId(Long trainerId);
-
     List<Workout> findByEnabledTrue();
 
     List<Workout> findByTrainerIdAndEnabledTrue(Long trainerId);
+
+    List<Workout> findAllByIdIn(List<Long> ids);
 
     boolean existsByIdAndEnabledTrue(Long id);
 }

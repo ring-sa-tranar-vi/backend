@@ -11,6 +11,7 @@ import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ActivityLogService Tests")
@@ -45,11 +45,11 @@ class ActivityLogServiceTest {
     void completeActivityLogThrowsWhenMissing() {
         when(activityLogRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResponseStatusException ex =
+        NoSuchElementException ex =
                 assertThrows(
-                        ResponseStatusException.class,
+                        NoSuchElementException.class,
                         () -> activityLogService.completeActivityLog(1L));
-        assertEquals("ActivityLog not found", ex.getReason());
+        assertEquals("ActivityLog not found with id:1", ex.getMessage());
     }
 
     @Test
@@ -76,7 +76,7 @@ class ActivityLogServiceTest {
 
         when(activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(1L, "COMPLETED"))
                 .thenReturn(List.of(log));
-        when(workoutRepository.findById(7L)).thenReturn(Optional.of(workout));
+        when(workoutRepository.findAllById(any())).thenReturn(List.of(workout));
 
         Map<String, Object> progress = activityLogService.getUserProgress(1L);
 

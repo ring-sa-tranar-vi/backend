@@ -4,6 +4,7 @@ import dev.salt.Ring20.dto.EventRequestDto;
 import dev.salt.Ring20.dto.EventResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/events")
-@CrossOrigin("http://localhost:5173")
 public class EventController {
     private final EventService service;
 
@@ -21,7 +21,8 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<EventResponseDto> createEvent(@RequestBody EventRequestDto request) {
+    public ResponseEntity<EventResponseDto> createEvent(
+            @Valid @RequestBody EventRequestDto request) {
         Event event =
                 service.createEvent(
                         request.name(),
@@ -60,21 +61,18 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
-        validatePositiveId(id);
         return ResponseEntity.ok(toResponse(service.getEventById(id)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
-        validatePositiveId(id);
         service.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EventResponseDto> updateEventById(
-            @PathVariable Long id, @RequestBody EventRequestDto request) {
-        validatePositiveId(id);
+            @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
         Event updatedEvent =
                 service.updateEvent(
                         id,
@@ -86,11 +84,5 @@ public class EventController {
                         request.venue(),
                         request.eventType());
         return ResponseEntity.ok(toResponse(updatedEvent));
-    }
-
-    private void validatePositiveId(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("id must be a positive number");
-        }
     }
 }

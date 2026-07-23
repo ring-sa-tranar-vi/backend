@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminWorkoutFeedbackSummaryDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
@@ -15,6 +14,7 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("FeedbackService Tests")
@@ -71,49 +70,49 @@ class FeedbackServiceTest {
     }
 
     @Test
-    void saveFeedbackStoresTimestampAndSaves() {
+    void addFeedbackStoresTimestampAndSaves() {
         stubActivityLogLookup();
         when(feedbackRepository.save(any(Feedback.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Feedback saved = feedbackService.saveFeedback(feedback);
+        Feedback saved = feedbackService.addFeedback(feedback);
 
         assertNotNull(saved.getCreatedAt());
         verify(feedbackRepository).save(feedback);
     }
 
     @Test
-    void saveFeedbackAddsDislikedPreferenceWhenLikedIsFalse() {
+    void addFeedbackAddsDislikedPreferenceWhenLikedIsFalse() {
         stubActivityLogLookup();
         feedback.setLiked(false);
         when(feedbackRepository.save(any(Feedback.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        feedbackService.saveFeedback(feedback);
+        feedbackService.addFeedback(feedback);
 
         verify(preferenceService).addPreference(2L, 3L, UserWorkoutPreferenceType.DISLIKED);
     }
 
     @Test
-    void saveFeedbackRejectsMissingUserOrWorkoutId() {
+    void addFeedbackRejectsMissingUserOrWorkoutId() {
         feedback.setUserId(null);
 
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class,
-                        () -> feedbackService.saveFeedback(feedback));
-        assertEquals("userId and workoutId are required", ex.getReason());
+                        IllegalArgumentException.class,
+                        () -> feedbackService.addFeedback(feedback));
+        assertEquals("UserId and workoutId are required.", ex.getMessage());
     }
 
     @Test
-    void saveFeedbackRejectsRatingOutsideRange() {
+    void addFeedbackRejectsRatingOutsideRange() {
         feedback.setRating(6);
 
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class,
-                        () -> feedbackService.saveFeedback(feedback));
-        assertEquals("rating must be between 1 and 5", ex.getReason());
+                        IllegalArgumentException.class,
+                        () -> feedbackService.addFeedback(feedback));
+        assertEquals("Rating must be between 1 and 5.", ex.getMessage());
     }
 
     @Test
@@ -127,7 +126,7 @@ class FeedbackServiceTest {
         when(workoutRepository.findAll()).thenReturn(List.of(workout));
         when(feedbackRepository.findAll()).thenReturn(List.of(feedback, other));
 
-        List<AdminWorkoutFeedbackSummaryDto> summary = feedbackService.getWorkoutFeedbackSummary();
+        List<WorkoutFeedbackSummaryData> summary = feedbackService.getWorkoutFeedbackSummary();
 
         assertEquals(1, summary.size());
         assertEquals(2, summary.get(0).feedbackCount());

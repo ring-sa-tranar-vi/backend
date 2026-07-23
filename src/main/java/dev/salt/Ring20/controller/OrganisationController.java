@@ -12,14 +12,11 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/organisations")
-@CrossOrigin(
-        origins = {"http://localhost:5173", "https://https://prod-ringsatranarvi-app.web.app/"})
 public class OrganisationController {
     private final OrganisationService service;
     private final EventService eventService;
@@ -30,7 +27,6 @@ public class OrganisationController {
     }
 
     @PostMapping
-    @Transactional
     public ResponseEntity<OrganisationResponseDto> createOrganisation(
             @Valid @RequestBody OrganisationRequestDto request) {
         Organisation newOrg =
@@ -49,37 +45,24 @@ public class OrganisationController {
     }
 
     @GetMapping
-    @Transactional(readOnly = true)
     public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
         return ResponseEntity.ok(
                 service.getAllOrganisations().stream().map(this::toResponseDto).toList());
     }
 
-    @GetMapping("/{id}/events")
-    public List<EventResponseDto> getEventsByOrganisation(@PathVariable Long id) {
-        validatePositiveId(id);
-        return eventService.getAllEventsByOrgId(id).stream().map(this::toEventResponseDto).toList();
-    }
-
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     public ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
-        validatePositiveId(id);
         return ResponseEntity.ok(toResponseDto(service.getOrganisationById(id)));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
-        validatePositiveId(id);
-        service.deleteOrganisationById(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{id}/events")
+    public List<EventResponseDto> getEventsByOrganisation(@PathVariable Long id) {
+        return eventService.getAllEventsByOrgId(id).stream().map(this::toEventResponseDto).toList();
     }
 
     @PutMapping("/{id}")
-    @Transactional
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganisationRequestDto request) {
-        validatePositiveId(id);
         Organisation updatedOrg =
                 service.updateOrganisationById(
                         id,
@@ -90,10 +73,10 @@ public class OrganisationController {
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
-    private void validatePositiveId(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("id must be a positive number");
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
+        service.deleteOrganisationById(id);
+        return ResponseEntity.noContent().build();
     }
 
     private List<Event> toEvents(List<EventRequestDto> requests) {

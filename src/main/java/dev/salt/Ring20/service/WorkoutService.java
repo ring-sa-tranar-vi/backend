@@ -1,103 +1,102 @@
 package dev.salt.Ring20.service;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
-import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
-import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class WorkoutService {
 
+    private static final String STATUS_STARTED = "STARTED";
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
-    private final FileStorageService fileStorageService;
 
     public WorkoutService(
-            WorkoutRepository workoutRepository,
-            ActivityLogRepository activityLogRepository,
-            TrainerRepository trainerRepository,
-            FileStorageService fileStorageService) {
+            WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     public String getWorkoutAudioUrl(Long id) {
+        validateId(id);
         Workout workout =
                 workoutRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         if (workout.getWorkoutAudio() == null || workout.getWorkoutAudio().isBlank()) {
-            throw new ResponseStatusException(NOT_FOUND, "Workout audio not found");
+            throw new NoSuchElementException("Workout audio not found with id: " + id);
         }
 
         return workout.getWorkoutAudio();
     }
 
-    @Transactional
-    public List<WorkoutResponseDto> getAllWorkouts(boolean includeDisabled) {
-        List<Workout> workouts =
-                includeDisabled
-                        ? workoutRepository.findAll()
-                        : workoutRepository.findByEnabledTrue();
+    @Transactional(readOnly = true)
+    public List<Workout> getAllWorkouts(boolean includeDisabled) {
+        if (includeDisabled) {
+            return workoutRepository.findAll();
+        }
 
-        return workouts.stream().map(this::mapToResponse).collect(Collectors.toList());
+        return workoutRepository.findByEnabledTrue();
     }
 
-    @Transactional
-    public WorkoutResponseDto getWorkoutById(Long id, boolean includeDisabled) {
+    @Transactional(readOnly = true)
+    public Workout getWorkoutById(Long id, boolean includeDisabled) {
+        validateId(id);
         Workout workout =
                 workoutRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         if (!includeDisabled && Boolean.FALSE.equals(workout.getEnabled())) {
-            throw new ResponseStatusException(NOT_FOUND, "Workout not found");
-        }
-
-        return mapToResponse(workout);
-    }
-
-    @Transactional
-    public WorkoutResponseDto startWorkout(Long id, Long userId) {
-        // Reuse the logic from getWorkoutById to ensure mapping and session handling
-        WorkoutResponseDto workout = getWorkoutById(id, false);
-
-        if (userId != null) {
-            ActivityLog activityLog = new ActivityLog();
-            activityLog.setUserId(userId);
-            activityLog.setWorkoutId(workout.id()); // Record uses accessor style
-            activityLog.setStatus("STARTED");
-            activityLog.setCompletedAt(LocalDateTime.now());
-            activityLogRepository.save(activityLog);
+            throw new NoSuchElementException("Workout not found with id: " + id);
         }
 
         return workout;
     }
 
     @Transactional
-    public WorkoutResponseDto createWorkout(Workout workout) {
-        validateWorkoutForWrite(workout);
-        Workout saved = workoutRepository.save(workout);
-        return mapToResponse(saved);
+    public Workout startWorkout(Long id, Long userId) {
+
+        Workout workout = getWorkoutById(id, false);
+
+        if (userId != null) {
+            boolean alreadyStarted =
+                    activityLogRepository.existsByUserIdAndWorkoutIdAndStatus(
+                            userId, id, STATUS_STARTED);
+
+            if (!alreadyStarted) {
+                ActivityLog activityLog = new ActivityLog();
+                activityLog.setUserId(userId);
+                activityLog.setWorkoutId(workout.getId());
+                activityLog.setStatus(STATUS_STARTED);
+                activityLog.setCompletedAt(LocalDateTime.now());
+                activityLogRepository.save(activityLog);
+            }
+        }
+        return workout;
     }
 
     @Transactional
-    public WorkoutResponseDto updateWorkout(Long id, Workout workout) {
+    public Workout createWorkout(Workout workout) {
+        validateWorkoutForWrite(workout);
+        return workoutRepository.save(workout);
+    }
+
+    @Transactional
+    public Workout updateWorkout(Long id, Workout workout) {
         validateId(id);
         validateWorkoutForWrite(workout);
 
@@ -105,113 +104,86 @@ public class WorkoutService {
                 workoutRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
-        workout.setId(existing.getId());
-        workout.setEnabled(existing.getEnabled());
-        Workout updated = workoutRepository.save(workout);
-        return mapToResponse(updated);
+        existing.setName(workout.getName());
+        existing.setDescription(workout.getDescription());
+        existing.setDashboardName(workout.getDashboardName());
+        existing.setDashboardDescription(workout.getDashboardDescription());
+        existing.setSubtitleText(workout.getSubtitleText());
+        existing.setInstructionsSubtitleText(workout.getInstructionsSubtitleText());
+        existing.setLevel(workout.getLevel());
+        existing.setType(workout.getType());
+        existing.setDurationSeconds(workout.getDurationSeconds());
+        existing.setInstructionsAudio(workout.getInstructionsAudio());
+        existing.setWorkoutAudio(workout.getWorkoutAudio());
+        existing.setInstructionsImage(workout.getInstructionsImage());
+        existing.setWorkoutImage(workout.getWorkoutImage());
+        existing.setInstructionsVideo(workout.getInstructionsVideo());
+        existing.setInstructionsVideoStart(workout.getInstructionsVideoStart());
+        existing.setInstructionsVideoStop(workout.getInstructionsVideoStop());
+        existing.setKneeFriendly(workout.getKneeFriendly());
+        existing.setLowImpact(workout.getLowImpact());
+        existing.setSeated(workout.getSeated());
+        existing.setBeginnerFriendly(workout.getBeginnerFriendly());
+        if (workout.getTrainer() != null) {
+            existing.setTrainer(workout.getTrainer());
+        }
+
+        return workoutRepository.save(existing);
     }
 
     @Transactional
-    public WorkoutResponseDto setWorkoutEnabled(Long id, boolean enabled) {
+    public Workout setWorkoutEnabled(Long id, boolean enabled) {
         validateId(id);
 
         Workout existing =
                 workoutRepository
                         .findById(id)
                         .orElseThrow(
-                                () -> new ResponseStatusException(NOT_FOUND, "Workout not found"));
+                                () ->
+                                        new NoSuchElementException(
+                                                "Workout not found with id: " + id));
 
         existing.setEnabled(enabled);
-        Workout updated = workoutRepository.save(existing);
-        return mapToResponse(updated);
+        return workoutRepository.save(existing);
     }
 
+    @Transactional
     public void deleteWorkout(Long id) {
         validateId(id);
 
         if (!workoutRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND, "Workout not found");
+            throw new NoSuchElementException("Workout not found with id: " + id);
         }
 
         workoutRepository.deleteById(id);
     }
 
-    private WorkoutResponseDto mapToResponse(Workout workout) {
-        WorkoutResponseDto.TrainerIdDTO trainerDTO = null;
-
-        // This is where the @Transactional is key:
-        // It keeps the session open to check if a trainer exists and get their ID.
-        if (workout.getTrainer() != null) {
-            trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
-        }
-
-        String instructionsAudioUrl =
-                (workout.getInstructionsAudio() != null)
-                        ? fileStorageService.getFileAccess(workout.getInstructionsAudio(), 15)
-                        : null;
-        String workoutAudioUrl =
-                (workout.getWorkoutAudio() != null)
-                        ? fileStorageService.getFileAccess(workout.getWorkoutAudio(), 15)
-                        : null;
-        String instructionsImageUrl =
-                (workout.getInstructionsImage() != null)
-                        ? fileStorageService.getFileAccess(workout.getInstructionsImage(), 15)
-                        : null;
-        String workoutImageUrl =
-                (workout.getWorkoutImage() != null)
-                        ? fileStorageService.getFileAccess(workout.getWorkoutImage(), 15)
-                        : null;
-        String instructionsVideoUrl =
-                (workout.getInstructionsVideo() != null)
-                        ? fileStorageService.getFileAccess(workout.getInstructionsVideo(), 15)
-                        : null;
-
-        return new WorkoutResponseDto(
-                workout.getId(),
-                workout.getName(),
-                workout.getDescription(),
-                workout.getDashboardName(),
-                workout.getDashboardDescription(),
-                workout.getSubtitleText(),
-                workout.getInstructionsSubtitleText(),
-                workout.getLevel(),
-                workout.getType(),
-                workout.getDurationSeconds(),
-                instructionsAudioUrl,
-                workoutAudioUrl,
-                instructionsImageUrl,
-                workoutImageUrl,
-                instructionsVideoUrl,
-                workout.getInstructionsVideoStart(),
-                workout.getInstructionsVideoStop(),
-                workout.getKneeFriendly(),
-                workout.getLowImpact(),
-                workout.getSeated(),
-                workout.getBeginnerFriendly(),
-                workout.getEnabled(),
-                trainerDTO);
-    }
-
     private void validateId(Long id) {
         if (id == null || id <= 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "id must be a positive number");
+            throw new IllegalArgumentException("Id must be a positive number.");
         }
     }
 
     private void validateWorkoutForWrite(Workout workout) {
         if (workout == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "Workout body is required");
+            throw new IllegalArgumentException("Workout body is required.");
         }
 
         if (workout.getName() == null || workout.getName().isBlank()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Workout name is required");
+            throw new IllegalArgumentException("Workout name is required.");
+        }
+
+        if (workout.getEnabled() == null) {
+            workout.setEnabled(true);
         }
 
         Integer durationSeconds = workout.getDurationSeconds();
         if (durationSeconds != null && durationSeconds < 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "durationSeconds cannot be negative");
+            throw new IllegalArgumentException("DurationSeconds cannot be negative");
         }
     }
 }

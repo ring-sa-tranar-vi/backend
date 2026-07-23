@@ -7,10 +7,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(
         indexes = {
             @Index(name = "idx_activity_log_user_id", columnList = "userId"),

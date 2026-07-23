@@ -4,15 +4,18 @@ import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityLogService {
 
+    private static final String STATUS_COMPLETED = "COMPLETED";
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
 
@@ -22,21 +25,22 @@ public class ActivityLogService {
         this.workoutRepository = workoutRepository;
     }
 
+    @Transactional
     public ActivityLog createActivityLog(ActivityLog activityLog) {
         activityLog.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(activityLog);
     }
 
+    @Transactional
     public ActivityLog completeActivityLog(Long id) {
         ActivityLog log =
                 activityLogRepository
                         .findById(id)
                         .orElseThrow(
                                 () ->
-                                        new org.springframework.web.server.ResponseStatusException(
-                                                org.springframework.http.HttpStatus.NOT_FOUND,
-                                                "ActivityLog not found"));
-        log.setStatus("COMPLETED");
+                                        new NoSuchElementException(
+                                                "ActivityLog not found with id:" + id));
+        log.setStatus(STATUS_COMPLETED);
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
     }
@@ -44,63 +48,50 @@ public class ActivityLogService {
     public Map<String, Object> getUserProgress(Long userId) {
         List<ActivityLog> completedLogs =
                 activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(
-                        userId, "COMPLETED");
+                        userId, STATUS_COMPLETED);
 
-        Map<Long, String> workoutNameById = new HashMap<>();
+        List<ActivityLog> validLogs =
+                completedLogs.stream().filter(log -> log.getCompletedAt() != null).toList();
+
+        Set<Long> workoutIds =
+                validLogs.stream().map(ActivityLog::getWorkoutId).collect(Collectors.toSet());
+
+        Map<Long, String> workoutNameById =
+                workoutRepository.findAllById(workoutIds).stream()
+                        .collect(
+                                Collectors.toMap(
+                                        Workout::getId,
+                                        w ->
+                                                Optional.ofNullable(w.getName())
+                                                        .orElse("Unknown workout")));
+
         Map<LocalDate, LinkedHashSet<String>> workoutsByDate = new LinkedHashMap<>();
+
+        for (ActivityLog log : validLogs) {
+            LocalDate date = log.getCompletedAt().toLocalDate();
+            String workoutName =
+                    workoutNameById.getOrDefault(log.getWorkoutId(), "Unknown workout");
+
+            workoutsByDate.computeIfAbsent(date, d -> new LinkedHashSet<>()).add(workoutName);
+        }
+
         DateTimeFormatter labelFormatter =
                 DateTimeFormatter.ofPattern("EEEE d MMMM", Locale.ENGLISH);
 
-        for (ActivityLog log : completedLogs) {
-            if (log.getCompletedAt() == null) {
-                continue;
-            }
-
-            Long workoutId = log.getWorkoutId();
-            String workoutName = workoutNameById.get(workoutId);
-
-            if (workoutName == null) {
-                Optional<Workout> workout = workoutRepository.findById(workoutId);
-                workoutName = workout.map(Workout::getName).orElse("Unknown workout");
-                workoutNameById.put(workoutId, workoutName);
-            }
-
-            LocalDate completedDate = log.getCompletedAt().toLocalDate();
-            workoutsByDate
-                    .computeIfAbsent(completedDate, ignored -> new LinkedHashSet<>())
-                    .add(workoutName);
-        }
-
-        List<Map<String, Object>> completedWorkouts = new ArrayList<>();
-        for (Map.Entry<LocalDate, LinkedHashSet<String>> entry : workoutsByDate.entrySet()) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("dateLabel", entry.getKey().format(labelFormatter));
-            item.put("workoutName", String.join(", ", entry.getValue()));
-            completedWorkouts.add(item);
-        }
-
-        List<LocalDate> ascendingDates = new ArrayList<>(workoutsByDate.keySet());
-        Collections.sort(ascendingDates);
-
-        List<String> completedDates = ascendingDates.stream().map(LocalDate::toString).toList();
-
-        LocalDate startOfWeek = LocalDate.now().with(java.time.DayOfWeek.MONDAY);
-        int completedThisWeek =
-                (int) ascendingDates.stream().filter(date -> !date.isBefore(startOfWeek)).count();
-
-        int personalBestStreak = calculateBestStreak(ascendingDates);
+        List<Map<String, Object>> completedWorkouts =
+                workoutsByDate.entrySet().stream()
+                        .map(
+                                entry -> {
+                                    Map<String, Object> item = new HashMap<>();
+                                    item.put("dateLabel", entry.getKey().format(labelFormatter));
+                                    item.put("workoutName", String.join(", ", entry.getValue()));
+                                    return item;
+                                })
+                        .toList();
 
         int currentStreak = calculateCurrentStreak(new ArrayList<>(workoutsByDate.keySet()));
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("currentStreak", currentStreak);
-        response.put("completedWorkouts", completedWorkouts);
-
-        response.put("completedDates", completedDates);
-        response.put("completedThisWeek", completedThisWeek);
-        response.put("personalBestStreak", personalBestStreak);
-
-        return response;
+        return Map.of("currentStreak", currentStreak, "completedWorkouts", completedWorkouts);
     }
 
     private int calculateBestStreak(List<LocalDate> sortedDates) {
@@ -143,7 +134,7 @@ public class ActivityLogService {
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
         return activityLogRepository.existsByUserIdAndStatusAndCompletedAtBetween(
-                userId, "COMPLETED", startOfDay, endOfDay);
+                userId, STATUS_COMPLETED, startOfDay, endOfDay);
     }
 
     public long getActiveUserCount() {

@@ -9,8 +9,7 @@ import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;
-import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,29 +35,28 @@ class FeedbackControllerTest {
         feedback.setUserId(1L);
         feedback.setWorkoutId(2L);
         feedback.setDifficulty(FeedbackDifficulty.JUST_RIGHT);
-        when(feedbackService.saveFeedback(any(Feedback.class))).thenReturn(feedback);
+        when(feedbackService.addFeedback(any(Feedback.class))).thenReturn(feedback);
 
         ResponseEntity<FeedbackResponseDto> response = controller.createFeedback(request);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(9L, response.getBody().id());
     }
 
     @Test
-    void getFeedbackByIdReturnsNotFoundWhenMissing() {
+    void getFeedbackByIdThrowsWhenMissing() {
         FeedbackController controller = new FeedbackController(feedbackService);
-        when(feedbackService.getFeedbackById(1L)).thenReturn(Optional.empty());
+        when(feedbackService.getFeedbackById(1L))
+                .thenThrow(new NoSuchElementException("Feedback not found with id: 1"));
 
-        ResponseEntity<FeedbackResponseDto> response = controller.getFeedbackById(1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertThrows(NoSuchElementException.class, () -> controller.getFeedbackById(1L));
     }
 
     @Test
     void deleteFeedbackReturnsNoContentWhenPresent() {
         FeedbackController controller = new FeedbackController(feedbackService);
-        when(feedbackService.getFeedbackById(1L)).thenReturn(Optional.of(new Feedback()));
+        when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
 
         ResponseEntity<Void> response = controller.deleteFeedback(1L);
 
@@ -67,11 +65,11 @@ class FeedbackControllerTest {
     }
 
     @Test
-    void getFeedbackReturnsBadRequestWithoutFilters() {
+    void getFeedbackThrowsWithoutFilters() {
         FeedbackController controller = new FeedbackController(feedbackService);
+        when(feedbackService.getFeedback(null, null))
+                .thenThrow(new IllegalArgumentException("At least one filter must be provided"));
 
-        ResponseEntity<List<FeedbackResponseDto>> response = controller.getFeedback(null, null);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertThrows(IllegalArgumentException.class, () -> controller.getFeedback(null, null));
     }
 }

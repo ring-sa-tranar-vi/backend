@@ -9,6 +9,7 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkoutService Tests")
@@ -55,10 +55,10 @@ class WorkoutServiceTest {
         workout.setWorkoutAudio(" ");
         when(workoutRepository.findById(1L)).thenReturn(Optional.of(workout));
 
-        ResponseStatusException ex =
+        NoSuchElementException ex =
                 assertThrows(
-                        ResponseStatusException.class, () -> workoutService.getWorkoutAudioUrl(1L));
-        assertEquals("Workout audio not found", ex.getReason());
+                        NoSuchElementException.class, () -> workoutService.getWorkoutAudioUrl(1L));
+        assertEquals("Workout audio not found with id: 1", ex.getMessage());
     }
 
     @Test
@@ -87,19 +87,20 @@ class WorkoutServiceTest {
     void createWorkoutRejectsBlankName() {
         workout.setName(" ");
 
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class, () -> workoutService.createWorkout(workout));
-        assertEquals("Workout name is required", ex.getReason());
+                        IllegalArgumentException.class,
+                        () -> workoutService.createWorkout(workout));
+        assertEquals("Workout name is required.", ex.getMessage());
     }
 
     @Test
     void updateWorkoutRejectsInvalidId() {
-        ResponseStatusException ex =
+        IllegalArgumentException ex =
                 assertThrows(
-                        ResponseStatusException.class,
+                        IllegalArgumentException.class,
                         () -> workoutService.updateWorkout(0L, workout));
-        assertEquals("id must be a positive number", ex.getReason());
+        assertEquals("Id must be a positive number.", ex.getMessage());
     }
 
     @Test

@@ -8,9 +8,11 @@ import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -22,7 +24,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserController {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
-
     private final UserService userService;
     private final ActivityLogService activityLogService;
     private final OrganisationService organisationService;
@@ -37,6 +38,176 @@ public class UserController {
         this.activityLogService = activityLogService;
         this.organisationService = organisationService;
         this.eventService = eventService;
+    }
+
+    @GetMapping("/me/profile")
+    public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+        User currentUser = userService.getByClerkIdOrThrow(clerkId);
+
+        return ResponseEntity.ok(toResponse(currentUser, clerkId));
+    }
+
+    @GetMapping("/by-clerk/{clerkId}")
+    public ResponseEntity<UserResponseDto> getUserByClerkId(
+            @PathVariable String clerkId, Authentication authentication) {
+        getJwtOrThrow(authentication);
+        User user = userService.getByClerkIdOrThrow(clerkId);
+
+        return ResponseEntity.ok(toResponse(user, clerkId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(toResponse(user));
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponseDto> createUser(
+            @Valid @RequestBody(required = false) UserCreateRequestDto request,
+            Authentication authentication) {
+        Jwt jwt = getJwtOrThrow(authentication);
+        String requestedName = request != null ? request.displayName() : null;
+
+        User created =
+                userService.createUser(
+                        jwt.getSubject(),
+                        requestedName != null && !requestedName.isBlank()
+                                ? requestedName
+                                : resolveDisplayName(jwt));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(toResponse(created, jwt.getSubject()));
+    }
+
+    @PutMapping("/me/profile")
+    public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
+            @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId(),
+                        userRequest.city());
+
+        return ResponseEntity.ok(toResponse(updated, clerkId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDto> updateUserPreferences(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRequestDto userRequest,
+            Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+        User currentUser = userService.findByClerkId(clerkId).orElseThrow();
+
+        if (!currentUser.getId().equals(id)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId(),
+                        userRequest.city());
+
+        return ResponseEntity.ok(toResponse(updated, clerkId));
+    }
+
+    @GetMapping("/me/followed-orgs")
+    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
+            Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(
+                userService.getUserOrgsById(currentUser.getId()).stream()
+                        .map(this::toOrgResponseDto)
+                        .toList());
+    }
+
+    @PostMapping("/me/followed-orgs/{orgId}")
+    public ResponseEntity<UserResponseDto> followedOrg(
+            Authentication authentication, @PathVariable Long orgId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.addFollowOrganization(
+                        currentUser.getId(), organisationService.getOrganisationById(orgId));
+        return ResponseEntity.status(201).body(toResponse(updated));
+    }
+
+    @DeleteMapping("/me/followed-orgs/{orgId}")
+    public ResponseEntity<UserResponseDto> removeFollowedOrg(
+            Authentication authentication, @PathVariable Long orgId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.removeFollowOrganization(
+                        currentUser.getId(), organisationService.getOrganisationById(orgId));
+        return ResponseEntity.ok(toResponse(updated));
+    }
+
+    @GetMapping("/me/attending-events")
+    public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(
+            Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(
+                userService.getUserEventsById(currentUser.getId()).stream()
+                        .map(this::toEventResponseDto)
+                        .toList());
+    }
+
+    @PostMapping("/me/attending-events/{eventId}")
+    public ResponseEntity<UserResponseDto> attendEvent(
+            Authentication authentication, @PathVariable Long eventId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
+        return ResponseEntity.status(201).body(toResponse(updated));
+    }
+
+    @DeleteMapping("/me/attending-events/{eventId}")
+    public ResponseEntity<UserResponseDto> removeAttendEvent(
+            Authentication authentication, @PathVariable Long eventId) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User updated =
+                userService.removeAttendEvent(
+                        currentUser.getId(), eventService.getEventById(eventId));
+        return ResponseEntity.ok(toResponse(updated));
+    }
+
+    @GetMapping("/{userId}/progress")
+    public ResponseEntity<Map<String, Object>> getUserProgress(@PathVariable Long userId) {
+        return ResponseEntity.ok(activityLogService.getUserProgress(userId));
+    }
+
+    @GetMapping("/me/progress")
+    public ResponseEntity<Map<String, Object>> getMyProgress(Authentication authentication) {
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
+        return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
+    }
+
+    @GetMapping("/{userId}/callback-preference")
+    public List<CallbackPreference> getAll(@PathVariable Long userId) {
+        return userService.getUserById(userId).getCallbackPreferences();
+    }
+
+    @PostMapping("/{userId}/callback-preference")
+    public UserResponseDto addOrUpdate(
+            @PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
+        return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
+    }
+
+    @DeleteMapping("/{userId}/callback-preference/{day}")
+    public UserResponseDto remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
+        return toResponse(userService.removeCallbackPreference(userId, day));
     }
 
     private Jwt getJwtOrThrow(Authentication authentication) {
@@ -105,185 +276,6 @@ public class UserController {
                 "ADMIN".equals(user.getRole()),
                 user.getTrainerId(),
                 user.getCity());
-    }
-
-    @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(
-            @RequestBody(required = false) UserCreateRequestDto request,
-            Authentication authentication) {
-        Jwt jwt = getJwtOrThrow(authentication);
-        String requestedName = request != null ? request.displayName() : null;
-
-        User created =
-                userService.createUser(
-                        jwt.getSubject(),
-                        requestedName != null && !requestedName.isBlank()
-                                ? requestedName
-                                : resolveDisplayName(jwt));
-
-        return ResponseEntity.ok(toResponse(created, jwt.getSubject()));
-    }
-
-    @GetMapping("/me/profile")
-    public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        User currentUser = userService.getByClerkIdOrThrow(clerkId);
-
-        return ResponseEntity.ok(toResponse(currentUser, clerkId));
-    }
-
-    @PutMapping("/me/profile")
-    public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
-            @RequestBody UserRequestDto userRequest, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        clerkId,
-                        userRequest.name(),
-                        userRequest.intensityLevel(),
-                        userRequest.context(),
-                        userRequest.trainerId(),
-                        userRequest.city());
-
-        return ResponseEntity.ok(toResponse(updated, clerkId));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUserPreferences(
-            @PathVariable Long id,
-            @RequestBody UserRequestDto userRequest,
-            Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        User currentUser = userService.findByClerkId(clerkId).orElseThrow();
-
-        if (!currentUser.getId().equals(id)) {
-            return ResponseEntity.status(403).build();
-        }
-
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        clerkId,
-                        userRequest.name(),
-                        userRequest.intensityLevel(),
-                        userRequest.context(),
-                        userRequest.trainerId(),
-                        userRequest.city());
-
-        return ResponseEntity.ok(toResponse(updated, clerkId));
-    }
-
-    @GetMapping("/me/progress")
-    public ResponseEntity<Map<String, Object>> getMyProgress(Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-
-        return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
-    }
-
-    @GetMapping("/me/followedOrg")
-    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
-            Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-
-        return ResponseEntity.ok(
-                userService.getUserOrgsById(currentUser.getId()).stream()
-                        .map(this::toOrgResponseDto)
-                        .toList());
-    }
-
-    @GetMapping("/me/attendingEvent")
-    public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(
-            Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-
-        return ResponseEntity.ok(
-                userService.getUserEventsById(currentUser.getId()).stream()
-                        .map(this::toEventResponseDto)
-                        .toList());
-    }
-
-    @PostMapping("/me/followedOrg/{orgId}")
-    public ResponseEntity<UserResponseDto> followedOrg(
-            Authentication authentication, @PathVariable Long orgId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated =
-                userService.addFollowOrganization(
-                        currentUser.getId(), organisationService.getOrganisationById(orgId));
-        return ResponseEntity.status(201).body(toResponse(updated));
-    }
-
-    @PostMapping("/me/attendingEvent/{eventId}")
-    public ResponseEntity<UserResponseDto> attendEvent(
-            Authentication authentication, @PathVariable Long eventId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated =
-                userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
-        return ResponseEntity.status(201).body(toResponse(updated));
-    }
-
-    @DeleteMapping("/me/followedOrg/{orgId}")
-    public ResponseEntity<UserResponseDto> removeFollowedOrg(
-            Authentication authentication, @PathVariable Long orgId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated =
-                userService.removeFollowOrganization(
-                        currentUser.getId(), organisationService.getOrganisationById(orgId));
-        return ResponseEntity.ok(toResponse(updated));
-    }
-
-    @DeleteMapping("/me/attendingEvent/{eventId}")
-    public ResponseEntity<UserResponseDto> removeAttendEvent(
-            Authentication authentication, @PathVariable Long eventId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
-        User updated =
-                userService.removeAttendEvent(
-                        currentUser.getId(), eventService.getEventById(eventId));
-        return ResponseEntity.ok(toResponse(updated));
-    }
-
-    @GetMapping("/by-clerk/{clerkId}")
-    public ResponseEntity<UserResponseDto> getUserByClerkId(
-            @PathVariable String clerkId, Authentication authentication) {
-        getJwtOrThrow(authentication);
-        User user = userService.getByClerkIdOrThrow(clerkId);
-
-        return ResponseEntity.ok(toResponse(user, clerkId));
-    }
-
-    @GetMapping("/{userId}/progress")
-    public ResponseEntity<Map<String, Object>> getUserProgress(@PathVariable Long userId) {
-        return ResponseEntity.ok(activityLogService.getUserProgress(userId));
-    }
-
-    @GetMapping("/{userId}/callback-preferance")
-    public List<CallbackPreference> getAll(@PathVariable Long userId) {
-        return userService.getUserById(userId).getCallbackPreferences();
-    }
-
-    @PostMapping("/{userId}/callback-preferance")
-    public ResponseEntity<CallbackPreferenceDto> addOrUpdate(
-            @PathVariable Long userId, @RequestBody CallbackPreference callback) {
-
-        CallbackPreference savedPref = userService.addOrUpdateCallbackPreference(userId, callback);
-
-        CallbackPreferenceDto dto =
-                new CallbackPreferenceDto(
-                        savedPref.getId(),
-                        savedPref.getDay().name(),
-                        savedPref.getTime(),
-                        savedPref.getRepeat() != null ? savedPref.getRepeat().name() : null);
-
-        return ResponseEntity.ok(dto);
-    }
-
-    @DeleteMapping("/{userId}/callback-preferance/{day}")
-    public User remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
-        return userService.removeCallbackPreference(userId, day);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        return ResponseEntity.ok(toResponse(user));
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
