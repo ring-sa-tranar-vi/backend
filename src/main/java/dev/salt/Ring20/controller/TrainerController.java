@@ -4,6 +4,7 @@ import dev.salt.Ring20.dto.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.TrainerService;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
@@ -27,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class TrainerController {
 
     private final TrainerService trainerService;
+    private final FileStorageService fileStorageService;
 
-    public TrainerController(TrainerService trainerService) {
+    public TrainerController(TrainerService trainerService, FileStorageService fileStorageService) {
         this.trainerService = trainerService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping
@@ -68,16 +71,32 @@ public class TrainerController {
     }
 
     private TrainerResponseDto toResponseDto(Trainer trainer) {
+        String introUrl =
+                (trainer.getIntro() != null)
+                        ? fileStorageService.getFileAccess(trainer.getIntro(), 15)
+                        : null;
+        String imageSelectUrl =
+                (trainer.getImageSelect() != null)
+                        ? fileStorageService.getFileAccess(trainer.getImageSelect(), 15)
+                        : null;
+        String imageCallUrl =
+                (trainer.getImageCall()) != null
+                        ? fileStorageService.getFileAccess(trainer.getImageCall(), 15)
+                        : null;
+        String imageStartUrl =
+                (trainer.getImageStart()) != null
+                        ? fileStorageService.getFileAccess(trainer.getImageStart(), 15)
+                        : null;
         return new TrainerResponseDto(
                 trainer.getId(),
                 trainer.getName(),
                 trainer.getPrompt(),
                 trainer.getVoice(),
-                trainer.getIntro(),
+                introUrl,
                 trainer.getLanguage(),
-                trainer.getImageSelect(),
-                trainer.getImageCall(),
-                trainer.getImageStart(),
+                imageSelectUrl,
+                imageCallUrl,
+                imageStartUrl,
                 trainer.getAmbience());
     }
 
