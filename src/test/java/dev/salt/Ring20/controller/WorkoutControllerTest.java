@@ -33,8 +33,7 @@ class WorkoutControllerTest {
 
     @Mock private FileStorageService fileStorageService;
 
-    @InjectMocks
-    private WorkoutController workoutController;
+    @InjectMocks private WorkoutController workoutController;
 
     @Test
     void getAllWorkoutsReturnsData() {

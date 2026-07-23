@@ -30,7 +30,7 @@ public class TrainerController {
     private final TrainerService trainerService;
     private final FileStorageService fileStorageService;
 
-    public TrainerController(TrainerService trainerService,  FileStorageService fileStorageService) {
+    public TrainerController(TrainerService trainerService, FileStorageService fileStorageService) {
         this.trainerService = trainerService;
         this.fileStorageService = fileStorageService;
     }
@@ -71,18 +71,22 @@ public class TrainerController {
     }
 
     private TrainerResponseDto toResponseDto(Trainer trainer) {
-        String introUrl = (trainer.getIntro() != null)
-                ? fileStorageService.getFileAccess(trainer.getIntro(), 15)
-                : null;
-        String imageSelectUrl = (trainer.getImageSelect() != null)
-                ? fileStorageService.getFileAccess(trainer.getImageSelect(), 15)
-                : null;
-        String imageCallUrl = (trainer.getImageCall()) != null
-                ? fileStorageService.getFileAccess(trainer.getImageCall(), 15)
-                : null;
-        String imageStartUrl = (trainer.getImageStart()) != null
-                ? fileStorageService.getFileAccess(trainer.getImageStart(), 15)
-                : null;
+        String introUrl =
+                (trainer.getIntro() != null)
+                        ? fileStorageService.getFileAccess(trainer.getIntro(), 15)
+                        : null;
+        String imageSelectUrl =
+                (trainer.getImageSelect() != null)
+                        ? fileStorageService.getFileAccess(trainer.getImageSelect(), 15)
+                        : null;
+        String imageCallUrl =
+                (trainer.getImageCall()) != null
+                        ? fileStorageService.getFileAccess(trainer.getImageCall(), 15)
+                        : null;
+        String imageStartUrl =
+                (trainer.getImageStart()) != null
+                        ? fileStorageService.getFileAccess(trainer.getImageStart(), 15)
+                        : null;
         return new TrainerResponseDto(
                 trainer.getId(),
                 trainer.getName(),
