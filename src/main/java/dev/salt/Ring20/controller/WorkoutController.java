@@ -7,6 +7,7 @@ import dev.salt.Ring20.dto.WorkoutRequestDto;
 import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
 import jakarta.validation.Valid;
@@ -31,10 +32,15 @@ public class WorkoutController {
 
     private final WorkoutService workoutService;
     private final UserService userService;
+    private final FileStorageService fileStorageService;
 
-    public WorkoutController(WorkoutService workoutService, UserService userService) {
+    public WorkoutController(
+            WorkoutService workoutService,
+            UserService userService,
+            FileStorageService fileStorageService) {
         this.workoutService = workoutService;
         this.userService = userService;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping
@@ -120,6 +126,27 @@ public class WorkoutController {
             trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
         }
 
+        String instructionsAudioUrl =
+                (workout.getInstructionsAudio() != null)
+                        ? fileStorageService.getFileAccess(workout.getInstructionsAudio(), 15)
+                        : null;
+        String workoutAudioUrl =
+                (workout.getWorkoutAudio() != null)
+                        ? fileStorageService.getFileAccess(workout.getWorkoutAudio(), 15)
+                        : null;
+        String instructionsImageUrl =
+                (workout.getInstructionsImage() != null)
+                        ? fileStorageService.getFileAccess(workout.getInstructionsImage(), 15)
+                        : null;
+        String workoutImageUrl =
+                (workout.getWorkoutImage() != null)
+                        ? fileStorageService.getFileAccess(workout.getWorkoutImage(), 15)
+                        : null;
+        String instructionsVideoUrl =
+                (workout.getInstructionsVideo() != null)
+                        ? fileStorageService.getFileAccess(workout.getInstructionsVideo(), 15)
+                        : null;
+
         return new WorkoutResponseDto(
                 workout.getId(),
                 workout.getName(),
@@ -131,11 +158,11 @@ public class WorkoutController {
                 workout.getLevel(),
                 workout.getType(),
                 workout.getDurationSeconds(),
-                workout.getInstructionsAudio(),
-                workout.getWorkoutAudio(),
-                workout.getInstructionsImage(),
-                workout.getWorkoutImage(),
-                workout.getInstructionsVideo(),
+                instructionsAudioUrl,
+                workoutAudioUrl,
+                instructionsImageUrl,
+                workoutImageUrl,
+                instructionsVideoUrl,
                 workout.getInstructionsVideoStart(),
                 workout.getInstructionsVideoStop(),
                 workout.getKneeFriendly(),
