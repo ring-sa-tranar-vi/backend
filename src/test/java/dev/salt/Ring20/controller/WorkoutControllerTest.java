@@ -8,12 +8,14 @@ import dev.salt.Ring20.dto.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.WorkoutRequestDto;
 import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,13 @@ class WorkoutControllerTest {
 
     @Mock private UserService userService;
 
+    @Mock private FileStorageService fileStorageService;
+
+    @InjectMocks
+    private WorkoutController workoutController;
+
     @Test
     void getAllWorkoutsReturnsData() {
-        WorkoutController controller = new WorkoutController(workoutService, userService);
-
         Workout workout = new Workout();
         workout.setId(1L);
         workout.setName("Push Ups");
@@ -42,7 +47,7 @@ class WorkoutControllerTest {
         when(workoutService.getAllWorkouts(true)).thenReturn(List.of(workout));
 
         ResponseEntity<List<WorkoutResponseDto>> response =
-                controller.getAllWorkouts(auth("admin_1"));
+                workoutController.getAllWorkouts(auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
@@ -51,7 +56,6 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsForbiddenForNonAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService);
         WorkoutRequestDto request =
                 new WorkoutRequestDto(
                         "Test Workout",
@@ -79,7 +83,7 @@ class WorkoutControllerTest {
         when(userService.isAdmin("user_1")).thenReturn(false);
 
         ResponseEntity<WorkoutResponseDto> response =
-                controller.createWorkout(request, auth("user_1"));
+                workoutController.createWorkout(request, auth("user_1"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         verify(workoutService, never()).createWorkout(any());
@@ -87,7 +91,6 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsOkForAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService);
         WorkoutRequestDto request =
                 new WorkoutRequestDto(
                         "Test Workout",
@@ -121,7 +124,7 @@ class WorkoutControllerTest {
         when(workoutService.createWorkout(any())).thenReturn(workout);
 
         ResponseEntity<WorkoutResponseDto> response =
-                controller.createWorkout(request, auth("admin_1"));
+                workoutController.createWorkout(request, auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Test Workout", response.getBody().name());
@@ -129,11 +132,9 @@ class WorkoutControllerTest {
 
     @Test
     void deleteWorkoutReturnsNoContentForAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService);
-
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
-        ResponseEntity<Void> response = controller.deleteWorkout(1L, auth("admin_1"));
+        ResponseEntity<Void> response = workoutController.deleteWorkout(1L, auth("admin_1"));
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(workoutService).deleteWorkout(1L);
@@ -141,11 +142,10 @@ class WorkoutControllerTest {
 
     @Test
     void setWorkoutEnabledReturnsForbiddenForNonAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService);
         when(userService.isAdmin("user_1")).thenReturn(false);
 
         ResponseEntity<WorkoutResponseDto> response =
-                controller.setWorkoutEnabled(
+                workoutController.setWorkoutEnabled(
                         1L, new WorkoutEnabledRequestDto(false), auth("user_1"));
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -154,7 +154,6 @@ class WorkoutControllerTest {
 
     @Test
     void setWorkoutEnabledReturnsOkForAdmin() {
-        WorkoutController controller = new WorkoutController(workoutService, userService);
         when(userService.isAdmin("admin_1")).thenReturn(true);
 
         Workout updated = new Workout();
@@ -165,7 +164,7 @@ class WorkoutControllerTest {
         when(workoutService.setWorkoutEnabled(1L, false)).thenReturn(updated);
 
         ResponseEntity<WorkoutResponseDto> response =
-                controller.setWorkoutEnabled(
+                workoutController.setWorkoutEnabled(
                         1L, new WorkoutEnabledRequestDto(false), auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
