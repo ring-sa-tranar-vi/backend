@@ -28,8 +28,7 @@ public class TrainerController {
 
     private final TrainerService trainerService;
 
-    public TrainerController(
-            TrainerService trainerService) {
+    public TrainerController(TrainerService trainerService) {
         this.trainerService = trainerService;
     }
 

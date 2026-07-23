@@ -16,13 +16,11 @@ public class WorkoutService {
     private static final String STATUS_STARTED = "STARTED";
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
-    private final FileStorageService fileStorageService;
 
     public WorkoutService(
             WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     public String getWorkoutAudioUrl(Long id) {

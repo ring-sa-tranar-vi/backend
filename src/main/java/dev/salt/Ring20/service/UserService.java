@@ -157,14 +157,11 @@ public class UserService {
         if (existing.isPresent()) {
             existing.get().setTime(callback.getTime());
             existing.get().setRepeat(callback.getRepeat());
-            savedPreference = existing.get();
         } else {
             callback.setUser(user);
             user.getCallbackPreferences().add(callback);
-            savedPreference = callback;
         }
-        userRepository.save(user);
-        return savedPreference;
+        return userRepository.save(user);
     }
 
     @Transactional
