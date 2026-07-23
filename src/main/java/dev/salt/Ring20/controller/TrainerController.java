@@ -5,7 +5,6 @@ import dev.salt.Ring20.dto.TrainerRequestDto;
 import dev.salt.Ring20.dto.TrainerResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.service.TrainerService;
-import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
 import jakarta.validation.Valid;
@@ -29,7 +28,8 @@ public class TrainerController {
 
     private final TrainerService trainerService;
 
-    public TrainerController(TrainerService trainerService, UserService userService) {
+    public TrainerController(
+            TrainerService trainerService) {
         this.trainerService = trainerService;
     }
 

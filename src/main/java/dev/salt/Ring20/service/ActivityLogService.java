@@ -94,6 +94,23 @@ public class ActivityLogService {
         return Map.of("currentStreak", currentStreak, "completedWorkouts", completedWorkouts);
     }
 
+    private int calculateBestStreak(List<LocalDate> sortedDates) {
+        if (sortedDates == null || sortedDates.isEmpty()) return 0;
+
+        int currentStreak = 1;
+        int maxStreak = 1;
+
+        for (int i = 1; i < sortedDates.size(); i++) {
+            if (sortedDates.get(i - 1).plusDays(1).equals(sortedDates.get(i))) {
+                currentStreak++;
+            } else {
+                currentStreak = 1;
+            }
+            maxStreak = Math.max(maxStreak, currentStreak);
+        }
+        return maxStreak;
+    }
+
     private int calculateCurrentStreak(List<LocalDate> dates) {
         if (dates.isEmpty()) {
             return 0;

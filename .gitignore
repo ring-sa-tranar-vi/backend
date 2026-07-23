@@ -64,3 +64,6 @@ target/
 # JVM GC rotated logs generated at runtime
 logs/gc.log.*
 
+# Local storage for files
+ringsatranarvi_files/
+

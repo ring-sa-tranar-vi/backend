@@ -48,7 +48,7 @@ Database (H2 / PostgreSQL)
 - OAuth2 Resource Server with JWT
 - Spring WebSocket
 - OpenAPI/Swagger UI via springdoc-openapi
-- H2 Database for local development
+- Postgres Database for local development
 - PostgreSQL runtime support
 - Clerk for authentication token issuance and validation
 - Supabase for file storage
@@ -88,7 +88,7 @@ Authorization: Bearer <token>
 The application uses JPA/Hibernate for database management.
 
 Local development:
-- H2 in-memory database
+- Postgres database
 
 Production:
 - PostgreSQL database hosted on Neon
@@ -106,9 +106,6 @@ Relationships and database schema are managed through JPA entity mappings.
 ## Environment Variables
 
 - CLERK_JWT_ISSUER_URI
-- SUPABASE_URL
-- SUPABASE_API_KEY
-- SUPABASE_BUCKET_NAME
 - GEMINI_API_KEY
 
 
@@ -124,19 +121,26 @@ Relationships and database schema are managed through JPA entity mappings.
 ```bash
 git clone https://github.com/ring-sa-tranar-vi/backend.git
 ```
-#### 2. Set environment variables (see below)
+#### 2. Set environment variables (see above)
 
-#### 3. Build the app
+#### 3. Copy files
+Copy the folder **ringsatranarvi_files** and it's content from https://drive.google.com/drive/folders/1AAGsyKJFmYUuf5IheBsp0cPiSEkf44nA to the root of the project.
+
+#### 4. Docker Compose for Postgres
+Run ```docker compose up``` to start the Postgres database for local development. Postgres automatically populates the database with initial data on first run.
+To stop the database, run ```docker compose down```. The data will persist in the Postgres volume. If you want to reset the database, run ```docker compose down -v``` to remove the volume and start fresh.
+
+#### 5. Build the app
 ```bash
 ./gradlew build
 ```
-#### 4. Run the app locally
+#### 6. Run the app locally
 ```bash
 ./gradlew bootRun
 ```
 The application will run locally at http://localhost:8080
 
-#### 5. Open Swagger
+#### 7. Open Swagger
 http://localhost:8080/swagger-ui/index.html
 
 

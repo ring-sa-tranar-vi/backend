@@ -152,15 +152,19 @@ public class UserService {
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
 
+        CallbackPreference savedPreference;
+
         if (existing.isPresent()) {
             existing.get().setTime(callback.getTime());
             existing.get().setRepeat(callback.getRepeat());
+            savedPreference = existing.get();
         } else {
             callback.setUser(user);
             user.getCallbackPreferences().add(callback);
+            savedPreference = callback;
         }
-
-        return userRepository.save(user);
+        userRepository.save(user);
+        return savedPreference;
     }
 
     @Transactional
