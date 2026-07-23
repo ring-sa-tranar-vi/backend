@@ -47,7 +47,7 @@ public class TrainerController {
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PostMapping
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
@@ -55,7 +55,7 @@ public class TrainerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(trainer));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
@@ -63,7 +63,7 @@ public class TrainerController {
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);

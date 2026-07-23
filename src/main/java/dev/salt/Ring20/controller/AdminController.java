@@ -45,7 +45,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping
     public ResponseEntity<String> adminPage(Authentication authentication) {
 
@@ -58,7 +58,7 @@ public class AdminController {
                         + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/users/count")
     public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
         long total = service.getUserCount();
@@ -66,13 +66,13 @@ public class AdminController {
         return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
         return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(
             @PathVariable Long id, @Valid @RequestBody UserRequestDto updateData) {
@@ -80,7 +80,7 @@ public class AdminController {
         return ResponseEntity.ok("User with ID " + updated.getId() + " updated successfully");
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
@@ -88,21 +88,21 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/activity-logs/recent")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
         return ResponseEntity.ok(
                 toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/workouts/usage")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
 
         return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/workouts/feedback-summary")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
             getWorkoutFeedbackSummary() {
@@ -111,7 +111,7 @@ public class AdminController {
                 toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/feedbacks")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
 
@@ -119,7 +119,7 @@ public class AdminController {
                 toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @GetMapping("/trainers/overview")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
         return ResponseEntity.ok(
