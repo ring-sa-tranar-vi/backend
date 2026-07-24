@@ -23,18 +23,18 @@ public class UserService {
 
         return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
     }
+    public Optional<User> findByClerkId(String clerkId) {
+        return userRepository.findByClerkId(clerkId);
+    }
+
+    public Long getInternalUserId(String clerkId) {
+        return userRepository.findByClerkId(clerkId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"))
+                .getId();
+    }
 
     private String sanitizeDisplayName(String name) {
         return (name == null || name.isBlank()) ? DEFAULT_DISPLAY_NAME : name.trim();
-    }
-
-    private User normalizeDisplayNameIfMissing(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(DEFAULT_DISPLAY_NAME);
-            return userRepository.save(user);
-        }
-
-        return user;
     }
 
     @Transactional
@@ -55,10 +55,6 @@ public class UserService {
         }
 
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
-    }
-
-    public Optional<User> findByClerkId(String clerkId) {
-        return userRepository.findByClerkId(clerkId);
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
