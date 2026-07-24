@@ -3,9 +3,11 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -94,12 +96,16 @@ public class UserService {
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
-        User user = getUserById(id);
+        User user = userRepository.findByIdWithFollowedOrganisations(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
         return user.getFollowedOrganisations();
     }
 
     public List<Event> getUserEventsById(Long id) {
-        User user = getUserById(id);
+        User user = userRepository.findByIdWithAttendingEvents(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+
         return user.getAttendingEvents();
     }
 
