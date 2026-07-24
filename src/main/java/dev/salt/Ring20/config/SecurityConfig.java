@@ -44,6 +44,7 @@ public class SecurityConfig {
                                                 "/api/users/*",
                                                 "/api/users/*/progress")
                                         .permitAll()
+                                        .requestMatchers("/api/users/me/**").authenticated()
                                         .anyRequest()
                                         .permitAll())
                 .build();

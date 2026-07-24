@@ -106,6 +106,9 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
+        User currentUser =
+                userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+
         User updated =
                 userService.updateUserPreferencesByClerkId(
                         getClerkId(authentication),
@@ -215,8 +218,7 @@ public class UserController {
         return userService.findByClerkId(getClerkId(authentication))
                 .orElseThrow();
     }
-
-    private String getClerkId(Authentication authentication) {
+    private String getClerkId(Authentication authentication){
         return getJwtOrThrow(authentication).getSubject();
     }
 
