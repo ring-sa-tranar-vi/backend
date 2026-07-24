@@ -1,9 +1,11 @@
 package dev.salt.Ring20.service.security;
 
 import dev.salt.Ring20.service.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("securityService")
 public class SecurityService {
     private final UserService userService;
 
@@ -17,7 +19,7 @@ public class SecurityService {
 
     public boolean isCurrentUser(Long userId, String clerkId) {
         Long currentUserId = userService.getInternalUserId(clerkId);
-        return currentUserId.equals(userId);
+        return currentUserId != null && currentUserId.equals(userId);
     }
 
     public boolean isAdmin(String clerkId) {
@@ -27,5 +29,11 @@ public class SecurityService {
     public boolean isOwnerOrAdmin(Long userId, String clerkId) {
         return isCurrentUser(userId, clerkId)
                 || isAdmin(clerkId);
+    }
+    public boolean isAdminIfAuthenticated(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            return false;
+        }
+        return userService.isAdmin(jwt.getSubject());
     }
 }
