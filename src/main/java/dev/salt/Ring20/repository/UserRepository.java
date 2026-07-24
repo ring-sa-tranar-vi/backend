@@ -1,9 +1,7 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.User;
-
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,14 +9,16 @@ import org.springframework.data.repository.query.Param;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByClerkId(String clerkId);
 
-    @Query("""
+    @Query(
+            """
                 SELECT u FROM User u
                 LEFT JOIN FETCH u.attendingEvents
                 WHERE u.id = :id
             """)
     Optional<User> findByIdWithAttendingEvents(@Param("id") Long id);
 
-    @Query("""
+    @Query(
+            """
                 SELECT u FROM User u
                 LEFT JOIN FETCH u.followedOrganisations
                 WHERE u.id = :id
