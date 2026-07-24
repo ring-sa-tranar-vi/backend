@@ -5,9 +5,12 @@ import dev.salt.Ring20.dto.EventResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
 import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -21,6 +24,7 @@ public class EventController {
     }
 
     @PostMapping
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     public ResponseEntity<EventResponseDto> createEvent(
             @Valid @RequestBody EventRequestDto request) {
         Event event =
@@ -42,17 +46,6 @@ public class EventController {
         return ResponseEntity.created(location).body(response);
     }
 
-    private EventResponseDto toResponse(Event event) {
-        return new EventResponseDto(
-                event.getId(),
-                event.getName(),
-                event.getDescription(),
-                event.getTime(),
-                event.getOrganisation().getId(),
-                event.getCity(),
-                event.getVenue(),
-                event.getEventType());
-    }
 
     @GetMapping
     public ResponseEntity<List<EventResponseDto>> getAllEvents() {
@@ -65,12 +58,14 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         service.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
         Event updatedEvent =
@@ -84,5 +79,17 @@ public class EventController {
                         request.venue(),
                         request.eventType());
         return ResponseEntity.ok(toResponse(updatedEvent));
+    }
+
+    private EventResponseDto toResponse(Event event) {
+        return new EventResponseDto(
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getTime(),
+                event.getOrganisation().getId(),
+                event.getCity(),
+                event.getVenue(),
+                event.getEventType());
     }
 }
