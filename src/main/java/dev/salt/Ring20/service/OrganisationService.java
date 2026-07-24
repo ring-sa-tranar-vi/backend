@@ -4,11 +4,9 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganisationRepository;
-
+import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import dev.salt.Ring20.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +23,12 @@ public class OrganisationService {
     @Transactional
     public Organisation createOrganisation(
             String name, String description, List<Event> events, String orgCity, Long userId) {
-        User organizer = userRepo.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("No user foudn with this id:  " + userId));
+        User organizer =
+                userRepo.findById(userId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "No user foudn with this id:  " + userId));
         Organisation organisation = new Organisation(name, description, events, orgCity, organizer);
         attachOrganisationToEvents(organisation, events);
         return repo.save(organisation);

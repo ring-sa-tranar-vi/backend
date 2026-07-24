@@ -1,6 +1,5 @@
 package dev.salt.Ring20.controller;
 
-
 import dev.salt.Ring20.dto.*;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
@@ -9,9 +8,7 @@ import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.data.*;
 import jakarta.validation.Valid;
-
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -102,7 +99,7 @@ public class AdminController {
     @GetMapping("/workouts/feedback-summary")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
-    getWorkoutFeedbackSummary() {
+            getWorkoutFeedbackSummary() {
 
         return ResponseEntity.ok(
                 toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
@@ -122,7 +119,6 @@ public class AdminController {
         return ResponseEntity.ok(
                 toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
     }
-
 
     private List<AdminWorkoutFeedbackSummaryResponseDto> toWorkoutFeedbackSummaryDto(
             List<WorkoutFeedbackSummaryData> data) {

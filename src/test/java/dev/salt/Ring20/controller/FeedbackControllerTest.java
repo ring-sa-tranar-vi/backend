@@ -9,9 +9,8 @@ import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;
-import java.util.NoSuchElementException;
-
 import dev.salt.Ring20.service.security.SecurityService;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,17 +30,10 @@ class FeedbackControllerTest {
 
     @Test
     void createFeedbackReturnsSavedEntity() {
-        FeedbackController controller =
-                new FeedbackController(feedbackService, securityService);
+        FeedbackController controller = new FeedbackController(feedbackService, securityService);
 
         FeedbackRequestDto request =
-                new FeedbackRequestDto(
-                        1L,
-                        2L,
-                        FeedbackDifficulty.JUST_RIGHT,
-                        true,
-                        4,
-                        "Great");
+                new FeedbackRequestDto(1L, 2L, FeedbackDifficulty.JUST_RIGHT, true, 4, "Great");
 
         Feedback feedback = new Feedback();
         feedback.setId(9L);
@@ -51,8 +43,7 @@ class FeedbackControllerTest {
         when(authentication.getName()).thenReturn("clerk123");
         when(securityService.currentUserId("clerk123")).thenReturn(1L);
 
-        when(feedbackService.addFeedback(any(Feedback.class)))
-                .thenReturn(feedback);
+        when(feedbackService.addFeedback(any(Feedback.class))).thenReturn(feedback);
 
         ResponseEntity<FeedbackResponseDto> response =
                 controller.createFeedback(request, authentication);
@@ -64,25 +55,19 @@ class FeedbackControllerTest {
 
     @Test
     void getFeedbackByIdThrowsWhenMissing() {
-        FeedbackController controller =
-                new FeedbackController(feedbackService, securityService);
+        FeedbackController controller = new FeedbackController(feedbackService, securityService);
 
         when(feedbackService.getFeedbackById(1L))
                 .thenThrow(new NoSuchElementException("Feedback not found with id: 1"));
 
-        assertThrows(
-                NoSuchElementException.class,
-                () -> controller.getFeedbackById(1L)
-        );
+        assertThrows(NoSuchElementException.class, () -> controller.getFeedbackById(1L));
     }
 
     @Test
     void deleteFeedbackReturnsNoContentWhenPresent() {
-        FeedbackController controller =
-                new FeedbackController(feedbackService, securityService);
+        FeedbackController controller = new FeedbackController(feedbackService, securityService);
 
-        when(feedbackService.getFeedbackById(1L))
-                .thenReturn(new Feedback());
+        when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
 
         ResponseEntity<Void> response = controller.deleteFeedback(1L);
 
@@ -92,15 +77,11 @@ class FeedbackControllerTest {
 
     @Test
     void getFeedbackThrowsWithoutFilters() {
-        FeedbackController controller =
-                new FeedbackController(feedbackService, securityService);
+        FeedbackController controller = new FeedbackController(feedbackService, securityService);
 
         when(feedbackService.getFeedback(null, null))
                 .thenThrow(new IllegalArgumentException("At least one filter must be provided"));
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> controller.getAllFeedbacks(null, null)
-        );
+        assertThrows(IllegalArgumentException.class, () -> controller.getAllFeedbacks(null, null));
     }
 }

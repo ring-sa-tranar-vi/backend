@@ -11,19 +11,14 @@ public class OrganisationSecurity {
     private final SecurityService securityService;
 
     public OrganisationSecurity(
-            OrganisationRepository repository,
-            SecurityService securityService) {
+            OrganisationRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
     }
 
     public boolean canModify(Long id, String clerkId) {
-        Organisation organisation = repository.findById(id)
-                .orElseThrow();
+        Organisation organisation = repository.findById(id).orElseThrow();
 
-        return securityService.isOwnerOrAdmin(
-                organisation.getOrganizer().getId(),
-                clerkId
-        );
+        return securityService.isOwnerOrAdmin(organisation.getOrganizer().getId(), clerkId);
     }
 }

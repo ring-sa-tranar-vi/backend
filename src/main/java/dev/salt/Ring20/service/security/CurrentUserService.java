@@ -29,9 +29,7 @@ public class CurrentUserService {
     private Jwt getJwt(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
             throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Missing or invalid authentication token"
-            );
+                    HttpStatus.UNAUTHORIZED, "Missing or invalid authentication token");
         }
         return jwt;
     }

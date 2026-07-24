@@ -10,19 +10,16 @@ public class ActivityLogSecurityService {
     private final ActivityLogRepository repository;
     private final SecurityService securityService;
 
-    public ActivityLogSecurityService(ActivityLogRepository repository, SecurityService securityService) {
+    public ActivityLogSecurityService(
+            ActivityLogRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
     }
 
     public boolean canModify(Long id, String clerkId) {
 
-        ActivityLog log = repository.findById(id)
-                .orElseThrow();
+        ActivityLog log = repository.findById(id).orElseThrow();
 
-        return securityService.isOwnerOrAdmin(
-                log.getUserId(),
-                clerkId
-        );
+        return securityService.isOwnerOrAdmin(log.getUserId(), clerkId);
     }
 }

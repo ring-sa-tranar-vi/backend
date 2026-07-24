@@ -10,9 +10,7 @@ public class FeedbackSecurity {
     private final FeedbackRepository repository;
     private final SecurityService securityService;
 
-    public FeedbackSecurity(
-            FeedbackRepository repository,
-            SecurityService securityService) {
+    public FeedbackSecurity(FeedbackRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
     }
@@ -20,9 +18,6 @@ public class FeedbackSecurity {
     public boolean canModify(Long id, String clerkId) {
         Feedback feedback = repository.findById(id).orElseThrow();
 
-        return securityService.isOwnerOrAdmin(
-                feedback.getUserId(),
-                clerkId
-        );
+        return securityService.isOwnerOrAdmin(feedback.getUserId(), clerkId);
     }
 }

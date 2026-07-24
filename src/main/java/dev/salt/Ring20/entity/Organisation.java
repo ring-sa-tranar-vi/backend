@@ -24,11 +24,13 @@ public class Organisation {
     private int usersFollowing;
 
     private String orgCity;
+
     @ManyToOne
     @JoinColumn(name = "organizer_id", nullable = false)
     private User organizer;
 
-    public Organisation(String name, String description, List<Event> events, String orgCity, User organizer) {
+    public Organisation(
+            String name, String description, List<Event> events, String orgCity, User organizer) {
         this.name = name;
         this.description = description;
         this.events = events;

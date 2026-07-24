@@ -1,13 +1,10 @@
 package dev.salt.Ring20.controller;
 
-
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import dev.salt.Ring20.service.UserWorkoutPreferenceService;
-
+import dev.salt.Ring20.service.security.CurrentUserService;
 import java.util.List;
 import java.util.Map;
-
-import dev.salt.Ring20.service.security.CurrentUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -68,6 +65,4 @@ public class UserPreferenceController {
         preferenceService.removePreference(userId, workoutId, UserWorkoutPreferenceType.DISLIKED);
         return ResponseEntity.noContent().build();
     }
-
-
 }

@@ -2,9 +2,8 @@ package dev.salt.Ring20.controller;
 
 import dev.salt.Ring20.dto.CalendarEventDto;
 import dev.salt.Ring20.service.CalendarService;
-import java.util.List;
-
 import dev.salt.Ring20.service.security.SecurityService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

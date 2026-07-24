@@ -11,9 +11,7 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
-
 import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,17 +27,13 @@ import org.springframework.security.oauth2.jwt.Jwt;
 @DisplayName("WorkoutController Tests")
 class WorkoutControllerTest {
 
-    @Mock
-    private WorkoutService workoutService;
+    @Mock private WorkoutService workoutService;
 
-    @Mock
-    private UserService userService;
+    @Mock private UserService userService;
 
-    @Mock
-    private FileStorageService fileStorageService;
+    @Mock private FileStorageService fileStorageService;
 
-    @InjectMocks
-    private WorkoutController workoutController;
+    @InjectMocks private WorkoutController workoutController;
 
     @Test
     void getAllWorkoutsReturnsData() {
@@ -51,7 +45,8 @@ class WorkoutControllerTest {
         when(userService.isAdmin("admin_1")).thenReturn(true);
         when(workoutService.getAllWorkouts(true)).thenReturn(List.of(workout));
 
-        ResponseEntity<List<WorkoutResponseDto>> response = workoutController.getAllWorkouts(auth("admin_1"));
+        ResponseEntity<List<WorkoutResponseDto>> response =
+                workoutController.getAllWorkouts(auth("admin_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, response.getBody().size());
@@ -60,7 +55,29 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutCallsService() {
-        WorkoutRequestDto request = new WorkoutRequestDto("Test Workout", "desc", null, null, null, null, 1, "strength", 300, null, null, null, null, null, null, null, true, false, false, true, null);
+        WorkoutRequestDto request =
+                new WorkoutRequestDto(
+                        "Test Workout",
+                        "desc",
+                        null,
+                        null,
+                        null,
+                        null,
+                        1,
+                        "strength",
+                        300,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        false,
+                        false,
+                        true,
+                        null);
 
         Workout workout = new Workout();
         workout.setName("Test Workout");
@@ -76,7 +93,29 @@ class WorkoutControllerTest {
 
     @Test
     void createWorkoutReturnsOk() {
-        WorkoutRequestDto request = new WorkoutRequestDto("Test Workout", "desc", null, null, null, null, 1, "strength", 300, null, null, null, null, null, null, null, true, false, false, true, null);
+        WorkoutRequestDto request =
+                new WorkoutRequestDto(
+                        "Test Workout",
+                        "desc",
+                        null,
+                        null,
+                        null,
+                        null,
+                        1,
+                        "strength",
+                        300,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        true,
+                        false,
+                        false,
+                        true,
+                        null);
 
         Workout workout = new Workout();
         workout.setName("Test Workout");
@@ -111,7 +150,8 @@ class WorkoutControllerTest {
 
         when(workoutService.setWorkoutEnabled(1L, false)).thenReturn(updated);
 
-        ResponseEntity<WorkoutResponseDto> response = workoutController.setWorkoutEnabled(1L, new WorkoutEnabledRequestDto(false));
+        ResponseEntity<WorkoutResponseDto> response =
+                workoutController.setWorkoutEnabled(1L, new WorkoutEnabledRequestDto(false));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());

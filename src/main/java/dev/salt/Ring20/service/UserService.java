@@ -23,12 +23,14 @@ public class UserService {
 
         return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
     }
+
     public Optional<User> findByClerkId(String clerkId) {
         return userRepository.findByClerkId(clerkId);
     }
 
     public Long getInternalUserId(String clerkId) {
-        return userRepository.findByClerkId(clerkId)
+        return userRepository
+                .findByClerkId(clerkId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"))
                 .getId();
     }

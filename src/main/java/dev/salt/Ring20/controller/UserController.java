@@ -9,11 +9,9 @@ import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -106,8 +104,7 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
-        User currentUser =
-                userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
@@ -215,10 +212,10 @@ public class UserController {
     }
 
     private User getCurrentUser(Authentication authentication) {
-        return userService.findByClerkId(getClerkId(authentication))
-                .orElseThrow();
+        return userService.findByClerkId(getClerkId(authentication)).orElseThrow();
     }
-    private String getClerkId(Authentication authentication){
+
+    private String getClerkId(Authentication authentication) {
         return getJwtOrThrow(authentication).getSubject();
     }
 
@@ -232,7 +229,7 @@ public class UserController {
 
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {

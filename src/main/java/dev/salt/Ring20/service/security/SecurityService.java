@@ -27,9 +27,9 @@ public class SecurityService {
     }
 
     public boolean isOwnerOrAdmin(Long userId, String clerkId) {
-        return isCurrentUser(userId, clerkId)
-                || isAdmin(clerkId);
+        return isCurrentUser(userId, clerkId) || isAdmin(clerkId);
     }
+
     public boolean isAdminIfAuthenticated(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
             return false;

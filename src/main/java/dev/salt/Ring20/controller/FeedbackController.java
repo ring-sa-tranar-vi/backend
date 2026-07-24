@@ -6,9 +6,7 @@ import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.security.SecurityService;
 import jakarta.validation.Valid;
-
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -57,16 +55,12 @@ public class FeedbackController {
             @Valid @RequestBody FeedbackRequestDto feedbackRequest, Authentication authentication) {
         Feedback feedback = toEntity(feedbackRequest);
 
-        feedback.setUserId(
-                securityService.currentUserId(authentication.getName())
-        );
+        feedback.setUserId(securityService.currentUserId(authentication.getName()));
 
         Feedback saved = feedbackService.addFeedback(feedback);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(toResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
-
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@feedbackSecurity.canModify(#id, authentication.name)")

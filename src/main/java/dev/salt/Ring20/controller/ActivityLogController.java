@@ -26,7 +26,8 @@ public class ActivityLogController {
     private final ActivityLogService activityLogService;
     private final SecurityService securityService;
 
-    public ActivityLogController(ActivityLogService activityLogService, SecurityService securityService) {
+    public ActivityLogController(
+            ActivityLogService activityLogService, SecurityService securityService) {
         this.activityLogService = activityLogService;
         this.securityService = securityService;
     }
@@ -41,14 +42,14 @@ public class ActivityLogController {
 
     @PostMapping
     public ResponseEntity<ActivityLogResponseDto> createActivityLog(
-            @Valid @RequestBody ActivityLogCreateRequestDto activityLogRequest, Authentication authentication) {
+            @Valid @RequestBody ActivityLogCreateRequestDto activityLogRequest,
+            Authentication authentication) {
         ActivityLog activityLog = toEntity(activityLogRequest);
 
-        activityLog.setUserId(
-                securityService.currentUserId(authentication.getName())
-        );
+        activityLog.setUserId(securityService.currentUserId(authentication.getName()));
 
-        ActivityLog created = activityLogService.createActivityLog(activityLog);        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
+        ActivityLog created = activityLogService.createActivityLog(activityLog);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
     }
 
     @PutMapping("/{id}/complete")
