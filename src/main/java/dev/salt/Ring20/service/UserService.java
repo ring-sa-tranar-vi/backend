@@ -24,17 +24,19 @@ public class UserService {
         return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
     }
 
-    private String sanitizeDisplayName(String name) {
-        return (name == null || name.isBlank()) ? DEFAULT_DISPLAY_NAME : name.trim();
+    public Optional<User> findByClerkId(String clerkId) {
+        return userRepository.findByClerkId(clerkId);
     }
 
-    private User normalizeDisplayNameIfMissing(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(DEFAULT_DISPLAY_NAME);
-            return userRepository.save(user);
-        }
+    public Long getInternalUserId(String clerkId) {
+        return userRepository
+                .findByClerkId(clerkId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"))
+                .getId();
+    }
 
-        return user;
+    private String sanitizeDisplayName(String name) {
+        return (name == null || name.isBlank()) ? DEFAULT_DISPLAY_NAME : name.trim();
     }
 
     @Transactional
@@ -55,10 +57,6 @@ public class UserService {
         }
 
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
-    }
-
-    public Optional<User> findByClerkId(String clerkId) {
-        return userRepository.findByClerkId(clerkId);
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
@@ -96,12 +94,20 @@ public class UserService {
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
-        User user = getUserById(id);
+        User user =
+                userRepository
+                        .findByIdWithFollowedOrganisations(id)
+                        .orElseThrow(() -> new NoSuchElementException("User not found"));
+
         return user.getFollowedOrganisations();
     }
 
     public List<Event> getUserEventsById(Long id) {
-        User user = getUserById(id);
+        User user =
+                userRepository
+                        .findByIdWithAttendingEvents(id)
+                        .orElseThrow(() -> new NoSuchElementException("User not found"));
+
         return user.getAttendingEvents();
     }
 

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -42,13 +43,13 @@ public class UserController {
 
     @GetMapping("/me/profile")
     public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        User currentUser = userService.getByClerkIdOrThrow(clerkId);
+        User currentUser = userService.getByClerkIdOrThrow(getClerkId(authentication));
 
-        return ResponseEntity.ok(toResponse(currentUser, clerkId));
+        return ResponseEntity.ok(toResponse(currentUser, getClerkId(authentication)));
     }
 
     @GetMapping("/by-clerk/{clerkId}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<UserResponseDto> getUserByClerkId(
             @PathVariable String clerkId, Authentication authentication) {
         getJwtOrThrow(authentication);
@@ -58,6 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(toResponse(user));
@@ -84,47 +86,42 @@ public class UserController {
     @PutMapping("/me/profile")
     public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
             @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
-        String clerkId = getClerkId(authentication);
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        clerkId,
+                        getClerkId(authentication),
                         userRequest.name(),
                         userRequest.intensityLevel(),
                         userRequest.context(),
                         userRequest.trainerId(),
                         userRequest.city());
 
-        return ResponseEntity.ok(toResponse(updated, clerkId));
+        return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("#id == @securityService.currentUserId(authentication.name)")
     public ResponseEntity<UserResponseDto> updateUserPreferences(
             @PathVariable Long id,
             @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        User currentUser = userService.findByClerkId(clerkId).orElseThrow();
-
-        if (!currentUser.getId().equals(id)) {
-            return ResponseEntity.status(403).build();
-        }
+        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        clerkId,
+                        getClerkId(authentication),
                         userRequest.name(),
                         userRequest.intensityLevel(),
                         userRequest.context(),
                         userRequest.trainerId(),
                         userRequest.city());
 
-        return ResponseEntity.ok(toResponse(updated, clerkId));
+        return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
 
     @GetMapping("/me/followed-orgs")
     public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrgs(
             Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
 
         return ResponseEntity.ok(
                 userService.getUserOrgsById(currentUser.getId()).stream()
@@ -135,17 +132,17 @@ public class UserController {
     @PostMapping("/me/followed-orgs/{orgId}")
     public ResponseEntity<UserResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.addFollowOrganization(
                         currentUser.getId(), organisationService.getOrganisationById(orgId));
-        return ResponseEntity.status(201).body(toResponse(updated));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
     }
 
     @DeleteMapping("/me/followed-orgs/{orgId}")
     public ResponseEntity<UserResponseDto> removeFollowedOrg(
             Authentication authentication, @PathVariable Long orgId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.removeFollowOrganization(
                         currentUser.getId(), organisationService.getOrganisationById(orgId));
@@ -155,7 +152,7 @@ public class UserController {
     @GetMapping("/me/attending-events")
     public ResponseEntity<List<EventResponseDto>> getAllAttendingEvents(
             Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
 
         return ResponseEntity.ok(
                 userService.getUserEventsById(currentUser.getId()).stream()
@@ -166,16 +163,16 @@ public class UserController {
     @PostMapping("/me/attending-events/{eventId}")
     public ResponseEntity<UserResponseDto> attendEvent(
             Authentication authentication, @PathVariable Long eventId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
-        return ResponseEntity.status(201).body(toResponse(updated));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
     }
 
     @DeleteMapping("/me/attending-events/{eventId}")
     public ResponseEntity<UserResponseDto> removeAttendEvent(
             Authentication authentication, @PathVariable Long eventId) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.removeAttendEvent(
                         currentUser.getId(), eventService.getEventById(eventId));
@@ -183,31 +180,43 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/progress")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<Map<String, Object>> getUserProgress(@PathVariable Long userId) {
         return ResponseEntity.ok(activityLogService.getUserProgress(userId));
     }
 
     @GetMapping("/me/progress")
     public ResponseEntity<Map<String, Object>> getMyProgress(Authentication authentication) {
-        User currentUser = userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+        User currentUser = getCurrentUser(authentication);
 
         return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
     }
 
     @GetMapping("/{userId}/callback-preference")
+    @PreAuthorize("#userId == @securityService.currentUserId(authentication.name)")
     public List<CallbackPreference> getAll(@PathVariable Long userId) {
         return userService.getUserById(userId).getCallbackPreferences();
     }
 
     @PostMapping("/{userId}/callback-preference")
+    @PreAuthorize("#userId == @securityService.currentUserId(authentication.name)")
     public UserResponseDto addOrUpdate(
             @PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
         return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
     }
 
     @DeleteMapping("/{userId}/callback-preference/{day}")
+    @PreAuthorize("#userId == @securityService.currentUserId(authentication.name)")
     public UserResponseDto remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
         return toResponse(userService.removeCallbackPreference(userId, day));
+    }
+
+    private User getCurrentUser(Authentication authentication) {
+        return userService.findByClerkId(getClerkId(authentication)).orElseThrow();
+    }
+
+    private String getClerkId(Authentication authentication) {
+        return getJwtOrThrow(authentication).getSubject();
     }
 
     private Jwt getJwtOrThrow(Authentication authentication) {
@@ -216,10 +225,6 @@ public class UserController {
                     UNAUTHORIZED, "Missing or invalid authentication token");
         }
         return jwt;
-    }
-
-    private String getClerkId(Authentication authentication) {
-        return getJwtOrThrow(authentication).getSubject();
     }
 
     private String resolveDisplayName(Jwt jwt) {

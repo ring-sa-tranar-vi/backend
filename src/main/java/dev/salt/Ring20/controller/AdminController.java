@@ -1,7 +1,5 @@
 package dev.salt.Ring20.controller;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 import dev.salt.Ring20.dto.*;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
@@ -14,7 +12,6 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,35 +19,32 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
     private static final String UNKNOWN_USER = "Unknown user";
     private static final String UNKNOWN_WORKOUT = "Unknown workout";
-    private final UserService service;
+    private final UserService userService;
     private final FeedbackService feedbackService;
     private final ActivityLogService activityLogService;
     private final AdminService adminService;
 
     public AdminController(
-            UserService service,
+            UserService userService,
             FeedbackService feedbackService,
             ActivityLogService activityLogService,
             AdminService adminService) {
-        this.service = service;
+        this.userService = userService;
         this.feedbackService = feedbackService;
         this.activityLogService = activityLogService;
         this.adminService = adminService;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<String> adminPage(Authentication authentication) {
-
-        String clerkId = getClerkId(authentication);
-        final String name = service.getByClerkIdOrThrow(clerkId).getName();
+        final String name = userService.getByClerkIdOrThrow(authentication.getName()).getName();
 
         return ResponseEntity.ok(
                 "Congrats, "
@@ -58,52 +52,52 @@ public class AdminController {
                         + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/count")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
-        long total = service.getUserCount();
+        long total = userService.getUserCount();
         long active = activityLogService.getActiveUserCount();
         return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
         return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/users/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<String> updateUser(
             @PathVariable Long id, @Valid @RequestBody UserRequestDto updateData) {
         User updated = adminService.updateUser(id, toUserEntity(updateData));
         return ResponseEntity.ok("User with ID " + updated.getId() + " updated successfully");
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/users/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
         adminService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/activity-logs/recent")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
         return ResponseEntity.ok(
                 toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/workouts/usage")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
 
         return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/workouts/feedback-summary")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
             getWorkoutFeedbackSummary() {
 
@@ -111,31 +105,19 @@ public class AdminController {
                 toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/feedbacks")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
 
         return ResponseEntity.ok(
                 toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/trainers/overview")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
         return ResponseEntity.ok(
                 toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
-    }
-
-    private Jwt getJwtOrThrow(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(
-                    UNAUTHORIZED, "Missing or invalid authentication token");
-        }
-        return jwt;
-    }
-
-    private String getClerkId(Authentication authentication) {
-        return getJwtOrThrow(authentication).getSubject();
     }
 
     private List<AdminWorkoutFeedbackSummaryResponseDto> toWorkoutFeedbackSummaryDto(

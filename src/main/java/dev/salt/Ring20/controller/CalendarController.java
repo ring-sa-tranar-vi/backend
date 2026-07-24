@@ -2,9 +2,11 @@ package dev.salt.Ring20.controller;
 
 import dev.salt.Ring20.dto.CalendarEventDto;
 import dev.salt.Ring20.service.CalendarService;
+import dev.salt.Ring20.service.security.SecurityService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,8 +16,10 @@ import org.springframework.web.bind.annotation.*;
 public class CalendarController {
 
     private final CalendarService calendarService;
+    private final SecurityService securityService;
 
     @GetMapping
+    @PreAuthorize("@securityService.isOwnerOrAdmin(#userId, authentication.name)")
     public ResponseEntity<List<CalendarEventDto>> getCalendar(
             @RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
 
