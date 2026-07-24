@@ -1,5 +1,6 @@
-package dev.salt.Ring20.service;
+package dev.salt.Ring20.service.security;
 
+import dev.salt.Ring20.service.UserService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -8,6 +9,10 @@ public class SecurityService {
 
     public SecurityService(UserService userService) {
         this.userService = userService;
+    }
+
+    public Long currentUserId(String clerkId) {
+        return userService.getInternalUserId(clerkId);
     }
 
     public boolean isCurrentUser(Long userId, String clerkId) {
