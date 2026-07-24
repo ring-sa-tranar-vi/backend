@@ -5,12 +5,12 @@ import dev.salt.Ring20.repository.ActivityLogRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ActivityLogSecurity {
+public class ActivityLogSecurityService {
 
     private final ActivityLogRepository repository;
     private final SecurityService securityService;
 
-    public ActivityLogSecurity(ActivityLogRepository repository, SecurityService securityService) {
+    public ActivityLogSecurityService(ActivityLogRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
     }

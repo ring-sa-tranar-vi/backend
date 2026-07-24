@@ -52,7 +52,7 @@ public class ActivityLogController {
     }
 
     @PutMapping("/{id}/complete")
-    @PreAuthorize("@activityLogSecurity.canModify(#id, authentication.name)")
+    @PreAuthorize("@activityLogSecurityService.canModify(#id, authentication.name)")
     public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
 
         ActivityLog completed = activityLogService.completeActivityLog(id);
