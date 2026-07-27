@@ -46,6 +46,8 @@ public class SecurityConfig {
                                         .permitAll()
                                         .requestMatchers("/api/users/me/**")
                                         .authenticated()
+                                        .requestMatchers(HttpMethod.POST, "/api/activity-logs")
+                                        .authenticated()
                                         .anyRequest()
                                         .permitAll()) // Dev mode: endpoints are protected
                 // individually
