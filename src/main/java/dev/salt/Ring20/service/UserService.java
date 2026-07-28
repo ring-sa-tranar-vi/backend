@@ -94,12 +94,11 @@ public class UserService {
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
-        User user =
-                userRepository
-                        .findByIdWithFollowedOrganisations(id)
-                        .orElseThrow(() -> new NoSuchElementException("User not found"));
+        if (!userRepository.existsById(id)) {
+            throw new NoSuchElementException("User not found");
+        }
 
-        return user.getFollowedOrganisations();
+        return userRepository.findFollowedOrganisationsWithEventsById(id);
     }
 
     public List<Event> getUserEventsById(Long id) {
