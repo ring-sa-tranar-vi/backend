@@ -1,6 +1,5 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.ApplicationStatus;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.PaymentStatus;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class OrganizationApplicationService {
@@ -31,7 +31,7 @@ public class OrganizationApplicationService {
         application.setOrganizationName(orgName);
         application.setDescription(description);
         application.setMotivation(motivation);
-        application.setStatus(ApplicationStatus.PENDING);
+        application.setApplicationStatus(ApplicationStatus.PENDING);
         application.setCreatedAt(LocalDateTime.now());
         application.setPaymentStatus(PaymentStatus.PENDING);
         return repo.save(application);
@@ -42,6 +42,24 @@ public class OrganizationApplicationService {
     }
 
     public OrganizationApplication getById(Long id) {
-        return repo.getReferenceById(id);
+        return repo.findById(id)
+                .orElseThrow(()-> new NoSuchElementException("No application found with id: "+ id));
+    }
+
+    @Transactional
+    public void approve(Long id) {
+        getById(id).
+                setApplicationStatus(ApplicationStatus.APPROVED);
+    }
+
+    @Transactional
+    public void reject(Long id) {
+        getById(id).
+                setApplicationStatus(ApplicationStatus.REJECTED);
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        repo.deleteById(id);
     }
 }

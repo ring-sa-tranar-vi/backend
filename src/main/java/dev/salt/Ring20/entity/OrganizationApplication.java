@@ -27,7 +27,7 @@ public class OrganizationApplication {
     private String motivation;
 
     @Enumerated(EnumType.STRING)
-    private ApplicationStatus status;
+    private ApplicationStatus applicationStatus;
 
     private LocalDateTime createdAt;
 
