@@ -36,12 +36,12 @@ public class OrganisationService {
 
     @Transactional(readOnly = true)
     public List<Organisation> getAllOrganisations() {
-        return repo.findAll();
+        return repo.findAllWithEvents();
     }
 
     @Transactional(readOnly = true)
     public Organisation getOrganisationById(Long id) {
-        return repo.findById(id)
+        return repo.findByIdWithEvents(id)
                 .orElseThrow(
                         () -> new NoSuchElementException("Organisation not found with id: " + id));
     }

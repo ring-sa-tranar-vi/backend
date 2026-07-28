@@ -26,7 +26,7 @@ public class Organisation {
     private String orgCity;
 
     @ManyToOne
-    @JoinColumn(name = "organizer_id", nullable = false)
+    @JoinColumn(name = "organizer_id")
     private User organizer;
 
     public Organisation(
