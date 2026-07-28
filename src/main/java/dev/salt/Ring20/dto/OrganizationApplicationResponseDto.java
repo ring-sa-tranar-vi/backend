@@ -2,7 +2,6 @@ package dev.salt.Ring20.dto;
 
 import dev.salt.Ring20.entity.ApplicationStatus;
 import dev.salt.Ring20.entity.PaymentStatus;
-
 import java.time.LocalDateTime;
 
 public record OrganizationApplicationResponseDto(
@@ -14,6 +13,4 @@ public record OrganizationApplicationResponseDto(
         ApplicationStatus status,
         LocalDateTime createdAt,
         LocalDateTime reviewedAt,
-        PaymentStatus paymentStatus
-
-) {}
+        PaymentStatus paymentStatus) {}

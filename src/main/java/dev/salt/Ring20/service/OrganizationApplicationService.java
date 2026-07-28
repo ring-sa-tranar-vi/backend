@@ -5,12 +5,11 @@ import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.PaymentStatus;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganizationApplicationRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrganizationApplicationService {
@@ -18,13 +17,15 @@ public class OrganizationApplicationService {
     private final OrganizationApplicationRepository repo;
     private final UserService userService;
 
-    public OrganizationApplicationService(OrganizationApplicationRepository repo, UserService userService) {
+    public OrganizationApplicationService(
+            OrganizationApplicationRepository repo, UserService userService) {
         this.repo = repo;
         this.userService = userService;
     }
 
     @Transactional
-    public OrganizationApplication createApplication(String clerkId, String orgName, String description, String motivation) {
+    public OrganizationApplication createApplication(
+            String clerkId, String orgName, String description, String motivation) {
         OrganizationApplication application = new OrganizationApplication();
         try {
             Long userId = Long.valueOf(clerkId);
@@ -47,7 +48,9 @@ public class OrganizationApplicationService {
     }
 
     public OrganizationApplication getById(Long id) {
-        return repo.findById(id).orElseThrow(() -> new NoSuchElementException("No application found with id: " + id));
+        return repo.findById(id)
+                .orElseThrow(
+                        () -> new NoSuchElementException("No application found with id: " + id));
     }
 
     @Transactional
@@ -74,7 +77,6 @@ public class OrganizationApplicationService {
         return repo.save(application);
     }
 
-
     private void setReviewedTime(OrganizationApplication application) {
         application.setReviewedAt(LocalDateTime.now());
     }
@@ -83,6 +85,5 @@ public class OrganizationApplicationService {
         OrganizationApplication application = getById(id);
         application.setPaymentStatus(status);
         return repo.save(application);
-
     }
 }
