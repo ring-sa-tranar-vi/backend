@@ -123,7 +123,10 @@ public class UserService {
     @Transactional
     public User addAttendEvent(Long id, Event event) {
         User user = getUserById(id);
-        if (!user.getAttendingEvents().contains(event)) {
+        boolean alreadyAttending =
+                user.getAttendingEvents().stream()
+                        .anyMatch(attending -> attending.getId().equals(event.getId()));
+        if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
@@ -142,7 +145,10 @@ public class UserService {
     @Transactional
     public User removeAttendEvent(Long id, Event event) {
         User user = getUserById(id);
-        if (user.getAttendingEvents().remove(event)) {
+        boolean removed =
+                user.getAttendingEvents()
+                        .removeIf(attending -> attending.getId().equals(event.getId()));
+        if (removed) {
             event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
         }
         return userRepository.save(user);

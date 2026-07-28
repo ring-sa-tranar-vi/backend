@@ -128,6 +128,24 @@ class CalendarServiceTest {
     }
 
     @Test
+    void getMonthlyCalendar_shouldKeepAttendedEventsAfterTheyHaveEnded() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+
+        Event pastEvent = new Event();
+        pastEvent.setId(3L);
+        pastEvent.setName("Completed Community Event");
+        pastEvent.setTime(LocalDateTime.of(2020, 8, 15, 12, 0));
+        testUser.getAttendingEvents().add(pastEvent);
+
+        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2020, 8);
+
+        assertEquals(1, result.size());
+        assertEquals("EVENT-3", result.getFirst().id());
+        assertEquals("Completed Community Event", result.getFirst().title());
+        assertTrue(result.getFirst().completed());
+    }
+
+    @Test
     void getMonthlyCalendar_shouldFormatEventDescriptionAndLocationCorrectly() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
