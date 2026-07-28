@@ -41,6 +41,14 @@ public class OrganizationApplicationController {
         );
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    public ResponseEntity<OrganizationApplicationResponseDto> getById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(toResponse(applicationService.getById(id)));
+    }
+
 
 
     private OrganizationApplicationResponseDto toResponse(OrganizationApplication application) {

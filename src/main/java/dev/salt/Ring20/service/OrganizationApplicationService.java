@@ -40,4 +40,8 @@ public class OrganizationApplicationService {
     public List<OrganizationApplication> getAll() {
         return repo.findAll();
     }
+
+    public OrganizationApplication getById(Long id) {
+        return repo.getReferenceById(id);
+    }
 }
