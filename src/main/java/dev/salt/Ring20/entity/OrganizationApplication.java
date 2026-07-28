@@ -33,5 +33,8 @@ public class OrganizationApplication {
 
     private LocalDateTime reviewedAt;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
 
 }

@@ -1,13 +1,16 @@
 package dev.salt.Ring20.service;
 
+import dev.salt.Ring20.dto.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.ApplicationStatus;
 import dev.salt.Ring20.entity.OrganizationApplication;
+import dev.salt.Ring20.entity.PaymentStatus;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganizationApplicationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OrganizationApplicationService {
@@ -30,7 +33,11 @@ public class OrganizationApplicationService {
         application.setMotivation(motivation);
         application.setStatus(ApplicationStatus.PENDING);
         application.setCreatedAt(LocalDateTime.now());
+        application.setPaymentStatus(PaymentStatus.PENDING);
         return repo.save(application);
     }
 
+    public List<OrganizationApplication> getAll() {
+        return repo.findAll();
+    }
 }
