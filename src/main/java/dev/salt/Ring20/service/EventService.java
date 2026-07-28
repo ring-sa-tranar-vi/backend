@@ -30,7 +30,7 @@ public class EventService {
     }
 
     public List<Event> getAllEvents() {
-        return repo.findAll();
+        return repo.findAllWithOrganisation();
     }
 
     public List<Event> getAllEventsByOrgId(Long id) {

@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,6 +28,7 @@ public class OrganisationController {
     }
 
     @PostMapping
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<OrganisationResponseDto> createOrganisation(
             @Valid @RequestBody OrganisationRequestDto request) {
         Organisation newOrg =
@@ -34,7 +36,8 @@ public class OrganisationController {
                         request.name(),
                         request.description(),
                         toEvents(request.events()),
-                        request.orgCity());
+                        request.orgCity(),
+                        request.organizerId());
         OrganisationResponseDto response = toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -61,6 +64,7 @@ public class OrganisationController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganisationRequestDto request) {
         Organisation updatedOrg =
@@ -74,6 +78,7 @@ public class OrganisationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         service.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();

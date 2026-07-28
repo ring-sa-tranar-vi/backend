@@ -24,17 +24,19 @@ public class UserService {
         return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
     }
 
-    private String sanitizeDisplayName(String name) {
-        return (name == null || name.isBlank()) ? DEFAULT_DISPLAY_NAME : name.trim();
+    public Optional<User> findByClerkId(String clerkId) {
+        return userRepository.findByClerkId(clerkId);
     }
 
-    private User normalizeDisplayNameIfMissing(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(DEFAULT_DISPLAY_NAME);
-            return userRepository.save(user);
-        }
+    public Long getInternalUserId(String clerkId) {
+        return userRepository
+                .findByClerkId(clerkId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"))
+                .getId();
+    }
 
-        return user;
+    private String sanitizeDisplayName(String name) {
+        return (name == null || name.isBlank()) ? DEFAULT_DISPLAY_NAME : name.trim();
     }
 
     @Transactional
@@ -55,10 +57,6 @@ public class UserService {
         }
 
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
-    }
-
-    public Optional<User> findByClerkId(String clerkId) {
-        return userRepository.findByClerkId(clerkId);
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
@@ -96,12 +94,19 @@ public class UserService {
     }
 
     public List<Organisation> getUserOrgsById(Long id) {
-        User user = getUserById(id);
-        return user.getFollowedOrganisations();
+        if (!userRepository.existsById(id)) {
+            throw new NoSuchElementException("User not found");
+        }
+
+        return userRepository.findFollowedOrganisationsWithEventsById(id);
     }
 
     public List<Event> getUserEventsById(Long id) {
-        User user = getUserById(id);
+        User user =
+                userRepository
+                        .findByIdWithAttendingEvents(id)
+                        .orElseThrow(() -> new NoSuchElementException("User not found"));
+
         return user.getAttendingEvents();
     }
 
@@ -118,7 +123,10 @@ public class UserService {
     @Transactional
     public User addAttendEvent(Long id, Event event) {
         User user = getUserById(id);
-        if (!user.getAttendingEvents().contains(event)) {
+        boolean alreadyAttending =
+                user.getAttendingEvents().stream()
+                        .anyMatch(attending -> attending.getId().equals(event.getId()));
+        if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
@@ -137,7 +145,10 @@ public class UserService {
     @Transactional
     public User removeAttendEvent(Long id, Event event) {
         User user = getUserById(id);
-        if (user.getAttendingEvents().remove(event)) {
+        boolean removed =
+                user.getAttendingEvents()
+                        .removeIf(attending -> attending.getId().equals(event.getId()));
+        if (removed) {
             event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
         }
         return userRepository.save(user);

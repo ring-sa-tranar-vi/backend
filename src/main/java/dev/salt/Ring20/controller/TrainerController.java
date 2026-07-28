@@ -47,24 +47,24 @@ public class TrainerController {
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PostMapping
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.createTrainer(toTrainerData(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(trainer));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @PutMapping("/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
         return ResponseEntity.ok(toResponseDto(trainer));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @DeleteMapping("/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();
