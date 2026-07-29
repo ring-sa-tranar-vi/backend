@@ -21,13 +21,21 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public boolean isAdmin(String clerkID) {
-        UserRole role = getByClerkIdOrThrow(clerkID).getRole();
+    public boolean isAdmin(String clerkId) {
+        UserRole role = getUserRole(clerkId);
         return role == UserRole.ADMIN || role == UserRole.SUPER_ADMIN;
     }
 
-    public boolean isSuperAdmin(String clerkID) {
-        return getByClerkIdOrThrow(clerkID).getRole() == UserRole.SUPER_ADMIN;
+    public boolean isSuperAdmin(String clerkId) {
+        return getUserRole(clerkId) == UserRole.SUPER_ADMIN;
+    }
+
+    public boolean isOrganizer(String clerkId) {
+        return getUserRole(clerkId) == UserRole.ORGANIZER;
+    }
+
+    public UserRole getUserRole(String clerkId) {
+        return getByClerkIdOrThrow(clerkId).getRole();
     }
 
     public Optional<User> findByClerkId(String clerkId) {
