@@ -3,6 +3,7 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.UserRole;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
@@ -28,10 +29,14 @@ public class OrganisationService {
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
-                                                "No user foudn with this id:  " + userId));
+                                                "No user found with this id:  " + userId));
+        if (organizer.getRole() == UserRole.USER) {
+            organizer.setRole(UserRole.ORGANIZER);
+        }
         Organisation organisation = new Organisation(name, description, events, orgCity, organizer);
         attachOrganisationToEvents(organisation, events);
         return repo.save(organisation);
+
     }
 
     @Transactional(readOnly = true)
@@ -48,18 +53,20 @@ public class OrganisationService {
 
     @Transactional
     public void deleteOrganisationById(Long id) {
-        repo.deleteById(id);
+        Organisation organisation = getOrganisationById(id);
+        User organizer = organisation.getOrganizer();
+
+        if (organizer.getRole() == UserRole.ORGANIZER) {
+            organizer.setRole(UserRole.USER);
+        }
+
+        repo.delete(organisation);
     }
 
     @Transactional
     public Organisation updateOrganisationById(
             Long id, String name, String description, List<Event> events, String orgCity) {
-        Organisation foundOrg =
-                repo.findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Organisation not found with id: " + id));
+        Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setEvents(events);
