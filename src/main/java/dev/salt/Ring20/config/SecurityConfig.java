@@ -59,12 +59,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        List<String> origins = new ArrayList<>(
-                Arrays.stream(allowedOrigins.split(","))
-                        .map(String::trim)
-                        .filter(origin -> !origin.isEmpty())
-                        .toList()
-        );
+        List<String> origins =
+                new ArrayList<>(
+                        Arrays.stream(allowedOrigins.split(","))
+                                .map(String::trim)
+                                .filter(origin -> !origin.isEmpty())
+                                .toList());
 
         if (!origins.contains("http://localhost:5173")) {
             origins.add("http://localhost:5173");
