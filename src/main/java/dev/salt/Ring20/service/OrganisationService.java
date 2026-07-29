@@ -79,7 +79,7 @@ public class OrganisationService {
     }
 
     public Organisation getOrganisationForUser(String clerkId) {
-        return repo.findByOrganizer_ClerkId(clerkId)
+        return repo.findByOrganizer_ClerkIdWithEvents(clerkId)
                 .orElseThrow(() ->
                         new NoSuchElementException(
                                 "No organisation found for user with clerkId: " + clerkId));

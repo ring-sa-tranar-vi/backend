@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -79,7 +80,7 @@ public class EventController {
     }
 
     @GetMapping("/my")
-
+    @PreAuthorize("isAuthenticated()")
     public List<EventResponseDto> getMyEvents(Authentication auth) {
         return service.getEventsForUser(auth.getName())
                 .stream()

@@ -86,6 +86,7 @@ public class OrganisationController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrganisationResponseDto> getMyOrganisation(Authentication authentication) {
         return ResponseEntity.ok(
                 toResponseDto(service.getOrganisationForUser(authentication.getName()))
