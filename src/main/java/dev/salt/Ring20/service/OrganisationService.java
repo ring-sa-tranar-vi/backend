@@ -3,7 +3,6 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.UserRole;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
@@ -23,18 +22,15 @@ public class OrganisationService {
 
     @Transactional
     public Organisation createOrganisation(
-            String name, String description, List<Event> events, String orgCity, Long userId) {
+            String name, String description, String orgCity, Long userId) {
         User organizer =
                 userRepo.findById(userId)
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
                                                 "No user found with this id:  " + userId));
-        if (organizer.getRole() == UserRole.USER) {
-            organizer.setRole(UserRole.ORGANIZER);
-        }
-        Organisation organisation = new Organisation(name, description, events, orgCity, organizer);
-        attachOrganisationToEvents(organisation, events);
+
+        Organisation organisation = new Organisation(name, description, orgCity, organizer);
         return repo.save(organisation);
     }
 
@@ -52,14 +48,7 @@ public class OrganisationService {
 
     @Transactional
     public void deleteOrganisationById(Long id) {
-        Organisation organisation = getOrganisationById(id);
-        User organizer = organisation.getOrganizer();
-
-        if (organizer.getRole() == UserRole.ORGANIZER) {
-            organizer.setRole(UserRole.USER);
-        }
-
-        repo.delete(organisation);
+        repo.delete(getOrganisationById(id));
     }
 
     @Transactional

@@ -34,6 +34,7 @@ public class OrganizationApplicationController {
                         authentication.getName(),
                         request.organizationName(),
                         request.description(),
+                        request.city(),
                         request.motivation());
 
         URI location = URI.create("/api/organization-applications/" + app.getId());
@@ -92,6 +93,7 @@ public class OrganizationApplicationController {
                 application.getUser().getId(),
                 application.getOrganizationName(),
                 application.getDescription(),
+                application.getCity(),
                 application.getMotivation(),
                 application.getApplicationStatus(),
                 application.getCreatedAt(),

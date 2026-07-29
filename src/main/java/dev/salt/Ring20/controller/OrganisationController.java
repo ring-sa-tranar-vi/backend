@@ -36,7 +36,6 @@ public class OrganisationController {
                 service.createOrganisation(
                         request.name(),
                         request.description(),
-                        toEvents(request.events()),
                         request.orgCity(),
                         request.organizerId());
         OrganisationResponseDto response = toResponseDto(newOrg);

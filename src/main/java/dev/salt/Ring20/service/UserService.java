@@ -28,10 +28,6 @@ public class UserService {
         return getUserRole(clerkId) == UserRole.SUPER_ADMIN;
     }
 
-    public boolean isOrganizer(String clerkId) {
-        return getUserRole(clerkId) == UserRole.ORGANIZER;
-    }
-
     public UserRole getUserRole(String clerkId) {
         return getByClerkIdOrThrow(clerkId).getRole();
     }
