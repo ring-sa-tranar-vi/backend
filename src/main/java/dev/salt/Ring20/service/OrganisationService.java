@@ -77,4 +77,11 @@ public class OrganisationService {
             event.setOrganisation(organisation);
         }
     }
+
+    public Organisation getOrganisationForUser(String clerkId) {
+        return repo.findByOrganizer_ClerkId(clerkId)
+                .orElseThrow(() ->
+                        new NoSuchElementException(
+                                "No organisation found for user with clerkId: " + clerkId));
+    }
 }

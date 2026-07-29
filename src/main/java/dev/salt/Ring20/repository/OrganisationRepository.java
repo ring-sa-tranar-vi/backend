@@ -1,8 +1,10 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.Organisation;
+
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -16,4 +18,11 @@ public interface OrganisationRepository extends JpaRepository<Organisation, Long
     Optional<Organisation> findByIdWithEvents(Long id);
 
     boolean existsByNameIgnoreCase(String name);
+
+    @Query("""
+                SELECT o FROM Organisation o
+                LEFT JOIN FETCH o.events
+                WHERE o.organizer.clerkId = :clerkId
+            """)
+    Optional<Organisation> findByOrganizer_ClerkId(String clerkId);
 }

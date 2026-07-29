@@ -2,6 +2,8 @@ package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+
+import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 
@@ -18,7 +20,7 @@ public class Organisation {
     private String description;
 
     @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Event> events;
+    private List<Event> events = new ArrayList<>();
 
     @Min(0)
     private int usersFollowing;

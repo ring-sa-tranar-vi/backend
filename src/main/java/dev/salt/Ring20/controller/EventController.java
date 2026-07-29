@@ -78,6 +78,15 @@ public class EventController {
         return ResponseEntity.ok(toResponse(updatedEvent));
     }
 
+    @GetMapping("/my")
+
+    public List<EventResponseDto> getMyEvents(Authentication auth) {
+        return service.getEventsForUser(auth.getName())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     private EventResponseDto toResponse(Event event) {
         return new EventResponseDto(
                 event.getId(),
