@@ -1,10 +1,5 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.CompanyEventRequestDto;
-import dev.salt.Ring20.dto.CompanyEventResponseDto;
-import dev.salt.Ring20.dto.CompanyMeResponseDto;
-import dev.salt.Ring20.dto.CompanyOrganisationRequestDto;
-import dev.salt.Ring20.dto.CompanyOrganisationResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;

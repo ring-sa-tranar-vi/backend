@@ -5,11 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.salt.Ring20.dto.CompanyEventRequestDto;
-import dev.salt.Ring20.dto.CompanyEventResponseDto;
-import dev.salt.Ring20.dto.CompanyMeResponseDto;
-import dev.salt.Ring20.dto.CompanyOrganisationRequestDto;
-import dev.salt.Ring20.dto.CompanyOrganisationResponseDto;
 import dev.salt.Ring20.service.CompanyService;
 import java.time.LocalDateTime;
 import java.util.List;

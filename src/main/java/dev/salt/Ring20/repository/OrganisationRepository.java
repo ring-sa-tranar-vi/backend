@@ -17,8 +17,6 @@ public interface OrganisationRepository extends JpaRepository<Organisation, Long
             "SELECT organisation FROM Organisation organisation LEFT JOIN FETCH organisation.events WHERE organisation.id = :id")
     Optional<Organisation> findByIdWithEvents(Long id);
 
-    boolean existsByNameIgnoreCase(String name);
-
     @Query("""
                 SELECT o FROM Organisation o
                 LEFT JOIN FETCH o.events

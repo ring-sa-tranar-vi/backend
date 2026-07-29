@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.salt.Ring20.dto.CompanyEventRequestDto;
-import dev.salt.Ring20.dto.CompanyOrganisationRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
