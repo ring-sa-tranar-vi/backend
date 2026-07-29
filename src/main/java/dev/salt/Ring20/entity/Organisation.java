@@ -2,7 +2,6 @@ package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;

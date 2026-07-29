@@ -3,11 +3,9 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 @Service

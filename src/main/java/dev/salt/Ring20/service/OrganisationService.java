@@ -36,7 +36,6 @@ public class OrganisationService {
         Organisation organisation = new Organisation(name, description, events, orgCity, organizer);
         attachOrganisationToEvents(organisation, events);
         return repo.save(organisation);
-
     }
 
     @Transactional(readOnly = true)
@@ -87,8 +86,9 @@ public class OrganisationService {
 
     public Organisation getOrganisationForUser(String clerkId) {
         return repo.findByOrganizer_ClerkIdWithEvents(clerkId)
-                .orElseThrow(() ->
-                        new NoSuchElementException(
-                                "No organisation found for user with clerkId: " + clerkId));
+                .orElseThrow(
+                        () ->
+                                new NoSuchElementException(
+                                        "No organisation found for user with clerkId: " + clerkId));
     }
 }

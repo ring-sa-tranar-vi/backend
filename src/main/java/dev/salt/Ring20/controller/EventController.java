@@ -82,10 +82,7 @@ public class EventController {
     @GetMapping("/my")
     @PreAuthorize("isAuthenticated()")
     public List<EventResponseDto> getMyEvents(Authentication auth) {
-        return service.getEventsForUser(auth.getName())
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return service.getEventsForUser(auth.getName()).stream().map(this::toResponse).toList();
     }
 
     private EventResponseDto toResponse(Event event) {

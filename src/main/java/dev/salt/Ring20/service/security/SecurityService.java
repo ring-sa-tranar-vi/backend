@@ -25,6 +25,7 @@ public class SecurityService {
     public boolean isAdmin(String clerkId) {
         return userService.isAdmin(clerkId);
     }
+
     public boolean isSuperAdmin(String clerkId) {
         return userService.isSuperAdmin(clerkId);
     }

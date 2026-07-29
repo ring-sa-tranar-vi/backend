@@ -1,10 +1,8 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.Organisation;
-
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -17,7 +15,8 @@ public interface OrganisationRepository extends JpaRepository<Organisation, Long
             "SELECT organisation FROM Organisation organisation LEFT JOIN FETCH organisation.events WHERE organisation.id = :id")
     Optional<Organisation> findByIdWithEvents(Long id);
 
-    @Query("""
+    @Query(
+            """
                 SELECT o FROM Organisation o
                 LEFT JOIN FETCH o.events
                 WHERE o.organizer.clerkId = :clerkId

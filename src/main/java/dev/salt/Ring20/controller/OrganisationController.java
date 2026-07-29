@@ -87,10 +87,10 @@ public class OrganisationController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<OrganisationResponseDto> getMyOrganisation(Authentication authentication) {
+    public ResponseEntity<OrganisationResponseDto> getMyOrganisation(
+            Authentication authentication) {
         return ResponseEntity.ok(
-                toResponseDto(service.getOrganisationForUser(authentication.getName()))
-        );
+                toResponseDto(service.getOrganisationForUser(authentication.getName())));
     }
 
     private List<Event> toEvents(List<EventRequestDto> requests) {

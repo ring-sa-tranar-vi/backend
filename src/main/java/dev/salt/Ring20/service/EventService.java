@@ -16,7 +16,8 @@ public class EventService {
     private final EventRepository eventRepository;
     private final OrganisationRepository organisationRepository;
 
-    public EventService(EventRepository eventRepository, OrganisationRepository organisationRepository) {
+    public EventService(
+            EventRepository eventRepository, OrganisationRepository organisationRepository) {
         this.eventRepository = eventRepository;
         this.organisationRepository = organisationRepository;
     }
@@ -29,7 +30,8 @@ public class EventService {
             String city,
             String venue,
             EventType eventType) {
-        return eventRepository.save(new Event(name, description, time, organisation, city, venue, eventType));
+        return eventRepository.save(
+                new Event(name, description, time, organisation, city, venue, eventType));
     }
 
     public List<Event> getAllEvents() {
@@ -55,7 +57,8 @@ public class EventService {
             String venue,
             EventType eventType) {
         Event event =
-                eventRepository.findById(id)
+                eventRepository
+                        .findById(id)
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
@@ -76,9 +79,10 @@ public class EventService {
     }
 
     public List<Event> getEventsForUser(String clerkId) {
-        Organisation org = organisationRepository
-                .findByOrganizer_ClerkIdWithEvents(clerkId)
-                .orElseThrow(() -> new NoSuchElementException("No organisation for user"));
+        Organisation org =
+                organisationRepository
+                        .findByOrganizer_ClerkIdWithEvents(clerkId)
+                        .orElseThrow(() -> new NoSuchElementException("No organisation for user"));
 
         return org.getEvents();
     }
