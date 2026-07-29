@@ -25,6 +25,13 @@ public class SecurityService {
     public boolean isAdmin(String clerkId) {
         return userService.isAdmin(clerkId);
     }
+    public boolean isSuperAdmin(String clerkId) {
+        return userService.isSuperAdmin(clerkId);
+    }
+
+    public boolean isOrganizer(String clerkId) {
+        return userService.isOrganizer(clerkId);
+    }
 
     public boolean isOwnerOrAdmin(Long userId, String clerkId) {
         return isCurrentUser(userId, clerkId) || isAdmin(clerkId);

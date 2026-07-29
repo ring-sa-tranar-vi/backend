@@ -3,9 +3,11 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,8 +22,16 @@ public class UserService {
     }
 
     public boolean isAdmin(String clerkID) {
+        UserRole role = getByClerkIdOrThrow(clerkID).getRole();
+        return role == UserRole.ADMIN || role == UserRole.SUPER_ADMIN;
+    }
 
-        return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
+    public boolean isSuperAdmin(String clerkID) {
+        return getByClerkIdOrThrow(clerkID).getRole() == UserRole.SUPER_ADMIN;
+    }
+
+    public boolean isOrganizer(String clerkID) {
+        return getByClerkIdOrThrow(clerkID).getRole() == UserRole.ORGANIZER;
     }
 
     public Optional<User> findByClerkId(String clerkId) {
