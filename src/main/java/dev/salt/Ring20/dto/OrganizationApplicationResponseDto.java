@@ -9,6 +9,7 @@ public record OrganizationApplicationResponseDto(
         Long userId,
         String orgName,
         String description,
+        String city,
         String motivation,
         ApplicationStatus status,
         LocalDateTime createdAt,

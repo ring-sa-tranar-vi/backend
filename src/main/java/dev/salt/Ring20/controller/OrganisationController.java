@@ -13,6 +13,7 @@ import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -35,7 +36,6 @@ public class OrganisationController {
                 service.createOrganisation(
                         request.name(),
                         request.description(),
-                        toEvents(request.events()),
                         request.orgCity(),
                         request.organizerId());
         OrganisationResponseDto response = toResponseDto(newOrg);
@@ -82,6 +82,14 @@ public class OrganisationController {
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         service.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<OrganisationResponseDto> getMyOrganisation(
+            Authentication authentication) {
+        return ResponseEntity.ok(
+                toResponseDto(service.getOrganisationForUser(authentication.getName())));
     }
 
     private List<Event> toEvents(List<EventRequestDto> requests) {

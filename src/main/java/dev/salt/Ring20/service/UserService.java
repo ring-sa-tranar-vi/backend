@@ -19,9 +19,17 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public boolean isAdmin(String clerkID) {
+    public boolean isAdmin(String clerkId) {
+        UserRole role = getUserRole(clerkId);
+        return role == UserRole.ADMIN || role == UserRole.SUPER_ADMIN;
+    }
 
-        return UserRole.ADMIN.equals(getByClerkIdOrThrow(clerkID).getRole());
+    public boolean isSuperAdmin(String clerkId) {
+        return getUserRole(clerkId) == UserRole.SUPER_ADMIN;
+    }
+
+    public UserRole getUserRole(String clerkId) {
+        return getByClerkIdOrThrow(clerkId).getRole();
     }
 
     public Optional<User> findByClerkId(String clerkId) {
