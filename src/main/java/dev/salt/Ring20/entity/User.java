@@ -1,8 +1,10 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,6 +47,7 @@ public class User {
     @ManyToMany
     @JoinTable(name = "user_events")
     private List<Event> attendingEvents = new ArrayList<>();
+    private String fcmToken;
 
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;
