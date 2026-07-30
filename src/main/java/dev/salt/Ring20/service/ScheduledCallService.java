@@ -1,5 +1,8 @@
 package dev.salt.Ring20.service;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import dev.salt.Ring20.entity.CallBackStatus;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.ScheduledCall;
@@ -74,10 +77,6 @@ public class ScheduledCallService {
         // 2. Calls in 3–5 min (AI prewarm)
         List<ScheduledCall> upcoming =
                 scheduledCallRepository.findCallsBetween(now.plusSeconds(180), now.plusSeconds(300));
-
-        for (ScheduledCall call : upcoming) {
-            preGenerateAI(call);
-        }
     }
 
     // ✅ Send FCM
