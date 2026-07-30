@@ -7,13 +7,14 @@ import dev.salt.Ring20.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
@@ -74,22 +75,22 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     @Operation(
             summary = "Delete event",
             description = "Deletes an event by its ID."
     )
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         service.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     @Operation(
             summary = "Update event",
             description = "Updates an existing event by its ID."
     )
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
         Event updatedEvent =
@@ -106,11 +107,11 @@ public class EventController {
     }
 
     @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
     @Operation(
             summary = "Get my events",
             description = "Retrieves all events created by the authenticated organiser."
     )
-    @PreAuthorize("isAuthenticated()")
     public List<EventResponseDto> getMyEvents(Authentication auth) {
         return service.getEventsForUser(auth.getName()).stream().map(this::toResponse).toList();
     }
