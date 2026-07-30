@@ -49,11 +49,10 @@ public class UserController {
 
     @PostMapping("/me/fcm-token")
     public ResponseEntity<Void> saveFcmToken(
-            Authentication authentication,
-            @Valid @RequestBody FcmTokenRequestDto request) {
+            Authentication authentication, @Valid @RequestBody FcmTokenRequestDto request) {
 
         Long userId = getCurrentUser(authentication).getId();
-        userService.setFcmToken(userId,request.token() );
+        userService.setFcmToken(userId, request.token());
         return ResponseEntity.ok().build();
     }
 

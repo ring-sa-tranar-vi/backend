@@ -67,7 +67,7 @@ public class UserService {
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
-    public void setFcmToken(Long id, String token){
+    public void setFcmToken(Long id, String token) {
         User user = getUserById(id);
         user.setFcmToken(token);
         userRepository.save(user);

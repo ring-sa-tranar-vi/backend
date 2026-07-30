@@ -8,20 +8,21 @@ import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.NoSuchElementException;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ScheduledCallService {
     private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final ScheduledCallRepository scheduledCallRepository;
 
-    public ScheduledCallService(CallbackPreferenceRepository callbackPreferenceRepository, ScheduledCallRepository scheduledCallRepository) {
+    public ScheduledCallService(
+            CallbackPreferenceRepository callbackPreferenceRepository,
+            ScheduledCallRepository scheduledCallRepository) {
         this.callbackPreferenceRepository = callbackPreferenceRepository;
         this.scheduledCallRepository = scheduledCallRepository;
     }
@@ -55,9 +56,7 @@ public class ScheduledCallService {
             nextDate = nextDate.plusWeeks(1);
         }
 
-        return nextDate.atTime(time)
-                .atZone(ZoneId.systemDefault())
-                .toInstant();
+        return nextDate.atTime(time).atZone(ZoneId.systemDefault()).toInstant();
     }
 
     @Scheduled(fixedRate = 60000)
@@ -99,21 +98,35 @@ public class ScheduledCallService {
                 return;
             }
 
-            Message message = Message.builder()
-                    .setToken(call.getFcmToken())
-                    .putData("trainerId", String.valueOf(call.getTrainerId()))
-                    .putData("userId", String.valueOf(call.getUserId()))
-                    .putData("type", "TRAINING_CALL")
-                    .setNotification(Notification.builder()
-                            .setTitle("Time to train!")
-                            .setBody("Tap to start your session")
-                            .build())
-                    .build();
+            Message message =
+                    Message.builder()
+                            .setToken(call.getFcmToken())
+                            .putData("trainerId", String.valueOf(call.getTrainerId()))
+                            .putData("userId", String.valueOf(call.getUserId()))
+                            .putData("type", "TRAINING_CALL")
+                            .setNotification(
+                                    Notification.builder()
+                                            .setTitle("Time to train!")
+                                            .setBody("Tap to start your session")
+                                            .build())
+                            .build();
 
             FirebaseMessaging.getInstance().sendAsync(message);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void completeCall(Long id) {
+        ScheduledCall call =
+                scheduledCallRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "No scheduled call exist with this id: " + id));
+        call.setCallBackStatus(CallBackStatus.COMPLETED);
+        scheduledCallRepository.save(call);
     }
 }
