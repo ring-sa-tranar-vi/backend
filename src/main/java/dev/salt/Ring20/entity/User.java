@@ -46,6 +46,8 @@ public class User {
     @JoinTable(name = "user_events")
     private List<Event> attendingEvents = new ArrayList<>();
 
+    private String fcmToken;
+
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;
         this.intensityLevel = intensityLevel;

@@ -47,6 +47,15 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserRole(authentication.getName()));
     }
 
+    @PostMapping("/me/fcm-token")
+    public ResponseEntity<Void> saveFcmToken(
+            Authentication authentication, @Valid @RequestBody FcmTokenRequestDto request) {
+
+        Long userId = getCurrentUser(authentication).getId();
+        userService.setFcmToken(userId, request.token());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/me/profile")
     public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
         User currentUser = userService.getByClerkIdOrThrow(getClerkId(authentication));
