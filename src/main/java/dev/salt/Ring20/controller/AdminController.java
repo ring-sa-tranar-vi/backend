@@ -19,7 +19,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
-@Tag(name = "Admin",
+@Tag(
+        name = "Admin",
         description = "Administrative endpoints for managing users, monitoring activity, and viewing system statistics.")
 public class AdminController {
     private static final String UNKNOWN_USER = "Unknown user";
