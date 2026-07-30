@@ -11,20 +11,18 @@ import dev.salt.Ring20.service.data.TrainerData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 @RestController
 @RequestMapping("/api/trainers")
 @Tag(
         name = "Trainers",
-        description = "Endpoints for managing trainers and generating workout recommendations."
-)
+        description = "Endpoints for managing trainers and generating workout recommendations.")
 public class TrainerController {
 
     private final TrainerService trainerService;
@@ -36,20 +34,14 @@ public class TrainerController {
     }
 
     @GetMapping
-    @Operation(
-            summary = "Get all trainers",
-            description = "Retrieves all available trainers."
-    )
+    @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
         return ResponseEntity.ok(
                 trainerService.getAllTrainers().stream().map(this::toResponseDto).toList());
     }
 
     @GetMapping("/{id}")
-    @Operation(
-            summary = "Get trainer by ID",
-            description = "Retrieves a trainer using their ID."
-    )
+    @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
         return ResponseEntity.ok(toResponseDto(trainer));
@@ -59,8 +51,7 @@ public class TrainerController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Create trainer",
-            description = "Creates a new trainer. Available to administrators only."
-    )
+            description = "Creates a new trainer. Available to administrators only.")
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.createTrainer(toTrainerData(request));
@@ -71,8 +62,7 @@ public class TrainerController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Update trainer",
-            description = "Updates an existing trainer. Available to administrators only."
-    )
+            description = "Updates an existing trainer. Available to administrators only.")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
@@ -83,8 +73,7 @@ public class TrainerController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Delete trainer",
-            description = "Deletes a trainer by ID. Available to administrators only."
-    )
+            description = "Deletes a trainer by ID. Available to administrators only.")
     public ResponseEntity<Void> deleteTrainer(@PathVariable Long id) {
         trainerService.deleteTrainer(id);
         return ResponseEntity.noContent().build();
@@ -123,10 +112,9 @@ public class TrainerController {
     @GetMapping("/{trainerId}/recommend-for/{userId}")
     @Operation(
             summary = "Delete trainer",
-            description = "Deletes a trainer by ID. Available to administrators only."
-    )
+            description = "Deletes a trainer by ID. Available to administrators only.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-    getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
+            getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(trainerId, userId)

@@ -12,19 +12,17 @@ import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/workouts")
 @Tag(
         name = "Workouts",
-        description = "Endpoints for managing workouts and tracking user workout activities."
-)
+        description = "Endpoints for managing workouts and tracking user workout activities.")
 public class WorkoutController {
 
     private final WorkoutService workoutService;
@@ -44,10 +42,7 @@ public class WorkoutController {
     }
 
     @GetMapping
-    @Operation(
-            summary = "Get all workouts",
-            description = "Retrieves all available workouts."
-    )
+    @Operation(summary = "Get all workouts", description = "Retrieves all available workouts.")
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
         List<Workout> workouts = workoutService.getAllWorkouts(includeDisabled);
@@ -55,10 +50,7 @@ public class WorkoutController {
     }
 
     @GetMapping("/{id}")
-    @Operation(
-            summary = "Get workout by ID",
-            description = "Retrieves a workout using its ID."
-    )
+    @Operation(summary = "Get workout by ID", description = "Retrieves a workout using its ID.")
     public ResponseEntity<WorkoutResponseDto> getWorkoutById(
             @PathVariable Long id, Authentication authentication) {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
@@ -71,8 +63,7 @@ public class WorkoutController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Create workout",
-            description = "Creates a new workout. Available to administrators only."
-    )
+            description = "Creates a new workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> createWorkout(
             @Valid @RequestBody WorkoutRequestDto workoutRequest) {
         Workout createdWorkout = workoutService.createWorkout(toEntity(workoutRequest));
@@ -83,8 +74,7 @@ public class WorkoutController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Update workout",
-            description = "Updates an existing workout. Available to administrators only."
-    )
+            description = "Updates an existing workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> updateWorkout(
             @PathVariable Long id, @Valid @RequestBody WorkoutRequestDto workoutRequest) {
         Workout updatedWorkout = workoutService.updateWorkout(id, toEntity(workoutRequest));
@@ -95,8 +85,7 @@ public class WorkoutController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Delete workout",
-            description = "Deletes a workout by its ID. Available to administrators only."
-    )
+            description = "Deletes a workout by its ID. Available to administrators only.")
     public ResponseEntity<Void> deleteWorkout(@PathVariable Long id) {
         workoutService.deleteWorkout(id);
         return ResponseEntity.noContent().build();
@@ -106,8 +95,7 @@ public class WorkoutController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Set workout enabled status",
-            description = "Enables or disables a workout. Available to administrators only."
-    )
+            description = "Enables or disables a workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> setWorkoutEnabled(
             @PathVariable Long id, @Valid @RequestBody WorkoutEnabledRequestDto request) {
         if (request.enabled() == null) {
@@ -120,8 +108,7 @@ public class WorkoutController {
     @GetMapping("/{id}/audio")
     @Operation(
             summary = "Get workout audio",
-            description = "Retrieves the audio URL for a workout."
-    )
+            description = "Retrieves the audio URL for a workout.")
     public ResponseEntity<String> getWorkoutAudio(@PathVariable Long id) {
         return ResponseEntity.ok().body(workoutService.getWorkoutAudioUrl(id));
     }
@@ -129,8 +116,7 @@ public class WorkoutController {
     @PostMapping("/{id}/start")
     @Operation(
             summary = "Start workout",
-            description = "Starts a workout session for the authenticated user."
-    )
+            description = "Starts a workout session for the authenticated user.")
     public ResponseEntity<WorkoutResponseDto> startWorkout(
             @PathVariable Long id, Authentication authentication) {
         Long userId = currentUserService.getCurrentUserId(authentication);

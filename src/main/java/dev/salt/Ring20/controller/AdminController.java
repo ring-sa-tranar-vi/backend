@@ -10,18 +10,18 @@ import dev.salt.Ring20.service.data.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/admin")
 @Tag(
         name = "Admin",
-        description = "Administrative endpoints for managing users, monitoring activity, and viewing system statistics.")
+        description =
+                "Administrative endpoints for managing users, monitoring activity, and viewing system statistics.")
 public class AdminController {
     private static final String UNKNOWN_USER = "Unknown user";
     private static final String UNKNOWN_WORKOUT = "Unknown workout";
@@ -45,8 +45,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get admin page",
-            description = "Returns a welcome message for administrators."
-    )
+            description = "Returns a welcome message for administrators.")
     public ResponseEntity<String> adminPage(Authentication authentication) {
         final String name = userService.getByClerkIdOrThrow(authentication.getName()).getName();
 
@@ -60,8 +59,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get user counts",
-            description = "Retrieves the total number of users and active users."
-    )
+            description = "Retrieves the total number of users and active users.")
     public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
         long total = userService.getUserCount();
         long active = activityLogService.getActiveUserCount();
@@ -72,18 +70,14 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get user summaries",
-            description = "Retrieves a summary of all registered users."
-    )
+            description = "Retrieves a summary of all registered users.")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
         return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
     @PutMapping("/users/{id}")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
-    @Operation(
-            summary = "Update user",
-            description = "Updates the details of an existing user."
-    )
+    @Operation(summary = "Update user", description = "Updates the details of an existing user.")
     public ResponseEntity<String> updateUser(
             @PathVariable Long id, @Valid @RequestBody UserRequestDto updateData) {
         User updated = adminService.updateUser(id, toUserEntity(updateData));
@@ -92,10 +86,7 @@ public class AdminController {
 
     @DeleteMapping("/users/{id}")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
-    @Operation(
-            summary = "Delete user",
-            description = "Deletes a user from the system."
-    )
+    @Operation(summary = "Delete user", description = "Deletes a user from the system.")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
         adminService.deleteUser(id);
@@ -106,8 +97,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get recent activity logs",
-            description = "Retrieves the most recent workout activity logs."
-    )
+            description = "Retrieves the most recent workout activity logs.")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
         return ResponseEntity.ok(
                 toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
@@ -117,8 +107,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get workout usage statistics",
-            description = "Retrieves usage statistics for workouts."
-    )
+            description = "Retrieves usage statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
 
         return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
@@ -128,10 +117,9 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get workout feedback summary",
-            description = "Retrieves aggregated feedback statistics for workouts."
-    )
+            description = "Retrieves aggregated feedback statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
-    getWorkoutFeedbackSummary() {
+            getWorkoutFeedbackSummary() {
 
         return ResponseEntity.ok(
                 toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
@@ -141,8 +129,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get recent feedback",
-            description = "Retrieves the most recent workout feedback entries."
-    )
+            description = "Retrieves the most recent workout feedback entries.")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
 
         return ResponseEntity.ok(
@@ -153,8 +140,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
             summary = "Get trainer overview",
-            description = "Retrieves overview information for all trainers."
-    )
+            description = "Retrieves overview information for all trainers.")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
         return ResponseEntity.ok(
                 toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
