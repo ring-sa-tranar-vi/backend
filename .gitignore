@@ -67,5 +67,3 @@ logs/gc.log.*
 # Local storage for files
 ringsatranarvi_files/
 
-firebase-service-account.json
-
