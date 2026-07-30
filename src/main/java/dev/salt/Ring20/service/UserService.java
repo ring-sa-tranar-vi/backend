@@ -80,7 +80,8 @@ public class UserService {
             int intensityLevel,
             String context,
             Long trainerId,
-            String city) {
+            String city,
+            boolean onboarding) {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
@@ -92,6 +93,7 @@ public class UserService {
         user.setContext(context);
         user.setTrainerId(trainerId);
         user.setCity(city);
+        user.setOnboarding(onboarding);
         return userRepository.save(user);
     }
 

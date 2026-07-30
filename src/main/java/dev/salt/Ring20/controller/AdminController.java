@@ -240,6 +240,7 @@ public class AdminController {
         user.setContext(request.context());
         user.setTrainerId(request.trainerId());
         user.setCity(request.city());
+        user.setOnboarding(request.onboarding());
 
         return user;
     }

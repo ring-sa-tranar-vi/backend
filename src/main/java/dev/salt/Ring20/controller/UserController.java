@@ -99,7 +99,9 @@ public class UserController {
                         userRequest.intensityLevel(),
                         userRequest.context(),
                         userRequest.trainerId(),
-                        userRequest.city());
+                        userRequest.city(),
+                        userRequest.onboarding());
+
 
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
@@ -119,7 +121,8 @@ public class UserController {
                         userRequest.intensityLevel(),
                         userRequest.context(),
                         userRequest.trainerId(),
-                        userRequest.city());
+                        userRequest.city(),
+                        userRequest.onboarding());
 
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
@@ -275,7 +278,8 @@ public class UserController {
                 user.getContext(),
                 userService.isAdmin(clerkId),
                 user.getTrainerId(),
-                user.getCity());
+                user.getCity(),
+                user.isOnboarding());
     }
 
     private UserResponseDto toResponse(User user) {
@@ -286,7 +290,8 @@ public class UserController {
                 user.getContext(),
                 "ADMIN".equals(user.getRole()),
                 user.getTrainerId(),
-                user.getCity());
+                user.getCity(),
+                user.isOnboarding());
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
