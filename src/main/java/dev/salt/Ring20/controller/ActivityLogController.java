@@ -5,6 +5,8 @@ import dev.salt.Ring20.dto.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.security.SecurityService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/activity-logs")
+@Tag(name = "Activity Log", description = "Endpoints for managing user workout activities and tracking daily completion.")
 public class ActivityLogController {
 
     private final ActivityLogService activityLogService;
@@ -34,6 +37,7 @@ public class ActivityLogController {
 
     @GetMapping("/users/{userId}/has-completed-today")
     @PreAuthorize("@securityService.isOwnerOrAdmin(#userId, authentication.name)")
+    @Operation(summary = "Get if workout was completed today", description = "Checks whether the user has completed a workout activity on the current day.")
     public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
             @PathVariable Long userId) {
         boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
@@ -41,6 +45,7 @@ public class ActivityLogController {
     }
 
     @PostMapping
+    @Operation(summary = "Create activity log", description = "Creates a new workout activity log for a user")
     public ResponseEntity<ActivityLogResponseDto> createActivityLog(
             @Valid @RequestBody ActivityLogCreateRequestDto activityLogRequest,
             Authentication authentication) {
@@ -54,6 +59,7 @@ public class ActivityLogController {
 
     @PutMapping("/{id}/complete")
     @PreAuthorize("@activityLogSecurityService.canModify(#id, authentication.name)")
+    @Operation(summary = "Complete activity log", description = "Marks an existing activity log as completed.")
     public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
 
         ActivityLog completed = activityLogService.completeActivityLog(id);
