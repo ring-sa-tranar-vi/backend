@@ -5,23 +5,23 @@ import dev.salt.Ring20.dto.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.security.SecurityService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/feedbacks")
+@Tag(
+        name = "Feedback",
+        description = "Endpoints for creating, retrieving, and managing workout feedback."
+)
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
@@ -34,6 +34,10 @@ public class FeedbackController {
 
     @GetMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Get feedback",
+            description = "Retrieves feedback entries filtered by user or workout."
+    )
     public ResponseEntity<List<FeedbackResponseDto>> getAllFeedbacks(
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Long workoutId) {
@@ -44,6 +48,10 @@ public class FeedbackController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get feedback by ID",
+            description = "Retrieves a feedback entry using its ID."
+    )
     @PreAuthorize("@feedbackSecurity.canModify(#id, authentication.name)")
     public ResponseEntity<FeedbackResponseDto> getFeedbackById(@PathVariable Long id) {
         Feedback feedback = feedbackService.getFeedbackById(id);
@@ -51,6 +59,10 @@ public class FeedbackController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Create feedback",
+            description = "Creates a new feedback entry."
+    )
     public ResponseEntity<FeedbackResponseDto> createFeedback(
             @Valid @RequestBody FeedbackRequestDto feedbackRequest, Authentication authentication) {
         Feedback feedback = toEntity(feedbackRequest);
@@ -63,6 +75,10 @@ public class FeedbackController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete feedback",
+            description = "Deletes a feedback entry by its ID."
+    )
     @PreAuthorize("@feedbackSecurity.canModify(#id, authentication.name)")
     public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
         if (feedbackService.getFeedbackById(id) == null) {
