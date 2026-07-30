@@ -102,7 +102,6 @@ public class UserController {
                         userRequest.city(),
                         userRequest.onboarding());
 
-
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
 
