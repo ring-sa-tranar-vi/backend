@@ -47,12 +47,10 @@ public class ScheduledCallService {
         LocalDate today = LocalDate.now();
         LocalTime time = pref.getTime();
 
-        // convert to next correct weekday
         DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
 
         LocalDate nextDate = today.with(TemporalAdjusters.nextOrSame(targetDay));
 
-        // if today but time already passed → next week
         if (nextDate.equals(today) && time.isBefore(LocalTime.now())) {
             nextDate = nextDate.plusWeeks(1);
         }
@@ -61,25 +59,29 @@ public class ScheduledCallService {
                 .atZone(ZoneId.systemDefault())
                 .toInstant();
     }
-    
+
     @Scheduled(fixedRate = 60000)
     public void handleScheduledCalls() {
         Instant now = Instant.now();
 
-        // 1. Calls starting NOW (0–1 min)
         List<ScheduledCall> startingNow =
                 scheduledCallRepository.findCallsBetween(now, now.plusSeconds(60));
 
         for (ScheduledCall call : startingNow) {
-            sendNotification(call);
+            if (call.getCallBackStatus() == CallBackStatus.PENDING) {
+                sendNotification(call);
+            }
         }
 
-        // 2. Calls in 3–5 min (AI prewarm)
-        List<ScheduledCall> upcoming =
-                scheduledCallRepository.findCallsBetween(now.plusSeconds(180), now.plusSeconds(300));
+        List<ScheduledCall> missedCalls =
+                scheduledCallRepository.findMissedCalls(now.minusSeconds(60));
+
+        for (ScheduledCall call : missedCalls) {
+            call.setCallBackStatus(CallBackStatus.MISSED);
+            scheduledCallRepository.save(call);
+        }
     }
 
-    // ✅ Send FCM
     public void sendNotification(ScheduledCall call) {
         try {
             Message message = Message.builder()
