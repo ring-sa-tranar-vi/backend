@@ -33,6 +33,8 @@ public class User {
     private Long trainerId;
     private String city;
 
+    private boolean onboarding = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CallbackPreference> callbackPreferences = new ArrayList<>();
 

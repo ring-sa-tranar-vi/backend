@@ -269,7 +269,8 @@ public class UserController {
                 user.getContext(),
                 userService.isAdmin(clerkId),
                 user.getTrainerId(),
-                user.getCity());
+                user.getCity(),
+                user.isOnboarding());
     }
 
     private UserResponseDto toResponse(User user) {
@@ -280,7 +281,8 @@ public class UserController {
                 user.getContext(),
                 "ADMIN".equals(user.getRole()),
                 user.getTrainerId(),
-                user.getCity());
+                user.getCity(),
+                user.isOnboarding());
     }
 
     private EventResponseDto toEventResponseDto(Event event) {

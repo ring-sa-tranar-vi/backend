@@ -7,4 +7,6 @@ public record UserResponseDto(
         String context,
         boolean isAdmin,
         Long trainerId,
-        String city) {}
+        String city,
+        boolean onboarding) {
+}
