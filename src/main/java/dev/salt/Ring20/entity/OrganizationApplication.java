@@ -22,6 +22,8 @@ public class OrganizationApplication {
     @Column(length = 2000)
     private String description;
 
+    private String city;
+
     @Column(length = 2000)
     private String motivation;
 

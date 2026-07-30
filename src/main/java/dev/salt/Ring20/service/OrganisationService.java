@@ -22,15 +22,15 @@ public class OrganisationService {
 
     @Transactional
     public Organisation createOrganisation(
-            String name, String description, List<Event> events, String orgCity, Long userId) {
+            String name, String description, String orgCity, Long userId) {
         User organizer =
                 userRepo.findById(userId)
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
-                                                "No user foudn with this id:  " + userId));
-        Organisation organisation = new Organisation(name, description, events, orgCity, organizer);
-        attachOrganisationToEvents(organisation, events);
+                                                "No user found with this id:  " + userId));
+
+        Organisation organisation = new Organisation(name, description, orgCity, organizer);
         return repo.save(organisation);
     }
 
@@ -48,18 +48,13 @@ public class OrganisationService {
 
     @Transactional
     public void deleteOrganisationById(Long id) {
-        repo.deleteById(id);
+        repo.delete(getOrganisationById(id));
     }
 
     @Transactional
     public Organisation updateOrganisationById(
             Long id, String name, String description, List<Event> events, String orgCity) {
-        Organisation foundOrg =
-                repo.findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Organisation not found with id: " + id));
+        Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setEvents(events);
@@ -76,5 +71,13 @@ public class OrganisationService {
         for (Event event : events) {
             event.setOrganisation(organisation);
         }
+    }
+
+    public Organisation getOrganisationForUser(String clerkId) {
+        return repo.findByOrganizer_ClerkIdWithEvents(clerkId)
+                .orElseThrow(
+                        () ->
+                                new NoSuchElementException(
+                                        "No organisation found for user with clerkId: " + clerkId));
     }
 }

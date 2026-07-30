@@ -14,18 +14,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrganizationApplicationService {
 
-    private final OrganizationApplicationRepository repo;
+    private final OrganizationApplicationRepository organizationApplicationRepository;
     private final UserService userService;
+    private final OrganisationService organisationService;
 
     public OrganizationApplicationService(
-            OrganizationApplicationRepository repo, UserService userService) {
-        this.repo = repo;
+            OrganizationApplicationRepository organizationApplicationRepository,
+            UserService userService,
+            OrganisationService organisationService) {
+        this.organizationApplicationRepository = organizationApplicationRepository;
         this.userService = userService;
+        this.organisationService = organisationService;
     }
 
     @Transactional
     public OrganizationApplication createApplication(
-            String clerkId, String orgName, String description, String motivation) {
+            String clerkId, String orgName, String description, String city, String motivation) {
         OrganizationApplication application = new OrganizationApplication();
         try {
             Long userId = Long.valueOf(clerkId);
@@ -36,29 +40,31 @@ public class OrganizationApplicationService {
         application.setUser(user);
         application.setOrganizationName(orgName);
         application.setDescription(description);
+        application.setCity(city);
         application.setMotivation(motivation);
         application.setApplicationStatus(ApplicationStatus.PENDING);
         application.setCreatedAt(LocalDateTime.now());
         application.setPaymentStatus(PaymentStatus.PENDING);
-        return repo.save(application);
+        return organizationApplicationRepository.save(application);
     }
 
     public List<OrganizationApplication> getAll() {
-        return repo.findAll();
+        return organizationApplicationRepository.findAll();
     }
 
     public OrganizationApplication getById(Long id) {
-        return repo.findById(id)
+        return organizationApplicationRepository
+                .findById(id)
                 .orElseThrow(
                         () -> new NoSuchElementException("No application found with id: " + id));
     }
 
     @Transactional
     public void delete(Long id) {
-        if (!repo.existsById(id)) {
+        if (!organizationApplicationRepository.existsById(id)) {
             throw new NoSuchElementException("No application found with id: " + id);
         }
-        repo.deleteById(id);
+        organizationApplicationRepository.deleteById(id);
     }
 
     @Transactional
@@ -66,7 +72,12 @@ public class OrganizationApplicationService {
         OrganizationApplication application = getById(id);
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);
-        return repo.save(application);
+        organisationService.createOrganisation(
+                application.getOrganizationName(),
+                application.getDescription(),
+                application.getCity(),
+                application.getId());
+        return organizationApplicationRepository.save(application);
     }
 
     @Transactional
@@ -74,7 +85,7 @@ public class OrganizationApplicationService {
         OrganizationApplication application = getById(id);
         application.setApplicationStatus(ApplicationStatus.REJECTED);
         setReviewedTime(application);
-        return repo.save(application);
+        return organizationApplicationRepository.save(application);
     }
 
     private void setReviewedTime(OrganizationApplication application) {
@@ -84,6 +95,6 @@ public class OrganizationApplicationService {
     public OrganizationApplication updatePaymentStatus(Long id, PaymentStatus status) {
         OrganizationApplication application = getById(id);
         application.setPaymentStatus(status);
-        return repo.save(application);
+        return organizationApplicationRepository.save(application);
     }
 }

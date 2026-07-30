@@ -41,6 +41,12 @@ public class UserController {
         this.eventService = eventService;
     }
 
+    @GetMapping("/me/role")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserRole> getMyRole(Authentication authentication) {
+        return ResponseEntity.ok(userService.getUserRole(authentication.getName()));
+    }
+
     @GetMapping("/me/profile")
     public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
         User currentUser = userService.getByClerkIdOrThrow(getClerkId(authentication));

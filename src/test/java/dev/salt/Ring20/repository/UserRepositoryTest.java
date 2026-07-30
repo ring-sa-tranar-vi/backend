@@ -38,12 +38,7 @@ class UserRepositoryTest {
         User user = userRepository.save(new User("Jane", 2, "context", "clerk_2"));
         Organisation organisation =
                 organisationRepository.save(
-                        new Organisation(
-                                "Community",
-                                "Local activities",
-                                new ArrayList<>(),
-                                "Stockholm",
-                                user));
+                        new Organisation("Community", "Local activities", "Stockholm", user));
         eventRepository.save(
                 new Event(
                         "Morning walk",
