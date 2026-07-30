@@ -93,6 +93,7 @@ public class UserService {
         user.setContext(context);
         user.setTrainerId(trainerId);
         user.setCity(city);
+        user.setOnboarding(onboarding);
         return userRepository.save(user);
     }
 
