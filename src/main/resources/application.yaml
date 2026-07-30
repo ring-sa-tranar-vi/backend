@@ -43,6 +43,10 @@ gcp:
   storage:
     bucket-name: ${GCP_STORAGE_BUCKET_NAME:}
 
+firebase:
+  credentials:
+    path: ${FIREBASE_CREDENTIALS_PATH:firebase-service-account.json}
+
 supabase:
   url: ${SUPABASE_URL:}
   api-key: ${SUPABASE_API_KEY:}
