@@ -65,7 +65,8 @@ class UserControllerTest {
 
         ResponseEntity<?> response =
                 controller.updateCurrentUserProfile(
-                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm",false), auth("clerk_1"));
+                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm", false),
+                        auth("clerk_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -83,12 +84,14 @@ class UserControllerTest {
         when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
 
         when(userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "Other", 2, "x", 1L, "Stockholm",false))
+                        "clerk_1", "Other", 2, "x", 1L, "Stockholm", false))
                 .thenReturn(user);
 
         ResponseEntity<?> response =
                 controller.updateUserPreferences(
-                        9L, new UserRequestDto("Other", 2, "x", 1L, "Stockholm",false), auth("clerk_1"));
+                        9L,
+                        new UserRequestDto("Other", 2, "x", 1L, "Stockholm", false),
+                        auth("clerk_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
