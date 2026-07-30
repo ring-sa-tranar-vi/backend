@@ -5,16 +5,23 @@ import dev.salt.Ring20.dto.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.PaymentStatus;
 import dev.salt.Ring20.service.OrganizationApplicationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/organization-applications")
+@Tag(
+        name = "Organization Applications",
+        description = "Endpoints for managing organisation applications and approval workflows."
+)
 public class OrganizationApplicationController {
 
     private final OrganizationApplicationService applicationService;
@@ -25,6 +32,10 @@ public class OrganizationApplicationController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Create organisation application",
+            description = "Creates a new organisation application for admin review."
+    )
     public ResponseEntity<String> apply(
             @Valid @RequestBody OrganizationApplicationRequestDto request,
             Authentication authentication) {
@@ -44,6 +55,10 @@ public class OrganizationApplicationController {
 
     @GetMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Get all applications",
+            description = "Retrieves all organisation applications."
+    )
     public ResponseEntity<List<OrganizationApplicationResponseDto>> getAll() {
         return ResponseEntity.ok(
                 applicationService.getAll().stream().map((m -> toResponse(m))).toList());
@@ -51,6 +66,10 @@ public class OrganizationApplicationController {
 
     @GetMapping("/{id}")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Get application by ID",
+            description = "Retrieves an organisation application using its ID."
+    )
     public ResponseEntity<OrganizationApplicationResponseDto> getById(@PathVariable Long id) {
 
         return ResponseEntity.ok(toResponse(applicationService.getById(id)));
@@ -58,6 +77,10 @@ public class OrganizationApplicationController {
 
     @PutMapping("/{id}/approve")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Approve application",
+            description = "Updates an application status to approved. Used by administrators to approve applications."
+    )
     public ResponseEntity<OrganizationApplicationResponseDto> approve(@PathVariable Long id) {
 
         return ResponseEntity.ok(toResponse(applicationService.approve(id)));
@@ -65,6 +88,10 @@ public class OrganizationApplicationController {
 
     @PutMapping("/{id}/reject")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Reject application",
+            description = "Updates an application status to rejected. Used by administrators to reject applications."
+    )
     public ResponseEntity<OrganizationApplicationResponseDto> reject(@PathVariable Long id) {
 
         return ResponseEntity.ok(toResponse(applicationService.reject(id)));
@@ -72,6 +99,10 @@ public class OrganizationApplicationController {
 
     @PutMapping("/{id}/payment-status")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Update application payment status",
+            description = "Updates the payment status of an organisation application."
+    )
     public ResponseEntity<OrganizationApplicationResponseDto> updatePaymentStatus(
             @PathVariable Long id, @RequestParam PaymentStatus status) {
 
@@ -81,6 +112,10 @@ public class OrganizationApplicationController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Delete application",
+            description = "Deletes an organisation application by its ID."
+    )
     public ResponseEntity<Void> delete(@PathVariable Long id) {
 
         applicationService.delete(id);
