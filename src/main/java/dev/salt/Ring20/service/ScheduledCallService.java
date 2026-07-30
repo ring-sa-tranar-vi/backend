@@ -68,22 +68,37 @@ public class ScheduledCallService {
                 scheduledCallRepository.findCallsBetween(now, now.plusSeconds(60));
 
         for (ScheduledCall call : startingNow) {
-            if (call.getCallBackStatus() == CallBackStatus.PENDING) {
-                sendNotification(call);
+
+            if (call.getCallBackStatus() != CallBackStatus.PENDING) continue;
+
+            if (call.getFcmToken() == null || call.getFcmToken().isBlank()) {
+                continue;
             }
+
+            sendNotification(call);
+
+            call.setCallBackStatus(CallBackStatus.COMPLETED);
+            scheduledCallRepository.save(call);
         }
 
         List<ScheduledCall> missedCalls =
                 scheduledCallRepository.findMissedCalls(now.minusSeconds(60));
 
         for (ScheduledCall call : missedCalls) {
-            call.setCallBackStatus(CallBackStatus.MISSED);
-            scheduledCallRepository.save(call);
+
+            if (call.getCallBackStatus() == CallBackStatus.PENDING) {
+                call.setCallBackStatus(CallBackStatus.MISSED);
+                scheduledCallRepository.save(call);
+            }
         }
     }
 
     public void sendNotification(ScheduledCall call) {
         try {
+            if (call.getFcmToken() == null || call.getFcmToken().isBlank()) {
+                return;
+            }
+
             Message message = Message.builder()
                     .setToken(call.getFcmToken())
                     .putData("trainerId", String.valueOf(call.getTrainerId()))

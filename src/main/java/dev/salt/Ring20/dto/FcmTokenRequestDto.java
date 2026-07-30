@@ -1,4 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record FcmTokenRequestDto(String token) {
+import jakarta.validation.constraints.NotNull;
+
+public record FcmTokenRequestDto(@NotNull String token) {
 }
