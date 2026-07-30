@@ -10,4 +10,5 @@ public record UserRequestDto(
         @Min(0) @Max(4) int intensityLevel,
         String context,
         @NotNull Long trainerId,
-        String city) {}
+        String city,
+        boolean onboarding) {}

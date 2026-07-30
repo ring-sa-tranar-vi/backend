@@ -80,7 +80,8 @@ public class UserService {
             int intensityLevel,
             String context,
             Long trainerId,
-            String city) {
+            String city,
+            boolean onboarding) {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }

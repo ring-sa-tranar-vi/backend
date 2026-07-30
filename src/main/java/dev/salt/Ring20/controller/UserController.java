@@ -99,7 +99,9 @@ public class UserController {
                         userRequest.intensityLevel(),
                         userRequest.context(),
                         userRequest.trainerId(),
-                        userRequest.city());
+                        userRequest.city(),
+                        userRequest.onboarding());
+
 
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
@@ -119,7 +121,8 @@ public class UserController {
                         userRequest.intensityLevel(),
                         userRequest.context(),
                         userRequest.trainerId(),
-                        userRequest.city());
+                        userRequest.city(),
+                        userRequest.onboarding());
 
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }

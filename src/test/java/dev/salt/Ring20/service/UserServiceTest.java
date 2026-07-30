@@ -87,7 +87,7 @@ class UserServiceTest {
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm");
+                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm",false);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
