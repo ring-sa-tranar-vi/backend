@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FeedbackSecurity {
+    //TODO: not consistent as with the SecurityService
+    //TODO: remove unused classes
 
     private final FeedbackRepository repository;
     private final SecurityService securityService;

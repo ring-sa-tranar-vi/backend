@@ -5,11 +5,13 @@ import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.EventRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.springframework.stereotype.Service;
 
+//TODO: consistent naming -> other controllers have names like eventRepository
 @Service
 public class EventService {
     private final EventRepository repo;
@@ -37,10 +39,12 @@ public class EventService {
         return repo.findByOrganisationId(id);
     }
 
+    //TODO: should have an message for frontend
     public Event getEventById(Long id) {
         return repo.findById(id).orElseThrow();
     }
 
+    //TODO: spacing/indendation  is looking weird
     @Transactional
     public Event updateEvent(
             Long id,

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrganisationService {
+    //TODO: consistent naming -> other controllers have names like eventRepository
     private final OrganisationRepository repo;
     private final UserRepository userRepo;
 
@@ -19,7 +20,7 @@ public class OrganisationService {
         this.repo = repo;
         this.userRepo = userRepo;
     }
-
+    // TODO: formating line indentation
     @Transactional
     public Organisation createOrganisation(
             String name, String description, List<Event> events, String orgCity, Long userId) {
@@ -39,6 +40,8 @@ public class OrganisationService {
         return repo.findAllWithEvents();
     }
 
+    // TODO: formating line indentation
+
     @Transactional(readOnly = true)
     public Organisation getOrganisationById(Long id) {
         return repo.findByIdWithEvents(id)
@@ -51,6 +54,7 @@ public class OrganisationService {
         repo.deleteById(id);
     }
 
+    // TODO: formating line indentation
     @Transactional
     public Organisation updateOrganisationById(
             Long id, String name, String description, List<Event> events, String orgCity) {

@@ -37,6 +37,7 @@ public class ActivityLogController {
     public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
             @PathVariable Long userId) {
         boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
+        //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
         return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
     }
 
@@ -57,6 +58,8 @@ public class ActivityLogController {
     public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
 
         ActivityLog completed = activityLogService.completeActivityLog(id);
+        //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
         return ResponseEntity.ok().body(toResponse(completed));
     }
 

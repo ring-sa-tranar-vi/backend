@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/workouts")
 public class WorkoutController {
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+    //TODO: empty line between grouped fields
 
     private final WorkoutService workoutService;
     private final FileStorageService fileStorageService;
@@ -113,6 +115,7 @@ public class WorkoutController {
         if (workout.getTrainer() != null) {
             trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
         }
+        //TODO: magic numbers
 
         String instructionsAudioUrl =
                 (workout.getInstructionsAudio() != null)

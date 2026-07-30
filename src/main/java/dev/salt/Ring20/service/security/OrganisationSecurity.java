@@ -3,7 +3,7 @@ package dev.salt.Ring20.service.security;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import org.springframework.stereotype.Service;
-
+//TODO: not consistent as with the SecurityService
 @Service
 public class OrganisationSecurity {
 

@@ -15,6 +15,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
+
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
+    //TODO: consistent naming -> other controllers have names like eventService
     private final EventService service;
 
     public EventController(EventService service) {

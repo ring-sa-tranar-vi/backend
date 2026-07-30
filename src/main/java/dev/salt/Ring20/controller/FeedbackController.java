@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/feedbacks")
 public class FeedbackController {
 
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
     private final FeedbackService feedbackService;
     private final SecurityService securityService;
 
@@ -62,6 +64,8 @@ public class FeedbackController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
 
+    //TODO: checking and sending not found to FE can be done in exceptionhandler -> should be done there
+    // easier to do so when having own exceptions
     @DeleteMapping("/{id}")
     @PreAuthorize("@feedbackSecurity.canModify(#id, authentication.name)")
     public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {

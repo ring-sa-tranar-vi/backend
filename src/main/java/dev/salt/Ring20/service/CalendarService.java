@@ -29,6 +29,7 @@ public class CalendarService {
     private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final WorkoutRepository workoutRepository;
 
+    // TODO should service send DTO to controller? it should be an model.
     @Transactional(readOnly = true)
     public List<CalendarEventDto> getMonthlyCalendar(Long userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
@@ -55,7 +56,7 @@ public class CalendarService {
         List<ActivityLog> logs =
                 activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
                         userId, "COMPLETED", start, end);
-
+        //TODO: too nested -> refactor to smaller help methods.
         return logs.stream()
                 .map(
                         log -> {
@@ -82,6 +83,7 @@ public class CalendarService {
     private List<CalendarEventDto> getEvents(User user, LocalDateTime start, LocalDateTime end) {
         LocalDateTime now = LocalDateTime.now();
 
+        //TODO: too nested -> refactor to smaller help methods.
         return user.getAttendingEvents().stream()
                 .filter(event -> !event.getTime().isBefore(start) && !event.getTime().isAfter(end))
                 .map(
@@ -109,6 +111,7 @@ public class CalendarService {
         List<CallbackPreference> preferences = callbackPreferenceRepository.findByUserId(userId);
         List<CalendarEventDto> callEvents = new ArrayList<>();
 
+        //TODO why 1 if variable is called currentDate?
         LocalDate currentDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         LocalDateTime now = LocalDateTime.now();

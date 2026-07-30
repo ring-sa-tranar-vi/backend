@@ -41,6 +41,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    //TODO: response String can be a string format -> follows logging convention
     @GetMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<String> adminPage(Authentication authentication) {
@@ -57,12 +58,14 @@ public class AdminController {
     public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
         long total = userService.getUserCount();
         long active = activityLogService.getActiveUserCount();
+        //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
         return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
     }
 
     @GetMapping("/users")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
@@ -85,6 +88,7 @@ public class AdminController {
     @GetMapping("/activity-logs/recent")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
     }
@@ -92,7 +96,7 @@ public class AdminController {
     @GetMapping("/workouts/usage")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
-
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
     }
 
@@ -100,7 +104,7 @@ public class AdminController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
             getWorkoutFeedbackSummary() {
-
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
     }
@@ -108,7 +112,7 @@ public class AdminController {
     @GetMapping("/feedbacks")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
-
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
     }
@@ -116,10 +120,12 @@ public class AdminController {
     @GetMapping("/trainers/overview")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
     }
 
+    //TODO: document private methods
     private List<AdminWorkoutFeedbackSummaryResponseDto> toWorkoutFeedbackSummaryDto(
             List<WorkoutFeedbackSummaryData> data) {
         return data.stream()
@@ -192,6 +198,7 @@ public class AdminController {
                 .toList();
     }
 
+    //TODO: fix typo
     private List<AdminTrainerOverviewResponseDto> toAdminTrainerOverviewsponseDto(
             TrainerOverviewData data) {
         return data.trainers().stream()

@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TrainerService {
 
+    // TODO: remove comment this info can be added in java doc in the method where it is used.
+    //TODO: samla ihop alla av samma typ och seperara med empty line
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
     private final GeminiWorkoutService geminiWorkoutService;
@@ -48,6 +50,8 @@ public class TrainerService {
             throw new IllegalArgumentException("Request body is required");
         }
 
+        //TODO: magic numbers
+        // DRY!!
         String name = normalizeRequired(request.name(), "name", 120);
         String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
         String voice = normalizeRequired(request.voice(), "voice", 120);
@@ -58,6 +62,7 @@ public class TrainerService {
             throw new IllegalArgumentException("Trainer already exists for this language");
         }
 
+        //TODO: DRY!! make own method for repated actions
         Trainer trainer = new Trainer();
         trainer.setName(name);
         trainer.setPrompt(prompt);
@@ -94,6 +99,7 @@ public class TrainerService {
         String intro = normalizeRequired(request.intro(), "intro", 2048);
         String language = normalizeRequired(request.language(), "language", 40);
 
+        //TODO: fix readability
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
                         || !language.equalsIgnoreCase(trainer.getLanguage()))) {
@@ -202,6 +208,7 @@ public class TrainerService {
             Long workoutId = extractWorkoutId(node);
             validateRecommendedWorkout(workoutId);
 
+            //TODO: constant
             String reasoning = node.path("reasoning").asText("No reasoning provided.");
 
             return new RecommendedWorkoutData(workoutId, reasoning);
@@ -213,6 +220,7 @@ public class TrainerService {
     }
 
     private Long extractWorkoutId(JsonNode node) {
+        //TODO: constant
         JsonNode idNode = node.path("workoutId");
 
         if (idNode.isMissingNode() || idNode.isNull()) {

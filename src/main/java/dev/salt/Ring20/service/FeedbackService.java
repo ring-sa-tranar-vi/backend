@@ -64,11 +64,13 @@ public class FeedbackService {
         return savedFeedback;
     }
 
+    // TODO: public methods first then private methods
     private void validateFeedback(Feedback feedback) {
         if (feedback.getUserId() == null || feedback.getWorkoutId() == null) {
             throw new IllegalArgumentException("UserId and workoutId are required.");
         }
 
+        //TODO: magic number
         Integer rating = feedback.getRating();
         if (rating != null && (rating < 1 || rating > 5)) {
             throw new IllegalArgumentException("Rating must be between 1 and 5.");
@@ -96,6 +98,7 @@ public class FeedbackService {
         }
     }
 
+    //TODO: this seems to do 2 things, must be seperate methods then
     private void attachActivityLog(Feedback feedback) {
         if (feedback.getActivityLogId() != null) {
             return;
@@ -152,6 +155,7 @@ public class FeedbackService {
         }
     }
 
+    //TODO: check if feedback exists two times (once in controller and once here) enough to do it once.
     @Transactional
     public void deleteFeedback(Long id) {
         Feedback feedback =
@@ -187,6 +191,7 @@ public class FeedbackService {
             Workout workout, List<Feedback> feedbacks) {
         int feedbackCount = feedbacks.size();
 
+        //TODO: consistency in writing thing or dividing on different lines
         long ratingCount =
                 feedbacks.stream().filter(feedback -> feedback.getRating() != null).count();
 
@@ -222,7 +227,7 @@ public class FeedbackService {
     private double calculateRate(double numerator, double denominator) {
         return denominator == 0 ? 0 : roundTwoDecimals(numerator / denominator);
     }
-
+    //TODO: consistency of writing and dividing on lines
     public RecentFeedbackData getRecentFeedbackEntries() {
         List<Feedback> feedbacks = new ArrayList<>(feedbackRepository.findAll());
         feedbacks.sort(
@@ -269,6 +274,7 @@ public class FeedbackService {
         return Math.round(value * 100.0) / 100.0;
     }
 
+    //TODO: method is neither public or private, must be one of them
     void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid ID");

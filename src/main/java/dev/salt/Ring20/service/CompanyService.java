@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CompanyService {
-
+ //TODO: document, what is the difference between this and organisation?
     private static final String COMPANY_ROLE = "ORGANIZER";
     private static final EventType DEFAULT_EVENT_TYPE = EventType.IN_PERSON;
 
@@ -107,7 +107,7 @@ public class CompanyService {
         Event existing = getManagedEvent(eventId);
         eventService.deleteEventById(existing.getId());
     }
-
+//TODO: how doe this work?
     private Organisation getManagedOrganisation() {
         return organisationService.getAllOrganisations().stream()
                 .min(

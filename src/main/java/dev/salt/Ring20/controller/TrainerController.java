@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/trainers")
 public class TrainerController {
 
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
     private final TrainerService trainerService;
     private final FileStorageService fileStorageService;
 
@@ -70,6 +72,8 @@ public class TrainerController {
         return ResponseEntity.noContent().build();
     }
 
+    //TODO: private methods last, all public methods first
+    //TODO: magic number
     private TrainerResponseDto toResponseDto(Trainer trainer) {
         String introUrl =
                 (trainer.getIntro() != null)

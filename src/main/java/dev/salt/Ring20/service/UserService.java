@@ -55,7 +55,7 @@ public class UserService {
 
             return user;
         }
-
+        //TODO: constant
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
@@ -92,7 +92,7 @@ public class UserService {
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
-
+    //TODO: fix typo
     public List<Organisation> getUserOrgsById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
@@ -115,6 +115,7 @@ public class UserService {
         User user = getUserById(id);
         if (!user.getFollowedOrganisations().contains(org)) {
             user.getFollowedOrganisations().add(org);
+            //TODO: Magic number ?
             org.setUsersFollowing(org.getUsersFollowing() + 1);
         }
         return userRepository.save(user);
@@ -128,6 +129,7 @@ public class UserService {
                         .anyMatch(attending -> attending.getId().equals(event.getId()));
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
+            //TODO: magic number?
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
         return userRepository.save(user);
@@ -137,6 +139,7 @@ public class UserService {
     public User removeFollowOrganization(Long id, Organisation org) {
         User user = getUserById(id);
         if (user.getFollowedOrganisations().remove(org)) {
+            //TODO: magic numbers
             org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
         }
         return userRepository.save(user);
@@ -149,6 +152,7 @@ public class UserService {
                 user.getAttendingEvents()
                         .removeIf(attending -> attending.getId().equals(event.getId()));
         if (removed) {
+            //TODO: magic numbers
             event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
         }
         return userRepository.save(user);
@@ -162,7 +166,7 @@ public class UserService {
                 user.getCallbackPreferences().stream()
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
-
+// TODO: remove unused variables
         CallbackPreference savedPreference;
 
         if (existing.isPresent()) {

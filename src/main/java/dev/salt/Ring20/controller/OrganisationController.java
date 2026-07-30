@@ -19,6 +19,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/organisations")
 public class OrganisationController {
+
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
     private final OrganisationService service;
     private final EventService eventService;
 
@@ -84,6 +87,7 @@ public class OrganisationController {
         return ResponseEntity.noContent().build();
     }
 
+    //TODO: this can be done in the EventRequestDto to make controllers clearer
     private List<Event> toEvents(List<EventRequestDto> requests) {
         if (requests == null) {
             return null;

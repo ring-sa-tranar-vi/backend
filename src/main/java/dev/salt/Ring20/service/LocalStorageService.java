@@ -14,6 +14,7 @@ public class LocalStorageService implements FileStorageService {
         this.serverPort = serverPort;
     }
 
+    //TODO: constants
     @Override
     public String getFileAccess(String filePath, int validForMinutes) {
         return "http://localhost:" + serverPort + "/local-storage/" + filePath;
