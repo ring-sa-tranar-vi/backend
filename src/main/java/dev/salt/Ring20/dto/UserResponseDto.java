@@ -8,5 +8,4 @@ public record UserResponseDto(
         boolean isAdmin,
         Long trainerId,
         String city,
-        boolean onboarding) {
-}
+        boolean onboarding) {}
