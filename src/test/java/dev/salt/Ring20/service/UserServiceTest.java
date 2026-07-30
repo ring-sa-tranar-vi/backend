@@ -87,7 +87,7 @@ class UserServiceTest {
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm",false);
+                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm", false);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
@@ -103,7 +103,7 @@ class UserServiceTest {
                         IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", null, "Stockholm"));
+                                        "clerk_1", "Name", 3, "context", null, "Stockholm", false));
 
         assertEquals("Trainer is required", ex.getMessage());
     }
