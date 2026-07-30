@@ -5,14 +5,18 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
 import java.io.FileInputStream;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FirebaseConfig {
 
+    @Value("${firebase.credentials.path}")
+    private String firebaseCredentialsPath;
+
     @PostConstruct
     public void init() throws Exception {
-        FileInputStream serviceAccount = new FileInputStream("firebase-service-account.json");
+        FileInputStream serviceAccount = new FileInputStream(firebaseCredentialsPath);
 
         FirebaseOptions options =
                 FirebaseOptions.builder()
