@@ -69,8 +69,6 @@ jobs:
           service: ${{ env.STAGING_SERVICE_NAME }}
           region: ${{ env.RUN_REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          env_vars: |
-            FIREBASE_CONFIG_JSON=${{ secrets.FIREBASE_CONFIG_JSON }}
 
   deploy-production:
     name: "Deploy to Production"
@@ -92,5 +90,3 @@ jobs:
           service: ${{ env.PROD_SERVICE_NAME }}
           region: ${{ env.RUN_REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          env_vars: |
-            FIREBASE_CONFIG_JSON=${{ secrets.FIREBASE_CONFIG_JSON }}
