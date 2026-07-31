@@ -3,6 +3,8 @@ package dev.salt.Ring20.dto;
 public record WorkoutResponseDto(
         Long id,
         String name,
+        String workoutInstructions,
+        String workoutGuidance,
         String description,
         String dashboardName,
         String dashboardDescription,

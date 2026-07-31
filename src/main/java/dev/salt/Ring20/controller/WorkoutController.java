@@ -138,6 +138,8 @@ public class WorkoutController {
         return new WorkoutResponseDto(
                 workout.getId(),
                 workout.getName(),
+                workout.getWorkoutInstructions(),
+                workout.getWorkoutGuidance(),
                 workout.getDescription(),
                 workout.getDashboardName(),
                 workout.getDashboardDescription(),

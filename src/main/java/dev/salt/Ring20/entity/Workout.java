@@ -24,6 +24,12 @@ public class Workout {
 
     private String name;
 
+    @Column(name = "workout_instructions")
+    private String workoutInstructions;
+
+    @Column(name = "workout_guidance")
+    private String workoutGuidance;
+
     @Column(name = "description")
     private String description;
 
