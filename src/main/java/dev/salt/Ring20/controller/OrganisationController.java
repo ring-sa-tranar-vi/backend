@@ -106,18 +106,12 @@ public class OrganisationController {
     @Operation(
             summary = "Get my organisation",
             description = "Retrieves the organisation belonging to the authenticated organiser.")
-    public ResponseEntity<OrganisationResponseDto> getMyOrganisation(
+    public ResponseEntity<List<OrganisationResponseDto>> getMyOrganisation(
             Authentication authentication) {
         return ResponseEntity.ok(
-                toResponseDto(service.getOrganisationForUser(authentication.getName())));
-    }
-
-    private Event toEvent(EventRequestDto request) {
-        Event event = new Event();
-        event.setName(request.name());
-        event.setDescription(request.description());
-        event.setTime(request.time());
-        return event;
+                service.getOrganisationForUser(authentication.getName()).stream()
+                        .map(this::toResponseDto)
+                        .toList());
     }
 
     private OrganisationResponseDto toResponseDto(Organisation organisation) {
