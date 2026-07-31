@@ -26,7 +26,7 @@ public class EventController {
     }
 
     @PostMapping
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisationId, authentication.name)")
     @Operation(summary = "Create event", description = "Creates a new event.")
     public ResponseEntity<EventResponseDto> createEvent(
             @Valid @RequestBody EventRequestDto request) {
@@ -35,7 +35,7 @@ public class EventController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation(),
+                        request.organisationId(),
                         request.city(),
                         request.venue(),
                         request.eventType());
@@ -62,7 +62,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
+    @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete event", description = "Deletes an event by its ID.")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         service.deleteEventById(id);
@@ -70,7 +70,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisationId, authentication.name)")
     @Operation(summary = "Update event", description = "Updates an existing event by its ID.")
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
@@ -80,7 +80,7 @@ public class EventController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation(),
+                        request.organisationId(),
                         request.city(),
                         request.venue(),
                         request.eventType());

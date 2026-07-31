@@ -10,7 +10,7 @@ public record EventRequestDto(
         @NotBlank String name,
         String description,
         @NotNull LocalDateTime time,
-        @NotNull Organisation organisation,
+        @NotNull Long organisationId,
         @NotBlank String city,
         String venue,
         @NotNull EventType eventType) {}
