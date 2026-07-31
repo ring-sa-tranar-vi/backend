@@ -46,14 +46,13 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation updateOrganisationById(Long id, String name, String description, List<Event> events, String orgCity, Long organizerId) {
+    public Organisation updateOrganisationById(Long id, String name, String description, String orgCity, List<Event> events) {
         Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setEvents(events);
         foundOrg.setOrgCity(orgCity);
         attachOrganisationToEvents(foundOrg, events);
-        foundOrg.setOrganizer(getUserById(organizerId));
         return repo.save(foundOrg);
     }
 

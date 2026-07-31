@@ -1,9 +1,6 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.EventRequestDto;
-import dev.salt.Ring20.dto.EventResponseDto;
-import dev.salt.Ring20.dto.OrganisationRequestDto;
-import dev.salt.Ring20.dto.OrganisationResponseDto;
+import dev.salt.Ring20.dto.*;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.EventService;
@@ -39,7 +36,7 @@ public class OrganisationController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(summary = "Create organisation", description = "Creates a new organisation.")
     public ResponseEntity<OrganisationResponseDto> createOrganisation(
-            @Valid @RequestBody OrganisationRequestDto request) {
+            @Valid @RequestBody OrganisationCreateRequestDto request) {
         Organisation newOrg =
                 service.createOrganisation(
                         request.name(),
@@ -86,15 +83,14 @@ public class OrganisationController {
             summary = "Update organisation",
             description = "Updates an existing organisation by its ID.")
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
-            @PathVariable Long id, @Valid @RequestBody OrganisationRequestDto request) {
+            @PathVariable Long id, @Valid @RequestBody OrganisationUpdateRequestDto request) {
         Organisation updatedOrg =
                 service.updateOrganisationById(
                         id,
                         request.name(),
                         request.description(),
-                        toEvents(request.events()),
                         request.orgCity(),
-                        request.organizerId());
+                        toEvents(request.events()));
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
