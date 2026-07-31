@@ -89,8 +89,7 @@ public class OrganisationController {
                         id,
                         request.name(),
                         request.description(),
-                        request.orgCity(),
-                        toEvents(request.events()));
+                        request.orgCity());
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
@@ -111,14 +110,6 @@ public class OrganisationController {
             Authentication authentication) {
         return ResponseEntity.ok(
                 toResponseDto(service.getOrganisationForUser(authentication.getName())));
-    }
-
-    private List<Event> toEvents(List<EventRequestDto> requests) {
-        if (requests == null) {
-            return null;
-        }
-
-        return requests.stream().map(this::toEvent).toList();
     }
 
     private Event toEvent(EventRequestDto request) {
