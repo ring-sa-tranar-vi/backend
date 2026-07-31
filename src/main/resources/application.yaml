@@ -74,3 +74,11 @@ management:
   metrics:
     tags:
       environment: ${APP_ENVIRONMENT:local}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    dev.salt.Ring20: DEBUG
