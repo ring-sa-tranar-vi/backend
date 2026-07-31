@@ -1,6 +1,5 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganisationRepository;
@@ -46,24 +45,12 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation updateOrganisationById(Long id, String name, String description, String orgCity, List<Event> events) {
+    public Organisation updateOrganisationById(Long id, String name, String description, String orgCity) {
         Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
-        foundOrg.setEvents(events);
-        foundOrg.setOrgCity(orgCity);
-        attachOrganisationToEvents(foundOrg, events);
+        foundOrg.setOrgCity(orgCity);;
         return repo.save(foundOrg);
-    }
-
-    private void attachOrganisationToEvents(Organisation organisation, List<Event> events) {
-        if (events == null) {
-            return;
-        }
-
-        for (Event event : events) {
-            event.setOrganisation(organisation);
-        }
     }
 
     public Organisation getOrganisationForUser(String clerkId) {
