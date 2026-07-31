@@ -3,17 +3,12 @@ package dev.salt.Ring20.dto;
 import dev.salt.Ring20.entity.EventType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 
-public record EventUpdateRequestDto (
-        @NotBlank
-        String name,
+public record EventUpdateRequestDto(
+        @NotBlank String name,
         String description,
-        @NotNull
-        LocalDateTime time,
+        @NotNull LocalDateTime time,
         @NotBlank String city,
         String venue,
-        @NotNull
-        EventType eventType
-){}
+        @NotNull EventType eventType) {}

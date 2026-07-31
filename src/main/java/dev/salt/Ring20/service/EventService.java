@@ -6,11 +6,9 @@ import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +18,9 @@ public class EventService {
     private final OrganisationService organisationService;
 
     public EventService(
-            EventRepository eventRepository, OrganisationRepository organisationRepository, OrganisationService organisationService) {
+            EventRepository eventRepository,
+            OrganisationRepository organisationRepository,
+            OrganisationService organisationService) {
         this.eventRepository = eventRepository;
         this.organisationRepository = organisationRepository;
         this.organisationService = organisationService;
@@ -35,7 +35,14 @@ public class EventService {
             String venue,
             EventType eventType) {
         return eventRepository.save(
-                new Event(name, description, time, getOrganisationById(organisationId), city, venue, eventType));
+                new Event(
+                        name,
+                        description,
+                        time,
+                        getOrganisationById(organisationId),
+                        city,
+                        venue,
+                        eventType));
     }
 
     public List<Event> getAllEvents() {
@@ -90,9 +97,7 @@ public class EventService {
                     "No organisations found for user with clerkId: " + clerkId);
         }
 
-        return organisations.stream()
-                .flatMap(org -> org.getEvents().stream())
-                .toList();
+        return organisations.stream().flatMap(org -> org.getEvents().stream()).toList();
     }
 
     private Organisation getOrganisationById(Long id) {
