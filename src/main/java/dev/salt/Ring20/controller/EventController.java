@@ -62,7 +62,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
+    @PreAuthorize("@eventSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete event", description = "Deletes an event by its ID.")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         service.deleteEventById(id);
@@ -70,7 +70,7 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisationId, authentication.name)")
+    @PreAuthorize("@eventSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Update event", description = "Updates an existing event by its ID.")
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
