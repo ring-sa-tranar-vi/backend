@@ -11,8 +11,10 @@ import dev.salt.Ring20.service.OrganisationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -91,7 +93,8 @@ public class OrganisationController {
                         request.name(),
                         request.description(),
                         toEvents(request.events()),
-                        request.orgCity());
+                        request.orgCity(),
+                        request.organizerId());
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
@@ -140,7 +143,11 @@ public class OrganisationController {
                 organisation.getName(),
                 organisation.getDescription(),
                 events,
-                organisation.getOrgCity());
+                organisation.getOrgCity(),
+                organisation.getOrganizer() != null
+                        ? organisation.getOrganizer().getId()
+                        : null
+        );
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
