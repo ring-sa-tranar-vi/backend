@@ -21,5 +21,5 @@ public interface OrganisationRepository extends JpaRepository<Organisation, Long
                 LEFT JOIN FETCH o.events
                 WHERE o.organizer.clerkId = :clerkId
             """)
-    Optional<Organisation> findByOrganizer_ClerkIdWithEvents(String clerkId);
+    List<Organisation> findByOrganizer_ClerkIdWithEvents(String clerkId);
 }

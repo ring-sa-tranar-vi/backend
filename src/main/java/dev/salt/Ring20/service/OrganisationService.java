@@ -49,12 +49,21 @@ public class OrganisationService {
         Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
-        foundOrg.setOrgCity(orgCity);;
+        foundOrg.setOrgCity(orgCity);
+        ;
         return repo.save(foundOrg);
     }
 
-    public Organisation getOrganisationForUser(String clerkId) {
-        return repo.findByOrganizer_ClerkIdWithEvents(clerkId).orElseThrow(() -> new NoSuchElementException("No organisation found for user with clerkId: " + clerkId));
+    public List<Organisation> getOrganisationForUser(String clerkId) {
+        List<Organisation> organisations =
+                repo.findByOrganizer_ClerkIdWithEvents(clerkId);
+
+        if (organisations.isEmpty()) {
+            throw new NoSuchElementException(
+                    "No organisations found for user with clerkId: " + clerkId);
+        }
+
+        return organisations;
     }
 
     private User getUserById(Long userId) {
