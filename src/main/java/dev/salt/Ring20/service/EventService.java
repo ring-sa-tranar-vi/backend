@@ -84,12 +84,17 @@ public class EventService {
     }
 
     public List<Event> getEventsForUser(String clerkId) {
-        Organisation org =
-                organisationRepository
-                        .findByOrganizer_ClerkIdWithEvents(clerkId)
-                        .orElseThrow(() -> new NoSuchElementException("No organisation for user"));
+        List<Organisation> organisations =
+                organisationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
-        return org.getEvents();
+        if (organisations.isEmpty()) {
+            throw new NoSuchElementException(
+                    "No organisations found for user with clerkId: " + clerkId);
+        }
+
+        return organisations.stream()
+                .flatMap(org -> org.getEvents().stream())
+                .toList();
     }
 
     private Organisation getOrganisationById(Long id) {
