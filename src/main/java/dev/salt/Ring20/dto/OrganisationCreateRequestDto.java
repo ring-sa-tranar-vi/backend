@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record OrganisationCreateRequestDto(
         @NotBlank String name,
-        String description,
+        @NotBlank String description,
         @NotBlank String orgCity,
         @NotNull Long organizerId) {}

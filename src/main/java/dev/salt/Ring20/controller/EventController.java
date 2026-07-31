@@ -1,7 +1,8 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.EventRequestDto;
+import dev.salt.Ring20.dto.EventCreateRequestDto;
 import dev.salt.Ring20.dto.EventResponseDto;
+import dev.salt.Ring20.dto.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +30,7 @@ public class EventController {
     @PreAuthorize("@organisationSecurity.canModify(#request.organisationId, authentication.name)")
     @Operation(summary = "Create event", description = "Creates a new event.")
     public ResponseEntity<EventResponseDto> createEvent(
-            @Valid @RequestBody EventRequestDto request) {
+            @Valid @RequestBody EventCreateRequestDto request) {
         Event event =
                 service.createEvent(
                         request.name(),
@@ -73,14 +74,13 @@ public class EventController {
     @PreAuthorize("@eventSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Update event", description = "Updates an existing event by its ID.")
     public ResponseEntity<EventResponseDto> updateEventById(
-            @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
+            @PathVariable Long id, @Valid @RequestBody EventUpdateRequestDto request) {
         Event updatedEvent =
                 service.updateEvent(
                         id,
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisationId(),
                         request.city(),
                         request.venue(),
                         request.eventType());

@@ -1,7 +1,9 @@
 package dev.salt.Ring20.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record OrganisationUpdateRequestDto(
-        String name,
-        String description,
-        String orgCity) {
+        @NotBlank String name,
+        @NotBlank String description,
+        @NotBlank String orgCity) {
 }

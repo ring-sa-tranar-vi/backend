@@ -56,7 +56,6 @@ public class EventService {
             String name,
             String description,
             LocalDateTime time,
-            Long organisationId,
             String city,
             String venue,
             EventType eventType) {
@@ -71,7 +70,6 @@ public class EventService {
         event.setName(name);
         event.setDescription(description);
         event.setTime(time);
-        event.setOrganisation(getOrganisationById(organisationId));
         event.setCity(city);
         event.setVenue(venue);
         event.setEventType(eventType);
