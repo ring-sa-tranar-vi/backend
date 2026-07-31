@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.NoSuchElementException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -61,10 +60,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleNoSuchElement(
             NoSuchElementException ex, HttpServletRequest request) {
 
-        return build(
-                HttpStatus.NOT_FOUND,
-                ex.getMessage(),
-                request.getRequestURI());
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -74,21 +70,15 @@ public class GlobalExceptionHandler {
 
         String message = ex.getMessage() == null ? "Unexpected error" : ex.getMessage();
 
-        return build(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                message,
-                request.getRequestURI());
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, message, request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGeneric(Exception ex, HttpServletRequest request) {
-            log.error("Unhandled exception:", ex);
+        log.error("Unhandled exception:", ex);
 
-            return build(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    ex.getMessage(),
-                    request.getRequestURI());
-}
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
+    }
 
     private ResponseEntity<ProblemDetail> build(HttpStatus status, String message, String path) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(status, message);

@@ -2,9 +2,8 @@ package dev.salt.Ring20.service.security;
 
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.repository.EventRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.NoSuchElementException;
+import org.springframework.stereotype.Service;
 
 @Service
 public class EventSecurity {
@@ -17,11 +16,14 @@ public class EventSecurity {
         this.securityService = securityService;
     }
 
-
     public boolean canModify(Long id, String clerkId) {
-        Event event = eventRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Event not found with id: " + id));
+        Event event =
+                eventRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new NoSuchElementException("Event not found with id: " + id));
 
-        return securityService.isOwnerOrAdmin(event.getOrganisation().getOrganizer().getId(), clerkId);
+        return securityService.isOwnerOrAdmin(
+                event.getOrganisation().getOrganizer().getId(), clerkId);
     }
-
 }
