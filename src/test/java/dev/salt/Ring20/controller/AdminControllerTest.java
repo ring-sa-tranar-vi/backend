@@ -212,7 +212,7 @@ class AdminControllerTest {
                 new AdminController(userService, feedbackService, activityLogService, adminService);
 
         UserRequestDto updateData =
-                new UserRequestDto("Updated Name", 2, "context", 1L, "Stockholm");
+                new UserRequestDto("Updated Name", 2, "context", 1L, "Stockholm", false);
 
         User updated = new User();
         updated.setId(5L);

@@ -1,5 +1,6 @@
 package dev.salt.Ring20.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,8 +45,13 @@ public class SecurityConfig {
                                                 "/api/users/*",
                                                 "/api/users/*/progress")
                                         .permitAll()
+                                        .requestMatchers("/api/users/me/**")
+                                        .authenticated()
+                                        .requestMatchers(HttpMethod.POST, "/api/activity-logs")
+                                        .authenticated()
                                         .anyRequest()
-                                        .permitAll())
+                                        .permitAll()) // Dev mode: endpoints are protected
+                // individually
                 .build();
     }
 
@@ -53,16 +59,23 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(
-                Arrays.stream(allowedOrigins.split(","))
-                        .map(String::trim)
-                        .filter(origin -> !origin.isEmpty())
-                        .toList());
+        List<String> origins =
+                new ArrayList<>(
+                        Arrays.stream(allowedOrigins.split(","))
+                                .map(String::trim)
+                                .filter(origin -> !origin.isEmpty())
+                                .toList());
 
+        if (!origins.contains("http://localhost:5173")) {
+            origins.add("http://localhost:5173");
+        }
+        if (!origins.contains("http://localhost:8081")) {
+            origins.add("http://localhost:8081");
+        }
+
+        config.setAllowedOriginPatterns(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-
         config.setAllowedHeaders(List.of("*"));
-
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

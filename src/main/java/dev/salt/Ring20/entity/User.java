@@ -33,6 +33,8 @@ public class User {
     private Long trainerId;
     private String city;
 
+    private boolean onboarding = true;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CallbackPreference> callbackPreferences = new ArrayList<>();
 
@@ -43,6 +45,8 @@ public class User {
     @ManyToMany
     @JoinTable(name = "user_events")
     private List<Event> attendingEvents = new ArrayList<>();
+
+    private String fcmToken;
 
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;

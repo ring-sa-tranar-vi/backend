@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record ActivityLogCreateRequestDto(
-        @NotNull Long userId,
         @NotNull Long workoutId,
         @NotNull LocalDateTime completedAt,
         @NotNull Integer durationSeconds,

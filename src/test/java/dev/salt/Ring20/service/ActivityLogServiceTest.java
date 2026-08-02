@@ -60,6 +60,8 @@ class ActivityLogServiceTest {
         Map<String, Object> progress = activityLogService.getUserProgress(1L);
 
         assertEquals(0, progress.get("currentStreak"));
+        assertEquals(0, progress.get("personalBestStreak"));
+        assertEquals(List.of(), progress.get("completedDates"));
     }
 
     @Test
@@ -86,5 +88,38 @@ class ActivityLogServiceTest {
 
         assertEquals(1, completed.size());
         assertEquals("Squats", completed.get(0).get("workoutName"));
+    }
+
+    @Test
+    void getUserProgressReturnsCompletedDatesAndPersonalBestStreak() {
+        LocalDateTime today = LocalDateTime.now();
+        ActivityLog latest = completedLog(1L, today);
+        ActivityLog yesterday = completedLog(2L, today.minusDays(1));
+        ActivityLog older = completedLog(3L, today.minusDays(3));
+
+        when(activityLogRepository.findByUserIdAndStatusOrderByCompletedAtDesc(1L, "COMPLETED"))
+                .thenReturn(List.of(latest, yesterday, older));
+        when(workoutRepository.findAllById(any())).thenReturn(List.of());
+
+        Map<String, Object> progress = activityLogService.getUserProgress(1L);
+
+        assertEquals(2, progress.get("currentStreak"));
+        assertEquals(2, progress.get("personalBestStreak"));
+        assertEquals(
+                List.of(
+                        today.minusDays(3).toLocalDate().toString(),
+                        today.minusDays(1).toLocalDate().toString(),
+                        today.toLocalDate().toString()),
+                progress.get("completedDates"));
+    }
+
+    private ActivityLog completedLog(Long id, LocalDateTime completedAt) {
+        ActivityLog log = new ActivityLog();
+        log.setId(id);
+        log.setUserId(1L);
+        log.setWorkoutId(7L);
+        log.setStatus("COMPLETED");
+        log.setCompletedAt(completedAt);
+        return log;
     }
 }

@@ -1,0 +1,39 @@
+package dev.salt.Ring20.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+public class OrganizationApplication {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne private User user;
+
+    private String organizationName;
+
+    @Column(length = 2000)
+    private String description;
+
+    private String city;
+
+    @Column(length = 2000)
+    private String motivation;
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus applicationStatus;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime reviewedAt;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+}

@@ -26,3 +26,5 @@ jobs:
 
       - name: Run tests
         run: ./gradlew test
+        env:
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}

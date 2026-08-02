@@ -1,104 +1,103 @@
 package dev.salt.Ring20.controller;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 import dev.salt.Ring20.dto.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.WorkoutRequestDto;
 import dev.salt.Ring20.dto.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.FileStorageService;
-import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
+import dev.salt.Ring20.service.security.CurrentUserService;
+import dev.salt.Ring20.service.security.SecurityService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/workouts")
+@Tag(
+        name = "Workouts",
+        description = "Endpoints for managing workouts and tracking user workout activities.")
 public class WorkoutController {
 
     private final WorkoutService workoutService;
-    private final UserService userService;
     private final FileStorageService fileStorageService;
+    private final CurrentUserService currentUserService;
+    private final SecurityService securityService;
 
     public WorkoutController(
             WorkoutService workoutService,
-            UserService userService,
-            FileStorageService fileStorageService) {
+            FileStorageService fileStorageService,
+            CurrentUserService currentUserService,
+            SecurityService securityService) {
         this.workoutService = workoutService;
-        this.userService = userService;
         this.fileStorageService = fileStorageService;
+        this.currentUserService = currentUserService;
+        this.securityService = securityService;
     }
 
     @GetMapping
+    @Operation(summary = "Get all workouts", description = "Retrieves all available workouts.")
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
-        boolean includeDisabled = isAdminIfAuthenticated(authentication);
+        boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
         List<Workout> workouts = workoutService.getAllWorkouts(includeDisabled);
         return ResponseEntity.ok().body(workouts.stream().map(this::toWorkoutResponse).toList());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get workout by ID", description = "Retrieves a workout using its ID.")
     public ResponseEntity<WorkoutResponseDto> getWorkoutById(
             @PathVariable Long id, Authentication authentication) {
-        boolean includeDisabled = isAdminIfAuthenticated(authentication);
+        boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
         Workout workout = workoutService.getWorkoutById(id, includeDisabled);
 
         return ResponseEntity.ok(toWorkoutResponse(workout));
     }
 
     @PostMapping
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Create workout",
+            description = "Creates a new workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> createWorkout(
-            @Valid @RequestBody WorkoutRequestDto workoutRequest, Authentication authentication) {
-        if (!isAdmin(authentication)) {
-            return ResponseEntity.status(403).build();
-        }
+            @Valid @RequestBody WorkoutRequestDto workoutRequest) {
         Workout createdWorkout = workoutService.createWorkout(toEntity(workoutRequest));
         return ResponseEntity.ok(toWorkoutResponse(createdWorkout));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Update workout",
+            description = "Updates an existing workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> updateWorkout(
-            @PathVariable Long id,
-            @Valid @RequestBody WorkoutRequestDto workoutRequest,
-            Authentication authentication) {
-        if (!isAdmin(authentication)) {
-            return ResponseEntity.status(403).build();
-        }
+            @PathVariable Long id, @Valid @RequestBody WorkoutRequestDto workoutRequest) {
         Workout updatedWorkout = workoutService.updateWorkout(id, toEntity(workoutRequest));
         return ResponseEntity.ok(toWorkoutResponse(updatedWorkout));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkout(
-            @PathVariable Long id, Authentication authentication) {
-        if (!isAdmin(authentication)) {
-            return ResponseEntity.status(403).build();
-        }
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Delete workout",
+            description = "Deletes a workout by its ID. Available to administrators only.")
+    public ResponseEntity<Void> deleteWorkout(@PathVariable Long id) {
         workoutService.deleteWorkout(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/enabled")
+    @PreAuthorize("@securityService.isAdmin(authentication.name)")
+    @Operation(
+            summary = "Set workout enabled status",
+            description = "Enables or disables a workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> setWorkoutEnabled(
-            @PathVariable Long id,
-            @Valid @RequestBody WorkoutEnabledRequestDto request,
-            Authentication authentication) {
-        if (!isAdmin(authentication)) {
-            return ResponseEntity.status(403).build();
-        }
+            @PathVariable Long id, @Valid @RequestBody WorkoutEnabledRequestDto request) {
         if (request.enabled() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -107,15 +106,21 @@ public class WorkoutController {
     }
 
     @GetMapping("/{id}/audio")
+    @Operation(
+            summary = "Get workout audio",
+            description = "Retrieves the audio URL for a workout.")
     public ResponseEntity<String> getWorkoutAudio(@PathVariable Long id) {
         return ResponseEntity.ok().body(workoutService.getWorkoutAudioUrl(id));
     }
 
     @PostMapping("/{id}/start")
+    @Operation(
+            summary = "Start workout",
+            description = "Starts a workout session for the authenticated user.")
     public ResponseEntity<WorkoutResponseDto> startWorkout(
             @PathVariable Long id, Authentication authentication) {
-        String clerkId = getJwtOrThrow(authentication).getSubject();
-        Workout workout = workoutService.startWorkout(id, Long.valueOf(clerkId));
+        Long userId = currentUserService.getCurrentUserId(authentication);
+        Workout workout = workoutService.startWorkout(id, userId);
         return ResponseEntity.ok().body(toWorkoutResponse(workout));
     }
 
@@ -203,24 +208,5 @@ public class WorkoutController {
         }
 
         return workout;
-    }
-
-    private Jwt getJwtOrThrow(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(
-                    UNAUTHORIZED, "Missing or invalid authentication token");
-        }
-        return jwt;
-    }
-
-    private boolean isAdmin(Authentication authentication) {
-        return userService.isAdmin(getJwtOrThrow(authentication).getSubject());
-    }
-
-    private boolean isAdminIfAuthenticated(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            return false;
-        }
-        return userService.isAdmin(jwt.getSubject());
     }
 }

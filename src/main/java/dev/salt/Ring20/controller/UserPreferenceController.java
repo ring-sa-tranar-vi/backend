@@ -1,86 +1,83 @@
 package dev.salt.Ring20.controller;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
-import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
-import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.UserWorkoutPreferenceService;
+import dev.salt.Ring20.service.security.CurrentUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users/me/preferences")
+@Tag(
+        name = "User Preferences",
+        description = "Endpoints for managing user workout preferences and favorites.")
 public class UserPreferenceController {
 
-    private final UserService userService;
+    private final CurrentUserService currentUserService;
     private final UserWorkoutPreferenceService preferenceService;
 
     public UserPreferenceController(
-            UserService userService, UserWorkoutPreferenceService preferenceService) {
-        this.userService = userService;
+            CurrentUserService currentUserService, UserWorkoutPreferenceService preferenceService) {
+        this.currentUserService = currentUserService;
         this.preferenceService = preferenceService;
     }
 
     @GetMapping
+    @Operation(
+            summary = "Get my preferences",
+            description = "Retrieves workout preferences for the authenticated user.")
     public ResponseEntity<Map<String, List<Long>>> getMyPreferences(Authentication authentication) {
-        Long userId = getCurrentUserId(authentication);
+        Long userId = currentUserService.getCurrentUserId(authentication);
         return ResponseEntity.ok(preferenceService.getPreferences(userId));
     }
 
     @PostMapping("/favorites/{workoutId}")
+    @Operation(
+            summary = "Add favorite workout",
+            description = "Adds a workout to the user's favorites list.")
     public ResponseEntity<Void> addFavorite(
             @PathVariable Long workoutId, Authentication authentication) {
-        Long userId = getCurrentUserId(authentication);
+        Long userId = currentUserService.getCurrentUserId(authentication);
         preferenceService.addPreference(userId, workoutId, UserWorkoutPreferenceType.FAVORITE);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/favorites/{workoutId}")
+    @Operation(
+            summary = "Remove favorite workout",
+            description = "Removes a workout from the user's favorites list.")
     public ResponseEntity<Void> removeFavorite(
             @PathVariable Long workoutId, Authentication authentication) {
-        Long userId = getCurrentUserId(authentication);
+        Long userId = currentUserService.getCurrentUserId(authentication);
         preferenceService.removePreference(userId, workoutId, UserWorkoutPreferenceType.FAVORITE);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/disliked/{workoutId}")
+    @Operation(
+            summary = "Add disliked workout",
+            description = "Adds a workout to the user's disliked list.")
     public ResponseEntity<Void> addDisliked(
             @PathVariable Long workoutId, Authentication authentication) {
-        Long userId = getCurrentUserId(authentication);
+        Long userId = currentUserService.getCurrentUserId(authentication);
         preferenceService.addPreference(userId, workoutId, UserWorkoutPreferenceType.DISLIKED);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/disliked/{workoutId}")
+    @Operation(
+            summary = "Remove disliked workout",
+            description = "Removes a workout from the user's disliked list.")
     public ResponseEntity<Void> removeDisliked(
             @PathVariable Long workoutId, Authentication authentication) {
-        Long userId = getCurrentUserId(authentication);
+        Long userId = currentUserService.getCurrentUserId(authentication);
         preferenceService.removePreference(userId, workoutId, UserWorkoutPreferenceType.DISLIKED);
         return ResponseEntity.noContent().build();
-    }
-
-    private Jwt getJwtOrThrow(Authentication authentication) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new ResponseStatusException(
-                    UNAUTHORIZED, "Missing or invalid authentication token");
-        }
-        return jwt;
-    }
-
-    private Long getCurrentUserId(Authentication authentication) {
-        Jwt jwt = getJwtOrThrow(authentication);
-        User user = userService.getByClerkIdOrThrow(jwt.getSubject());
-        return user.getId();
     }
 }
