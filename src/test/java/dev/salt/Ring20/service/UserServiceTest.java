@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.UserRole;
 import dev.salt.Ring20.repository.UserRepository;
@@ -86,7 +87,7 @@ class UserServiceTest {
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm");
+                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm", false);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
@@ -102,7 +103,7 @@ class UserServiceTest {
                         IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", null, "Stockholm"));
+                                        "clerk_1", "Name", 3, "context", null, "Stockholm", false));
 
         assertEquals("Trainer is required", ex.getMessage());
     }
@@ -114,5 +115,25 @@ class UserServiceTest {
         NoSuchElementException ex =
                 assertThrows(NoSuchElementException.class, () -> userService.getUserById(99L));
         assertEquals("User not found with id: 99", ex.getMessage());
+    }
+
+    @Test
+    void removeAttendEventMatchesByIdAcrossPersistenceContexts() {
+        Event storedEvent = new Event();
+        storedEvent.setId(10L);
+        storedEvent.setUsersAttending(1);
+        user.getAttendingEvents().add(storedEvent);
+
+        Event detachedEvent = new Event();
+        detachedEvent.setId(10L);
+        detachedEvent.setUsersAttending(1);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        User updated = userService.removeAttendEvent(1L, detachedEvent);
+
+        assertTrue(updated.getAttendingEvents().isEmpty());
+        assertEquals(0, detachedEvent.getUsersAttending());
     }
 }

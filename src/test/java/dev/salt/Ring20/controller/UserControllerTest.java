@@ -45,7 +45,7 @@ class UserControllerTest {
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
         ResponseEntity<?> response =
-                controller.createUser(new UserCreateRequestDto("Jane"), auth("clerk_1", "Jane"));
+                controller.createUser(new UserCreateRequestDto("Jane"), auth("clerk_1"));
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(userService).createUser(eq("clerk_1"), any());
@@ -59,34 +59,41 @@ class UserControllerTest {
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
         when(userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "Jane", 3, "context", 4L, "Stockholm"))
+                        "clerk_1", "Jane", 3, "context", 4L, "Stockholm", false))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
         ResponseEntity<?> response =
                 controller.updateCurrentUserProfile(
-                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm"),
-                        auth("clerk_1", "Jane"));
+                        new UserRequestDto("Jane", 3, "context", 4L, "Stockholm", false),
+                        auth("clerk_1"));
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    void updateUserPreferencesReturnsForbiddenWhenNotOwner() {
+    void updateUserPreferencesUpdatesCurrentUser() {
+
         UserController controller =
                 new UserController(
                         userService, activityLogService, organisationService, eventService);
-        User currentUser = new User("Jane", 2, "context", "clerk_1");
-        currentUser.setId(1L);
-        when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(currentUser));
+
+        User user = new User("Jane", 2, "context", "clerk_1");
+        user.setId(1L);
+
+        when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
+
+        when(userService.updateUserPreferencesByClerkId(
+                        "clerk_1", "Other", 2, "x", 1L, "Stockholm", false))
+                .thenReturn(user);
 
         ResponseEntity<?> response =
                 controller.updateUserPreferences(
                         9L,
-                        new UserRequestDto("Other", 2, "x", 1L, "Stockholm"),
-                        auth("clerk_1", "Jane"));
+                        new UserRequestDto("Other", 2, "x", 1L, "Stockholm", false),
+                        auth("clerk_1"));
 
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
@@ -103,7 +110,7 @@ class UserControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    private Authentication auth(String subject, String name) {
+    private Authentication auth(String subject) {
         Authentication auth = mock(Authentication.class);
         Jwt jwt = mock(Jwt.class);
         when(auth.getPrincipal()).thenReturn(jwt);

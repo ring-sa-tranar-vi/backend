@@ -38,6 +38,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
 	implementation("com.google.cloud:google-cloud-storage:2.70.0")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
+    implementation("com.google.firebase:firebase-admin:9.2.0")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")

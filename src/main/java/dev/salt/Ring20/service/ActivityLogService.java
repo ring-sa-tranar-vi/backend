@@ -89,9 +89,20 @@ public class ActivityLogService {
                                 })
                         .toList();
 
-        int currentStreak = calculateCurrentStreak(new ArrayList<>(workoutsByDate.keySet()));
+        List<LocalDate> completedDates = new ArrayList<>(workoutsByDate.keySet());
+        int currentStreak = calculateCurrentStreak(completedDates);
+        List<LocalDate> chronologicalDates = completedDates.stream().sorted().toList();
+        int personalBestStreak = calculateBestStreak(chronologicalDates);
 
-        return Map.of("currentStreak", currentStreak, "completedWorkouts", completedWorkouts);
+        return Map.of(
+                "currentStreak",
+                currentStreak,
+                "personalBestStreak",
+                personalBestStreak,
+                "completedDates",
+                chronologicalDates.stream().map(LocalDate::toString).toList(),
+                "completedWorkouts",
+                completedWorkouts);
     }
 
     private int calculateBestStreak(List<LocalDate> sortedDates) {

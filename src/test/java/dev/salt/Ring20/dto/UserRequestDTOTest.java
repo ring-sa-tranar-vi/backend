@@ -10,7 +10,7 @@ class UserRequestDTOTest {
 
     @Test
     void recordStoresValues() {
-        UserRequestDto dto = new UserRequestDto("Jane", 4, "context", 1L, "Stockholm");
+        UserRequestDto dto = new UserRequestDto("Jane", 4, "context", 1L, "Stockholm", false);
 
         assertEquals("Jane", dto.name());
         assertEquals(4, dto.intensityLevel());

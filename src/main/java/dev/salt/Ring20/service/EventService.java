@@ -4,6 +4,7 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.EventRepository;
+import dev.salt.Ring20.repository.OrganisationRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,10 +13,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EventService {
-    private final EventRepository repo;
+    private final EventRepository eventRepository;
+    private final OrganisationRepository organisationRepository;
 
-    public EventService(EventRepository repo) {
-        this.repo = repo;
+    public EventService(
+            EventRepository eventRepository, OrganisationRepository organisationRepository) {
+        this.eventRepository = eventRepository;
+        this.organisationRepository = organisationRepository;
     }
 
     public Event createEvent(
@@ -26,19 +30,20 @@ public class EventService {
             String city,
             String venue,
             EventType eventType) {
-        return repo.save(new Event(name, description, time, organisation, city, venue, eventType));
+        return eventRepository.save(
+                new Event(name, description, time, organisation, city, venue, eventType));
     }
 
     public List<Event> getAllEvents() {
-        return repo.findAll();
+        return eventRepository.findAllWithOrganisation();
     }
 
     public List<Event> getAllEventsByOrgId(Long id) {
-        return repo.findByOrganisationId(id);
+        return eventRepository.findByOrganisationId(id);
     }
 
     public Event getEventById(Long id) {
-        return repo.findById(id).orElseThrow();
+        return eventRepository.findById(id).orElseThrow();
     }
 
     @Transactional
@@ -52,7 +57,8 @@ public class EventService {
             String venue,
             EventType eventType) {
         Event event =
-                repo.findById(id)
+                eventRepository
+                        .findById(id)
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
@@ -64,11 +70,20 @@ public class EventService {
         event.setCity(city);
         event.setVenue(venue);
         event.setEventType(eventType);
-        return repo.save(event);
+        return eventRepository.save(event);
     }
 
     @Transactional
     public void deleteEventById(Long id) {
-        repo.deleteById(id);
+        eventRepository.deleteById(id);
+    }
+
+    public List<Event> getEventsForUser(String clerkId) {
+        Organisation org =
+                organisationRepository
+                        .findByOrganizer_ClerkIdWithEvents(clerkId)
+                        .orElseThrow(() -> new NoSuchElementException("No organisation for user"));
+
+        return org.getEvents();
     }
 }

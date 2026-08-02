@@ -3,9 +3,11 @@ package dev.salt.Ring20.repository;
 import dev.salt.Ring20.entity.Event;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    List<Event> findByOrganisationId(Long organisationId);
+    @Query("SELECT event FROM Event event JOIN FETCH event.organisation")
+    List<Event> findAllWithOrganisation();
 
-    void deleteByOrganisationId(Long organisationId);
+    List<Event> findByOrganisationId(Long organisationId);
 }

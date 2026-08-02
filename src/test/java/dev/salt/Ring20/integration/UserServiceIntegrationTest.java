@@ -34,7 +34,7 @@ class UserServiceIntegrationTest {
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_int_2", "Updated", 5, "context", 7L, "Stockholm");
+                        "clerk_int_2", "Updated", 5, "context", 7L, "Stockholm", false);
 
         assertEquals("Updated", updated.getName());
         assertEquals(5, updated.getIntensityLevel());
