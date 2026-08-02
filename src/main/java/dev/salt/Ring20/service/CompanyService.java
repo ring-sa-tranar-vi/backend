@@ -24,25 +24,68 @@ public class CompanyService {
     private final UserRepository userRepository;
     private final OrganisationService organisationService;
     private final EventService eventService;
+    private final UserService userService;
 
     public CompanyService(
             UserRepository userRepository,
             OrganisationService organisationService,
-            EventService eventService) {
+            EventService eventService,
+            UserService userService) {
         this.userRepository = userRepository;
         this.organisationService = organisationService;
         this.eventService = eventService;
+        this.userService = userService;
     }
 
-    public CompanyMeResponseDto getCompanyMe() {
-        Organisation organisation = getManagedOrganisation();
-        User user = getManagedUser();
+    public CompanyMeResponseDto getCompanyMe(String clerkId) {
+        User user = userService.getByClerkIdOrThrow(clerkId);
+        Organisation organisation = getManagedOrganisationForClerkId(clerkId);
         return new CompanyMeResponseDto(
                 user == null ? null : user.getId(),
                 COMPANY_ROLE,
                 true,
                 organisation.getId(),
                 organisation.getName());
+    }
+
+    public Organisation getManagedOrganisationForClerkId(String clerkId) {
+        User user = userService.getByClerkIdOrThrow(clerkId);
+        return user.getTrainerId() != null
+                ? organisationService.getAllOrganisations().stream()
+                        .filter(
+                                org ->
+                                        org.getEvents().stream()
+                                                .anyMatch(
+                                                        e ->
+                                                                e.getOrganisation() != null
+                                                                        && e.getOrganisation()
+                                                                                .getId()
+                                                                                .equals(
+                                                                                        org
+                                                                                                .getId())))
+                        .findFirst()
+                        .orElseThrow(() -> new NoSuchElementException("Organisation not found"))
+                : organisationService.getAllOrganisations().stream()
+                        .min(
+                                Comparator.comparing(
+                                        Organisation::getId, Comparator.nullsLast(Long::compareTo)))
+                        .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
+    }
+
+    public Event getManagedEventForClerkId(Long eventId, String clerkId) {
+        Event event = eventService.getEventById(eventId);
+        Organisation organisation = getManagedOrganisationForClerkId(clerkId);
+        if (event.getOrganisation() == null
+                || organisation.getId() == null
+                || !organisation.getId().equals(event.getOrganisation().getId())) {
+            throw new NoSuchElementException("Event not found with id: " + eventId);
+        }
+        return event;
+    }
+
+    public void deleteEventForClerkId(Long eventId, String clerkId) {
+        Event existing = getManagedEventForClerkId(eventId, clerkId);
+        eventService.deleteEventById(existing.getId());
     }
 
     public CompanyOrganisationResponseDto getOrganisation() {
@@ -108,7 +151,7 @@ public class CompanyService {
         eventService.deleteEventById(existing.getId());
     }
 
-    private Organisation getManagedOrganisation() {
+    public Organisation getManagedOrganisation() {
         return organisationService.getAllOrganisations().stream()
                 .min(
                         Comparator.comparing(
@@ -122,7 +165,7 @@ public class CompanyService {
                 .orElse(null);
     }
 
-    private Event getManagedEvent(Long eventId) {
+    public Event getManagedEvent(Long eventId) {
         Event event = eventService.getEventById(eventId);
         Organisation organisation = getManagedOrganisation();
         if (event.getOrganisation() == null
@@ -131,6 +174,18 @@ public class CompanyService {
             throw new NoSuchElementException("Event not found with id: " + eventId);
         }
         return event;
+    }
+
+    public OrganisationService getOrganisationService() {
+        return organisationService;
+    }
+
+    public EventService getEventService() {
+        return eventService;
+    }
+
+    public EventType getDefaultEventType() {
+        return DEFAULT_EVENT_TYPE;
     }
 
     private CompanyOrganisationResponseDto toOrganisationResponse(Organisation organisation) {
