@@ -11,9 +11,11 @@ import dev.salt.Ring20.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -182,7 +184,7 @@ public class UserController {
         User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.addFollowOrganization(
-                        currentUser.getId(), organisationService.getOrganisationById(orgId));
+                        currentUser.getId(), orgId);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
     }
 
@@ -195,7 +197,7 @@ public class UserController {
         User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.removeFollowOrganization(
-                        currentUser.getId(), organisationService.getOrganisationById(orgId));
+                        currentUser.getId(), orgId);
         return ResponseEntity.ok(toResponse(updated));
     }
 
@@ -221,7 +223,7 @@ public class UserController {
             Authentication authentication, @PathVariable Long eventId) {
         User currentUser = getCurrentUser(authentication);
         User updated =
-                userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
+                userService.addAttendEvent(currentUser.getId(), eventId);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
     }
 
@@ -234,7 +236,7 @@ public class UserController {
         User currentUser = getCurrentUser(authentication);
         User updated =
                 userService.removeAttendEvent(
-                        currentUser.getId(), eventService.getEventById(eventId));
+                        currentUser.getId(), eventId);
         return ResponseEntity.ok(toResponse(updated));
     }
 
@@ -303,7 +305,7 @@ public class UserController {
 
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {

@@ -1,6 +1,8 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.repository.EventRepository;
+import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -18,10 +20,14 @@ public class UserService {
     private static final int STARTING_INTENSITY = 2;
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
+    private final OrganisationRepository organisationRepository;
+    private final EventRepository eventRepository;
 
-    public UserService(UserRepository userRepository, TrainerRepository trainerRepository) {
+    public UserService(UserRepository userRepository, TrainerRepository trainerRepository, OrganisationRepository organisationRepository, EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
+        this.organisationRepository = organisationRepository;
+        this.eventRepository = eventRepository;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -135,47 +141,74 @@ public class UserService {
     }
 
     @Transactional
-    public User addFollowOrganization(Long id, Organisation org) {
-        User user = getUserById(id);
-        if (!user.getFollowedOrganisations().contains(org)) {
+    public User addFollowOrganization(Long userId, Long orgId) {
+        User user = getUserById(userId);
+        Organisation org = organisationRepository.findById(orgId)
+                .orElseThrow(() -> new NoSuchElementException("Organisation not found with id: " + orgId));
+
+        boolean alreadyFollowing = user.getFollowedOrganisations()
+                .stream()
+                .anyMatch(o -> o.getId().equals(orgId));
+
+        if (!alreadyFollowing) {
             user.getFollowedOrganisations().add(org);
             org.setUsersFollowing(org.getUsersFollowing() + 1);
         }
-        return userRepository.save(user);
+
+        return user;
     }
 
     @Transactional
-    public User addAttendEvent(Long id, Event event) {
-        User user = getUserById(id);
-        boolean alreadyAttending =
-                user.getAttendingEvents().stream()
-                        .anyMatch(attending -> attending.getId().equals(event.getId()));
+    public User addAttendEvent(Long userId, Long eventId) {
+        User user = getUserById(userId);
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + eventId));
+
+        boolean alreadyAttending = user.getAttendingEvents()
+                .stream()
+                .anyMatch(e -> e.getId().equals(eventId));
+
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
-        return userRepository.save(user);
+
+        return user;
     }
 
     @Transactional
-    public User removeFollowOrganization(Long id, Organisation org) {
-        User user = getUserById(id);
-        if (user.getFollowedOrganisations().remove(org)) {
+    public User removeFollowOrganization(Long userId, Long orgId) {
+        User user = getUserById(userId);
+
+        boolean removed = user.getFollowedOrganisations()
+                .removeIf(org -> org.getId().equals(orgId));
+
+        if (removed) {
+            Organisation org = organisationRepository.findById(orgId)
+                    .orElseThrow(() -> new NoSuchElementException("Organisation not found with id: " + orgId));
+
             org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
         }
+
         return userRepository.save(user);
     }
 
     @Transactional
-    public User removeAttendEvent(Long id, Event event) {
-        User user = getUserById(id);
-        boolean removed =
-                user.getAttendingEvents()
-                        .removeIf(attending -> attending.getId().equals(event.getId()));
+    public User removeAttendEvent(Long userId, Long eventId) {
+        User user = getUserById(userId);
+
+        boolean removed = user.getAttendingEvents()
+                .removeIf(event -> event.getId().equals(eventId));
+
         if (removed) {
+            Event event = eventRepository.findById(eventId)
+                    .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + eventId));
+
             event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
         }
-        return userRepository.save(user);
+
+        return user;
     }
 
     @Transactional
