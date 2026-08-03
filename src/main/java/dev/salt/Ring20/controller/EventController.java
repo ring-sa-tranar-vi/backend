@@ -1,8 +1,8 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.EventCreateRequestDto;
-import dev.salt.Ring20.dto.EventResponseDto;
-import dev.salt.Ring20.dto.EventUpdateRequestDto;
+import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
+import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
