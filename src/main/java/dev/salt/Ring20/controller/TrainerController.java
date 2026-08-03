@@ -111,8 +111,8 @@ public class TrainerController {
 
     @GetMapping("/{trainerId}/recommend-for/{userId}")
     @Operation(
-            summary = "Delete trainer",
-            description = "Deletes a trainer by ID. Available to administrators only.")
+            summary = "Get AI workout recommendation",
+            description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
             getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
 
