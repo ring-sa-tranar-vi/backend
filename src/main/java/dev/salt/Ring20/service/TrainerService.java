@@ -10,9 +10,11 @@ import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,7 +103,7 @@ public class TrainerService {
 
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
-                        || !language.equalsIgnoreCase(trainer.getLanguage()))) {
+                || !language.equalsIgnoreCase(trainer.getLanguage()))) {
             throw new IllegalArgumentException(
                     "Trainer with name '"
                             + name
@@ -178,22 +180,21 @@ public class TrainerService {
     }
 
     public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(
-            Long trainerId, Long userId) {
-        validateId(trainerId);
+            Long userId) {
         validateId(userId);
-        List<Workout> trainerWorkouts = getEnabledTrainerWorkouts(trainerId);
+        List<Workout> workouts = getEnabledWorkouts();
         User user = getUser(userId);
 
         return geminiWorkoutService
-                .recommendWorkoutWithReasoning(user, trainerWorkouts)
+                .recommendWorkoutWithReasoning(user, workouts)
                 .thenApply(this::parseRecommendedWorkout);
     }
 
-    private List<Workout> getEnabledTrainerWorkouts(Long trainerId) {
-        List<Workout> workouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
+    private List<Workout> getEnabledWorkouts() {
+        List<Workout> workouts = workoutRepository.findByEnabledTrue();
 
         if (workouts.isEmpty()) {
-            throw new NoSuchElementException("No workouts found for trainer ID: " + trainerId);
+            throw new NoSuchElementException("No workouts found");
         }
 
         return workouts;
