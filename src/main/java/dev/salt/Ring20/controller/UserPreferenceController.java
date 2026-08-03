@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
         name = "User Preferences",
         description = "Endpoints for managing user workout preferences and favorites.")
 public class UserPreferenceController {
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+    //TODO: empty line between grouped fields
 
     private final CurrentUserService currentUserService;
     private final UserWorkoutPreferenceService preferenceService;

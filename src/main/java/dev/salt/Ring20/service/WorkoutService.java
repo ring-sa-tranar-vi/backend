@@ -75,7 +75,7 @@ public class WorkoutService {
 
     @Transactional
     public Workout startWorkout(Long id, Long userId) {
-
+//TODO: constant
         Workout workout = getWorkoutById(id, false);
 
         if (userId != null) {

@@ -42,6 +42,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    //TODO: response String can be a string format -> follows logging convention
     @GetMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(
@@ -64,6 +65,7 @@ public class AdminController {
     public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
         long total = userService.getUserCount();
         long active = activityLogService.getActiveUserCount();
+        //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
         return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
     }
 
@@ -73,6 +75,7 @@ public class AdminController {
             summary = "Get user summaries",
             description = "Retrieves a summary of all registered users.")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
@@ -100,6 +103,7 @@ public class AdminController {
             summary = "Get recent activity logs",
             description = "Retrieves the most recent workout activity logs.")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
     }
@@ -110,7 +114,7 @@ public class AdminController {
             summary = "Get workout usage statistics",
             description = "Retrieves usage statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
-
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
     }
 
@@ -121,7 +125,7 @@ public class AdminController {
             description = "Retrieves aggregated feedback statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
             getWorkoutFeedbackSummary() {
-
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
     }
@@ -132,7 +136,7 @@ public class AdminController {
             summary = "Get recent feedback",
             description = "Retrieves the most recent workout feedback entries.")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
-
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
     }
@@ -143,10 +147,12 @@ public class AdminController {
             summary = "Get trainer overview",
             description = "Retrieves overview information for all trainers.")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
+        //TODO: to have less private methods in controller, mapping can be done in the DTO
         return ResponseEntity.ok(
                 toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
     }
 
+    //TODO: document private methods
     private List<AdminWorkoutFeedbackSummaryResponseDto> toWorkoutFeedbackSummaryDto(
             List<WorkoutFeedbackSummaryData> data) {
         return data.stream()
@@ -219,6 +225,7 @@ public class AdminController {
                 .toList();
     }
 
+    //TODO: fix typo
     private List<AdminTrainerOverviewResponseDto> toAdminTrainerOverviewsponseDto(
             TrainerOverviewData data) {
         return data.trainers().stream()

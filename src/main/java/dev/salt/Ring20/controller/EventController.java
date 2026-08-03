@@ -20,6 +20,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/api/events")
 @Tag(name = "Events", description = "Endpoints for creating, managing, and retrieving events.")
 public class EventController {
+
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
+    //TODO: consistent naming -> other controllers have names like eventService
     private final EventService service;
 
     public EventController(EventService service) {

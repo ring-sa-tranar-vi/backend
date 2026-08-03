@@ -29,6 +29,7 @@ public class SecurityConfig {
             "${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:4173,https://frontend-training.up.railway.app,https://ringsatranarvi.se,https://www.ringsatranarvi.se,https://*.ngrok-free.app,https://staging-ringsatranarvi-app.web.app,https://prod-ringsatranarvi-app.web.app}")
     private String allowedOrigins;
 
+    //TODO: add constants to fields
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
@@ -55,6 +56,7 @@ public class SecurityConfig {
                 .build();
     }
 
+    //TODO: add constants to fields
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -84,6 +86,7 @@ public class SecurityConfig {
         return source;
     }
 
+    //TODO: add constants to fields
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withJwkSetUri(

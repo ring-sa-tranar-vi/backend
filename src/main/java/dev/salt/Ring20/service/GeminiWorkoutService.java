@@ -31,7 +31,7 @@ public class GeminiWorkoutService {
         this.restTemplate = restTemplate;
         log.debug("Swapped to production REST optimization engine.");
     }
-
+    //TODO: DOCUMENT METHOD , possible to have smaller methods inside?
     public CompletableFuture<String> recommendWorkoutWithReasoning(
             User user, List<Workout> workouts) {
         if (googleApiKey.isBlank()) {
@@ -105,6 +105,7 @@ public class GeminiWorkoutService {
                                 restTemplate.postForObject(url, requestBody, String.class);
 
                         // 4. Dig out text node value from Google response packaging layers
+                        //TODO: magic number
                         JsonNode root = objectMapper.readTree(rawResponse);
                         String resultJsonString =
                                 root.path("candidates")

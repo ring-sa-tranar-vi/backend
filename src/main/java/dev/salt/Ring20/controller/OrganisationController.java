@@ -25,6 +25,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
         name = "Organisations",
         description = "Endpoints for creating, managing, and retrieving organisations.")
 public class OrganisationController {
+
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+
     private final OrganisationService service;
     private final EventService eventService;
 

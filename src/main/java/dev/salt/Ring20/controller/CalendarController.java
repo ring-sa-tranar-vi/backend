@@ -30,6 +30,7 @@ public class CalendarController {
     public ResponseEntity<List<CalendarEventDto>> getCalendar(
             @RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
 
+        //TODO: magic number
         if (month < 1 || month > 12) {
             return ResponseEntity.badRequest().build();
         }

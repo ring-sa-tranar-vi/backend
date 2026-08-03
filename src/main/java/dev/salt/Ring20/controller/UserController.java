@@ -39,6 +39,8 @@ import org.springframework.web.server.ResponseStatusException;
         description =
                 "Endpoints for managing user profiles, preferences, progress, and personal data.")
 public class UserController {
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+    //TODO: empty line between grouped fields
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private final UserService userService;
@@ -117,6 +119,7 @@ public class UserController {
         Jwt jwt = getJwtOrThrow(authentication);
         String requestedName = request != null ? request.displayName() : null;
 
+        //TODO: readability
         User created =
                 userService.createUser(
                         jwt.getSubject(),
@@ -147,6 +150,7 @@ public class UserController {
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
 
+    //TODO: remove unused variables
     @PutMapping("/{id}")
     @PreAuthorize("#id == @securityService.currentUserId(authentication.name)")
     @Operation(summary = "Update user preferences", description = "Updates a user's preferences.")
@@ -168,7 +172,7 @@ public class UserController {
 
         return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
     }
-
+    //TODO: fix typo
     @GetMapping("/me/followed-orgs")
     @Operation(
             summary = "Get followed organisations",
@@ -311,8 +315,10 @@ public class UserController {
         return jwt;
     }
 
+    //TODO: DOCUMENT, remove other comments, if possible refactor with smaller methods
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
+        //TODO: constant
         String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
@@ -321,7 +327,7 @@ public class UserController {
                 if (!s.isEmpty()) return s;
             }
         }
-
+//TODO: constant
         String givenName = jwt.getClaimAsString("given_name");
         String familyName = jwt.getClaimAsString("family_name");
         String fullName =

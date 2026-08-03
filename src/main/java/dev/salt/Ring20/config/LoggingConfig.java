@@ -21,6 +21,7 @@ public class LoggingConfig implements WebMvcConfigurer {
         private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
         private static final Runtime runtime = Runtime.getRuntime();
 
+        //TODO: remove unused parameters
         @Override
         public boolean preHandle(
                 HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -42,6 +43,7 @@ public class LoggingConfig implements WebMvcConfigurer {
             return true;
         }
 
+        //TODO: remove unused parameters
         @Override
         public void afterCompletion(
                 HttpServletRequest request,
@@ -82,6 +84,7 @@ public class LoggingConfig implements WebMvcConfigurer {
             }
         }
 
+        //TODO: remove magic numbers!! on all 3 methods below
         private long getUsedMemory() {
             return (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
         }

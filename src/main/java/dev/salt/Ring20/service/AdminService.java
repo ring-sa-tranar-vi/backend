@@ -42,6 +42,7 @@ public class AdminService {
         this.trainerRepository = trainerRepository;
     }
 
+    //TODO DOCUMENT methods. what do they do,
     public UserSummaryData getUserSummaries() {
         List<User> users = userRepository.findAll();
         Map<Long, LocalDateTime> lastCompletedAtByUserId =
@@ -60,10 +61,12 @@ public class AdminService {
     }
 
     public RecentActivityData getRecentActivityLogs() {
+        // TODO: could we get just a list of users and their usernames directly from the DB with SQL query?
         Map<Long, String> userNameById =
                 userRepository.findAll().stream()
                         .collect(Collectors.toMap(User::getId, User::getName));
 
+        //TODO: why map and not an List of records?
         Map<Long, String> workoutNameById =
                 workoutRepository.findAll().stream()
                         .collect(Collectors.toMap(Workout::getId, Workout::getName));
@@ -95,6 +98,7 @@ public class AdminService {
 
             startedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
 
+            // TODO: a bit too nested, possible to refactor?
             if (STATUS_COMPLETED.equalsIgnoreCase(activityLog.getStatus())) {
                 completedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
                 if (activityLog.getCompletedAt() != null) {
@@ -122,6 +126,7 @@ public class AdminService {
         Map<Long, Long> assignedUserCountByTrainerId = new HashMap<>();
         for (User user : userRepository.findAll()) {
             if (user.getTrainerId() != null) {
+                //TODO: magic number
                 assignedUserCountByTrainerId.merge(user.getTrainerId(), 1L, Long::sum);
             }
         }

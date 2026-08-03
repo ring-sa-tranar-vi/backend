@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CompanyService {
-
+ //TODO: document, what is the difference between this and organisation?
     private static final String COMPANY_ROLE = "ORGANIZER";
     private static final EventType DEFAULT_EVENT_TYPE = EventType.IN_PERSON;
 

@@ -30,6 +30,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
         name = "Company",
         description = "Endpoints for company users to manage their organisation and events")
 public class CompanyController {
+    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+    // SKIP FOR NOW TO REVIEW
 
     private final CompanyService companyService;
 

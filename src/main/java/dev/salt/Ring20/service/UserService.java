@@ -78,7 +78,7 @@ public class UserService {
 
             return user;
         }
-
+        //TODO: constant
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
@@ -126,7 +126,7 @@ public class UserService {
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
-
+    //TODO: fix typo
     public List<Organisation> getUserOrgsById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
@@ -160,6 +160,7 @@ public class UserService {
 
         if (!alreadyFollowing) {
             user.getFollowedOrganisations().add(org);
+            //TODO: Magic number ?
             org.setUsersFollowing(org.getUsersFollowing() + 1);
         }
 
@@ -205,6 +206,7 @@ public class UserService {
 
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
+            //TODO: magic number?
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
 

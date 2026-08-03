@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CurrentUserService {
+    //TODO: not consistent as with the SecurityService
 
     private final UserService userService;
 

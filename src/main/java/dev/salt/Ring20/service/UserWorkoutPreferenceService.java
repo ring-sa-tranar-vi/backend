@@ -37,7 +37,7 @@ public class UserWorkoutPreferenceService {
                         .stream()
                         .map(UserWorkoutPreference::getWorkoutId)
                         .toList();
-
+//TODO: constants
         return Map.of(
                 "dislikedWorkoutIds", dislikedWorkoutIds, "favoriteWorkoutIds", favoriteWorkoutIds);
     }
