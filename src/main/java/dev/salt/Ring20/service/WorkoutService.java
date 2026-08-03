@@ -3,10 +3,13 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
+import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +19,13 @@ public class WorkoutService {
     private static final String STATUS_STARTED = "STARTED";
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final TrainerRepository trainerRepository;
 
     public WorkoutService(
-            WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository) {
+            WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository, TrainerRepository trainerRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
+        this.trainerRepository = trainerRepository;
     }
 
     public String getWorkoutAudioUrl(Long id) {
@@ -184,6 +189,15 @@ public class WorkoutService {
         Integer durationSeconds = workout.getDurationSeconds();
         if (durationSeconds != null && durationSeconds < 0) {
             throw new IllegalArgumentException("DurationSeconds cannot be negative");
+        }
+
+        if (workout.getTrainer() != null && workout.getTrainer().getId() != null) {
+            Long trainerId = workout.getTrainer().getId();
+
+            boolean exists = trainerRepository.existsById(trainerId);
+            if (!exists) {
+                throw new IllegalArgumentException("Trainer with id " + trainerId + " does not exist");
+            }
         }
     }
 }
