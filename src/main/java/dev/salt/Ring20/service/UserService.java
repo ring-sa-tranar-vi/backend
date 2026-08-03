@@ -212,7 +212,7 @@ public class UserService {
     }
 
     @Transactional
-    public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
+    public CallbackPreference addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
         Optional<CallbackPreference> existing =
@@ -220,25 +220,31 @@ public class UserService {
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
 
-        CallbackPreference savedPreference;
-
         if (existing.isPresent()) {
-            existing.get().setTime(callback.getTime());
-            existing.get().setRepeat(callback.getRepeat());
-        } else {
-            callback.setUser(user);
-            user.getCallbackPreferences().add(callback);
+            CallbackPreference preference = existing.get();
+            preference.setTime(callback.getTime());
+            preference.setRepeat(callback.getRepeat());
+
+            return preference;
         }
-        return userRepository.save(user);
+
+        callback.setUser(user);
+        user.getCallbackPreferences().add(callback);
+
+        return callback;
     }
 
     @Transactional
-    public User removeCallbackPreference(Long userId, DayOfWeekType day) {
+    public void removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
+        boolean removed = user.getCallbackPreferences()
+                .removeIf(c -> c.getDay() == day);
 
-        return userRepository.save(user);
+        if (!removed) {
+            throw new NoSuchElementException(
+                    "No callback preference found for day: " + day);
+        }
     }
 
     public long getUserCount() {
