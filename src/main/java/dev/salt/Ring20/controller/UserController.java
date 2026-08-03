@@ -278,7 +278,7 @@ public class UserController {
     @Operation(
             summary = "Add or update callback preference",
             description = "Creates or updates a user's callback preference.")
-    public UserResponseDto addOrUpdate(
+    public UserResponseDto addOrUpdateCallBackPreference(
             @PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
         return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
     }
@@ -288,7 +288,7 @@ public class UserController {
     @Operation(
             summary = "Remove callback preference",
             description = "Removes a user's callback preference for a specific day.")
-    public UserResponseDto remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
+    public UserResponseDto removeCallBackPreference(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
         return toResponse(userService.removeCallbackPreference(userId, day));
     }
 
