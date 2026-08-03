@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import dev.salt.Ring20.entity.UserWorkoutPreference;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,25 +22,33 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("UserWorkoutPreferenceService Tests")
 class UserWorkoutPreferenceServiceTest {
 
-    @Mock private UserWorkoutPreferenceRepository preferenceRepository;
+    @Mock
+    private UserWorkoutPreferenceRepository preferenceRepository;
 
-    @InjectMocks private UserWorkoutPreferenceService preferenceService;
+    @Mock
+    private WorkoutRepository workoutRepository;
+
+    @InjectMocks
+    private UserWorkoutPreferenceService preferenceService;
 
     @Test
     void getPreferencesReturnsWorkoutIdsByType() {
         UserWorkoutPreference disliked = new UserWorkoutPreference();
         disliked.setWorkoutId(10L);
+
         UserWorkoutPreference favorite = new UserWorkoutPreference();
         favorite.setWorkoutId(20L);
 
         when(preferenceRepository.findByUserIdAndPreferenceType(
-                        1L, UserWorkoutPreferenceType.DISLIKED))
+                1L, UserWorkoutPreferenceType.DISLIKED))
                 .thenReturn(List.of(disliked));
+
         when(preferenceRepository.findByUserIdAndPreferenceType(
-                        1L, UserWorkoutPreferenceType.FAVORITE))
+                1L, UserWorkoutPreferenceType.FAVORITE))
                 .thenReturn(List.of(favorite));
 
-        Map<String, List<Long>> result = preferenceService.getPreferences(1L);
+        Map<String, List<Long>> result =
+                preferenceService.getPreferences(1L);
 
         assertEquals(List.of(10L), result.get("dislikedWorkoutIds"));
         assertEquals(List.of(20L), result.get("favoriteWorkoutIds"));
@@ -48,22 +57,37 @@ class UserWorkoutPreferenceServiceTest {
     @Test
     void addPreferenceSavesOnlyWhenMissing() {
         when(preferenceRepository.findByUserIdAndWorkoutIdAndPreferenceType(
-                        1L, 2L, UserWorkoutPreferenceType.DISLIKED))
+                1L,
+                2L,
+                UserWorkoutPreferenceType.DISLIKED))
                 .thenReturn(Optional.empty());
+
+        when(workoutRepository.existsById(2L))
+                .thenReturn(true);
+
         when(preferenceRepository.save(any(UserWorkoutPreference.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        preferenceService.addPreference(1L, 2L, UserWorkoutPreferenceType.DISLIKED);
+        preferenceService.addPreference(
+                1L,
+                2L,
+                UserWorkoutPreferenceType.DISLIKED);
 
-        verify(preferenceRepository).save(any(UserWorkoutPreference.class));
+        verify(preferenceRepository)
+                .save(any(UserWorkoutPreference.class));
     }
 
     @Test
     void removePreferenceDelegatesToRepository() {
-        preferenceService.removePreference(1L, 2L, UserWorkoutPreferenceType.FAVORITE);
+        preferenceService.removePreference(
+                1L,
+                2L,
+                UserWorkoutPreferenceType.FAVORITE);
 
         verify(preferenceRepository)
                 .deleteByUserIdAndWorkoutIdAndPreferenceType(
-                        1L, 2L, UserWorkoutPreferenceType.FAVORITE);
+                        1L,
+                        2L,
+                        UserWorkoutPreferenceType.FAVORITE);
     }
 }
