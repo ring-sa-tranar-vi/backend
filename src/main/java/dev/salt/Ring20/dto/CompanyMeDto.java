@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto;
 
-public record CompanyMeResponseDto(
+public record CompanyMeDto(
         Long userId,
         String role,
         boolean canManageOrganisation,
