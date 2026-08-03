@@ -186,26 +186,24 @@ public class UserController {
     @Operation(
             summary = "Follow organisation",
             description = "Adds an organisation to the user's followed list.")
-    public ResponseEntity<UserResponseDto> followedOrg(
+    public ResponseEntity<OrganisationResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = getCurrentUser(authentication);
-        User updated =
+        Organisation org =
                 userService.addFollowOrganization(
                         currentUser.getId(), orgId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toOrgResponseDto(org));
     }
 
     @DeleteMapping("/me/followed-orgs/{orgId}")
     @Operation(
             summary = "Unfollow organisation",
             description = "Removes an organisation from the user's followed list.")
-    public ResponseEntity<UserResponseDto> removeFollowedOrg(
+    public ResponseEntity<Void> removeFollowedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = getCurrentUser(authentication);
-        User updated =
-                userService.removeFollowOrganization(
-                        currentUser.getId(), orgId);
-        return ResponseEntity.ok(toResponse(updated));
+        userService.removeFollowOrganization(currentUser.getId(), orgId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me/attending-events")

@@ -141,7 +141,7 @@ public class UserService {
     }
 
     @Transactional
-    public User addFollowOrganization(Long userId, Long orgId) {
+    public Organisation addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
         Organisation org = organisationRepository.findById(orgId)
                 .orElseThrow(() -> new NoSuchElementException("Organisation not found with id: " + orgId));
@@ -155,7 +155,7 @@ public class UserService {
             org.setUsersFollowing(org.getUsersFollowing() + 1);
         }
 
-        return user;
+        return org;
     }
 
     @Transactional
@@ -178,20 +178,22 @@ public class UserService {
     }
 
     @Transactional
-    public User removeFollowOrganization(Long userId, Long orgId) {
+    public void removeFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
 
         boolean removed = user.getFollowedOrganisations()
                 .removeIf(org -> org.getId().equals(orgId));
 
-        if (removed) {
-            Organisation org = organisationRepository.findById(orgId)
-                    .orElseThrow(() -> new NoSuchElementException("Organisation not found with id: " + orgId));
-
-            org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
+        if (!removed) {
+            throw new NoSuchElementException(
+                    "User is not following organisation: " + orgId);
         }
 
-        return userRepository.save(user);
+        Organisation org = organisationRepository.findById(orgId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Organisation not found with id: " + orgId));
+
+        org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
     }
 
     @Transactional
