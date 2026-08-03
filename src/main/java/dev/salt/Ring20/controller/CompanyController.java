@@ -82,7 +82,10 @@ public class CompanyController {
                 companyService
                         .getOrganisationService()
                         .updateOrganisationById(
-                                org.getId(), request.name(), request.description(), request.orgCity());
+                                org.getId(),
+                                request.name(),
+                                request.description(),
+                                request.orgCity());
         var events =
                 updated.getEvents() == null
                         ? List.<EventResponseDto>of()

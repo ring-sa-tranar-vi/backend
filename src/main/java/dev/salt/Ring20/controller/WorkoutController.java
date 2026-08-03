@@ -3,7 +3,6 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
-import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.WorkoutService;
