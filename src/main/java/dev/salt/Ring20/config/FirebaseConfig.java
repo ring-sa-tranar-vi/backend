@@ -12,11 +12,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FirebaseConfig {
 
-    @Value("${app.firebase.config-json}")
+    @Value("${app.firebase.config-json:}")
     private String firebaseConfigJson;
 
     @PostConstruct
     public void init() throws Exception {
+        if (firebaseConfigJson == null || firebaseConfigJson.isBlank()) {
+            return;
+        }
+
+        if (!FirebaseApp.getApps().isEmpty()) {
+            return;
+        }
+
         ByteArrayInputStream serviceAccount =
                 new ByteArrayInputStream(firebaseConfigJson.getBytes(StandardCharsets.UTF_8));
 
@@ -24,9 +32,6 @@ public class FirebaseConfig {
                 FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                         .build();
-
-        if (FirebaseApp.getApps().isEmpty()) {
-            FirebaseApp.initializeApp(options);
-        }
+        FirebaseApp.initializeApp(options);
     }
 }
