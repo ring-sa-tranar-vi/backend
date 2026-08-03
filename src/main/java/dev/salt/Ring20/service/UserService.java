@@ -143,7 +143,7 @@ public class UserService {
     @Transactional
     public Organisation addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
-        Organisation org = organisationRepository.findById(orgId)
+        Organisation org = organisationRepository.findByIdWithEvents(orgId)
                 .orElseThrow(() -> new NoSuchElementException("Organisation not found with id: " + orgId));
 
         boolean alreadyFollowing = user.getFollowedOrganisations()
@@ -181,7 +181,7 @@ public class UserService {
     public Event addAttendEvent(Long userId, Long eventId) {
         User user = getUserById(userId);
 
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findByIdWithOrganisation(eventId)
                 .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + eventId));
 
         boolean alreadyAttending = user.getAttendingEvents()
@@ -204,12 +204,16 @@ public class UserService {
         boolean removed = user.getAttendingEvents()
                 .removeIf(event -> event.getId().equals(eventId));
 
-        if (removed) {
-            Event event = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + eventId));
-
-            event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
+        if (!removed) {
+            throw new NoSuchElementException(
+                    "User is not attending event: " + eventId);
         }
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Event not found with id: " + eventId));
+
+        event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
     }
 
     @Transactional
