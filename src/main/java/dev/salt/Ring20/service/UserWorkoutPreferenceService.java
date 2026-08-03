@@ -3,6 +3,7 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.UserWorkoutPreference;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -13,9 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserWorkoutPreferenceService {
 
     private final UserWorkoutPreferenceRepository preferenceRepository;
+    private final WorkoutRepository workoutRepository;
 
-    public UserWorkoutPreferenceService(UserWorkoutPreferenceRepository preferenceRepository) {
+    public UserWorkoutPreferenceService(
+            UserWorkoutPreferenceRepository preferenceRepository,
+            WorkoutRepository workoutRepository) {
         this.preferenceRepository = preferenceRepository;
+        this.workoutRepository = workoutRepository;
     }
 
     public Map<String, List<Long>> getPreferences(Long userId) {
@@ -46,6 +51,10 @@ public class UserWorkoutPreferenceService {
                         () -> {
                             UserWorkoutPreference preference = new UserWorkoutPreference();
                             preference.setUserId(userId);
+                            if (!workoutRepository.existsById(workoutId)) {
+                                throw new IllegalArgumentException(
+                                        "Workout does not exist with id: " + workoutId);
+                            }
                             preference.setWorkoutId(workoutId);
                             preference.setPreferenceType(preferenceType);
                             preference.setCreatedAt(LocalDateTime.now());

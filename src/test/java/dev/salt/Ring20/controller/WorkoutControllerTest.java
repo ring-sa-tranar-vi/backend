@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.WorkoutEnabledRequestDto;
-import dev.salt.Ring20.dto.WorkoutRequestDto;
-import dev.salt.Ring20.dto.WorkoutResponseDto;
+import dev.salt.Ring20.dto.workoutDtos.WorkoutEnabledRequestDto;
+import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
+import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.UserService;

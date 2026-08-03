@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.AdminRecentActivityResponseDto;
-import dev.salt.Ring20.dto.AdminTrainerOverviewResponseDto;
-import dev.salt.Ring20.dto.AdminUserCountResponseDto;
-import dev.salt.Ring20.dto.AdminUserSummaryResponseDto;
-import dev.salt.Ring20.dto.AdminWorkoutUsageResponseDto;
-import dev.salt.Ring20.dto.UserRequestDto;
+import dev.salt.Ring20.dto.adminDtos.AdminRecentActivityResponseDto;
+import dev.salt.Ring20.dto.adminDtos.AdminTrainerOverviewResponseDto;
+import dev.salt.Ring20.dto.adminDtos.AdminUserCountResponseDto;
+import dev.salt.Ring20.dto.adminDtos.AdminUserSummaryResponseDto;
+import dev.salt.Ring20.dto.adminDtos.AdminWorkoutUsageResponseDto;
+import dev.salt.Ring20.dto.userDtos.UserRequestDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;

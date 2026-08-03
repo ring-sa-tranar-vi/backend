@@ -1,6 +1,6 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.CalendarEventDto;
+import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.User;

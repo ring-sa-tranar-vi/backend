@@ -7,6 +7,9 @@ import static org.mockito.Mockito.*;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.UserRole;
+import dev.salt.Ring20.repository.EventRepository;
+import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -23,6 +26,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserServiceTest {
 
     @Mock private UserRepository userRepository;
+    @Mock private TrainerRepository trainerRepository;
+    @Mock private OrganisationRepository organisationRepository;
+    @Mock private EventRepository eventRepository;
 
     @InjectMocks private UserService userService;
 
@@ -82,6 +88,9 @@ class UserServiceTest {
     @Test
     void updateUserPreferencesByClerkIdUpdatesAndSaves() {
         when(userRepository.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
+
+        when(trainerRepository.existsById(7L)).thenReturn(true);
+
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -94,6 +103,8 @@ class UserServiceTest {
         assertEquals("new", updated.getContext());
         assertEquals(7L, updated.getTrainerId());
         assertEquals("Stockholm", updated.getCity());
+
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -109,6 +120,20 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserPreferencesRejectsUnknownTrainer() {
+        when(trainerRepository.existsById(999L)).thenReturn(false);
+
+        IllegalArgumentException ex =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () ->
+                                userService.updateUserPreferencesByClerkId(
+                                        "clerk_1", "Name", 3, "context", 999L, "Stockholm", false));
+
+        assertEquals("Trainer does not exist with id: 999", ex.getMessage());
+    }
+
+    @Test
     void getUserByIdThrowsWhenMissing() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -118,22 +143,20 @@ class UserServiceTest {
     }
 
     @Test
-    void removeAttendEventMatchesByIdAcrossPersistenceContexts() {
-        Event storedEvent = new Event();
-        storedEvent.setId(10L);
-        storedEvent.setUsersAttending(1);
-        user.getAttendingEvents().add(storedEvent);
+    void removeAttendEventRemovesEventAndDecrementsCounter() {
+        Event event = new Event();
+        event.setId(10L);
+        event.setUsersAttending(1);
 
-        Event detachedEvent = new Event();
-        detachedEvent.setId(10L);
-        detachedEvent.setUsersAttending(1);
+        user.getAttendingEvents().add(event);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
 
-        User updated = userService.removeAttendEvent(1L, detachedEvent);
+        when(eventRepository.findById(10L)).thenReturn(Optional.of(event));
 
-        assertTrue(updated.getAttendingEvents().isEmpty());
-        assertEquals(0, detachedEvent.getUsersAttending());
+        userService.removeAttendEvent(1L, 10L);
+
+        assertTrue(user.getAttendingEvents().isEmpty());
+        assertEquals(0, event.getUsersAttending());
     }
 }

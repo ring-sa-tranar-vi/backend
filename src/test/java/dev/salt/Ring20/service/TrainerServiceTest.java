@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.repository.TrainerRepository;
+import dev.salt.Ring20.repository.UserRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.TrainerData;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -22,6 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TrainerServiceTest {
 
     @Mock private TrainerRepository trainerRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private GeminiWorkoutService geminiWorkoutService;
+    @Mock private WorkoutRepository workoutRepository;
+    @Mock private ObjectMapper objectMapper;
 
     @InjectMocks private TrainerService trainerService;
 
@@ -47,6 +54,7 @@ class TrainerServiceTest {
     void createTrainerSavesValidRequest() {
         when(trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase("Alice Coach", "en"))
                 .thenReturn(false);
+
         when(trainerRepository.save(any(Trainer.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -60,6 +68,7 @@ class TrainerServiceTest {
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class, () -> trainerService.createTrainer(null));
+
         assertEquals("Request body is required", ex.getMessage());
     }
 
@@ -72,7 +81,9 @@ class TrainerServiceTest {
                 assertThrows(
                         IllegalArgumentException.class,
                         () -> trainerService.createTrainer(trainerRequest));
-        assertEquals("Trainer already exists for this language", ex.getMessage());
+
+        assertEquals(
+                "Trainer with name 'Alice Coach' already exists in language 'en'", ex.getMessage());
     }
 
     @Test
@@ -81,6 +92,7 @@ class TrainerServiceTest {
 
         NoSuchElementException ex =
                 assertThrows(NoSuchElementException.class, () -> trainerService.getTrainerById(9L));
+
         assertEquals("Trainer not found with id: 9", ex.getMessage());
     }
 
