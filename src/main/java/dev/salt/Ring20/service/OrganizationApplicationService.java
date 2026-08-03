@@ -1,9 +1,9 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.enums.ApplicationStatus;
 import dev.salt.Ring20.entity.OrganizationApplication;
-import dev.salt.Ring20.entity.enums.PaymentStatus;
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.enums.ApplicationStatus;
+import dev.salt.Ring20.entity.enums.PaymentStatus;
 import dev.salt.Ring20.repository.OrganizationApplicationRepository;
 import java.time.LocalDateTime;
 import java.util.List;
