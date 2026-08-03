@@ -21,18 +21,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(
             """
-                SELECT u FROM User u
-                LEFT JOIN FETCH u.followedOrganisations
-                WHERE u.id = :id
-            """)
-    Optional<User> findByIdWithFollowedOrganisations(@Param("id") Long id);
-
-    @Query(
-            """
                 SELECT DISTINCT organisation FROM User u
                 JOIN u.followedOrganisations organisation
                 LEFT JOIN FETCH organisation.events
                 WHERE u.id = :id
             """)
     List<Organisation> findFollowedOrganisationsWithEventsById(@Param("id") Long id);
+    @Query("""
+       SELECT u
+       FROM User u
+       LEFT JOIN FETCH u.callbackPreferences
+       WHERE u.id = :id
+       """)
+    Optional<User> findByIdWithCallbackPreferences(@Param("id") Long id);
 }
