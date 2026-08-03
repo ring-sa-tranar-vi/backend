@@ -383,6 +383,7 @@ public class UserController {
                 organisation.getName(),
                 organisation.getDescription(),
                 events,
-                organisation.getOrgCity());
+                organisation.getOrgCity(),
+                organisation.getOrganizer().getId());
     }
 }

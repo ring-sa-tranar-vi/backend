@@ -31,12 +31,8 @@ public class OrganizationApplicationService {
     public OrganizationApplication createApplication(
             String clerkId, String orgName, String description, String city, String motivation) {
         OrganizationApplication application = new OrganizationApplication();
-        try {
-            Long userId = Long.valueOf(clerkId);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        User user = userService.getUserById(Long.valueOf(clerkId));
+        User user = userService.getByClerkIdOrThrow(clerkId);
+
         application.setUser(user);
         application.setOrganizationName(orgName);
         application.setDescription(description);
@@ -45,6 +41,7 @@ public class OrganizationApplicationService {
         application.setApplicationStatus(ApplicationStatus.PENDING);
         application.setCreatedAt(LocalDateTime.now());
         application.setPaymentStatus(PaymentStatus.PENDING);
+
         return organizationApplicationRepository.save(application);
     }
 
