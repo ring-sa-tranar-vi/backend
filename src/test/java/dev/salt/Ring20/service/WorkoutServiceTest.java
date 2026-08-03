@@ -9,7 +9,6 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,26 +38,6 @@ class WorkoutServiceTest {
         workout = new Workout();
         workout.setId(1L);
         workout.setName("Push Ups");
-        workout.setDurationSeconds(300);
-        workout.setWorkoutAudio("audio.mp3");
-    }
-
-    @Test
-    void getWorkoutAudioUrlReturnsAudio() {
-        when(workoutRepository.findById(1L)).thenReturn(Optional.of(workout));
-
-        assertEquals("audio.mp3", workoutService.getWorkoutAudioUrl(1L));
-    }
-
-    @Test
-    void getWorkoutAudioUrlThrowsWhenMissingAudio() {
-        workout.setWorkoutAudio(" ");
-        when(workoutRepository.findById(1L)).thenReturn(Optional.of(workout));
-
-        NoSuchElementException ex =
-                assertThrows(
-                        NoSuchElementException.class, () -> workoutService.getWorkoutAudioUrl(1L));
-        assertEquals("Workout audio not found with id: 1", ex.getMessage());
     }
 
     @Test

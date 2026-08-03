@@ -18,7 +18,6 @@ class WorkoutRepositoryTest {
     void saveAndFindByIdWork() {
         Workout workout = new Workout();
         workout.setName("Push Ups");
-        workout.setDurationSeconds(120);
 
         Workout saved = workoutRepository.save(workout);
 

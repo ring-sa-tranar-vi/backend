@@ -45,10 +45,6 @@ class WorkoutControllerTest {
         workout.setId(1L);
         workout.setName("Push Ups");
         workout.setEnabled(true);
-        workout.setKneeFriendly(false);
-        workout.setLowImpact(false);
-        workout.setSeated(false);
-        workout.setBeginnerFriendly(false);
 
         Authentication authentication = mock(Authentication.class);
 
@@ -69,27 +65,7 @@ class WorkoutControllerTest {
     void createWorkoutReturnsOk() {
         WorkoutRequestDto request =
                 new WorkoutRequestDto(
-                        "Test Workout",
-                        "desc",
-                        null,
-                        null,
-                        null,
-                        null,
-                        1,
-                        "strength",
-                        300,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        true,
-                        false,
-                        false,
-                        true,
-                        null);
+                        "Test Workout", "desc", null, null, null, null, 1, "strength", null, null);
 
         Workout workout = new Workout();
         workout.setName("Test Workout");

@@ -50,12 +50,6 @@ public class GeminiWorkoutService {
                                                     m.put("name", w.getName());
                                                     m.put("level", w.getLevel());
                                                     m.put("type", w.getType());
-                                                    m.put("kneeFriendly", w.getKneeFriendly());
-                                                    m.put("lowImpact", w.getLowImpact());
-                                                    m.put("seated", w.getSeated());
-                                                    m.put(
-                                                            "beginnerFriendly",
-                                                            w.getBeginnerFriendly());
                                                     return m;
                                                 })
                                         .toList();

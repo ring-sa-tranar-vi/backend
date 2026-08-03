@@ -1,10 +1,8 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.ActivityLog;
-import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
-import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,32 +16,11 @@ public class WorkoutService {
     private static final String STATUS_STARTED = "STARTED";
     private final WorkoutRepository workoutRepository;
     private final ActivityLogRepository activityLogRepository;
-    private final TrainerRepository trainerRepository;
 
     public WorkoutService(
-            WorkoutRepository workoutRepository,
-            ActivityLogRepository activityLogRepository,
-            TrainerRepository trainerRepository) {
+            WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
-        this.trainerRepository = trainerRepository;
-    }
-
-    public String getWorkoutAudioUrl(Long id) {
-        validateId(id);
-        Workout workout =
-                workoutRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Workout not found with id: " + id));
-
-        if (workout.getWorkoutAudio() == null || workout.getWorkoutAudio().isBlank()) {
-            throw new NoSuchElementException("Workout audio not found with id: " + id);
-        }
-
-        return workout.getWorkoutAudio();
     }
 
     @Transactional(readOnly = true)
@@ -99,10 +76,7 @@ public class WorkoutService {
     public Workout createWorkout(Workout workout) {
         validateWorkoutNotNull(workout);
         validateName(workout);
-        validateDuration(workout);
         applyDefaults(workout);
-        var trainer = resolveTrainer(workout);
-        workout.setTrainer(trainer);
         return workoutRepository.save(workout);
     }
 
@@ -111,7 +85,6 @@ public class WorkoutService {
         validateId(id);
         validateWorkoutNotNull(workout);
         validateName(workout);
-        validateDuration(workout);
         applyDefaults(workout);
         Workout existing =
                 workoutRepository
@@ -125,24 +98,12 @@ public class WorkoutService {
         existing.setDescription(workout.getDescription());
         existing.setDashboardName(workout.getDashboardName());
         existing.setDashboardDescription(workout.getDashboardDescription());
-        existing.setSubtitleText(workout.getSubtitleText());
-        existing.setInstructionsSubtitleText(workout.getInstructionsSubtitleText());
+        existing.setInstructions(workout.getInstructions());
+        existing.setGuidance(workout.getGuidance());
         existing.setLevel(workout.getLevel());
         existing.setType(workout.getType());
-        existing.setDurationSeconds(workout.getDurationSeconds());
-        existing.setInstructionsAudio(workout.getInstructionsAudio());
-        existing.setWorkoutAudio(workout.getWorkoutAudio());
-        existing.setInstructionsImage(workout.getInstructionsImage());
-        existing.setWorkoutImage(workout.getWorkoutImage());
-        existing.setInstructionsVideo(workout.getInstructionsVideo());
-        existing.setInstructionsVideoStart(workout.getInstructionsVideoStart());
-        existing.setInstructionsVideoStop(workout.getInstructionsVideoStop());
-        existing.setKneeFriendly(workout.getKneeFriendly());
-        existing.setLowImpact(workout.getLowImpact());
-        existing.setSeated(workout.getSeated());
-        existing.setBeginnerFriendly(workout.getBeginnerFriendly());
-        var trainer = resolveTrainer(workout);
-        existing.setTrainer(trainer);
+        existing.setImage(workout.getImage());
+        existing.setVideo(workout.getVideo());
 
         return workoutRepository.save(existing);
     }
@@ -192,31 +153,9 @@ public class WorkoutService {
         }
     }
 
-    private void validateDuration(Workout workout) {
-        Integer duration = workout.getDurationSeconds();
-        if (duration != null && duration < 0) {
-            throw new IllegalArgumentException("DurationSeconds cannot be negative");
-        }
-    }
-
     private void applyDefaults(Workout workout) {
         if (workout.getEnabled() == null) {
             workout.setEnabled(true);
         }
-    }
-
-    private Trainer resolveTrainer(Workout workout) {
-        if (workout.getTrainer() == null || workout.getTrainer().getId() == null) {
-            return null;
-        }
-
-        Long trainerId = workout.getTrainer().getId();
-
-        return trainerRepository
-                .findById(trainerId)
-                .orElseThrow(
-                        () ->
-                                new NoSuchElementException(
-                                        "Trainer with id " + trainerId + " does not exist"));
     }
 }

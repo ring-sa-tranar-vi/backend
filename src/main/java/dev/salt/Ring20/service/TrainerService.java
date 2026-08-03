@@ -181,19 +181,19 @@ public class TrainerService {
             Long trainerId, Long userId) {
         validateId(trainerId);
         validateId(userId);
-        List<Workout> trainerWorkouts = getEnabledTrainerWorkouts(trainerId);
+        List<Workout> enabledWorkouts = getEnabledWorkouts();
         User user = getUser(userId);
 
         return geminiWorkoutService
-                .recommendWorkoutWithReasoning(user, trainerWorkouts)
+                .recommendWorkoutWithReasoning(user, enabledWorkouts)
                 .thenApply(this::parseRecommendedWorkout);
     }
 
-    private List<Workout> getEnabledTrainerWorkouts(Long trainerId) {
-        List<Workout> workouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
+    private List<Workout> getEnabledWorkouts() {
+        List<Workout> workouts = workoutRepository.findByEnabledTrue();
 
         if (workouts.isEmpty()) {
-            throw new NoSuchElementException("No workouts found for trainer ID: " + trainerId);
+            throw new NoSuchElementException("No enabled workouts found");
         }
 
         return workouts;

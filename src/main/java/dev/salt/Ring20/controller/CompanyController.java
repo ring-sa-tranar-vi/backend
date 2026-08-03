@@ -2,11 +2,12 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.CompanyMeResponseDto;
-import dev.salt.Ring20.dto.EventRequestDto;
-import dev.salt.Ring20.dto.EventResponseDto;
-import dev.salt.Ring20.dto.OrganisationRequestDto;
-import dev.salt.Ring20.dto.OrganisationResponseDto;
+import dev.salt.Ring20.dto.companyDtos.CompanyMeResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
+import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.CompanyService;
 import jakarta.validation.Valid;
@@ -62,24 +63,26 @@ public class CompanyController {
                         : org.getEvents().stream().map(this::toEventResponseDto).toList();
         var response =
                 new OrganisationResponseDto(
-                        org.getId(), org.getName(), org.getDescription(), events, org.getOrgCity());
+                        org.getId(),
+                        org.getName(),
+                        org.getDescription(),
+                        events,
+                        org.getOrgCity(),
+                        org.getOrganizer() != null ? org.getOrganizer().getId() : null);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/organisation")
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
-            Authentication authentication, @Valid @RequestBody OrganisationRequestDto request) {
+            Authentication authentication,
+            @Valid @RequestBody OrganisationUpdateRequestDto request) {
         String clerkId = getClerkId(authentication);
         var org = companyService.getManagedOrganisationForClerkId(clerkId);
         var updated =
                 companyService
                         .getOrganisationService()
                         .updateOrganisationById(
-                                org.getId(),
-                                request.name(),
-                                request.description(),
-                                null,
-                                request.orgCity());
+                                org.getId(), request.name(), request.description(), request.orgCity());
         var events =
                 updated.getEvents() == null
                         ? List.<EventResponseDto>of()
@@ -90,7 +93,8 @@ public class CompanyController {
                         updated.getName(),
                         updated.getDescription(),
                         events,
-                        updated.getOrgCity());
+                        updated.getOrgCity(),
+                        updated.getOrganizer() != null ? updated.getOrganizer().getId() : null);
         return ResponseEntity.ok(response);
     }
 
@@ -107,7 +111,7 @@ public class CompanyController {
 
     @PostMapping("/events")
     public ResponseEntity<EventResponseDto> createEvent(
-            Authentication authentication, @Valid @RequestBody EventRequestDto request) {
+            Authentication authentication, @Valid @RequestBody EventCreateRequestDto request) {
         String clerkId = getClerkId(authentication);
         var org = companyService.getManagedOrganisationForClerkId(clerkId);
         var created =
@@ -117,7 +121,7 @@ public class CompanyController {
                                 request.name(),
                                 request.description(),
                                 request.time(),
-                                org,
+                                org.getId(),
                                 request.city(),
                                 request.venue(),
                                 request.eventType());
@@ -134,9 +138,8 @@ public class CompanyController {
     public ResponseEntity<EventResponseDto> updateEvent(
             Authentication authentication,
             @PathVariable Long eventId,
-            @Valid @RequestBody EventRequestDto request) {
+            @Valid @RequestBody EventUpdateRequestDto request) {
         String clerkId = getClerkId(authentication);
-        var org = companyService.getManagedOrganisationForClerkId(clerkId);
         var existing = companyService.getManagedEventForClerkId(eventId, clerkId);
         var updated =
                 companyService
@@ -146,7 +149,6 @@ public class CompanyController {
                                 request.name(),
                                 request.description(),
                                 request.time(),
-                                existing.getOrganisation(),
                                 request.city(),
                                 request.venue(),
                                 existing.getEventType() == null
