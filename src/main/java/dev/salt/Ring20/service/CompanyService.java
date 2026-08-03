@@ -43,24 +43,24 @@ public class CompanyService {
         User user = userService.getByClerkIdOrThrow(clerkId);
         return user.getTrainerId() != null
                 ? organisationService.getAllOrganisations().stream()
-                .filter(
-                        org ->
-                                org.getEvents().stream()
-                                        .anyMatch(
-                                                e ->
-                                                        e.getOrganisation() != null
-                                                                && e.getOrganisation()
-                                                                .getId()
-                                                                .equals(
-                                                                        org
-                                                                                .getId())))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("Organisation not found"))
+                        .filter(
+                                org ->
+                                        org.getEvents().stream()
+                                                .anyMatch(
+                                                        e ->
+                                                                e.getOrganisation() != null
+                                                                        && e.getOrganisation()
+                                                                                .getId()
+                                                                                .equals(
+                                                                                        org
+                                                                                                .getId())))
+                        .findFirst()
+                        .orElseThrow(() -> new NoSuchElementException("Organisation not found"))
                 : organisationService.getAllOrganisations().stream()
-                .min(
-                        Comparator.comparing(
-                                Organisation::getId, Comparator.nullsLast(Long::compareTo)))
-                .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
+                        .min(
+                                Comparator.comparing(
+                                        Organisation::getId, Comparator.nullsLast(Long::compareTo)))
+                        .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
     }
 
     public Event getManagedEventForClerkId(Long eventId, String clerkId) {
@@ -79,93 +79,95 @@ public class CompanyService {
         eventService.deleteEventById(existing.getId());
     }
 
-//    public CompanyOrganisationResponseDto getOrganisation() {
-//        return toOrganisationResponse(getManagedOrganisation());
-//    }
+    //    public CompanyOrganisationResponseDto getOrganisation() {
+    //        return toOrganisationResponse(getManagedOrganisation());
+    //    }
 
-//    public CompanyOrganisationResponseDto updateOrganisation(
-//            CompanyOrganisationRequestDto request) {
-//        Organisation organisation = getManagedOrganisation();
-//        Organisation updated =
-//                organisationService.updateOrganisationById(
-//                        organisation.getId(),
-//                        request.name(),
-//                        request.description(),
-//                        organisation.getEvents(),
-//                        request.orgCity());
-//        return toOrganisationResponse(updated);
-//    }
+    //    public CompanyOrganisationResponseDto updateOrganisation(
+    //            CompanyOrganisationRequestDto request) {
+    //        Organisation organisation = getManagedOrganisation();
+    //        Organisation updated =
+    //                organisationService.updateOrganisationById(
+    //                        organisation.getId(),
+    //                        request.name(),
+    //                        request.description(),
+    //                        organisation.getEvents(),
+    //                        request.orgCity());
+    //        return toOrganisationResponse(updated);
+    //    }
 
-//    public List<CompanyEventResponseDto> getEvents() {
-//        Organisation organisation = getManagedOrganisation();
-//        return eventService.getAllEventsByOrgId(organisation.getId()).stream()
-//                .sorted(
-//                        Comparator.comparing(
-//                                Event::getTime, Comparator.nullsLast(Comparator.naturalOrder())))
-//                .map(this::toEventResponse)
-//                .toList();
-//    }
+    //    public List<CompanyEventResponseDto> getEvents() {
+    //        Organisation organisation = getManagedOrganisation();
+    //        return eventService.getAllEventsByOrgId(organisation.getId()).stream()
+    //                .sorted(
+    //                        Comparator.comparing(
+    //                                Event::getTime,
+    // Comparator.nullsLast(Comparator.naturalOrder())))
+    //                .map(this::toEventResponse)
+    //                .toList();
+    //    }
 
-//    public CompanyEventResponseDto createEvent(CompanyEventRequestDto request) {
-//        Organisation organisation = getManagedOrganisation();
-//        Event created =
-//                eventService.createEvent(
-//                        request.name(),
-//                        request.description(),
-//                        request.time(),
-//                        organisation,
-//                        request.city(),
-//                        request.venue(),
-//                        DEFAULT_EVENT_TYPE);
-//        return toEventResponse(created);
-//    }
+    //    public CompanyEventResponseDto createEvent(CompanyEventRequestDto request) {
+    //        Organisation organisation = getManagedOrganisation();
+    //        Event created =
+    //                eventService.createEvent(
+    //                        request.name(),
+    //                        request.description(),
+    //                        request.time(),
+    //                        organisation,
+    //                        request.city(),
+    //                        request.venue(),
+    //                        DEFAULT_EVENT_TYPE);
+    //        return toEventResponse(created);
+    //    }
 
-//    public CompanyEventResponseDto updateEvent(Long eventId, CompanyEventRequestDto request) {
-//        Event existing = getManagedEvent(eventId);
-//        Event updated =
-//                eventService.updateEvent(
-//                        existing.getId(),
-//                        request.name(),
-//                        request.description(),
-//                        request.time(),
-//                        existing.getOrganisation(),
-//                        request.city(),
-//                        request.venue(),
-//                        existing.getEventType() == null
-//                                ? DEFAULT_EVENT_TYPE
-//                                : existing.getEventType());
-//        return toEventResponse(updated);
-//    }
+    //    public CompanyEventResponseDto updateEvent(Long eventId, CompanyEventRequestDto request) {
+    //        Event existing = getManagedEvent(eventId);
+    //        Event updated =
+    //                eventService.updateEvent(
+    //                        existing.getId(),
+    //                        request.name(),
+    //                        request.description(),
+    //                        request.time(),
+    //                        existing.getOrganisation(),
+    //                        request.city(),
+    //                        request.venue(),
+    //                        existing.getEventType() == null
+    //                                ? DEFAULT_EVENT_TYPE
+    //                                : existing.getEventType());
+    //        return toEventResponse(updated);
+    //    }
 
-//    public void deleteEvent(Long eventId) {
-//        Event existing = getManagedEvent(eventId);
-//        eventService.deleteEventById(existing.getId());
-//    }
+    //    public void deleteEvent(Long eventId) {
+    //        Event existing = getManagedEvent(eventId);
+    //        eventService.deleteEventById(existing.getId());
+    //    }
 
-//    public Organisation getManagedOrganisation() {
-//        return organisationService.getAllOrganisations().stream()
-//                .min(
-//                        Comparator.comparing(
-//                                Organisation::getId, Comparator.nullsLast(Long::compareTo)))
-//                .orElseThrow(() -> new NoSuchElementException("Company organisation not found"));
-//    }
+    //    public Organisation getManagedOrganisation() {
+    //        return organisationService.getAllOrganisations().stream()
+    //                .min(
+    //                        Comparator.comparing(
+    //                                Organisation::getId, Comparator.nullsLast(Long::compareTo)))
+    //                .orElseThrow(() -> new NoSuchElementException("Company organisation not
+    // found"));
+    //    }
 
-//    private User getManagedUser() {
-//        return userRepository.findAll().stream()
-//                .min(Comparator.comparing(User::getId, Comparator.nullsLast(Long::compareTo)))
-//                .orElse(null);
-//    }
+    //    private User getManagedUser() {
+    //        return userRepository.findAll().stream()
+    //                .min(Comparator.comparing(User::getId, Comparator.nullsLast(Long::compareTo)))
+    //                .orElse(null);
+    //    }
 
-//    public Event getManagedEvent(Long eventId) {
-//        Event event = eventService.getEventById(eventId);
-//        Organisation organisation = getManagedOrganisation();
-//        if (event.getOrganisation() == null
-//                || organisation.getId() == null
-//                || !organisation.getId().equals(event.getOrganisation().getId())) {
-//            throw new NoSuchElementException("Event not found with id: " + eventId);
-//        }
-//        return event;
-//    }
+    //    public Event getManagedEvent(Long eventId) {
+    //        Event event = eventService.getEventById(eventId);
+    //        Organisation organisation = getManagedOrganisation();
+    //        if (event.getOrganisation() == null
+    //                || organisation.getId() == null
+    //                || !organisation.getId().equals(event.getOrganisation().getId())) {
+    //            throw new NoSuchElementException("Event not found with id: " + eventId);
+    //        }
+    //        return event;
+    //    }
 
     public OrganisationService getOrganisationService() {
         return organisationService;
@@ -179,22 +181,22 @@ public class CompanyService {
         return DEFAULT_EVENT_TYPE;
     }
 
-//    private CompanyOrganisationResponseDto toOrganisationResponse(Organisation organisation) {
-//        return new CompanyOrganisationResponseDto(
-//                organisation.getId(),
-//                organisation.getName(),
-//                organisation.getDescription(),
-//                organisation.getOrgCity());
-//    }
+    //    private CompanyOrganisationResponseDto toOrganisationResponse(Organisation organisation) {
+    //        return new CompanyOrganisationResponseDto(
+    //                organisation.getId(),
+    //                organisation.getName(),
+    //                organisation.getDescription(),
+    //                organisation.getOrgCity());
+    //    }
 
-//    private CompanyEventResponseDto toEventResponse(Event event) {
-//        return new CompanyEventResponseDto(
-//                event.getId(),
-//                event.getName(),
-//                event.getDescription(),
-//                event.getTime(),
-//                event.getCity(),
-//                event.getVenue(),
-//                event.getUsersAttending());
-//    }
+    //    private CompanyEventResponseDto toEventResponse(Event event) {
+    //        return new CompanyEventResponseDto(
+    //                event.getId(),
+    //                event.getName(),
+    //                event.getDescription(),
+    //                event.getTime(),
+    //                event.getCity(),
+    //                event.getVenue(),
+    //                event.getUsersAttending());
+    //    }
 }
