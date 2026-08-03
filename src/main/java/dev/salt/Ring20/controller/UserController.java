@@ -2,7 +2,14 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.*;
+import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceRequestDto;
+import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.fcmTokenDtos.FcmTokenRequestDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
+import dev.salt.Ring20.dto.userDtos.UserCreateRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserResponseDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
@@ -177,26 +184,22 @@ public class UserController {
     @Operation(
             summary = "Follow organisation",
             description = "Adds an organisation to the user's followed list.")
-    public ResponseEntity<UserResponseDto> followedOrg(
+    public ResponseEntity<OrganisationResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = getCurrentUser(authentication);
-        User updated =
-                userService.addFollowOrganization(
-                        currentUser.getId(), organisationService.getOrganisationById(orgId));
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
+        Organisation org = userService.addFollowOrganization(currentUser.getId(), orgId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toOrgResponseDto(org));
     }
 
     @DeleteMapping("/me/followed-orgs/{orgId}")
     @Operation(
             summary = "Unfollow organisation",
             description = "Removes an organisation from the user's followed list.")
-    public ResponseEntity<UserResponseDto> removeFollowedOrg(
+    public ResponseEntity<Void> removeFollowedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = getCurrentUser(authentication);
-        User updated =
-                userService.removeFollowOrganization(
-                        currentUser.getId(), organisationService.getOrganisationById(orgId));
-        return ResponseEntity.ok(toResponse(updated));
+        userService.removeFollowOrganization(currentUser.getId(), orgId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me/attending-events")
@@ -217,25 +220,22 @@ public class UserController {
     @Operation(
             summary = "Attend event",
             description = "Adds an event to the user's attended events.")
-    public ResponseEntity<UserResponseDto> attendEvent(
+    public ResponseEntity<EventResponseDto> attendEvent(
             Authentication authentication, @PathVariable Long eventId) {
         User currentUser = getCurrentUser(authentication);
-        User updated =
-                userService.addAttendEvent(currentUser.getId(), eventService.getEventById(eventId));
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(updated));
+        Event event = userService.addAttendEvent(currentUser.getId(), eventId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toEventResponseDto(event));
     }
 
     @DeleteMapping("/me/attending-events/{eventId}")
     @Operation(
             summary = "Remove attending event",
             description = "Removes an event from the user's attended events.")
-    public ResponseEntity<UserResponseDto> removeAttendEvent(
+    public ResponseEntity<Void> removeAttendEvent(
             Authentication authentication, @PathVariable Long eventId) {
         User currentUser = getCurrentUser(authentication);
-        User updated =
-                userService.removeAttendEvent(
-                        currentUser.getId(), eventService.getEventById(eventId));
-        return ResponseEntity.ok(toResponse(updated));
+        userService.removeAttendEvent(currentUser.getId(), eventId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{userId}/progress")
@@ -262,8 +262,10 @@ public class UserController {
     @Operation(
             summary = "Get callback preferences",
             description = "Retrieves callback preferences for a user.")
-    public List<CallbackPreference> getAll(@PathVariable Long userId) {
-        return userService.getUserById(userId).getCallbackPreferences();
+    public List<CallbackPreferenceResponseDto> getAllCallbackPreference(@PathVariable Long userId) {
+        return userService.getCallbackPreferences(userId).stream()
+                .map(this::toCallbackResponse)
+                .toList();
     }
 
     @PostMapping("/{userId}/callback-preference")
@@ -271,9 +273,12 @@ public class UserController {
     @Operation(
             summary = "Add or update callback preference",
             description = "Creates or updates a user's callback preference.")
-    public UserResponseDto addOrUpdate(
-            @PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
-        return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
+    public ResponseEntity<CallbackPreferenceResponseDto> addOrUpdateCallBackPreference(
+            @PathVariable Long userId, @Valid @RequestBody CallbackPreferenceRequestDto request) {
+        CallbackPreference saved =
+                userService.addOrUpdateCallbackPreference(userId, toCallbackPreference(request));
+
+        return ResponseEntity.ok(toCallbackResponse(saved));
     }
 
     @DeleteMapping("/{userId}/callback-preference/{day}")
@@ -281,8 +286,10 @@ public class UserController {
     @Operation(
             summary = "Remove callback preference",
             description = "Removes a user's callback preference for a specific day.")
-    public UserResponseDto remove(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
-        return toResponse(userService.removeCallbackPreference(userId, day));
+    public ResponseEntity<Void> removeCallBackPreference(
+            @PathVariable Long userId, @PathVariable DayOfWeekType day) {
+        userService.removeCallbackPreference(userId, day);
+        return ResponseEntity.noContent().build();
     }
 
     private User getCurrentUser(Authentication authentication) {
@@ -385,5 +392,22 @@ public class UserController {
                 events,
                 organisation.getOrgCity(),
                 organisation.getOrganizer().getId());
+    }
+
+    private CallbackPreference toCallbackPreference(CallbackPreferenceRequestDto request) {
+        CallbackPreference callback = new CallbackPreference();
+        callback.setDay(DayOfWeekType.valueOf(request.day()));
+        callback.setTime(request.time());
+        callback.setRepeat(RepeatType.valueOf(request.repeatType()));
+        return callback;
+    }
+
+    private CallbackPreferenceResponseDto toCallbackResponse(CallbackPreference callback) {
+
+        return new CallbackPreferenceResponseDto(
+                callback.getId(),
+                callback.getDay().name(),
+                callback.getTime(),
+                callback.getRepeat().name());
     }
 }

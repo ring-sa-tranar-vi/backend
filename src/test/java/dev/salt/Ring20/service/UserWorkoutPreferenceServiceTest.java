@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import dev.salt.Ring20.entity.UserWorkoutPreference;
 import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,18 +24,22 @@ class UserWorkoutPreferenceServiceTest {
 
     @Mock private UserWorkoutPreferenceRepository preferenceRepository;
 
+    @Mock private WorkoutRepository workoutRepository;
+
     @InjectMocks private UserWorkoutPreferenceService preferenceService;
 
     @Test
     void getPreferencesReturnsWorkoutIdsByType() {
         UserWorkoutPreference disliked = new UserWorkoutPreference();
         disliked.setWorkoutId(10L);
+
         UserWorkoutPreference favorite = new UserWorkoutPreference();
         favorite.setWorkoutId(20L);
 
         when(preferenceRepository.findByUserIdAndPreferenceType(
                         1L, UserWorkoutPreferenceType.DISLIKED))
                 .thenReturn(List.of(disliked));
+
         when(preferenceRepository.findByUserIdAndPreferenceType(
                         1L, UserWorkoutPreferenceType.FAVORITE))
                 .thenReturn(List.of(favorite));
@@ -50,6 +55,9 @@ class UserWorkoutPreferenceServiceTest {
         when(preferenceRepository.findByUserIdAndWorkoutIdAndPreferenceType(
                         1L, 2L, UserWorkoutPreferenceType.DISLIKED))
                 .thenReturn(Optional.empty());
+
+        when(workoutRepository.existsById(2L)).thenReturn(true);
+
         when(preferenceRepository.save(any(UserWorkoutPreference.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 

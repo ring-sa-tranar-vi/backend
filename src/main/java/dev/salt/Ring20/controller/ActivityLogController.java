@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.ActivityLogCreateRequestDto;
-import dev.salt.Ring20.dto.ActivityLogResponseDto;
+import dev.salt.Ring20.dto.activityLogDtos.ActivityLogCreateRequestDto;
+import dev.salt.Ring20.dto.activityLogDtos.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.security.SecurityService;

@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.UserCreateRequestDto;
-import dev.salt.Ring20.dto.UserRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserCreateRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserRequestDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;
