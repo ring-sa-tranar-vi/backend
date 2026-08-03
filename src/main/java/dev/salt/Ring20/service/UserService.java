@@ -159,25 +159,6 @@ public class UserService {
     }
 
     @Transactional
-    public User addAttendEvent(Long userId, Long eventId) {
-        User user = getUserById(userId);
-
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + eventId));
-
-        boolean alreadyAttending = user.getAttendingEvents()
-                .stream()
-                .anyMatch(e -> e.getId().equals(eventId));
-
-        if (!alreadyAttending) {
-            user.getAttendingEvents().add(event);
-            event.setUsersAttending(event.getUsersAttending() + 1);
-        }
-
-        return user;
-    }
-
-    @Transactional
     public void removeFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
 
@@ -197,7 +178,27 @@ public class UserService {
     }
 
     @Transactional
-    public User removeAttendEvent(Long userId, Long eventId) {
+    public Event addAttendEvent(Long userId, Long eventId) {
+        User user = getUserById(userId);
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + eventId));
+
+        boolean alreadyAttending = user.getAttendingEvents()
+                .stream()
+                .anyMatch(e -> e.getId().equals(eventId));
+
+        if (!alreadyAttending) {
+            user.getAttendingEvents().add(event);
+            event.setUsersAttending(event.getUsersAttending() + 1);
+        }
+
+        return event;
+    }
+
+
+    @Transactional
+    public void removeAttendEvent(Long userId, Long eventId) {
         User user = getUserById(userId);
 
         boolean removed = user.getAttendingEvents()
@@ -209,8 +210,6 @@ public class UserService {
 
             event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
         }
-
-        return user;
     }
 
     @Transactional

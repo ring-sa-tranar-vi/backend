@@ -7,6 +7,9 @@ import static org.mockito.Mockito.*;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.UserRole;
+import dev.salt.Ring20.repository.EventRepository;
+import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -23,6 +26,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserServiceTest {
 
     @Mock private UserRepository userRepository;
+    @Mock private TrainerRepository trainerRepository;
+    @Mock private OrganisationRepository organisationRepository;
+    @Mock private EventRepository eventRepository;
 
     @InjectMocks private UserService userService;
 
@@ -118,22 +124,22 @@ class UserServiceTest {
     }
 
     @Test
-    void removeAttendEventMatchesByIdAcrossPersistenceContexts() {
-        Event storedEvent = new Event();
-        storedEvent.setId(10L);
-        storedEvent.setUsersAttending(1);
-        user.getAttendingEvents().add(storedEvent);
+    void removeAttendEventRemovesEventAndDecrementsCounter() {
+        Event event = new Event();
+        event.setId(10L);
+        event.setUsersAttending(1);
 
-        Event detachedEvent = new Event();
-        detachedEvent.setId(10L);
-        detachedEvent.setUsersAttending(1);
+        user.getAttendingEvents().add(event);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
 
-        User updated = userService.removeAttendEvent(1L, detachedEvent);
+        when(eventRepository.findById(10L))
+                .thenReturn(Optional.of(event));
 
-        assertTrue(updated.getAttendingEvents().isEmpty());
-        assertEquals(0, detachedEvent.getUsersAttending());
+        userService.removeAttendEvent(1L, 10L);
+
+        assertTrue(user.getAttendingEvents().isEmpty());
+        assertEquals(0, event.getUsersAttending());
     }
 }
