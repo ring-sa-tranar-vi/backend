@@ -27,7 +27,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 WHERE u.id = :id
             """)
     List<Organisation> findFollowedOrganisationsWithEventsById(@Param("id") Long id);
-    @Query("""
+
+    @Query(
+            """
        SELECT u
        FROM User u
        LEFT JOIN FETCH u.callbackPreferences

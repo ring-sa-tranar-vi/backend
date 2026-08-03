@@ -47,15 +47,7 @@ class TrainerServiceTest {
 
         trainerRequest =
                 new TrainerData(
-                        "Alice Coach",
-                        "Prompt",
-                        "Voice",
-                        "Intro",
-                        "en",
-                        null,
-                        null,
-                        null,
-                        null);
+                        "Alice Coach", "Prompt", "Voice", "Intro", "en", null, null, null, null);
     }
 
     @Test
@@ -75,8 +67,7 @@ class TrainerServiceTest {
     void createTrainerRejectsNullBody() {
         IllegalArgumentException ex =
                 assertThrows(
-                        IllegalArgumentException.class,
-                        () -> trainerService.createTrainer(null));
+                        IllegalArgumentException.class, () -> trainerService.createTrainer(null));
 
         assertEquals("Request body is required", ex.getMessage());
     }
@@ -92,29 +83,22 @@ class TrainerServiceTest {
                         () -> trainerService.createTrainer(trainerRequest));
 
         assertEquals(
-                "Trainer with name 'Alice Coach' already exists in language 'en'",
-                ex.getMessage());
+                "Trainer with name 'Alice Coach' already exists in language 'en'", ex.getMessage());
     }
 
     @Test
     void getTrainerByIdThrowsWhenMissing() {
-        when(trainerRepository.findById(9L))
-                .thenReturn(Optional.empty());
+        when(trainerRepository.findById(9L)).thenReturn(Optional.empty());
 
         NoSuchElementException ex =
-                assertThrows(
-                        NoSuchElementException.class,
-                        () -> trainerService.getTrainerById(9L));
+                assertThrows(NoSuchElementException.class, () -> trainerService.getTrainerById(9L));
 
-        assertEquals(
-                "Trainer not found with id: 9",
-                ex.getMessage());
+        assertEquals("Trainer not found with id: 9", ex.getMessage());
     }
 
     @Test
     void deleteTrainerDeletesExistingTrainer() {
-        when(trainerRepository.findById(1L))
-                .thenReturn(Optional.of(trainer));
+        when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
 
         trainerService.deleteTrainer(1L);
 

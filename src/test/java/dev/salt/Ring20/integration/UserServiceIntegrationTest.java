@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.service.UserService;
@@ -20,14 +18,11 @@ import org.springframework.context.annotation.Import;
 @DisplayName("UserService Integration Tests")
 class UserServiceIntegrationTest {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private TrainerRepository trainerRepository;
+    @Autowired private TrainerRepository trainerRepository;
 
     @Test
     void createUserPersistsAndCanBeLoaded() {
@@ -35,9 +30,7 @@ class UserServiceIntegrationTest {
 
         assertNotNull(created.getId());
 
-        User saved =
-                userRepository.findByClerkId("clerk_int_1")
-                        .orElseThrow();
+        User saved = userRepository.findByClerkId("clerk_int_1").orElseThrow();
 
         assertEquals("Integration User", saved.getName());
     }
@@ -70,9 +63,7 @@ class UserServiceIntegrationTest {
         assertEquals(trainer.getId(), updated.getTrainerId());
         assertEquals("Stockholm", updated.getCity());
 
-        User saved =
-                userRepository.findByClerkId("clerk_int_2")
-                        .orElseThrow();
+        User saved = userRepository.findByClerkId("clerk_int_2").orElseThrow();
 
         assertEquals("Updated", saved.getName());
     }

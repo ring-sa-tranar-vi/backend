@@ -22,14 +22,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("UserWorkoutPreferenceService Tests")
 class UserWorkoutPreferenceServiceTest {
 
-    @Mock
-    private UserWorkoutPreferenceRepository preferenceRepository;
+    @Mock private UserWorkoutPreferenceRepository preferenceRepository;
 
-    @Mock
-    private WorkoutRepository workoutRepository;
+    @Mock private WorkoutRepository workoutRepository;
 
-    @InjectMocks
-    private UserWorkoutPreferenceService preferenceService;
+    @InjectMocks private UserWorkoutPreferenceService preferenceService;
 
     @Test
     void getPreferencesReturnsWorkoutIdsByType() {
@@ -40,15 +37,14 @@ class UserWorkoutPreferenceServiceTest {
         favorite.setWorkoutId(20L);
 
         when(preferenceRepository.findByUserIdAndPreferenceType(
-                1L, UserWorkoutPreferenceType.DISLIKED))
+                        1L, UserWorkoutPreferenceType.DISLIKED))
                 .thenReturn(List.of(disliked));
 
         when(preferenceRepository.findByUserIdAndPreferenceType(
-                1L, UserWorkoutPreferenceType.FAVORITE))
+                        1L, UserWorkoutPreferenceType.FAVORITE))
                 .thenReturn(List.of(favorite));
 
-        Map<String, List<Long>> result =
-                preferenceService.getPreferences(1L);
+        Map<String, List<Long>> result = preferenceService.getPreferences(1L);
 
         assertEquals(List.of(10L), result.get("dislikedWorkoutIds"));
         assertEquals(List.of(20L), result.get("favoriteWorkoutIds"));
@@ -57,37 +53,25 @@ class UserWorkoutPreferenceServiceTest {
     @Test
     void addPreferenceSavesOnlyWhenMissing() {
         when(preferenceRepository.findByUserIdAndWorkoutIdAndPreferenceType(
-                1L,
-                2L,
-                UserWorkoutPreferenceType.DISLIKED))
+                        1L, 2L, UserWorkoutPreferenceType.DISLIKED))
                 .thenReturn(Optional.empty());
 
-        when(workoutRepository.existsById(2L))
-                .thenReturn(true);
+        when(workoutRepository.existsById(2L)).thenReturn(true);
 
         when(preferenceRepository.save(any(UserWorkoutPreference.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        preferenceService.addPreference(
-                1L,
-                2L,
-                UserWorkoutPreferenceType.DISLIKED);
+        preferenceService.addPreference(1L, 2L, UserWorkoutPreferenceType.DISLIKED);
 
-        verify(preferenceRepository)
-                .save(any(UserWorkoutPreference.class));
+        verify(preferenceRepository).save(any(UserWorkoutPreference.class));
     }
 
     @Test
     void removePreferenceDelegatesToRepository() {
-        preferenceService.removePreference(
-                1L,
-                2L,
-                UserWorkoutPreferenceType.FAVORITE);
+        preferenceService.removePreference(1L, 2L, UserWorkoutPreferenceType.FAVORITE);
 
         verify(preferenceRepository)
                 .deleteByUserIdAndWorkoutIdAndPreferenceType(
-                        1L,
-                        2L,
-                        UserWorkoutPreferenceType.FAVORITE);
+                        1L, 2L, UserWorkoutPreferenceType.FAVORITE);
     }
 }

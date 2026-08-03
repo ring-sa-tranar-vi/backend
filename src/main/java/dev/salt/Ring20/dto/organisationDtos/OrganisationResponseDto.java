@@ -1,7 +1,6 @@
 package dev.salt.Ring20.dto.organisationDtos;
 
 import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
-
 import java.util.List;
 
 public record OrganisationResponseDto(
