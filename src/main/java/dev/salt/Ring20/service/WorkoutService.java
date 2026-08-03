@@ -6,11 +6,9 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +21,9 @@ public class WorkoutService {
     private final TrainerRepository trainerRepository;
 
     public WorkoutService(
-            WorkoutRepository workoutRepository, ActivityLogRepository activityLogRepository, TrainerRepository trainerRepository) {
+            WorkoutRepository workoutRepository,
+            ActivityLogRepository activityLogRepository,
+            TrainerRepository trainerRepository) {
         this.workoutRepository = workoutRepository;
         this.activityLogRepository = activityLogRepository;
         this.trainerRepository = trainerRepository;
@@ -212,9 +212,11 @@ public class WorkoutService {
 
         Long trainerId = workout.getTrainer().getId();
 
-        return trainerRepository.findById(trainerId)
-                .orElseThrow(() ->
-                        new NoSuchElementException("Trainer with id " + trainerId + " does not exist")
-                );
+        return trainerRepository
+                .findById(trainerId)
+                .orElseThrow(
+                        () ->
+                                new NoSuchElementException(
+                                        "Trainer with id " + trainerId + " does not exist"));
     }
 }
