@@ -1,7 +1,8 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.EventRequestDto;
-import dev.salt.Ring20.dto.EventResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
+import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,16 +27,16 @@ public class EventController {
     }
 
     @PostMapping
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
+    @PreAuthorize("@organisationSecurity.canModify(#request.organisationId, authentication.name)")
     @Operation(summary = "Create event", description = "Creates a new event.")
     public ResponseEntity<EventResponseDto> createEvent(
-            @Valid @RequestBody EventRequestDto request) {
+            @Valid @RequestBody EventCreateRequestDto request) {
         Event event =
                 service.createEvent(
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation(),
+                        request.organisationId(),
                         request.city(),
                         request.venue(),
                         request.eventType());
@@ -62,7 +63,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
+    @PreAuthorize("@eventSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete event", description = "Deletes an event by its ID.")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
         service.deleteEventById(id);
@@ -70,17 +71,16 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#request.organisation, authentication.name)")
+    @PreAuthorize("@eventSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Update event", description = "Updates an existing event by its ID.")
     public ResponseEntity<EventResponseDto> updateEventById(
-            @PathVariable Long id, @Valid @RequestBody EventRequestDto request) {
+            @PathVariable Long id, @Valid @RequestBody EventUpdateRequestDto request) {
         Event updatedEvent =
                 service.updateEvent(
                         id,
                         request.name(),
                         request.description(),
                         request.time(),
-                        request.organisation(),
                         request.city(),
                         request.venue(),
                         request.eventType());

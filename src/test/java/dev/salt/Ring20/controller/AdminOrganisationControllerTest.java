@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import dev.salt.Ring20.dto.AdminCreateEventDto;
 import dev.salt.Ring20.dto.AdminOrganisationDto;
 import dev.salt.Ring20.dto.AdminOrganisationEventDto;
-import dev.salt.Ring20.dto.OrganisationRequestDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
@@ -68,8 +68,8 @@ class AdminOrganisationControllerTest {
 
     @Test
     void createOrganisationReturnsCreatedOrganisation() {
-        OrganisationRequestDto request =
-                new OrganisationRequestDto("Salt", "Training", List.of(), "Stockholm", 1L);
+        OrganisationCreateRequestDto request =
+                new OrganisationCreateRequestDto("Salt", "Training", "Stockholm", 1L);
         when(organisationService.createOrganisation("Salt", "Training", "Stockholm", 1L))
                 .thenReturn(organisation(3L));
 
@@ -97,7 +97,7 @@ class AdminOrganisationControllerTest {
                         "Morning event",
                         "Description",
                         time,
-                        organisation,
+                        organisation.getId(),
                         "Stockholm",
                         null,
                         dev.salt.Ring20.entity.EventType.IN_PERSON))

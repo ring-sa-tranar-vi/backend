@@ -3,7 +3,7 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.AdminCreateEventDto;
 import dev.salt.Ring20.dto.AdminOrganisationDto;
 import dev.salt.Ring20.dto.AdminOrganisationEventDto;
-import dev.salt.Ring20.dto.OrganisationRequestDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
@@ -47,7 +47,7 @@ public class AdminOrganisationController {
 
     @PostMapping("/organisations")
     public ResponseEntity<AdminOrganisationDto> createOrganisation(
-            @Valid @RequestBody OrganisationRequestDto request) {
+            @Valid @RequestBody OrganisationCreateRequestDto request) {
         Organisation created =
                 organisationService.createOrganisation(
                         request.name(),
@@ -79,7 +79,7 @@ public class AdminOrganisationController {
                         request.name(),
                         request.description(),
                         request.time(),
-                        organisation,
+                        organisation.getId(),
                         organisation.getOrgCity(),
                         null,
                         EventType.IN_PERSON);

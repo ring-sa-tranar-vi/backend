@@ -1,6 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.*;
+import dev.salt.Ring20.dto.adminDtos.*;
+import dev.salt.Ring20.dto.userDtos.UserRequestDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;

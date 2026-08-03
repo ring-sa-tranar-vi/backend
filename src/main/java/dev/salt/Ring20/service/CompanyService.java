@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class CompanyService {
 
     private static final String COMPANY_ROLE = "ORGANIZER";
+
     private final OrganisationService organisationService;
     private final EventService eventService;
     private final UserService userService;
@@ -29,11 +30,7 @@ public class CompanyService {
         User user = userService.getByClerkIdOrThrow(clerkId);
         Organisation organisation = getManagedOrganisationForClerkId(clerkId);
         return new CompanyMeDto(
-                user == null ? null : user.getId(),
-                COMPANY_ROLE,
-                true,
-                organisation.getId(),
-                organisation.getName());
+                user.getId(), COMPANY_ROLE, true, organisation.getId(), organisation.getName());
     }
 
     public Organisation getManagedOrganisationForClerkId(String clerkId) {
@@ -83,5 +80,4 @@ public class CompanyService {
     public EventService getEventService() {
         return eventService;
     }
-
 }

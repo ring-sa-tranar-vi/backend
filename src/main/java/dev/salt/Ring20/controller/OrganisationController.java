@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.EventRequestDto;
-import dev.salt.Ring20.dto.EventResponseDto;
-import dev.salt.Ring20.dto.OrganisationRequestDto;
-import dev.salt.Ring20.dto.OrganisationResponseDto;
+import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.EventService;
@@ -37,7 +37,7 @@ public class OrganisationController {
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(summary = "Create organisation", description = "Creates a new organisation.")
     public ResponseEntity<OrganisationResponseDto> createOrganisation(
-            @Valid @RequestBody OrganisationRequestDto request) {
+            @Valid @RequestBody OrganisationCreateRequestDto request) {
         Organisation newOrg =
                 service.createOrganisation(
                         request.name(),
@@ -84,14 +84,10 @@ public class OrganisationController {
             summary = "Update organisation",
             description = "Updates an existing organisation by its ID.")
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
-            @PathVariable Long id, @Valid @RequestBody OrganisationRequestDto request) {
+            @PathVariable Long id, @Valid @RequestBody OrganisationUpdateRequestDto request) {
         Organisation updatedOrg =
                 service.updateOrganisationById(
-                        id,
-                        request.name(),
-                        request.description(),
-                        toEvents(request.events()),
-                        request.orgCity());
+                        id, request.name(), request.description(), request.orgCity());
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 
@@ -108,26 +104,12 @@ public class OrganisationController {
     @Operation(
             summary = "Get my organisation",
             description = "Retrieves the organisation belonging to the authenticated organiser.")
-    public ResponseEntity<OrganisationResponseDto> getMyOrganisation(
+    public ResponseEntity<List<OrganisationResponseDto>> getMyOrganisation(
             Authentication authentication) {
         return ResponseEntity.ok(
-                toResponseDto(service.getOrganisationForUser(authentication.getName())));
-    }
-
-    private List<Event> toEvents(List<EventRequestDto> requests) {
-        if (requests == null) {
-            return null;
-        }
-
-        return requests.stream().map(this::toEvent).toList();
-    }
-
-    private Event toEvent(EventRequestDto request) {
-        Event event = new Event();
-        event.setName(request.name());
-        event.setDescription(request.description());
-        event.setTime(request.time());
-        return event;
+                service.getOrganisationForUser(authentication.getName()).stream()
+                        .map(this::toResponseDto)
+                        .toList());
     }
 
     private OrganisationResponseDto toResponseDto(Organisation organisation) {
@@ -140,7 +122,8 @@ public class OrganisationController {
                 organisation.getName(),
                 organisation.getDescription(),
                 events,
-                organisation.getOrgCity());
+                organisation.getOrgCity(),
+                organisation.getOrganizer() != null ? organisation.getOrganizer().getId() : null);
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
