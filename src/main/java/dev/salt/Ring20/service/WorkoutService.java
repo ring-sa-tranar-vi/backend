@@ -1,6 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
@@ -96,15 +97,22 @@ public class WorkoutService {
 
     @Transactional
     public Workout createWorkout(Workout workout) {
-        validateWorkoutForWrite(workout);
+        validateWorkoutNotNull(workout);
+        validateName(workout);
+        validateDuration(workout);
+        applyDefaults(workout);
+        var trainer = resolveTrainer(workout);
+        workout.setTrainer(trainer);
         return workoutRepository.save(workout);
     }
 
     @Transactional
     public Workout updateWorkout(Long id, Workout workout) {
         validateId(id);
-        validateWorkoutForWrite(workout);
-
+        validateWorkoutNotNull(workout);
+        validateName(workout);
+        validateDuration(workout);
+        applyDefaults(workout);
         Workout existing =
                 workoutRepository
                         .findById(id)
@@ -133,10 +141,8 @@ public class WorkoutService {
         existing.setLowImpact(workout.getLowImpact());
         existing.setSeated(workout.getSeated());
         existing.setBeginnerFriendly(workout.getBeginnerFriendly());
-        if (workout.getTrainer() != null) {
-            existing.setTrainer(workout.getTrainer());
-        }
-
+        var trainer = resolveTrainer(workout);
+        existing.setTrainer(trainer);
         return workoutRepository.save(existing);
     }
 
@@ -173,31 +179,41 @@ public class WorkoutService {
         }
     }
 
-    private void validateWorkoutForWrite(Workout workout) {
+    private void validateWorkoutNotNull(Workout workout) {
         if (workout == null) {
             throw new IllegalArgumentException("Workout body is required.");
         }
+    }
 
+    private void validateName(Workout workout) {
         if (workout.getName() == null || workout.getName().isBlank()) {
             throw new IllegalArgumentException("Workout name is required.");
         }
+    }
 
+    private void validateDuration(Workout workout) {
+        Integer duration = workout.getDurationSeconds();
+        if (duration != null && duration < 0) {
+            throw new IllegalArgumentException("DurationSeconds cannot be negative");
+        }
+    }
+
+    private void applyDefaults(Workout workout) {
         if (workout.getEnabled() == null) {
             workout.setEnabled(true);
         }
+    }
 
-        Integer durationSeconds = workout.getDurationSeconds();
-        if (durationSeconds != null && durationSeconds < 0) {
-            throw new IllegalArgumentException("DurationSeconds cannot be negative");
+    private Trainer resolveTrainer(Workout workout) {
+        if (workout.getTrainer() == null || workout.getTrainer().getId() == null) {
+            return null;
         }
 
-        if (workout.getTrainer() != null && workout.getTrainer().getId() != null) {
-            Long trainerId = workout.getTrainer().getId();
+        Long trainerId = workout.getTrainer().getId();
 
-            boolean exists = trainerRepository.existsById(trainerId);
-            if (!exists) {
-                throw new IllegalArgumentException("Trainer with id " + trainerId + " does not exist");
-            }
-        }
+        return trainerRepository.findById(trainerId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Trainer with id " + trainerId + " does not exist")
+                );
     }
 }
