@@ -2,6 +2,8 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceRequestDto;
+import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceResponseDto;
 import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
 import dev.salt.Ring20.dto.fcmTokenDtos.FcmTokenRequestDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
@@ -269,8 +271,12 @@ public class UserController {
     @Operation(
             summary = "Get callback preferences",
             description = "Retrieves callback preferences for a user.")
-    public List<CallbackPreference> getAll(@PathVariable Long userId) {
-        return userService.getUserById(userId).getCallbackPreferences();
+    public List<CallbackPreferenceResponseDto> getAll(@PathVariable Long userId) {
+        return userService.getUserById(userId)
+                .getCallbackPreferences()
+                .stream()
+                .map(this::toCallbackResponse)
+                .toList();
     }
 
     @PostMapping("/{userId}/callback-preference")
@@ -278,9 +284,12 @@ public class UserController {
     @Operation(
             summary = "Add or update callback preference",
             description = "Creates or updates a user's callback preference.")
-    public UserResponseDto addOrUpdateCallBackPreference(
-            @PathVariable Long userId, @Valid @RequestBody CallbackPreference callback) {
-        return toResponse(userService.addOrUpdateCallbackPreference(userId, callback));
+    public ResponseEntity<CallbackPreferenceResponseDto> addOrUpdateCallBackPreference(
+            @PathVariable Long userId, @Valid @RequestBody CallbackPreferenceRequestDto request) {
+        CallbackPreference saved =
+                userService.addOrUpdateCallbackPreference(userId, toCallbackPreference(request));
+
+        return ResponseEntity.ok(toCallbackResponse(saved));
     }
 
     @DeleteMapping("/{userId}/callback-preference/{day}")
@@ -288,8 +297,9 @@ public class UserController {
     @Operation(
             summary = "Remove callback preference",
             description = "Removes a user's callback preference for a specific day.")
-    public UserResponseDto removeCallBackPreference(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
-        return toResponse(userService.removeCallbackPreference(userId, day));
+    public ResponseEntity<Void> removeCallBackPreference(@PathVariable Long userId, @PathVariable DayOfWeekType day) {
+        userService.removeCallbackPreference(userId, day);
+        return ResponseEntity.noContent().build();
     }
 
     private User getCurrentUser(Authentication authentication) {
@@ -392,5 +402,24 @@ public class UserController {
                 events,
                 organisation.getOrgCity(),
                 organisation.getOrganizer().getId());
+    }
+
+    private CallbackPreference toCallbackPreference(CallbackPreferenceRequestDto request) {
+        CallbackPreference callback = new CallbackPreference();
+        callback.setDay(DayOfWeekType.valueOf(request.day()));
+        callback.setTime(request.time());
+        callback.setRepeat(RepeatType.valueOf(request.repeatType()));
+        return callback;
+    }
+
+    private CallbackPreferenceResponseDto toCallbackResponse(
+            CallbackPreference callback) {
+
+        return new CallbackPreferenceResponseDto(
+                callback.getId(),
+                callback.getDay().name(),
+                callback.getTime(),
+                callback.getRepeat().name()
+        );
     }
 }
