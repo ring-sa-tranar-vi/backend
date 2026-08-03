@@ -1,6 +1,6 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import dev.salt.Ring20.service.UserWorkoutPreferenceService;
 import dev.salt.Ring20.service.security.CurrentUserService;
 import io.swagger.v3.oas.annotations.Operation;

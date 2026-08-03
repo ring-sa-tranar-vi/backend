@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 import dev.salt.Ring20.dto.feedbackDtos.FeedbackRequestDto;
 import dev.salt.Ring20.dto.feedbackDtos.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
-import dev.salt.Ring20.entity.FeedbackDifficulty;
+import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.security.SecurityService;
 import java.util.NoSuchElementException;

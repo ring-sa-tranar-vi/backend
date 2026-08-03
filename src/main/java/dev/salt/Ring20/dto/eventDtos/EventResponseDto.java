@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto.eventDtos;
 
-import dev.salt.Ring20.entity.EventType;
+import dev.salt.Ring20.entity.enums.EventType;
 import java.time.LocalDateTime;
 
 public record EventResponseDto(

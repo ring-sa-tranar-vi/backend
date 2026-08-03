@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto.adminDtos;
 
-import dev.salt.Ring20.entity.UserRole;
+import dev.salt.Ring20.entity.enums.UserRole;
 import java.time.LocalDateTime;
 
 public record AdminUserSummaryResponseDto(

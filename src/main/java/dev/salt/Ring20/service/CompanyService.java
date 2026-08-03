@@ -2,7 +2,7 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.dto.companyDto.CompanyMeResponseDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.EventType;
+import dev.salt.Ring20.entity.enums.EventType;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import java.util.Comparator;

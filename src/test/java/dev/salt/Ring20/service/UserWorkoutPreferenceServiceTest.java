@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import dev.salt.Ring20.entity.UserWorkoutPreference;
-import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.util.List;

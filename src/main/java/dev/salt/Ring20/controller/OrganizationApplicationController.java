@@ -3,7 +3,7 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationRequestDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.OrganizationApplication;
-import dev.salt.Ring20.entity.PaymentStatus;
+import dev.salt.Ring20.entity.enums.PaymentStatus;
 import dev.salt.Ring20.service.OrganizationApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.UserRole;
+import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;

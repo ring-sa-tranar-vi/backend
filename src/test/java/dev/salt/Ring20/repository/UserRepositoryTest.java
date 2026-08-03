@@ -3,7 +3,7 @@ package dev.salt.Ring20.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.EventType;
+import dev.salt.Ring20.entity.enums.EventType;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import jakarta.persistence.EntityManager;

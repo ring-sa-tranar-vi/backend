@@ -1,7 +1,7 @@
 package dev.salt.Ring20.dto.organisationDtos;
 
-import dev.salt.Ring20.entity.ApplicationStatus;
-import dev.salt.Ring20.entity.PaymentStatus;
+import dev.salt.Ring20.entity.enums.ApplicationStatus;
+import dev.salt.Ring20.entity.enums.PaymentStatus;
 import java.time.LocalDateTime;
 
 public record OrganizationApplicationResponseDto(

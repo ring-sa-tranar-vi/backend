@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.UserRole;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;

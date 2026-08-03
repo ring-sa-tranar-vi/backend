@@ -2,6 +2,7 @@ package dev.salt.Ring20.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import dev.salt.Ring20.entity.enums.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

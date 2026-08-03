@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto.adminDtos;
 
-import dev.salt.Ring20.entity.FeedbackDifficulty;
+import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
 import java.time.LocalDateTime;
 
 public record AdminRecentFeedbackResponseDto(

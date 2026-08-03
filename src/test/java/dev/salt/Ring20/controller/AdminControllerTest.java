@@ -11,6 +11,8 @@ import dev.salt.Ring20.dto.adminDtos.AdminUserSummaryResponseDto;
 import dev.salt.Ring20.dto.adminDtos.AdminWorkoutUsageResponseDto;
 import dev.salt.Ring20.dto.userDtos.UserRequestDto;
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;

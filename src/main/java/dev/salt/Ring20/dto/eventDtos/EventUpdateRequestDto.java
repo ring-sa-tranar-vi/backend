@@ -1,6 +1,6 @@
 package dev.salt.Ring20.dto.eventDtos;
 
-import dev.salt.Ring20.entity.EventType;
+import dev.salt.Ring20.entity.enums.EventType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;

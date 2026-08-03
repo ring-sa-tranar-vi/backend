@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.UserWorkoutPreference;
-import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;

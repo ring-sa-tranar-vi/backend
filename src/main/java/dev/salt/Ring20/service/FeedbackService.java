@@ -1,6 +1,10 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
+import dev.salt.Ring20.entity.enums.FeedbackStatus;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
