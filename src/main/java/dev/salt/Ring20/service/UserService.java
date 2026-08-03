@@ -216,6 +216,14 @@ public class UserService {
         event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
     }
 
+    public List<CallbackPreference> getCallbackPreferences(Long userId) {
+        User user = userRepository.findByIdWithCallbackPreferences(userId)
+                .orElseThrow(() ->
+                        new NoSuchElementException("User not found"));
+
+        return user.getCallbackPreferences();
+    }
+
     @Transactional
     public CallbackPreference addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
         User user = getUserById(userId);

@@ -187,8 +187,11 @@ public class UserController {
     @GetMapping("/{userId}/callback-preference")
     @PreAuthorize("#userId == @securityService.currentUserId(authentication.name)")
     @Operation(summary = "Get callback preferences", description = "Retrieves callback preferences for a user.")
-    public List<CallbackPreferenceResponseDto> getAll(@PathVariable Long userId) {
-        return userService.getUserById(userId).getCallbackPreferences().stream().map(this::toCallbackResponse).toList();
+    public List<CallbackPreferenceResponseDto> getAllCallbackPreference(@PathVariable Long userId) {
+        return userService.getCallbackPreferences(userId)
+                .stream()
+                .map(this::toCallbackResponse)
+                .toList();
     }
 
     @PostMapping("/{userId}/callback-preference")
