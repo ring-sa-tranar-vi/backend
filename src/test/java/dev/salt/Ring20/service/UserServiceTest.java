@@ -87,19 +87,32 @@ class UserServiceTest {
 
     @Test
     void updateUserPreferencesByClerkIdUpdatesAndSaves() {
-        when(userRepository.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
+        when(userRepository.findByClerkId("clerk_1"))
+                .thenReturn(Optional.of(user));
+
+        when(trainerRepository.existsById(7L))
+                .thenReturn(true);
+
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm", false);
+                        "clerk_1",
+                        "  Updated  ",
+                        4,
+                        "new",
+                        7L,
+                        "Stockholm",
+                        false);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
         assertEquals("new", updated.getContext());
         assertEquals(7L, updated.getTrainerId());
         assertEquals("Stockholm", updated.getCity());
+
+        verify(userRepository).save(user);
     }
 
     @Test
@@ -112,6 +125,28 @@ class UserServiceTest {
                                         "clerk_1", "Name", 3, "context", null, "Stockholm", false));
 
         assertEquals("Trainer is required", ex.getMessage());
+    }
+    @Test
+    void updateUserPreferencesRejectsUnknownTrainer() {
+        when(trainerRepository.existsById(999L))
+                .thenReturn(false);
+
+        IllegalArgumentException ex =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () ->
+                                userService.updateUserPreferencesByClerkId(
+                                        "clerk_1",
+                                        "Name",
+                                        3,
+                                        "context",
+                                        999L,
+                                        "Stockholm",
+                                        false));
+
+        assertEquals(
+                "Trainer does not exist with id: 999",
+                ex.getMessage());
     }
 
     @Test

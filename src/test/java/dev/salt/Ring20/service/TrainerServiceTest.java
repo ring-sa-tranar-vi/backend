@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.repository.TrainerRepository;
+import dev.salt.Ring20.repository.UserRepository;
+import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.TrainerData;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -22,6 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TrainerServiceTest {
 
     @Mock private TrainerRepository trainerRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private GeminiWorkoutService geminiWorkoutService;
+    @Mock private WorkoutRepository workoutRepository;
+    @Mock private ObjectMapper objectMapper;
 
     @InjectMocks private TrainerService trainerService;
 
@@ -40,13 +47,22 @@ class TrainerServiceTest {
 
         trainerRequest =
                 new TrainerData(
-                        "Alice Coach", "Prompt", "Voice", "Intro", "en", null, null, null, null);
+                        "Alice Coach",
+                        "Prompt",
+                        "Voice",
+                        "Intro",
+                        "en",
+                        null,
+                        null,
+                        null,
+                        null);
     }
 
     @Test
     void createTrainerSavesValidRequest() {
         when(trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase("Alice Coach", "en"))
                 .thenReturn(false);
+
         when(trainerRepository.save(any(Trainer.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -59,7 +75,9 @@ class TrainerServiceTest {
     void createTrainerRejectsNullBody() {
         IllegalArgumentException ex =
                 assertThrows(
-                        IllegalArgumentException.class, () -> trainerService.createTrainer(null));
+                        IllegalArgumentException.class,
+                        () -> trainerService.createTrainer(null));
+
         assertEquals("Request body is required", ex.getMessage());
     }
 
@@ -72,21 +90,31 @@ class TrainerServiceTest {
                 assertThrows(
                         IllegalArgumentException.class,
                         () -> trainerService.createTrainer(trainerRequest));
-        assertEquals("Trainer already exists for this language", ex.getMessage());
+
+        assertEquals(
+                "Trainer with name 'Alice Coach' already exists in language 'en'",
+                ex.getMessage());
     }
 
     @Test
     void getTrainerByIdThrowsWhenMissing() {
-        when(trainerRepository.findById(9L)).thenReturn(Optional.empty());
+        when(trainerRepository.findById(9L))
+                .thenReturn(Optional.empty());
 
         NoSuchElementException ex =
-                assertThrows(NoSuchElementException.class, () -> trainerService.getTrainerById(9L));
-        assertEquals("Trainer not found with id: 9", ex.getMessage());
+                assertThrows(
+                        NoSuchElementException.class,
+                        () -> trainerService.getTrainerById(9L));
+
+        assertEquals(
+                "Trainer not found with id: 9",
+                ex.getMessage());
     }
 
     @Test
     void deleteTrainerDeletesExistingTrainer() {
-        when(trainerRepository.findById(1L)).thenReturn(Optional.of(trainer));
+        when(trainerRepository.findById(1L))
+                .thenReturn(Optional.of(trainer));
 
         trainerService.deleteTrainer(1L);
 
