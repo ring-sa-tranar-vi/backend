@@ -55,7 +55,7 @@ public class TrainerService {
         String language = normalizeRequired(request.language(), "language", 40);
 
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)) {
-            throw new IllegalArgumentException("Trainer already exists for this language");
+            throw new IllegalArgumentException(  "Trainer with name '" + name + "' already exists in language '" + language + "'");
         }
 
         Trainer trainer = new Trainer();
@@ -97,7 +97,7 @@ public class TrainerService {
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
                         || !language.equalsIgnoreCase(trainer.getLanguage()))) {
-            throw new IllegalArgumentException("Trainer already exists for this language");
+            throw new IllegalArgumentException(  "Trainer with name '" + name + "' already exists in language '" + language + "'");
         }
 
         trainer.setName(name);
