@@ -1,11 +1,14 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,9 +17,11 @@ public class UserService {
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private static final int STARTING_INTENSITY = 2;
     private final UserRepository userRepository;
+    private final TrainerRepository trainerRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, TrainerRepository trainerRepository) {
         this.userRepository = userRepository;
+        this.trainerRepository = trainerRepository;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -90,6 +95,9 @@ public class UserService {
             boolean onboarding) {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
+        }
+        if (!trainerRepository.existsById(trainerId)) {
+            throw new IllegalArgumentException("Trainer does not exist with id: " + trainerId);
         }
 
         User user = getByClerkIdOrThrow(clerkId);

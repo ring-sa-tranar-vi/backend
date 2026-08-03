@@ -143,6 +143,7 @@ public class WorkoutService {
         existing.setBeginnerFriendly(workout.getBeginnerFriendly());
         var trainer = resolveTrainer(workout);
         existing.setTrainer(trainer);
+
         return workoutRepository.save(existing);
     }
 
