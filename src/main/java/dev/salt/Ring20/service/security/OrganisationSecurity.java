@@ -2,6 +2,7 @@ package dev.salt.Ring20.service.security;
 
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.OrganisationRepository;
+import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +18,13 @@ public class OrganisationSecurity {
     }
 
     public boolean canModify(Long id, String clerkId) {
-        Organisation organisation = repository.findById(id).orElseThrow();
+        Organisation organisation =
+                repository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Organisation not found with id: " + id));
 
         return securityService.isOwnerOrAdmin(organisation.getOrganizer().getId(), clerkId);
     }

@@ -1,5 +1,7 @@
 package dev.salt.Ring20.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 @RestController
 @RequestMapping("/api/live-tokens")
+@Tag(name = "Live Token", description = "Endpoints for generating temporary live session tokens.")
 public class LiveTokenController {
 
     private final String googleApiKey;
@@ -27,6 +30,9 @@ public class LiveTokenController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Create live token",
+            description = "Generates an ephemeral live token for a session.")
     public ResponseEntity<?> createToken(
             @Valid @RequestBody(required = false) Map<String, Integer> body) {
         int uses = (body != null && body.get("uses") != null) ? body.get("uses") : 1;
