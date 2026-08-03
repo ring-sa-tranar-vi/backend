@@ -172,10 +172,13 @@ public class UserService {
                 user.getFollowedOrganisations().removeIf(org -> org.getId().equals(orgId));
 
         if (removed) {
-            Organisation org = organisationRepository
-                    .findById(orgId)
-                    .orElseThrow(() -> new NoSuchElementException(
-                            "Organisation not found with id: " + orgId));
+            Organisation org =
+                    organisationRepository
+                            .findById(orgId)
+                            .orElseThrow(
+                                    () ->
+                                            new NoSuchElementException(
+                                                    "Organisation not found with id: " + orgId));
 
             org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
         }
