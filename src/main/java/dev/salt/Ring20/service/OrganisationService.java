@@ -1,6 +1,5 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganisationRepository;
@@ -23,12 +22,7 @@ public class OrganisationService {
     @Transactional
     public Organisation createOrganisation(
             String name, String description, String orgCity, Long userId) {
-        User organizer =
-                userRepo.findById(userId)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "No user found with this id:  " + userId));
+        User organizer = getUserById(userId);
 
         Organisation organisation = new Organisation(name, description, orgCity, organizer);
         return repo.save(organisation);
@@ -53,31 +47,29 @@ public class OrganisationService {
 
     @Transactional
     public Organisation updateOrganisationById(
-            Long id, String name, String description, List<Event> events, String orgCity) {
+            Long id, String name, String description, String orgCity) {
         Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
-        foundOrg.setEvents(events);
         foundOrg.setOrgCity(orgCity);
-        attachOrganisationToEvents(foundOrg, events);
+        ;
         return repo.save(foundOrg);
     }
 
-    private void attachOrganisationToEvents(Organisation organisation, List<Event> events) {
-        if (events == null) {
-            return;
+    public List<Organisation> getOrganisationForUser(String clerkId) {
+        List<Organisation> organisations = repo.findByOrganizer_ClerkIdWithEvents(clerkId);
+
+        if (organisations.isEmpty()) {
+            throw new NoSuchElementException(
+                    "No organisations found for user with clerkId: " + clerkId);
         }
 
-        for (Event event : events) {
-            event.setOrganisation(organisation);
-        }
+        return organisations;
     }
 
-    public Organisation getOrganisationForUser(String clerkId) {
-        return repo.findByOrganizer_ClerkIdWithEvents(clerkId)
+    private User getUserById(Long userId) {
+        return userRepo.findById(userId)
                 .orElseThrow(
-                        () ->
-                                new NoSuchElementException(
-                                        "No organisation found for user with clerkId: " + clerkId));
+                        () -> new NoSuchElementException("No user found with this id:  " + userId));
     }
 }

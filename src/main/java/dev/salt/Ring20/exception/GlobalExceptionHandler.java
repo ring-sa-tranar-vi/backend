@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.NoSuchElementException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -57,23 +59,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ProblemDetail> handleNoSuchElement(
             NoSuchElementException ex, HttpServletRequest request) {
-        return build(HttpStatus.NOT_FOUND, "Resource not found", request.getRequestURI());
+
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ProblemDetail> handleRuntime(
             RuntimeException ex, HttpServletRequest request) {
+        log.error("Runtime exception:", ex);
+
         String message = ex.getMessage() == null ? "Unexpected error" : ex.getMessage();
-        String lower = message.toLowerCase();
-        if (lower.contains("not found")) {
-            return build(HttpStatus.NOT_FOUND, message, request.getRequestURI());
-        }
+
         return build(HttpStatus.INTERNAL_SERVER_ERROR, message, request.getRequestURI());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGeneric(Exception ex, HttpServletRequest request) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", request.getRequestURI());
+        log.error("Unhandled exception:", ex);
+
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
     private ResponseEntity<ProblemDetail> build(HttpStatus status, String message, String path) {

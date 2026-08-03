@@ -15,23 +15,34 @@ import org.springframework.stereotype.Service;
 public class EventService {
     private final EventRepository eventRepository;
     private final OrganisationRepository organisationRepository;
+    private final OrganisationService organisationService;
 
     public EventService(
-            EventRepository eventRepository, OrganisationRepository organisationRepository) {
+            EventRepository eventRepository,
+            OrganisationRepository organisationRepository,
+            OrganisationService organisationService) {
         this.eventRepository = eventRepository;
         this.organisationRepository = organisationRepository;
+        this.organisationService = organisationService;
     }
 
     public Event createEvent(
             String name,
             String description,
             LocalDateTime time,
-            Organisation organisation,
+            Long organisationId,
             String city,
             String venue,
             EventType eventType) {
         return eventRepository.save(
-                new Event(name, description, time, organisation, city, venue, eventType));
+                new Event(
+                        name,
+                        description,
+                        time,
+                        getOrganisationById(organisationId),
+                        city,
+                        venue,
+                        eventType));
     }
 
     public List<Event> getAllEvents() {
@@ -52,10 +63,10 @@ public class EventService {
             String name,
             String description,
             LocalDateTime time,
-            Organisation organisation,
             String city,
             String venue,
             EventType eventType) {
+
         Event event =
                 eventRepository
                         .findById(id)
@@ -66,7 +77,6 @@ public class EventService {
         event.setName(name);
         event.setDescription(description);
         event.setTime(time);
-        event.setOrganisation(organisation);
         event.setCity(city);
         event.setVenue(venue);
         event.setEventType(eventType);
@@ -79,11 +89,18 @@ public class EventService {
     }
 
     public List<Event> getEventsForUser(String clerkId) {
-        Organisation org =
-                organisationRepository
-                        .findByOrganizer_ClerkIdWithEvents(clerkId)
-                        .orElseThrow(() -> new NoSuchElementException("No organisation for user"));
+        List<Organisation> organisations =
+                organisationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
-        return org.getEvents();
+        if (organisations.isEmpty()) {
+            throw new NoSuchElementException(
+                    "No organisations found for user with clerkId: " + clerkId);
+        }
+
+        return organisations.stream().flatMap(org -> org.getEvents().stream()).toList();
+    }
+
+    private Organisation getOrganisationById(Long id) {
+        return organisationService.getOrganisationById(id);
     }
 }

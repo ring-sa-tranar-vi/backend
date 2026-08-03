@@ -11,8 +11,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class Organisation {
-    private final int INITIAL_FOLLOWERS = 0;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +33,7 @@ public class Organisation {
     public Organisation(String name, String description, String orgCity, User organizer) {
         this.name = name;
         this.description = description;
-        this.usersFollowing = INITIAL_FOLLOWERS;
+        this.usersFollowing = 0;
         this.orgCity = orgCity;
         this.organizer = organizer;
     }
