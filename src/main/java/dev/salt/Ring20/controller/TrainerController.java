@@ -1,8 +1,8 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.RecommendWorkoutResponseDto;
-import dev.salt.Ring20.dto.TrainerRequestDto;
-import dev.salt.Ring20.dto.TrainerResponseDto;
+import dev.salt.Ring20.dto.trainerDtos.TrainerRequestDto;
+import dev.salt.Ring20.dto.trainerDtos.TrainerResponseDto;
+import dev.salt.Ring20.dto.workoutDtos.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.TrainerService;
@@ -111,8 +111,8 @@ public class TrainerController {
 
     @GetMapping("/{trainerId}/recommend-for/{userId}")
     @Operation(
-            summary = "Delete trainer",
-            description = "Deletes a trainer by ID. Available to administrators only.")
+            summary = "Get AI workout recommendation",
+            description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
             getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
 

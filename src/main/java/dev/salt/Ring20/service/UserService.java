@@ -1,6 +1,9 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.repository.EventRepository;
+import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -14,9 +17,19 @@ public class UserService {
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private static final int STARTING_INTENSITY = 2;
     private final UserRepository userRepository;
+    private final TrainerRepository trainerRepository;
+    private final OrganisationRepository organisationRepository;
+    private final EventRepository eventRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            TrainerRepository trainerRepository,
+            OrganisationRepository organisationRepository,
+            EventRepository eventRepository) {
         this.userRepository = userRepository;
+        this.trainerRepository = trainerRepository;
+        this.organisationRepository = organisationRepository;
+        this.eventRepository = eventRepository;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -91,6 +104,9 @@ public class UserService {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
+        if (!trainerRepository.existsById(trainerId)) {
+            throw new IllegalArgumentException("Trainer does not exist with id: " + trainerId);
+        }
 
         User user = getByClerkIdOrThrow(clerkId);
 
@@ -127,51 +143,106 @@ public class UserService {
     }
 
     @Transactional
-    public User addFollowOrganization(Long id, Organisation org) {
-        User user = getUserById(id);
-        if (!user.getFollowedOrganisations().contains(org)) {
+    public Organisation addFollowOrganization(Long userId, Long orgId) {
+        User user = getUserById(userId);
+        Organisation org =
+                organisationRepository
+                        .findByIdWithEvents(orgId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Organisation not found with id: " + orgId));
+
+        boolean alreadyFollowing =
+                user.getFollowedOrganisations().stream().anyMatch(o -> o.getId().equals(orgId));
+
+        if (!alreadyFollowing) {
             user.getFollowedOrganisations().add(org);
             org.setUsersFollowing(org.getUsersFollowing() + 1);
         }
-        return userRepository.save(user);
+
+        return org;
     }
 
     @Transactional
-    public User addAttendEvent(Long id, Event event) {
-        User user = getUserById(id);
+    public void removeFollowOrganization(Long userId, Long orgId) {
+        User user = getUserById(userId);
+
+        boolean removed =
+                user.getFollowedOrganisations().removeIf(org -> org.getId().equals(orgId));
+
+        if (!removed) {
+            throw new NoSuchElementException("User is not following organisation: " + orgId);
+        }
+
+        Organisation org =
+                organisationRepository
+                        .findById(orgId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Organisation not found with id: " + orgId));
+
+        org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
+    }
+
+    @Transactional
+    public Event addAttendEvent(Long userId, Long eventId) {
+        User user = getUserById(userId);
+
+        Event event =
+                eventRepository
+                        .findByIdWithOrganisation(eventId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Event not found with id: " + eventId));
+
         boolean alreadyAttending =
-                user.getAttendingEvents().stream()
-                        .anyMatch(attending -> attending.getId().equals(event.getId()));
+                user.getAttendingEvents().stream().anyMatch(e -> e.getId().equals(eventId));
+
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
-        return userRepository.save(user);
+
+        return event;
     }
 
     @Transactional
-    public User removeFollowOrganization(Long id, Organisation org) {
-        User user = getUserById(id);
-        if (user.getFollowedOrganisations().remove(org)) {
-            org.setUsersFollowing(Math.max(0, org.getUsersFollowing() - 1));
-        }
-        return userRepository.save(user);
-    }
+    public void removeAttendEvent(Long userId, Long eventId) {
+        User user = getUserById(userId);
 
-    @Transactional
-    public User removeAttendEvent(Long id, Event event) {
-        User user = getUserById(id);
         boolean removed =
-                user.getAttendingEvents()
-                        .removeIf(attending -> attending.getId().equals(event.getId()));
-        if (removed) {
-            event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
+                user.getAttendingEvents().removeIf(event -> event.getId().equals(eventId));
+
+        if (!removed) {
+            throw new NoSuchElementException("User is not attending event: " + eventId);
         }
-        return userRepository.save(user);
+
+        Event event =
+                eventRepository
+                        .findById(eventId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Event not found with id: " + eventId));
+
+        event.setUsersAttending(Math.max(0, event.getUsersAttending() - 1));
+    }
+
+    public List<CallbackPreference> getCallbackPreferences(Long userId) {
+        User user =
+                userRepository
+                        .findByIdWithCallbackPreferences(userId)
+                        .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        return user.getCallbackPreferences();
     }
 
     @Transactional
-    public User addOrUpdateCallbackPreference(Long userId, CallbackPreference callback) {
+    public CallbackPreference addOrUpdateCallbackPreference(
+            Long userId, CallbackPreference callback) {
         User user = getUserById(userId);
 
         Optional<CallbackPreference> existing =
@@ -179,25 +250,29 @@ public class UserService {
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
 
-        CallbackPreference savedPreference;
-
         if (existing.isPresent()) {
-            existing.get().setTime(callback.getTime());
-            existing.get().setRepeat(callback.getRepeat());
-        } else {
-            callback.setUser(user);
-            user.getCallbackPreferences().add(callback);
+            CallbackPreference preference = existing.get();
+            preference.setTime(callback.getTime());
+            preference.setRepeat(callback.getRepeat());
+
+            return preference;
         }
-        return userRepository.save(user);
+
+        callback.setUser(user);
+        user.getCallbackPreferences().add(callback);
+
+        return callback;
     }
 
     @Transactional
-    public User removeCallbackPreference(Long userId, DayOfWeekType day) {
+    public void removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
+        boolean removed = user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
 
-        return userRepository.save(user);
+        if (!removed) {
+            throw new NoSuchElementException("No callback preference found for day: " + day);
+        }
     }
 
     public long getUserCount() {
