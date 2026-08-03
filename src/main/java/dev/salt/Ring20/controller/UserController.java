@@ -2,7 +2,12 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.*;
+import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.fcmTokenDtos.FcmTokenRequestDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
+import dev.salt.Ring20.dto.userDtos.UserCreateRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserResponseDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.EventService;

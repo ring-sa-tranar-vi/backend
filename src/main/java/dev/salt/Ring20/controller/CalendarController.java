@@ -1,6 +1,6 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.CalendarEventDto;
+import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
 import dev.salt.Ring20.service.CalendarService;
 import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
