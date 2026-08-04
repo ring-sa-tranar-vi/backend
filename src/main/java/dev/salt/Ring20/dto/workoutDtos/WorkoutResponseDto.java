@@ -24,5 +24,5 @@ public record WorkoutResponseDto(
         Boolean beginnerFriendly,
         Boolean enabled,
         TrainerIdDTO trainer) {
-    public record TrainerIdDTO(Long id) {}
+    public record TrainerIdDTO(Long id, String name) {}
 }

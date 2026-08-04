@@ -16,6 +16,12 @@ public class LocalStorageService implements FileStorageService {
 
     @Override
     public String getFileAccess(String filePath, int validForMinutes) {
+        if (filePath == null || filePath.isBlank()) {
+            return filePath;
+        }
+        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+            return filePath;
+        }
         return "http://localhost:" + serverPort + "/local-storage/" + filePath;
     }
 }
