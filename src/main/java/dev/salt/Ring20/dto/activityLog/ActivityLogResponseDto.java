@@ -1,4 +1,4 @@
-package dev.salt.Ring20.dto.activityLogDtos;
+package dev.salt.Ring20.dto.activityLog;
 
 import java.time.LocalDateTime;
 

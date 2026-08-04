@@ -1,5 +1,6 @@
-package dev.salt.Ring20.dto.activityLogDtos;
+package dev.salt.Ring20.dto.activityLog;
 
+import dev.salt.Ring20.entity.ActivityLog;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
