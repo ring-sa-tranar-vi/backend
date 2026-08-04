@@ -5,12 +5,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@Profile("local")
 public class LoggingConfig implements WebMvcConfigurer {
+
+    private static final int MAXIMUM_PERCENTAGE = 100;
+    private static final double WARNING_PERCENTAGE = 0.85;
+    private static final int MINIMUM_MEMORY = 0;
+    private static final long BYTES_PER_MB = 1024L * 1024L;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -21,7 +28,6 @@ public class LoggingConfig implements WebMvcConfigurer {
         private static final Logger logger = LoggerFactory.getLogger(LoggingInterceptor.class);
         private static final Runtime runtime = Runtime.getRuntime();
 
-        //TODO: remove unused parameters
         @Override
         public boolean preHandle(
                 HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -43,7 +49,6 @@ public class LoggingConfig implements WebMvcConfigurer {
             return true;
         }
 
-        //TODO: remove unused parameters
         @Override
         public void afterCompletion(
                 HttpServletRequest request,
@@ -59,7 +64,7 @@ public class LoggingConfig implements WebMvcConfigurer {
             long freeMemory = getFreeMemory();
 
             String memoryChange =
-                    memoryDelta >= 0 ? "+" + memoryDelta : String.valueOf(memoryDelta);
+                    memoryDelta >= MINIMUM_MEMORY ? "+" + memoryDelta : String.valueOf(memoryDelta);
 
             logger.info(
                     "<<< RESPONSE: {} {} | Status: {} | Duration: {}ms | Memory: {}MB / {}MB (Delta: {}MB, Free: {}MB)",
@@ -76,25 +81,23 @@ public class LoggingConfig implements WebMvcConfigurer {
                 logger.error("Exception occurred: ", ex);
             }
 
-            // Warn if memory usage is high
-            if (endMemory > totalMemory * 0.85) {
+            if (endMemory > totalMemory * WARNING_PERCENTAGE) {
                 logger.warn(
                         "⚠️  HIGH MEMORY USAGE: {}% of heap used",
-                        (int) ((double) endMemory / totalMemory * 100));
+                        (int) ((double) endMemory / totalMemory * MAXIMUM_PERCENTAGE));
             }
         }
 
-        //TODO: remove magic numbers!! on all 3 methods below
         private long getUsedMemory() {
-            return (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+            return (runtime.totalMemory() - runtime.freeMemory()) / BYTES_PER_MB;
         }
 
         private long getTotalMemory() {
-            return runtime.totalMemory() / (1024 * 1024);
+            return runtime.totalMemory() / BYTES_PER_MB;
         }
 
         private long getFreeMemory() {
-            return runtime.freeMemory() / (1024 * 1024);
+            return runtime.freeMemory() / BYTES_PER_MB;
         }
     }
 }
