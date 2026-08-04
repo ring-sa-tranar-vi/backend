@@ -1,15 +1,20 @@
 package dev.salt.Ring20.controller;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.companyDtos.CompanyMeResponseDto;
-import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
-import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
-import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
+import dev.salt.Ring20.dto.CompanyEventDto;
+import dev.salt.Ring20.dto.CompanyMeDto;
+import dev.salt.Ring20.dto.CompanyOrganisationDto;
+import dev.salt.Ring20.dto.CreateCompanyEventDto;
+import dev.salt.Ring20.dto.UpdateCompanyEventDto;
+import dev.salt.Ring20.dto.UpdateCompanyOrganisationDto;
 import dev.salt.Ring20.entity.Event;
+import dev.salt.Ring20.entity.EventType;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.service.CompanyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -30,13 +35,119 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/company")
-@PreAuthorize("hasRole('ORGANIZER')")
+@PreAuthorize("@securityService.isOrganizer(authentication.name)")
+@Tag(
+        name = "Company",
+        description = "Endpoints for company users to manage their organisation and events")
 public class CompanyController {
 
     private final CompanyService companyService;
 
     public CompanyController(CompanyService companyService) {
         this.companyService = companyService;
+    }
+
+    @Operation(summary = "Get current company")
+    @GetMapping("/me")
+    public ResponseEntity<CompanyMeDto> getCompanyMe(Authentication authentication) {
+        return ResponseEntity.ok(companyService.getCompanyMe(getClerkId(authentication)));
+    }
+
+    @Operation(summary = "Get managed organisation")
+    @GetMapping("/organisation")
+    public ResponseEntity<CompanyOrganisationDto> getOrganisation(Authentication authentication) {
+        Organisation organisation =
+                companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
+        return ResponseEntity.ok(toOrganisationDto(organisation));
+    }
+
+    @Operation(summary = "Update organisation")
+    @PutMapping("/organisation")
+    public ResponseEntity<CompanyOrganisationDto> updateOrganisation(
+            Authentication authentication,
+            @Valid @RequestBody UpdateCompanyOrganisationDto request) {
+        Organisation organisation =
+                companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
+        Organisation updated =
+                companyService
+                        .getOrganisationService()
+                        .updateOrganisationById(
+                                organisation.getId(),
+                                request.name(),
+                                request.description(),
+                                request.orgCity());
+        return ResponseEntity.ok(toOrganisationDto(updated));
+    }
+
+    @Operation(summary = "List organisation events")
+    @GetMapping("/events")
+    public ResponseEntity<List<CompanyEventDto>> getEvents(Authentication authentication) {
+        Organisation organisation =
+                companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
+        return ResponseEntity.ok(
+                companyService.getEventService().getAllEventsByOrgId(organisation.getId()).stream()
+                        .map(this::toEventDto)
+                        .toList());
+    }
+
+    @Operation(summary = "Create event")
+    @PostMapping("/events")
+    public ResponseEntity<CompanyEventDto> createEvent(
+            Authentication authentication, @Valid @RequestBody CreateCompanyEventDto request) {
+        Organisation organisation =
+                companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
+        if (!organisation.getId().equals(request.organisation().id())) {
+            throw new ResponseStatusException(
+                    BAD_REQUEST, "Organisation does not match the authenticated company");
+        }
+        Event created =
+                companyService
+                        .getEventService()
+                        .createEvent(
+                                request.name(),
+                                request.description(),
+                                request.time(),
+                                organisation.getId(),
+                                request.city(),
+                                request.venue(),
+                                parseEventType(request.eventType()));
+        CompanyEventDto response = toEventDto(created);
+        URI location =
+                ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{eventId}")
+                        .buildAndExpand(response.id())
+                        .toUri();
+        return ResponseEntity.created(location).body(response);
+    }
+
+    @Operation(summary = "Update event")
+    @PutMapping("/events/{eventId}")
+    public ResponseEntity<CompanyEventDto> updateEvent(
+            Authentication authentication,
+            @PathVariable Long eventId,
+            @Valid @RequestBody UpdateCompanyEventDto request) {
+        Event existing =
+                companyService.getManagedEventForClerkId(eventId, getClerkId(authentication));
+        Event updated =
+                companyService
+                        .getEventService()
+                        .updateEvent(
+                                existing.getId(),
+                                request.name(),
+                                request.description(),
+                                request.time(),
+                                request.city(),
+                                request.venue(),
+                                parseEventType(request.eventType()));
+        return ResponseEntity.ok(toEventDto(updated));
+    }
+
+    @Operation(summary = "Delete event")
+    @DeleteMapping("/events/{eventId}")
+    public ResponseEntity<Void> deleteEvent(
+            Authentication authentication, @PathVariable Long eventId) {
+        companyService.deleteEventForClerkId(eventId, getClerkId(authentication));
+        return ResponseEntity.noContent().build();
     }
 
     private String getClerkId(Authentication authentication) {
@@ -47,137 +158,32 @@ public class CompanyController {
         return jwt.getSubject();
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<CompanyMeResponseDto> getCompanyMe(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        return ResponseEntity.ok(companyService.getCompanyMe(clerkId));
+    private CompanyOrganisationDto toOrganisationDto(Organisation organisation) {
+        return new CompanyOrganisationDto(
+                organisation.getId(),
+                organisation.getName(),
+                organisation.getDescription(),
+                organisation.getOrgCity());
     }
 
-    @GetMapping("/organisation")
-    public ResponseEntity<OrganisationResponseDto> getOrganisation(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        var org = companyService.getManagedOrganisationForClerkId(clerkId);
-        var events =
-                org.getEvents() == null
-                        ? List.<EventResponseDto>of()
-                        : org.getEvents().stream().map(this::toEventResponseDto).toList();
-        var response =
-                new OrganisationResponseDto(
-                        org.getId(),
-                        org.getName(),
-                        org.getDescription(),
-                        events,
-                        org.getOrgCity(),
-                        org.getOrganizer() != null ? org.getOrganizer().getId() : null);
-        return ResponseEntity.ok(response);
+    private CompanyEventDto toEventDto(Event event) {
+        return new CompanyEventDto(
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getTime(),
+                event.getCity(),
+                event.getVenue(),
+                event.getUsersAttending(),
+                event.getEventType() == null ? null : event.getEventType().name());
     }
 
-    @PutMapping("/organisation")
-    public ResponseEntity<OrganisationResponseDto> updateOrganisation(
-            Authentication authentication,
-            @Valid @RequestBody OrganisationUpdateRequestDto request) {
-        String clerkId = getClerkId(authentication);
-        var org = companyService.getManagedOrganisationForClerkId(clerkId);
-        var updated =
-                companyService
-                        .getOrganisationService()
-                        .updateOrganisationById(
-                                org.getId(),
-                                request.name(),
-                                request.description(),
-                                request.orgCity());
-        var events =
-                updated.getEvents() == null
-                        ? List.<EventResponseDto>of()
-                        : updated.getEvents().stream().map(this::toEventResponseDto).toList();
-        var response =
-                new OrganisationResponseDto(
-                        updated.getId(),
-                        updated.getName(),
-                        updated.getDescription(),
-                        events,
-                        updated.getOrgCity(),
-                        updated.getOrganizer() != null ? updated.getOrganizer().getId() : null);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/events")
-    public ResponseEntity<List<EventResponseDto>> getEvents(Authentication authentication) {
-        String clerkId = getClerkId(authentication);
-        var org = companyService.getManagedOrganisationForClerkId(clerkId);
-        var events =
-                companyService.getEventService().getAllEventsByOrgId(org.getId()).stream()
-                        .map(this::toEventResponseDto)
-                        .toList();
-        return ResponseEntity.ok(events);
-    }
-
-    @PostMapping("/events")
-    public ResponseEntity<EventResponseDto> createEvent(
-            Authentication authentication, @Valid @RequestBody EventCreateRequestDto request) {
-        String clerkId = getClerkId(authentication);
-        var org = companyService.getManagedOrganisationForClerkId(clerkId);
-        var created =
-                companyService
-                        .getEventService()
-                        .createEvent(
-                                request.name(),
-                                request.description(),
-                                request.time(),
-                                org.getId(),
-                                request.city(),
-                                request.venue(),
-                                request.eventType());
-        var response = toEventResponseDto(created);
-        URI location =
-                ServletUriComponentsBuilder.fromCurrentRequest()
-                        .path("/{eventId}")
-                        .buildAndExpand(response.id())
-                        .toUri();
-        return ResponseEntity.created(location).body(response);
-    }
-
-    @PutMapping("/events/{eventId}")
-    public ResponseEntity<EventResponseDto> updateEvent(
-            Authentication authentication,
-            @PathVariable Long eventId,
-            @Valid @RequestBody EventUpdateRequestDto request) {
-        String clerkId = getClerkId(authentication);
-        var existing = companyService.getManagedEventForClerkId(eventId, clerkId);
-        var updated =
-                companyService
-                        .getEventService()
-                        .updateEvent(
-                                existing.getId(),
-                                request.name(),
-                                request.description(),
-                                request.time(),
-                                request.city(),
-                                request.venue(),
-                                existing.getEventType() == null
-                                        ? companyService.getDefaultEventType()
-                                        : existing.getEventType());
-        var response = toEventResponseDto(updated);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/events/{eventId}")
-    public ResponseEntity<Void> deleteEvent(
-            Authentication authentication, @PathVariable Long eventId) {
-        String clerkId = getClerkId(authentication);
-        companyService.deleteEventForClerkId(eventId, clerkId);
-        return ResponseEntity.noContent().build();
-    }
-
-    private EventResponseDto toEventResponseDto(Event e) {
-        return new EventResponseDto(
-                e.getId(),
-                e.getName(),
-                e.getDescription(),
-                e.getTime(),
-                e.getOrganisation() == null ? null : e.getOrganisation().getId(),
-                e.getCity(),
-                e.getVenue(),
-                e.getEventType());
+    private EventType parseEventType(String eventType) {
+        try {
+            return EventType.valueOf(eventType);
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(
+                    BAD_REQUEST, "Unsupported eventType: " + eventType, exception);
+        }
     }
 }

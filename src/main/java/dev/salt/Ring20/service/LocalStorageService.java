@@ -1,5 +1,6 @@
 package dev.salt.Ring20.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -7,15 +8,20 @@ import org.springframework.stereotype.Service;
 @Profile("local")
 public class LocalStorageService implements FileStorageService {
 
-    private static final String PUBLIC_BASE_URL =
-            "https://mizofvemlvooaycnevys.supabase.co/storage/v1/object/public/ringsatranarvi_files";
+    private final String serverPort;
+
+    public LocalStorageService(@Value("${server.port}") String serverPort) {
+        this.serverPort = serverPort;
+    }
 
     @Override
     public String getFileAccess(String filePath, int validForMinutes) {
+        if (filePath == null || filePath.isBlank()) {
+            return filePath;
+        }
         if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
             return filePath;
         }
-
-        return PUBLIC_BASE_URL + "/" + filePath;
+        return "http://localhost:" + serverPort + "/local-storage/" + filePath;
     }
 }

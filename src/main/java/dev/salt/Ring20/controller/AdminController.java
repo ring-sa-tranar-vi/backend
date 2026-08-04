@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
         description =
                 "Administrative endpoints for managing users, monitoring activity, and viewing system statistics.")
 public class AdminController {
+    private static final int ACTIVE_USER_DAYS = 30;
     private static final String UNKNOWN_USER = "Unknown user";
     private static final String UNKNOWN_WORKOUT = "Unknown workout";
     private final UserService userService;
@@ -173,9 +174,19 @@ public class AdminController {
                                         user.getClerkId(),
                                         user.getRole(),
                                         user.getIntensityLevel(),
+                                        user.getContext(),
                                         user.getTrainerId(),
+                                        user.getCity(),
+                                        isActive(data.lastCompletedAtByUserId().get(user.getId())),
+                                        true,
                                         data.lastCompletedAtByUserId().get(user.getId())))
                 .toList();
+    }
+
+    private boolean isActive(java.time.LocalDateTime lastCompletedAt) {
+        return lastCompletedAt != null
+                && !lastCompletedAt.isBefore(
+                        java.time.LocalDateTime.now().minusDays(ACTIVE_USER_DAYS));
     }
 
     private List<AdminRecentActivityResponseDto> toAdminRecentActivityResponseDto(
