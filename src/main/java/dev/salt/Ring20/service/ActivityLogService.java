@@ -5,17 +5,20 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityLogService {
 
     private static final String STATUS_COMPLETED = "COMPLETED";
+    private static final int NO_STREAKS = 0;
+
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
 
@@ -33,13 +36,13 @@ public class ActivityLogService {
 
     @Transactional
     public ActivityLog completeActivityLog(Long id) {
+        String message = "ActivityLog not found with id:";
         ActivityLog log =
                 activityLogRepository
                         .findById(id)
                         .orElseThrow(
                                 () ->
-                                        new NoSuchElementException(
-                                                "ActivityLog not found with id:" + id));
+                                        new NoSuchElementException(message + id));
         log.setStatus(STATUS_COMPLETED);
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);
@@ -106,7 +109,7 @@ public class ActivityLogService {
     }
 
     private int calculateBestStreak(List<LocalDate> sortedDates) {
-        if (sortedDates == null || sortedDates.isEmpty()) return 0;
+        if (sortedDates == null || sortedDates.isEmpty()) return NO_STREAKS;
 
         int currentStreak = 1;
         int maxStreak = 1;
@@ -124,7 +127,7 @@ public class ActivityLogService {
 
     private int calculateCurrentStreak(List<LocalDate> dates) {
         if (dates.isEmpty()) {
-            return 0;
+            return NO_STREAKS;
         }
 
         int streak = 1;
