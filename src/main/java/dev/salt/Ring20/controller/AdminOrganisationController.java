@@ -53,7 +53,7 @@ public class AdminOrganisationController {
                         request.name(),
                         request.description(),
                         request.orgCity(),
-                        request.organizerId());
+                        request.organizerId(), );
         AdminOrganisationDto response = toOrganisationDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()

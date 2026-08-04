@@ -70,7 +70,7 @@ class AdminOrganisationControllerTest {
     void createOrganisationReturnsCreatedOrganisation() {
         OrganisationCreateRequestDto request =
                 new OrganisationCreateRequestDto("Salt", "Training", "Stockholm", 1L);
-        when(organisationService.createOrganisation("Salt", "Training", "Stockholm", 1L))
+        when(organisationService.createOrganisation("Salt", "Training", "Stockholm", 1L, ))
                 .thenReturn(organisation(3L));
 
         ResponseEntity<AdminOrganisationDto> response = controller.createOrganisation(request);

@@ -73,7 +73,7 @@ public class OrganizationApplicationService {
                 application.getOrganizationName(),
                 application.getDescription(),
                 application.getCity(),
-                application.getId());
+                application.getId(), );
         return organizationApplicationRepository.save(application);
     }
 
