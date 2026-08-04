@@ -67,3 +67,6 @@ logs/gc.log.*
 # Local storage for files
 ringsatranarvi_files/
 
+# Firebase/GCP service account credentials — never commit
+firebase-service-account.json
+

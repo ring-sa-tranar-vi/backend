@@ -1,6 +1,5 @@
 package dev.salt.Ring20.entity;
 
-import jakarta.persistence.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,11 +23,11 @@ public class Workout {
 
     private String name;
 
-    @Column(name = "workout_instructions")
-    private String workoutInstructions;
+    @Column(name = "instructions", columnDefinition = "TEXT")
+    private String instructions;
 
-    @Column(name = "workout_guidance")
-    private String workoutGuidance;
+    @Column(name = "guidance")
+    private String guidance;
 
     @Column(name = "description")
     private String description;
@@ -39,34 +38,15 @@ public class Workout {
     @Column(name = "dashboard_description", columnDefinition = "TEXT")
     private String dashboardDescription;
 
-    @Column(name = "subtitle_text", columnDefinition = "TEXT")
-    private String subtitleText;
-
-    @Column(name = "instructions_subtitle_text", columnDefinition = "TEXT")
-    private String instructionsSubtitleText;
-
     private Integer level;
     private String type;
 
-    @Column(name = "duration_seconds")
-    private Integer durationSeconds;
+    @Column(name = "image")
+    private String image;
 
-    private String instructionsAudio;
-    private String workoutAudio;
-    private String instructionsImage;
-    private String workoutImage;
-    private String instructionsVideo;
-    private Integer instructionsVideoStart;
-    private Integer instructionsVideoStop;
-    private Boolean kneeFriendly;
-    private Boolean lowImpact;
-    private Boolean seated;
-    private Boolean beginnerFriendly;
+    @Column(name = "video")
+    private String video;
 
     @Column(nullable = false)
     private Boolean enabled = true;
-
-    @ManyToOne
-    @JoinColumn(name = "trainer_id")
-    private Trainer trainer;
 }

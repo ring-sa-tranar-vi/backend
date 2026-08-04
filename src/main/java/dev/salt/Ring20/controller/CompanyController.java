@@ -2,7 +2,7 @@ package dev.salt.Ring20.controller;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.companyDto.CompanyMeResponseDto;
+import dev.salt.Ring20.dto.companyDtos.CompanyMeResponseDto;
 import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
 import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
 import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
@@ -10,8 +10,6 @@ import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.service.CompanyService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -19,16 +17,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/company")
 @PreAuthorize("hasRole('ORGANIZER')")
-@Tag(
-        name = "Company",
-        description = "Endpoints for company users to manage their organisation and events")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -45,18 +47,12 @@ public class CompanyController {
         return jwt.getSubject();
     }
 
-    @Operation(
-            summary = "Get current company",
-            description = "Returns information about the authenticated company user.")
     @GetMapping("/me")
     public ResponseEntity<CompanyMeResponseDto> getCompanyMe(Authentication authentication) {
         String clerkId = getClerkId(authentication);
         return ResponseEntity.ok(companyService.getCompanyMe(clerkId));
     }
 
-    @Operation(
-            summary = "Get managed organisation",
-            description = "Returns the organisation managed by the authenticated company.")
     @GetMapping("/organisation")
     public ResponseEntity<OrganisationResponseDto> getOrganisation(Authentication authentication) {
         String clerkId = getClerkId(authentication);
@@ -72,13 +68,10 @@ public class CompanyController {
                         org.getDescription(),
                         events,
                         org.getOrgCity(),
-                        org.getId());
+                        org.getOrganizer() != null ? org.getOrganizer().getId() : null);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "Update organisation",
-            description = "Updates the authenticated company's organisation.")
     @PutMapping("/organisation")
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
             Authentication authentication,
@@ -104,14 +97,10 @@ public class CompanyController {
                         updated.getDescription(),
                         events,
                         updated.getOrgCity(),
-                        updated.getId());
+                        updated.getOrganizer() != null ? updated.getOrganizer().getId() : null);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "List organisation events",
-            description =
-                    "Returns all events belonging to the authenticated company's organisation.")
     @GetMapping("/events")
     public ResponseEntity<List<EventResponseDto>> getEvents(Authentication authentication) {
         String clerkId = getClerkId(authentication);
@@ -123,9 +112,6 @@ public class CompanyController {
         return ResponseEntity.ok(events);
     }
 
-    @Operation(
-            summary = "Create event",
-            description = "Creates a new event for the authenticated company's organisation.")
     @PostMapping("/events")
     public ResponseEntity<EventResponseDto> createEvent(
             Authentication authentication, @Valid @RequestBody EventCreateRequestDto request) {
@@ -151,17 +137,12 @@ public class CompanyController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @Operation(
-            summary = "Update event",
-            description =
-                    "Updates an existing event belonging to the authenticated company's organisation.")
     @PutMapping("/events/{eventId}")
     public ResponseEntity<EventResponseDto> updateEvent(
             Authentication authentication,
             @PathVariable Long eventId,
             @Valid @RequestBody EventUpdateRequestDto request) {
         String clerkId = getClerkId(authentication);
-        var org = companyService.getManagedOrganisationForClerkId(clerkId);
         var existing = companyService.getManagedEventForClerkId(eventId, clerkId);
         var updated =
                 companyService
@@ -180,9 +161,6 @@ public class CompanyController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "Delete event",
-            description = "Deletes an event belonging to the authenticated company's organisation.")
     @DeleteMapping("/events/{eventId}")
     public ResponseEntity<Void> deleteEvent(
             Authentication authentication, @PathVariable Long eventId) {
