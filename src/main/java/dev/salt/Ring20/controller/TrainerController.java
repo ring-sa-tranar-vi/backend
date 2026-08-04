@@ -114,7 +114,7 @@ public class TrainerController {
             summary = "Get AI workout recommendation",
             description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-            getTrainerAiRecommendation( @PathVariable Long userId) {
+            getTrainerAiRecommendation(@PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(userId)

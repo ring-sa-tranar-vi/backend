@@ -10,11 +10,9 @@ import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,7 +101,7 @@ public class TrainerService {
 
         if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
                 && (!name.equalsIgnoreCase(trainer.getName())
-                || !language.equalsIgnoreCase(trainer.getLanguage()))) {
+                        || !language.equalsIgnoreCase(trainer.getLanguage()))) {
             throw new IllegalArgumentException(
                     "Trainer with name '"
                             + name
@@ -179,8 +177,7 @@ public class TrainerService {
         return normalized;
     }
 
-    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(
-            Long userId) {
+    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(Long userId) {
         validateId(userId);
         List<Workout> workouts = getEnabledWorkouts();
         User user = getUser(userId);
