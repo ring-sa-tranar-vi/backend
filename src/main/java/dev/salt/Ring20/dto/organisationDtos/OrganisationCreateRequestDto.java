@@ -7,4 +7,5 @@ public record OrganisationCreateRequestDto(
         @NotBlank String name,
         @NotBlank String description,
         @NotBlank String orgCity,
-        @NotNull Long organizerId) {}
+        @NotNull Long organizerId,
+        @NotBlank String motivation) {}

@@ -9,4 +9,5 @@ public record OrganisationResponseDto(
         String description,
         List<EventResponseDto> events,
         String orgCity,
-        Long organizerId) {}
+        Long organizerId,
+        String motivation) {}
