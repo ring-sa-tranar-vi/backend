@@ -35,7 +35,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/company")
-@PreAuthorize("hasRole('ORGANIZER')")
+@PreAuthorize("@securityService.isOrganizer(authentication.name)")
 @Tag(
         name = "Company",
         description = "Endpoints for company users to manage their organisation and events")
