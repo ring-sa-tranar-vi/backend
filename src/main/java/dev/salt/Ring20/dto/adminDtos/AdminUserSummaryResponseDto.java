@@ -9,5 +9,9 @@ public record AdminUserSummaryResponseDto(
         String clerkId,
         UserRole role,
         Integer intensityLevel,
+        String context,
         Long trainerId,
+        String city,
+        boolean active,
+        boolean enabled,
         LocalDateTime lastCompletedWorkoutAt) {}

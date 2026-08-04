@@ -90,7 +90,11 @@ public class OrganisationController {
             @PathVariable Long id, @Valid @RequestBody OrganisationUpdateRequestDto request) {
         Organisation updatedOrg =
                 service.updateOrganisationById(
-                        id, request.name(), request.description(), request.orgCity());
+                        id,
+                        request.name(),
+                        request.description(),
+                        request.orgCity(),
+                        request.organizerId());
         return ResponseEntity.ok(toResponseDto(updatedOrg));
     }
 

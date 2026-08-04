@@ -3,7 +3,6 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
-import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.WorkoutService;
@@ -44,6 +43,7 @@ public class WorkoutController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all workouts", description = "Retrieves all available workouts.")
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
@@ -52,6 +52,7 @@ public class WorkoutController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get workout by ID", description = "Retrieves a workout using its ID.")
     public ResponseEntity<WorkoutResponseDto> getWorkoutById(
             @PathVariable Long id, Authentication authentication) {
@@ -107,14 +108,6 @@ public class WorkoutController {
                 toWorkoutResponse(workoutService.setWorkoutEnabled(id, request.enabled())));
     }
 
-    @GetMapping("/{id}/audio")
-    @Operation(
-            summary = "Get workout audio",
-            description = "Retrieves the audio URL for a workout.")
-    public ResponseEntity<String> getWorkoutAudio(@PathVariable Long id) {
-        return ResponseEntity.ok().body(workoutService.getWorkoutAudioUrl(id));
-    }
-
     @PostMapping("/{id}/start")
     @Operation(
             summary = "Start workout",
@@ -127,32 +120,13 @@ public class WorkoutController {
     }
 
     private WorkoutResponseDto toWorkoutResponse(Workout workout) {
-        WorkoutResponseDto.TrainerIdDTO trainerDTO = null;
-
-        if (workout.getTrainer() != null) {
-            trainerDTO = new WorkoutResponseDto.TrainerIdDTO(workout.getTrainer().getId());
-        }
-        //TODO: magic numbers
-
-        String instructionsAudioUrl =
-                (workout.getInstructionsAudio() != null)
-                        ? fileStorageService.getFileAccess(workout.getInstructionsAudio(), 15)
+        String imageUrl =
+                (workout.getImage() != null)
+                        ? fileStorageService.getFileAccess(workout.getImage(), 15)
                         : null;
-        String workoutAudioUrl =
-                (workout.getWorkoutAudio() != null)
-                        ? fileStorageService.getFileAccess(workout.getWorkoutAudio(), 15)
-                        : null;
-        String instructionsImageUrl =
-                (workout.getInstructionsImage() != null)
-                        ? fileStorageService.getFileAccess(workout.getInstructionsImage(), 15)
-                        : null;
-        String workoutImageUrl =
-                (workout.getWorkoutImage() != null)
-                        ? fileStorageService.getFileAccess(workout.getWorkoutImage(), 15)
-                        : null;
-        String instructionsVideoUrl =
-                (workout.getInstructionsVideo() != null)
-                        ? fileStorageService.getFileAccess(workout.getInstructionsVideo(), 15)
+        String videoUrl =
+                (workout.getVideo() != null)
+                        ? fileStorageService.getFileAccess(workout.getVideo(), 15)
                         : null;
 
         return new WorkoutResponseDto(
@@ -161,24 +135,13 @@ public class WorkoutController {
                 workout.getDescription(),
                 workout.getDashboardName(),
                 workout.getDashboardDescription(),
-                workout.getSubtitleText(),
-                workout.getInstructionsSubtitleText(),
+                workout.getInstructions(),
+                workout.getGuidance(),
                 workout.getLevel(),
                 workout.getType(),
-                workout.getDurationSeconds(),
-                instructionsAudioUrl,
-                workoutAudioUrl,
-                instructionsImageUrl,
-                workoutImageUrl,
-                instructionsVideoUrl,
-                workout.getInstructionsVideoStart(),
-                workout.getInstructionsVideoStop(),
-                workout.getKneeFriendly(),
-                workout.getLowImpact(),
-                workout.getSeated(),
-                workout.getBeginnerFriendly(),
-                workout.getEnabled(),
-                trainerDTO);
+                imageUrl,
+                videoUrl,
+                workout.getEnabled());
     }
 
     private Workout toEntity(WorkoutRequestDto request) {
@@ -187,28 +150,12 @@ public class WorkoutController {
         workout.setDescription(request.description());
         workout.setDashboardName(request.dashboardName());
         workout.setDashboardDescription(request.dashboardDescription());
-        workout.setSubtitleText(request.subtitleText());
-        workout.setInstructionsSubtitleText(request.instructionsSubtitleText());
+        workout.setInstructions(request.instructions());
+        workout.setGuidance(request.guidance());
         workout.setLevel(request.level());
         workout.setType(request.type());
-        workout.setDurationSeconds(request.durationSeconds());
-        workout.setInstructionsAudio(request.instructionsAudio());
-        workout.setWorkoutAudio(request.workoutAudio());
-        workout.setInstructionsImage(request.instructionsImage());
-        workout.setWorkoutImage(request.workoutImage());
-        workout.setInstructionsVideo(request.instructionsVideo());
-        workout.setInstructionsVideoStart(request.instructionsVideoStart());
-        workout.setInstructionsVideoStop(request.instructionsVideoStop());
-        workout.setKneeFriendly(request.kneeFriendly());
-        workout.setLowImpact(request.lowImpact());
-        workout.setSeated(request.seated());
-        workout.setBeginnerFriendly(request.beginnerFriendly());
-
-        if (request.trainer() != null && request.trainer().id() != null) {
-            Trainer trainer = new Trainer();
-            trainer.setId(request.trainer().id());
-            workout.setTrainer(trainer);
-        }
+        workout.setImage(request.image());
+        workout.setVideo(request.video());
 
         return workout;
     }

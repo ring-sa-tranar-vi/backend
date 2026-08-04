@@ -1,5 +1,6 @@
 package dev.salt.Ring20.service.security;
 
+import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -8,9 +9,11 @@ import org.springframework.stereotype.Service;
 @Service("securityService")
 public class SecurityService {
     private final UserService userService;
+    private final OrganisationRepository organisationRepository;
 
-    public SecurityService(UserService userService) {
+    public SecurityService(UserService userService, OrganisationRepository organisationRepository) {
         this.userService = userService;
+        this.organisationRepository = organisationRepository;
     }
 
     public Long currentUserId(String clerkId) {
@@ -24,6 +27,11 @@ public class SecurityService {
 
     public boolean isAdmin(String clerkId) {
         return userService.isAdmin(clerkId);
+    }
+
+    public boolean isOrganizer(String clerkId) {
+        return clerkId != null
+                && !organisationRepository.findByOrganizer_ClerkIdWithEvents(clerkId).isEmpty();
     }
 
     public boolean isSuperAdmin(String clerkId) {

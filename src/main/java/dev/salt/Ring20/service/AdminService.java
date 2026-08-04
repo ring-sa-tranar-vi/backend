@@ -131,29 +131,11 @@ public class AdminService {
             }
         }
 
-        Map<Long, Long> workoutCountByTrainerId = new HashMap<>();
-        Map<Long, Long> enabledWorkoutCountByTrainerId = new HashMap<>();
-        for (Workout workout : workoutRepository.findAll()) {
-            if (workout.getTrainer() == null || workout.getTrainer().getId() == null) {
-                continue;
-            }
-
-            Long trainerId = workout.getTrainer().getId();
-            workoutCountByTrainerId.merge(trainerId, 1L, Long::sum);
-            if (Boolean.TRUE.equals(workout.getEnabled())) {
-                enabledWorkoutCountByTrainerId.merge(trainerId, 1L, Long::sum);
-            }
-        }
-
         List<Trainer> trainers =
                 trainerRepository.findAll().stream()
                         .sorted(Comparator.comparing(Trainer::getId))
                         .toList();
-        return new TrainerOverviewData(
-                trainers,
-                assignedUserCountByTrainerId,
-                workoutCountByTrainerId,
-                enabledWorkoutCountByTrainerId);
+        return new TrainerOverviewData(trainers, assignedUserCountByTrainerId);
     }
 
     @Transactional

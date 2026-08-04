@@ -1,7 +1,10 @@
 package dev.salt.Ring20.entity;
 
-import jakarta.persistence.*;
-import java.util.List;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,7 +37,4 @@ public class Trainer {
     private String imageStart;
 
     private String ambience;
-
-    @OneToMany(mappedBy = "trainer")
-    private List<Workout> workouts;
 }

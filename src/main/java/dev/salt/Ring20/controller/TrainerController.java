@@ -36,6 +36,7 @@ public class TrainerController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
         return ResponseEntity.ok(
@@ -43,6 +44,7 @@ public class TrainerController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
@@ -113,15 +115,15 @@ public class TrainerController {
                 trainer.getAmbience());
     }
 
-    @GetMapping("/{trainerId}/recommend-for/{userId}")
+    @GetMapping("/recommend-for/{userId}")
     @Operation(
             summary = "Get AI workout recommendation",
             description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-            getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
+            getTrainerAiRecommendation(@PathVariable Long userId) {
 
         return trainerService
-                .getAiRecommendedWorkout(trainerId, userId)
+                .getAiRecommendedWorkout(userId)
                 .thenApply(data -> ResponseEntity.ok(toRecommendedWorkoutResponse(data)));
     }
 

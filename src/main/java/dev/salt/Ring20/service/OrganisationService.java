@@ -52,11 +52,19 @@ public class OrganisationService {
     @Transactional
     public Organisation updateOrganisationById(
             Long id, String name, String description, String orgCity) {
+        return updateOrganisationById(id, name, description, orgCity, null);
+    }
+
+    @Transactional
+    public Organisation updateOrganisationById(
+            Long id, String name, String description, String orgCity, Long organizerId) {
         Organisation foundOrg = getOrganisationById(id);
         foundOrg.setName(name);
         foundOrg.setDescription(description);
         foundOrg.setOrgCity(orgCity);
-        ;
+        if (organizerId != null) {
+            foundOrg.setOrganizer(getUserById(organizerId));
+        }
         return repo.save(foundOrg);
     }
 
