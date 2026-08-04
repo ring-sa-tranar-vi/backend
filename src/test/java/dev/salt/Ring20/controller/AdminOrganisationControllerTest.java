@@ -69,8 +69,9 @@ class AdminOrganisationControllerTest {
     @Test
     void createOrganisationReturnsCreatedOrganisation() {
         OrganisationCreateRequestDto request =
-                new OrganisationCreateRequestDto("Salt", "Training", "Stockholm", 1L);
-        when(organisationService.createOrganisation("Salt", "Training", "Stockholm", 1L))
+                new OrganisationCreateRequestDto("Salt", "Training", "Stockholm", 1L, "Motivation");
+        when(organisationService.createOrganisation(
+                        "Salt", "Training", "Stockholm", 1L, "Motivation"))
                 .thenReturn(organisation(3L));
 
         ResponseEntity<AdminOrganisationDto> response = controller.createOrganisation(request);
@@ -123,7 +124,8 @@ class AdminOrganisationControllerTest {
     private Organisation organisation(Long id) {
         User organizer = new User();
         organizer.setId(1L);
-        Organisation organisation = new Organisation("Salt", "Training", "Stockholm", organizer);
+        Organisation organisation =
+                new Organisation("Salt", "Training", "Stockholm", organizer, "motivation");
         organisation.setId(id);
         return organisation;
     }

@@ -43,7 +43,8 @@ public class OrganisationController {
                         request.name(),
                         request.description(),
                         request.orgCity(),
-                        request.organizerId());
+                        request.organizerId(),
+                        request.motivation());
         OrganisationResponseDto response = toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -127,7 +128,8 @@ public class OrganisationController {
                 organisation.getDescription(),
                 events,
                 organisation.getOrgCity(),
-                organisation.getOrganizer() != null ? organisation.getOrganizer().getId() : null);
+                organisation.getOrganizer() != null ? organisation.getOrganizer().getId() : null,
+                organisation.getMotivation());
     }
 
     private EventResponseDto toEventResponseDto(Event event) {
