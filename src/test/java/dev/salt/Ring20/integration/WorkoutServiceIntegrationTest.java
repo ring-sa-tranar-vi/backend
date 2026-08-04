@@ -31,7 +31,6 @@ class WorkoutServiceIntegrationTest {
     void createWorkoutPersistsWorkout() {
         Workout workout = new Workout();
         workout.setName("Integration Workout");
-        workout.setDurationSeconds(180);
 
         Workout created = workoutService.createWorkout(workout);
 
@@ -43,7 +42,6 @@ class WorkoutServiceIntegrationTest {
     void startWorkoutReturnsExistingWorkout() {
         Workout workout = new Workout();
         workout.setName("Start Flow");
-        workout.setDurationSeconds(90);
 
         Workout saved = workoutRepository.save(workout);
 

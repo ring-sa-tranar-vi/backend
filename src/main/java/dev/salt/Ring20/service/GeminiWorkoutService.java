@@ -50,12 +50,7 @@ public class GeminiWorkoutService {
                                                     m.put("name", w.getName());
                                                     m.put("level", w.getLevel());
                                                     m.put("type", w.getType());
-                                                    m.put("kneeFriendly", w.getKneeFriendly());
-                                                    m.put("lowImpact", w.getLowImpact());
-                                                    m.put("seated", w.getSeated());
-                                                    m.put(
-                                                            "beginnerFriendly",
-                                                            w.getBeginnerFriendly());
+                                                    m.put("description", w.getDescription());
                                                     return m;
                                                 })
                                         .toList();
@@ -72,7 +67,7 @@ public class GeminiWorkoutService {
                         String promptData =
                                 String.format(
                                         "User Profile Data:\n- Name: %s\n- Intensity Level (reference): %s\n- Context / Preferences: %s\n\nAvailable Workout Options (JSON array):\n%s\n\n"
-                                                + "Pick exactly one workout that best matches the user's profile, the reasoning behind the decision, and return a strict JSON object structure matching: {\"workoutId\": 1, \"reasoning\": \"string text\"}.",
+                                                + "Pick exactly one workout that best matches the user's profile, the reasoning behind the decision, and return a strict JSON object structure matching: {\"workoutId\": 1, \"reasoning\": \"string text\"}. Disregard the users preferred language and the workouts are written in when making your decision",
                                         user.getName(),
                                         userIntensity,
                                         userContext,
@@ -99,7 +94,7 @@ public class GeminiWorkoutService {
                         // worker
                         // thread
                         String url =
-                                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key="
+                                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key="
                                         + googleApiKey;
                         String rawResponse =
                                 restTemplate.postForObject(url, requestBody, String.class);

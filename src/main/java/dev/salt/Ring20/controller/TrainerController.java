@@ -111,15 +111,15 @@ public class TrainerController {
                 trainer.getAmbience());
     }
 
-    @GetMapping("/{trainerId}/recommend-for/{userId}")
+    @GetMapping("/recommend-for/{userId}")
     @Operation(
             summary = "Get AI workout recommendation",
             description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-            getTrainerAiRecommendation(@PathVariable Long trainerId, @PathVariable Long userId) {
+            getTrainerAiRecommendation(@PathVariable Long userId) {
 
         return trainerService
-                .getAiRecommendedWorkout(trainerId, userId)
+                .getAiRecommendedWorkout(userId)
                 .thenApply(data -> ResponseEntity.ok(toRecommendedWorkoutResponse(data)));
     }
 

@@ -141,10 +141,6 @@ class AdminControllerTest {
         workout.setId(1L);
         workout.setName("Morning Flow");
 
-        Trainer trainer = new Trainer();
-        trainer.setName("Coach A");
-        workout.setTrainer(trainer);
-
         when(adminService.getWorkoutUsage())
                 .thenReturn(
                         new WorkoutUsageData(
@@ -163,7 +159,6 @@ class AdminControllerTest {
 
         assertEquals(1L, dto.workoutId());
         assertEquals("Morning Flow", dto.workoutName());
-        assertEquals("Coach A", dto.trainerName());
         assertEquals(10L, dto.startedCount());
         assertEquals(8L, dto.completedCount());
 
@@ -182,9 +177,7 @@ class AdminControllerTest {
         trainer.setLanguage("sv");
 
         when(adminService.getTrainerOverview())
-                .thenReturn(
-                        new TrainerOverviewData(
-                                List.of(trainer), Map.of(1L, 3L), Map.of(1L, 5L), Map.of(1L, 4L)));
+                .thenReturn(new TrainerOverviewData(List.of(trainer), Map.of(1L, 3L)));
 
         ResponseEntity<List<AdminTrainerOverviewResponseDto>> response =
                 controller.getTrainerOverview();
@@ -199,8 +192,6 @@ class AdminControllerTest {
         assertEquals("Coach A", dto.trainerName());
         assertEquals("sv", dto.language());
         assertEquals(3L, dto.assignedUserCount());
-        assertEquals(5L, dto.workoutCount());
-        assertEquals(4L, dto.enabledWorkoutCount());
 
         verify(adminService).getTrainerOverview();
     }

@@ -177,23 +177,21 @@ public class TrainerService {
         return normalized;
     }
 
-    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(
-            Long trainerId, Long userId) {
-        validateId(trainerId);
+    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(Long userId) {
         validateId(userId);
-        List<Workout> trainerWorkouts = getEnabledTrainerWorkouts(trainerId);
+        List<Workout> workouts = getEnabledWorkouts();
         User user = getUser(userId);
 
         return geminiWorkoutService
-                .recommendWorkoutWithReasoning(user, trainerWorkouts)
+                .recommendWorkoutWithReasoning(user, workouts)
                 .thenApply(this::parseRecommendedWorkout);
     }
 
-    private List<Workout> getEnabledTrainerWorkouts(Long trainerId) {
-        List<Workout> workouts = workoutRepository.findByTrainerIdAndEnabledTrue(trainerId);
+    private List<Workout> getEnabledWorkouts() {
+        List<Workout> workouts = workoutRepository.findByEnabledTrue();
 
         if (workouts.isEmpty()) {
-            throw new NoSuchElementException("No workouts found for trainer ID: " + trainerId);
+            throw new NoSuchElementException("No workouts found");
         }
 
         return workouts;

@@ -219,9 +219,6 @@ public class AdminController {
                                 new AdminWorkoutUsageResponseDto(
                                         workout.getId(),
                                         workout.getName(),
-                                        workout.getTrainer() == null
-                                                ? null
-                                                : workout.getTrainer().getName(),
                                         data.startedCountByWorkoutId()
                                                 .getOrDefault(workout.getId(), 0L),
                                         data.completedCountByWorkoutId()
@@ -240,10 +237,6 @@ public class AdminController {
                                         trainer.getName(),
                                         trainer.getLanguage(),
                                         data.assignedUserCountByTrainerId()
-                                                .getOrDefault(trainer.getId(), 0L),
-                                        data.workoutCountByTrainerId()
-                                                .getOrDefault(trainer.getId(), 0L),
-                                        data.enabledWorkoutCountByTrainerId()
                                                 .getOrDefault(trainer.getId(), 0L)))
                 .toList();
     }

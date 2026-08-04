@@ -17,28 +17,18 @@ class WorkoutRequestDTOTest {
                         "Upper body",
                         "Push Ups",
                         "Upper body dashboard",
-                        null,
-                        null,
+                        "Do a push up.",
+                        "Guide the user through the push up.",
                         1,
                         "strength",
-                        300,
-                        "instructions.mp3",
-                        "workout.mp3",
-                        "instructions.png",
                         "workout.png",
-                        null,
-                        null,
-                        null,
-                        true,
-                        false,
-                        false,
-                        true,
-                        new WorkoutRequestDto.TrainerIdDTO(7L));
+                        "workout.mp4");
 
         assertEquals("Push Ups", dto.name());
         assertEquals("Push Ups", dto.dashboardName());
-        assertEquals(300, dto.durationSeconds());
-        assertTrue(dto.beginnerFriendly());
-        assertEquals(7L, dto.trainer().id());
+        assertEquals("Do a push up.", dto.instructions());
+        assertEquals("Guide the user through the push up.", dto.guidance());
+        assertEquals("workout.png", dto.image());
+        assertEquals("workout.mp4", dto.video());
     }
 }
