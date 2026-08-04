@@ -9,12 +9,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Profile("local")
 public class LocalStorageWebConfig implements WebMvcConfigurer {
 
-    private final static String PATH_PATTERN = "/local-storage/**";
-    private final static String LOCATION = "file:./ringsatranarvi_files/";
+    private static final String PATH_PATTERN = "/local-storage/**";
+    private static final String LOCATION = "file:./ringsatranarvi_files/";
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(PATH_PATTERN)
-                .addResourceLocations(LOCATION);
+        registry.addResourceHandler(PATH_PATTERN).addResourceLocations(LOCATION);
     }
 }
