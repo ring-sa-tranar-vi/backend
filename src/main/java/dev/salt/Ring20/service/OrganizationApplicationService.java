@@ -5,9 +5,11 @@ import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.PaymentStatus;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganizationApplicationRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,19 +69,26 @@ public class OrganizationApplicationService {
     @Transactional
     public OrganizationApplication approve(Long id) {
         OrganizationApplication application = getById(id);
+        if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("Application already processed");
+        }
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);
         organisationService.createOrganisation(
                 application.getOrganizationName(),
                 application.getDescription(),
                 application.getCity(),
-                application.getId(), );
+                application.getUser().getId(),
+                application.getMotivation());
         return organizationApplicationRepository.save(application);
     }
 
     @Transactional
     public OrganizationApplication reject(Long id) {
         OrganizationApplication application = getById(id);
+        if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("Application already processed");
+        }
         application.setApplicationStatus(ApplicationStatus.REJECTED);
         setReviewedTime(application);
         return organizationApplicationRepository.save(application);
