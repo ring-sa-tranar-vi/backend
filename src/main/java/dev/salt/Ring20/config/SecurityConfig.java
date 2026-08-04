@@ -1,8 +1,5 @@
 package dev.salt.Ring20.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +17,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -29,7 +30,11 @@ public class SecurityConfig {
             "${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:4173,https://frontend-training.up.railway.app,https://ringsatranarvi.se,https://www.ringsatranarvi.se,https://*.ngrok-free.app,https://staging-ringsatranarvi-app.web.app,https://prod-ringsatranarvi-app.web.app}")
     private String allowedOrigins;
 
-    //TODO: add constants to fields
+    private static final String LOCAL_HOST_1573 = "http://localhost:5173";
+    private static final String LOCAL_HOST_8081 = "http://localhost:8081";
+    private static final String CLERK_JWT_URI = "https://unique-man-24.clerk.accounts.dev/.well-known/jwks.json";
+    private static final List<String> METHOD_LIST = List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
@@ -56,7 +61,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    //TODO: add constants to fields
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -68,15 +72,15 @@ public class SecurityConfig {
                                 .filter(origin -> !origin.isEmpty())
                                 .toList());
 
-        if (!origins.contains("http://localhost:5173")) {
-            origins.add("http://localhost:5173");
+        if (!origins.contains(LOCAL_HOST_1573)) {
+            origins.add(LOCAL_HOST_1573);
         }
-        if (!origins.contains("http://localhost:8081")) {
-            origins.add("http://localhost:8081");
+        if (!origins.contains(LOCAL_HOST_8081)) {
+            origins.add(LOCAL_HOST_8081);
         }
 
         config.setAllowedOriginPatterns(origins);
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(METHOD_LIST);
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
@@ -86,11 +90,9 @@ public class SecurityConfig {
         return source;
     }
 
-    //TODO: add constants to fields
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(
-                        "https://unique-man-24.clerk.accounts.dev/.well-known/jwks.json")
+        return NimbusJwtDecoder.withJwkSetUri(CLERK_JWT_URI)
                 .build();
     }
 }
