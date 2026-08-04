@@ -141,8 +141,9 @@ public class WorkoutService {
         existing.setLowImpact(workout.getLowImpact());
         existing.setSeated(workout.getSeated());
         existing.setBeginnerFriendly(workout.getBeginnerFriendly());
-        var trainer = resolveTrainer(workout);
-        existing.setTrainer(trainer);
+        if (workout.getTrainer() != null && workout.getTrainer().getId() != null) {
+            existing.setTrainer(resolveTrainer(workout));
+        }
 
         return workoutRepository.save(existing);
     }

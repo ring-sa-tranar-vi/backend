@@ -34,6 +34,7 @@ public class TrainerController {
     }
 
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
         return ResponseEntity.ok(
@@ -41,6 +42,7 @@ public class TrainerController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);

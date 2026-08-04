@@ -4,14 +4,13 @@ import dev.salt.Ring20.dto.CompanyMeDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
-import java.util.Comparator;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CompanyService {
 
-    private static final String COMPANY_ROLE = "ORGANIZER";
+    private static final String COMPANY_ROLE = "COMPANY";
 
     private final OrganisationService organisationService;
     private final EventService eventService;
@@ -34,27 +33,10 @@ public class CompanyService {
     }
 
     public Organisation getManagedOrganisationForClerkId(String clerkId) {
-        User user = userService.getByClerkIdOrThrow(clerkId);
-        return user.getTrainerId() != null
-                ? organisationService.getAllOrganisations().stream()
-                        .filter(
-                                org ->
-                                        org.getEvents().stream()
-                                                .anyMatch(
-                                                        e ->
-                                                                e.getOrganisation() != null
-                                                                        && e.getOrganisation()
-                                                                                .getId()
-                                                                                .equals(
-                                                                                        org
-                                                                                                .getId())))
-                        .findFirst()
-                        .orElseThrow(() -> new NoSuchElementException("Organisation not found"))
-                : organisationService.getAllOrganisations().stream()
-                        .min(
-                                Comparator.comparing(
-                                        Organisation::getId, Comparator.nullsLast(Long::compareTo)))
-                        .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
+        userService.getByClerkIdOrThrow(clerkId);
+        return organisationService.getOrganisationForUser(clerkId).stream()
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
     }
 
     public Event getManagedEventForClerkId(Long eventId, String clerkId) {
