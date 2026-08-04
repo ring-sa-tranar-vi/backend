@@ -24,7 +24,8 @@ public class OrganisationService {
             String name, String description, String orgCity, Long userId, String motivation) {
         User organizer = getUserById(userId);
 
-        Organisation organisation = new Organisation(name, description, orgCity, organizer, motivation);
+        Organisation organisation =
+                new Organisation(name, description, orgCity, organizer, motivation);
         return repo.save(organisation);
     }
 

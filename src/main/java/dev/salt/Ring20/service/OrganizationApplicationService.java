@@ -5,11 +5,9 @@ import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.PaymentStatus;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganizationApplicationRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
