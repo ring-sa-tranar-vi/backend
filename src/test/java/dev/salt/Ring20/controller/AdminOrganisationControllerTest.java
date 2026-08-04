@@ -124,7 +124,7 @@ class AdminOrganisationControllerTest {
     private Organisation organisation(Long id) {
         User organizer = new User();
         organizer.setId(1L);
-        Organisation organisation = new Organisation("Salt", "Training", "Stockholm", organizer);
+        Organisation organisation = new Organisation("Salt", "Training", "Stockholm", organizer, "motivation");
         organisation.setId(id);
         return organisation;
     }
