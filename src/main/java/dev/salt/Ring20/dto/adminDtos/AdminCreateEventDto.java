@@ -1,4 +1,4 @@
-package dev.salt.Ring20.dto;
+package dev.salt.Ring20.dto.adminDtos;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.salt.Ring20.config.FlexibleLocalDateTimeDeserializer;
