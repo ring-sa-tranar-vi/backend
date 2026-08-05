@@ -1,7 +1,9 @@
 package dev.salt.Ring20.controller;
 
 import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
+import dev.salt.Ring20.mapper.CalendarMapper;
 import dev.salt.Ring20.service.CalendarService;
+import dev.salt.Ring20.service.model.CalendarEvent;
 import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,8 +36,8 @@ public class CalendarController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<CalendarEventDto> events = calendarService.getMonthlyCalendar(userId, year, month);
+        List<CalendarEvent> events = calendarService.getMonthlyCalendar(userId, year, month);
 
-        return ResponseEntity.ok().body(events);
+        return ResponseEntity.ok().body(events.stream().map(CalendarMapper::toDto).toList());
     }
 }
