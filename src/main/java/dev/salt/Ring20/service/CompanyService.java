@@ -1,17 +1,17 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.CompanyMeDto;
+import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
-import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
 
 @Service
 public class CompanyService {
 
     private static final String COMPANY_ROLE = "COMPANY";
- //TODO: document, what is the difference between this and organisation?
 
     private final OrganisationService organisationService;
     private final EventService eventService;
@@ -26,10 +26,10 @@ public class CompanyService {
         this.userService = userService;
     }
 
-    public CompanyMeDto getCompanyMe(String clerkId) {
+    public CompanyMeResponseDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
         Organisation organisation = getManagedOrganisationForClerkId(clerkId);
-        return new CompanyMeDto(
+        return new CompanyMeResponseDto(
                 user.getId(), COMPANY_ROLE, true, organisation.getId(), organisation.getName());
     }
 

@@ -1,4 +1,4 @@
-package dev.salt.Ring20.dto.companyDto;
+package dev.salt.Ring20.dto.company;
 
 public record CompanyMeResponseDto(
         Long userId,
