@@ -22,10 +22,11 @@ public class OrganisationService {
     // TODO: formating line indentation
     @Transactional
     public Organisation createOrganisation(
-            String name, String description, String orgCity, Long userId) {
+            String name, String description, String orgCity, Long userId, String motivation) {
         User organizer = getUserById(userId);
 
-        Organisation organisation = new Organisation(name, description, orgCity, organizer);
+        Organisation organisation =
+                new Organisation(name, description, orgCity, organizer, motivation);
         return repo.save(organisation);
     }
 

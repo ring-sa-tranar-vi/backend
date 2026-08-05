@@ -400,7 +400,8 @@ public class UserController {
                 organisation.getDescription(),
                 events,
                 organisation.getOrgCity(),
-                organisation.getOrganizer().getId());
+                organisation.getOrganizer().getId(),
+                organisation.getMotivation());
     }
 
     private CallbackPreference toCallbackPreference(CallbackPreferenceRequestDto request) {

@@ -67,19 +67,26 @@ public class OrganizationApplicationService {
     @Transactional
     public OrganizationApplication approve(Long id) {
         OrganizationApplication application = getById(id);
+        if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("Application already processed");
+        }
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);
         organisationService.createOrganisation(
                 application.getOrganizationName(),
                 application.getDescription(),
                 application.getCity(),
-                application.getId());
+                application.getUser().getId(),
+                application.getMotivation());
         return organizationApplicationRepository.save(application);
     }
 
     @Transactional
     public OrganizationApplication reject(Long id) {
         OrganizationApplication application = getById(id);
+        if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("Application already processed");
+        }
         application.setApplicationStatus(ApplicationStatus.REJECTED);
         setReviewedTime(application);
         return organizationApplicationRepository.save(application);
