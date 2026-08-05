@@ -5,27 +5,24 @@ import dev.salt.Ring20.dto.AdminOrganisationDto;
 import dev.salt.Ring20.dto.AdminOrganisationEventDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.EventType;
 import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.enums.EventType;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("@securityService.isAdmin(authentication.name)")
+@Tag(name = "Admin Organizations", description = "Administrative endpoints for managing organisation and events")
 public class AdminOrganisationController {
 
     private final OrganisationService organisationService;
@@ -38,14 +35,21 @@ public class AdminOrganisationController {
     }
 
     @GetMapping("/organisations")
+    @Operation(
+            summary = "Get all organisations ",
+            description = "Retrieves all available organisations.")
     public ResponseEntity<List<AdminOrganisationDto>> getOrganisations() {
-        return ResponseEntity.ok(
-                organisationService.getAllOrganisations().stream()
-                        .map(this::toOrganisationDto)
-                        .toList());
+        return ResponseEntity.ok()
+                .body(
+                        organisationService.getAllOrganisations().stream()
+                                .map(this::toOrganisationDto)
+                                .toList());
     }
 
     @PostMapping("/organisations")
+    @Operation(
+            summary = "Create organisation",
+            description = "Creates a new organisation.")
     public ResponseEntity<AdminOrganisationDto> createOrganisation(
             @Valid @RequestBody OrganisationCreateRequestDto request) {
         Organisation created =
@@ -65,12 +69,16 @@ public class AdminOrganisationController {
     }
 
     @DeleteMapping("/organisations/{id}")
+    @Operation(summary = "Get organisation by ID",
+            description = "Retrieves an organisation using its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         organisationService.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/events")
+    @Operation(summary = "Create event",
+            description = "Creates a new event.")
     public ResponseEntity<AdminOrganisationEventDto> createEvent(
             @Valid @RequestBody AdminCreateEventDto request) {
         Organisation organisation =
@@ -94,6 +102,7 @@ public class AdminOrganisationController {
     }
 
     @DeleteMapping("/events/{id}")
+    @Operation(summary = "Delete event", description = "Deletes an event by its ID.")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.deleteEventById(id);
         return ResponseEntity.noContent().build();
