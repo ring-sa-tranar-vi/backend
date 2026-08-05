@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class CalendarController {
 
     private final CalendarService calendarService;
-    private final SecurityService securityService;
 
     @GetMapping
     @PreAuthorize("@securityService.isOwnerOrAdmin(#userId, authentication.name)")
@@ -29,14 +28,14 @@ public class CalendarController {
                     "Retrieves a user's workout calendar events for the specified month and year.")
     public ResponseEntity<List<CalendarEventDto>> getCalendar(
             @RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
-
-        //TODO: magic number
-        if (month < 1 || month > 12) {
+        int minMonth = 1;
+        int maxMonth = 12;
+        if (month < minMonth || month > maxMonth) {
             return ResponseEntity.badRequest().build();
         }
 
         List<CalendarEventDto> events = calendarService.getMonthlyCalendar(userId, year, month);
 
-        return ResponseEntity.ok(events);
+        return ResponseEntity.ok().body(events);
     }
 }
