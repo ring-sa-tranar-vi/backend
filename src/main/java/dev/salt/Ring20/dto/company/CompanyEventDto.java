@@ -1,4 +1,4 @@
-package dev.salt.Ring20.dto;
+package dev.salt.Ring20.dto.company;
 
 import java.time.LocalDateTime;
 
