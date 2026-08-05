@@ -4,6 +4,7 @@ import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
 import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
 import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
+import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,13 +22,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Tag(name = "Events", description = "Endpoints for creating, managing, and retrieving events.")
 public class EventController {
 
-    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
+    // TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or
+    // .ok().body(whats in the body) not both
 
-    //TODO: consistent naming -> other controllers have names like eventService
-    private final EventService service;
+    private final EventService eventService;
 
-    public EventController(EventService service) {
-        this.service = service;
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @PostMapping
@@ -36,16 +37,9 @@ public class EventController {
     public ResponseEntity<EventResponseDto> createEvent(
             @Valid @RequestBody EventCreateRequestDto request) {
         Event event =
-                service.createEvent(
-                        request.name(),
-                        request.description(),
-                        request.time(),
-                        request.organisationId(),
-                        request.city(),
-                        request.venue(),
-                        request.eventType());
+                eventService.createEvent(EventMapper.toEvent(request), request.organisationId());
 
-        EventResponseDto response = toResponse(event);
+        EventResponseDto response = EventMapper.toEventResponseDto(event);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -57,20 +51,20 @@ public class EventController {
     @GetMapping
     @Operation(summary = "Get all events", description = "Retrieves all available events.")
     public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        return ResponseEntity.ok(service.getAllEvents().stream().map(this::toResponse).toList());
+        return ResponseEntity.ok().body(eventService.getAllEvents().stream().map(EventMapper::toEventResponseDto).toList());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get event by ID", description = "Retrieves an event using its ID.")
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
-        return ResponseEntity.ok(toResponse(service.getEventById(id)));
+        return ResponseEntity.ok().body(EventMapper.toEventResponseDto(eventService.getEventById(id)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@eventSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete event", description = "Deletes an event by its ID.")
     public ResponseEntity<Void> deleteEventById(@PathVariable Long id) {
-        service.deleteEventById(id);
+        eventService.deleteEventById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -80,15 +74,8 @@ public class EventController {
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventUpdateRequestDto request) {
         Event updatedEvent =
-                service.updateEvent(
-                        id,
-                        request.name(),
-                        request.description(),
-                        request.time(),
-                        request.city(),
-                        request.venue(),
-                        request.eventType());
-        return ResponseEntity.ok(toResponse(updatedEvent));
+                eventService.updateEvent(EventMapper.toEvent(request), id);
+        return ResponseEntity.ok().body(EventMapper.toEventResponseDto(updatedEvent));
     }
 
     @GetMapping("/my")
@@ -96,19 +83,7 @@ public class EventController {
     @Operation(
             summary = "Get my events",
             description = "Retrieves all events created by the authenticated organiser.")
-    public List<EventResponseDto> getMyEvents(Authentication auth) {
-        return service.getEventsForUser(auth.getName()).stream().map(this::toResponse).toList();
-    }
-
-    private EventResponseDto toResponse(Event event) {
-        return new EventResponseDto(
-                event.getId(),
-                event.getName(),
-                event.getDescription(),
-                event.getTime(),
-                event.getOrganisation().getId(),
-                event.getCity(),
-                event.getVenue(),
-                event.getEventType());
+    public ResponseEntity<List<EventResponseDto>> getMyEvents(Authentication auth) {
+        return  ResponseEntity.ok().body(eventService.getEventsForUser(auth.getName()).stream().map(EventMapper::toEventResponseDto).toList());
     }
 }

@@ -101,14 +101,7 @@ public class CompanyController {
         Event created =
                 companyService
                         .getEventService()
-                        .createEvent(
-                                request.name(),
-                                request.description(),
-                                request.time(),
-                                organisation.getId(),
-                                request.city(),
-                                request.venue(),
-                                parseEventType(request.eventType()));
+                        .createEvent(EventMapper.toEvent(request), organisation.getId());
         CompanyEventDto response = EventMapper.toCompanyEventDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -129,14 +122,7 @@ public class CompanyController {
         Event updated =
                 companyService
                         .getEventService()
-                        .updateEvent(
-                                existing.getId(),
-                                request.name(),
-                                request.description(),
-                                request.time(),
-                                request.city(),
-                                request.venue(),
-                                parseEventType(request.eventType()));
+                        .updateEvent(EventMapper.toEvent(request), existing.getId());
         return ResponseEntity.ok().body(EventMapper.toCompanyEventDto(updated));
     }
 

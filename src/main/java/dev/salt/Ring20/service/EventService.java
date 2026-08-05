@@ -6,13 +6,12 @@ import dev.salt.Ring20.entity.enums.EventType;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.springframework.stereotype.Service;
 
-//TODO: consistent naming -> other controllers have names like eventRepository
+// TODO: consistent naming -> other controllers have names like eventRepository
 @Service
 public class EventService {
     private final EventRepository eventRepository;
@@ -28,23 +27,9 @@ public class EventService {
         this.organisationService = organisationService;
     }
 
-    public Event createEvent(
-            String name,
-            String description,
-            LocalDateTime time,
-            Long organisationId,
-            String city,
-            String venue,
-            EventType eventType) {
-        return eventRepository.save(
-                new Event(
-                        name,
-                        description,
-                        time,
-                        getOrganisationById(organisationId),
-                        city,
-                        venue,
-                        eventType));
+    public Event createEvent(Event event, Long organizationId) {
+        event.setOrganisation(getOrganisationById(organizationId));
+        return eventRepository.save( event);
     }
 
     public List<Event> getAllEvents() {
@@ -55,36 +40,30 @@ public class EventService {
         return eventRepository.findByOrganisationId(id);
     }
 
-    //TODO: should have an message for frontend
+    // TODO: should have an message for frontend
     public Event getEventById(Long id) {
         return eventRepository.findById(id).orElseThrow();
     }
 
-    //TODO: spacing/indendation  is looking weird
+    // TODO: spacing/indendation  is looking weird
     @Transactional
-    public Event updateEvent(
-            Long id,
-            String name,
-            String description,
-            LocalDateTime time,
-            String city,
-            String venue,
-            EventType eventType) {
+    public Event updateEvent(Event event,
+            Long id) {
 
-        Event event =
+        Event eventToUpdate =
                 eventRepository
                         .findById(id)
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
                                                 " Event not found with id: " + id));
-        event.setName(name);
-        event.setDescription(description);
-        event.setTime(time);
-        event.setCity(city);
-        event.setVenue(venue);
-        event.setEventType(eventType);
-        return eventRepository.save(event);
+        eventToUpdate.setName(event.getName());
+        eventToUpdate.setDescription(event.getDescription());
+        eventToUpdate.setTime(event.getTime());
+        eventToUpdate.setCity(event.getCity());
+        eventToUpdate.setVenue(event.getVenue());
+        eventToUpdate.setEventType(event.getEventType());
+        return eventRepository.save(eventToUpdate);
     }
 
     @Transactional
