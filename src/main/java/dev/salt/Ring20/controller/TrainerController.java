@@ -42,7 +42,6 @@ public class TrainerController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
