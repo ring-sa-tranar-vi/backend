@@ -41,7 +41,6 @@ public class WorkoutController {
     }
 
     @GetMapping
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all workouts", description = "Retrieves all available workouts.")
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
@@ -50,7 +49,6 @@ public class WorkoutController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get workout by ID", description = "Retrieves a workout using its ID.")
     public ResponseEntity<WorkoutResponseDto> getWorkoutById(
             @PathVariable Long id, Authentication authentication) {
