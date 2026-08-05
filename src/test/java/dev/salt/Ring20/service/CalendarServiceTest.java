@@ -1,22 +1,12 @@
 package dev.salt.Ring20.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
 import dev.salt.Ring20.entity.*;
-import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
+import dev.salt.Ring20.service.model.CalendarEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,15 +14,30 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class CalendarServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private ActivityLogRepository activityLogRepository;
-    @Mock private CallbackPreferenceRepository callbackPreferenceRepository;
-    @Mock private WorkoutRepository workoutRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private ActivityLogRepository activityLogRepository;
+    @Mock
+    private CallbackPreferenceRepository callbackPreferenceRepository;
+    @Mock
+    private WorkoutRepository workoutRepository;
 
-    @InjectMocks private CalendarService calendarService;
+    @InjectMocks
+    private CalendarService calendarService;
 
     private User testUser;
 
@@ -58,10 +63,10 @@ class CalendarServiceTest {
         workout.setName("Test Workout");
 
         when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
-                        eq(1L),
-                        eq("COMPLETED"),
-                        any(LocalDateTime.class),
-                        any(LocalDateTime.class)))
+                eq(1L),
+                eq("COMPLETED"),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class)))
                 .thenReturn(List.of(workoutLog));
         when(workoutRepository.findById(10L)).thenReturn(Optional.of(workout));
 
@@ -78,20 +83,20 @@ class CalendarServiceTest {
 
         when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of(callPref));
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, year, month);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, year, month);
 
         assertEquals(7, result.size());
         for (int i = 0; i < result.size() - 1; i++) {
             assertTrue(
-                    result.get(i).time().isBefore(result.get(i + 1).time())
-                            || result.get(i).time().isEqual(result.get(i + 1).time()),
+                    result.get(i).getTime().isBefore(result.get(i + 1).getTime())
+                            || result.get(i).getTime().isEqual(result.get(i + 1).getTime()),
                     "The list is not sorted correctly!");
         }
 
-        CalendarEventDto eventDto =
-                result.stream().filter(e -> e.type().equals("EVENT")).findFirst().orElseThrow();
-        assertEquals("Yoga Event", eventDto.title());
-        assertEquals("EVENT-200", eventDto.id());
+        CalendarEvent eventDto =
+                result.stream().filter(e -> e.getType().equals("EVENT")).findFirst().orElseThrow();
+        assertEquals("Yoga Event", eventDto.getTitle());
+        assertEquals("EVENT-200", eventDto.getId());
     }
 
     @Test
@@ -122,11 +127,11 @@ class CalendarServiceTest {
 
         testUser.getAttendingEvents().addAll(List.of(validEvent, invalidEvent));
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
         assertEquals(1, result.size(), "Should only show 1 event because the other was in July");
-        assertEquals("EVENT-1", result.get(0).id());
-        assertEquals("August Event", result.get(0).title());
+        assertEquals("EVENT-1", result.getFirst().getId());
+        assertEquals("August Event", result.getFirst().getTitle());
     }
 
     @Test
@@ -139,12 +144,12 @@ class CalendarServiceTest {
         pastEvent.setTime(LocalDateTime.of(2020, 8, 15, 12, 0));
         testUser.getAttendingEvents().add(pastEvent);
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2020, 8);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2020, 8);
 
         assertEquals(1, result.size());
-        assertEquals("EVENT-3", result.getFirst().id());
-        assertEquals("Completed Community Event", result.getFirst().title());
-        assertTrue(result.getFirst().completed());
+        assertEquals("EVENT-3", result.getFirst().getId());
+        assertEquals("Completed Community Event", result.getFirst().getTitle());
+        assertTrue(result.getFirst().isCompleted());
     }
 
     @Test
@@ -161,12 +166,12 @@ class CalendarServiceTest {
 
         testUser.getAttendingEvents().add(event);
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
         assertEquals(1, result.size());
         assertEquals(
                 "A fun workshop - Salt HQ, Stockholm",
-                result.get(0).description(),
+                result.getFirst().getDescription(),
                 "The description was not formatted correctly!");
     }
 
@@ -174,11 +179,11 @@ class CalendarServiceTest {
     void getMonthlyCalendar_shouldReturnEmptyList_whenNoDataExists() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
-                        any(), any(), any(), any()))
+                any(), any(), any(), any()))
                 .thenReturn(List.of());
         when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of());
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
         assertTrue(result.isEmpty(), "The calendar should be completely empty");
     }
@@ -194,10 +199,10 @@ class CalendarServiceTest {
 
         when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of(callPref));
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2024, 2);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2024, 2);
 
         assertEquals(5, result.size());
-        assertEquals(LocalDateTime.of(2024, 2, 29, 10, 0), result.get(4).time());
+        assertEquals(LocalDateTime.of(2024, 2, 29, 10, 0), result.get(4).getTime());
     }
 
     @Test
@@ -210,15 +215,15 @@ class CalendarServiceTest {
         workoutLog.setCompletedAt(LocalDateTime.of(2026, 8, 10, 14, 0));
 
         when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
-                        eq(1L), eq("COMPLETED"), any(), any()))
+                eq(1L), eq("COMPLETED"), any(), any()))
                 .thenReturn(List.of(workoutLog));
 
         when(workoutRepository.findById(999L)).thenReturn(Optional.empty());
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
         assertEquals(1, result.size());
-        assertEquals("Deleted training", result.get(0).title());
+        assertEquals("Deleted training", result.getFirst().getTitle());
     }
 
     @Test
@@ -233,9 +238,9 @@ class CalendarServiceTest {
 
         testUser.getAttendingEvents().add(event);
 
-        List<CalendarEventDto> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
+        List<CalendarEvent> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
         assertEquals(1, result.size());
-        assertEquals("Gothenburg", result.get(0).description());
+        assertEquals("Gothenburg", result.getFirst().getDescription());
     }
 }
