@@ -103,6 +103,13 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
+    @ExceptionHandler(QuotaExceededException.class)
+    public ResponseEntity<ProblemDetail> handleQuotaExceeded(
+            QuotaExceededException ex, HttpServletRequest request) {
+
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request.getRequestURI());
+    }
+
     private ResponseEntity<ProblemDetail> build(HttpStatus status, String message, String path) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(status, message);
         body.setTitle(status.getReasonPhrase());
