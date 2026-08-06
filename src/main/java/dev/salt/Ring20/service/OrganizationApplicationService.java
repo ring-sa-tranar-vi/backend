@@ -29,16 +29,11 @@ public class OrganizationApplicationService {
     }
 
     @Transactional
-    public OrganizationApplication createApplication(
-            String clerkId, String orgName, String description, String city, String motivation) {
-        OrganizationApplication application = new OrganizationApplication();
+    public OrganizationApplication createApplication( OrganizationApplication application,
+            String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
 
         application.setUser(user);
-        application.setOrganizationName(orgName);
-        application.setDescription(description);
-        application.setCity(city);
-        application.setMotivation(motivation);
         application.setApplicationStatus(ApplicationStatus.PENDING);
         application.setCreatedAt(LocalDateTime.now());
         application.setPaymentStatus(PaymentStatus.PENDING);
