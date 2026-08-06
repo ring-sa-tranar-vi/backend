@@ -6,6 +6,8 @@ import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.mapper.EventMapper;
+import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,13 +28,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
         description = "Endpoints for creating, managing, and retrieving organisations.")
 public class OrganisationController {
 
-    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
 
-    private final OrganisationService service;
+    private final OrganisationService organisationService;
     private final EventService eventService;
 
     public OrganisationController(OrganisationService service, EventService eventService) {
-        this.service = service;
+        this.organisationService = service;
         this.eventService = eventService;
     }
 
@@ -42,13 +43,9 @@ public class OrganisationController {
     public ResponseEntity<OrganisationResponseDto> createOrganisation(
             @Valid @RequestBody OrganisationCreateRequestDto request) {
         Organisation newOrg =
-                service.createOrganisation(
-                        request.name(),
-                        request.description(),
-                        request.orgCity(),
-                        request.organizerId(),
-                        request.motivation());
-        OrganisationResponseDto response = toResponseDto(newOrg);
+                organisationService.createOrganisation(OrganizationMapper.toOrganization(request),
+                        request.organizerId());
+        OrganisationResponseDto response = OrganizationMapper.toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -62,8 +59,8 @@ public class OrganisationController {
             summary = "Get all organisations",
             description = "Retrieves all available organisations.")
     public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
-        return ResponseEntity.ok(
-                service.getAllOrganisations().stream().map(this::toResponseDto).toList());
+        return ResponseEntity.ok().body(
+                organisationService.getAllOrganisations().stream().map(OrganizationMapper::toResponseDto).toList());
     }
 
     @GetMapping("/{id}")
@@ -71,15 +68,15 @@ public class OrganisationController {
             summary = "Get organisation by ID",
             description = "Retrieves an organisation using its ID.")
     public ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
-        return ResponseEntity.ok(toResponseDto(service.getOrganisationById(id)));
+        return ResponseEntity.ok().body(OrganizationMapper.toResponseDto(organisationService.getOrganisationById(id)));
     }
 
     @GetMapping("/{id}/events")
     @Operation(
             summary = "Get organisation events",
             description = "Retrieves all events associated with an organisation.")
-    public List<EventResponseDto> getEventsByOrganisation(@PathVariable Long id) {
-        return eventService.getAllEventsByOrgId(id).stream().map(this::toEventResponseDto).toList();
+    public ResponseEntity<List<EventResponseDto>> getEventsByOrganisation(@PathVariable Long id) {
+        return ResponseEntity.ok().body(eventService.getAllEventsByOrgId(id).stream().map(EventMapper::toEventResponseDto).toList());
     }
 
     @PutMapping("/{id}")
@@ -90,20 +87,16 @@ public class OrganisationController {
     public ResponseEntity<OrganisationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganisationUpdateRequestDto request) {
         Organisation updatedOrg =
-                service.updateOrganisationById(
-                        id,
-                        request.name(),
-                        request.description(),
-                        request.orgCity(),
-                        request.organizerId());
-        return ResponseEntity.ok(toResponseDto(updatedOrg));
+                organisationService.updateOrganisationById(OrganizationMapper.toOrganization(request),
+                        id);
+        return ResponseEntity.ok().body(OrganizationMapper.toResponseDto(updatedOrg));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete organisation", description = "Deletes an organisation by its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
-        service.deleteOrganisationById(id);
+        organisationService.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -114,38 +107,9 @@ public class OrganisationController {
             description = "Retrieves the organisation belonging to the authenticated organiser.")
     public ResponseEntity<List<OrganisationResponseDto>> getMyOrganisation(
             Authentication authentication) {
-        return ResponseEntity.ok(
-                service.getOrganisationForUser(authentication.getName()).stream()
-                        .map(this::toResponseDto)
+        return ResponseEntity.ok().body(
+                organisationService.getOrganisationForUser(authentication.getName()).stream()
+                        .map(OrganizationMapper::toResponseDto)
                         .toList());
-    }
-
-    private OrganisationResponseDto toResponseDto(Organisation organisation) {
-        List<EventResponseDto> events =
-                organisation.getEvents() == null
-                        ? List.of()
-                        : organisation.getEvents().stream().map(this::toEventResponseDto).toList();
-        return new OrganisationResponseDto(
-                organisation.getId(),
-                organisation.getName(),
-                organisation.getDescription(),
-                events,
-                organisation.getOrgCity(),
-                organisation.getOrganizer() != null ? organisation.getOrganizer().getId() : null,
-                organisation.getMotivation());
-    }
-
-    private EventResponseDto toEventResponseDto(Event event) {
-        Long organisationId =
-                event.getOrganisation() == null ? null : event.getOrganisation().getId();
-        return new EventResponseDto(
-                event.getId(),
-                event.getName(),
-                event.getDescription(),
-                event.getTime(),
-                organisationId,
-                event.getCity(),
-                event.getVenue(),
-                event.getEventType());
     }
 }
