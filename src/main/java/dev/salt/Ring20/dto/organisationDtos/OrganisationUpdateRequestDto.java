@@ -5,5 +5,4 @@ import jakarta.validation.constraints.NotBlank;
 public record OrganisationUpdateRequestDto(
         @NotBlank String name,
         @NotBlank String description,
-        @NotBlank String orgCity,
-        Long organizerId) {}
+        @NotBlank String orgCity) {}
