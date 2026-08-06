@@ -98,19 +98,18 @@ public class ScheduledCallService {
                 return;
             }
 
-            Message message =
-                    Message.builder()
-                            .setToken(call.getFcmToken())
-                            .putData("trainerId", String.valueOf(call.getTrainerId()))
-                            .putData("userId", String.valueOf(call.getUserId()))
-                            .putData("type", "TRAINING_CALL")
-                            .setNotification(
-                                    Notification.builder()
-                                            .setTitle("Time to train!")
-                                            .setBody("Tap to start your session")
-                                            .build())
-                            .build();
+            Message message = Message.builder()
+                    .setToken(call.getFcmToken())
+                    .putData("callId", String.valueOf(call.getId())) 
+                    .putData("trainerId", String.valueOf(call.getTrainerId()))
+                    .putData("userId", String.valueOf(call.getUserId()))
+                    .putData("type", "TRAINING_CALL")
+                    .setAndroidConfig(com.google.firebase.messaging.AndroidConfig.builder()
+                        .setPriority(com.google.firebase.messaging.AndroidConfig.Priority.HIGH)
+                        .build())
+                    .build();
 
+            FirebaseMessaging.getInstance().sendAsync(message);
             FirebaseMessaging.getInstance().sendAsync(message);
 
         } catch (Exception e) {
