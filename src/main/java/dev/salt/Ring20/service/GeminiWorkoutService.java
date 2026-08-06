@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.exception.QuotaExceededException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,10 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -40,7 +44,6 @@ public class GeminiWorkoutService {
         return CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        // 1. Build list map matching problem requirements
                         List<Map<String, Object>> workoutsForPrompt =
                                 workouts.stream()
                                         .map(
@@ -73,13 +76,11 @@ public class GeminiWorkoutService {
                                         userContext,
                                         workoutsListJson);
 
-                        // 2. Build official REST payload according to Google API layout guidelines
                         Map<String, Object> textPart = Map.of("text", promptData);
                         Map<String, Object> partsBlock = Map.of("parts", List.of(textPart));
                         Map<String, Object> contentsBlock =
                                 Map.of("role", "user", "parts", partsBlock.get("parts"));
 
-                        // Nest config data safely inside official parameter tokens
                         Map<String, Object> generationConfig =
                                 Map.of("responseMimeType", "application/json");
 
@@ -90,16 +91,12 @@ public class GeminiWorkoutService {
                                         "generationConfig",
                                         generationConfig);
 
-                        // 3. Fire synchronous execution inside the CompletableFuture background
-                        // worker
-                        // thread
                         String url =
                                 "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key="
                                         + googleApiKey;
                         String rawResponse =
                                 restTemplate.postForObject(url, requestBody, String.class);
 
-                        // 4. Dig out text node value from Google response packaging layers
                         JsonNode root = objectMapper.readTree(rawResponse);
                         String resultJsonString =
                                 root.path("candidates")
@@ -113,9 +110,14 @@ public class GeminiWorkoutService {
                         log.debug("Gemini response captured: {}", resultJsonString);
                         return resultJsonString.trim();
 
+                    } catch (HttpClientErrorException.TooManyRequests e) {
+                        log.warn("Gemini API quota exceeded (429): {}", e.getMessage());
+                        throw new QuotaExceededException(
+                                "API quota exceeded. Please try again later.", e);
+
                     } catch (Exception e) {
                         log.error("Gemini Execution failure: ", e);
-                        throw new RuntimeException("Failed to generate workout recommendation");
+                        throw new RuntimeException("Failed to generate workout recommendation", e);
                     }
                 });
     }
