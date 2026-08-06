@@ -1,5 +1,6 @@
 package dev.salt.Ring20.service;
 
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.enums.ApplicationStatus;
@@ -70,15 +71,23 @@ public class OrganizationApplicationService {
         if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
             throw new IllegalStateException("Application already processed");
         }
+
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);
-        organisationService.createOrganisation(
-                application.getOrganizationName(),
-                application.getDescription(),
-                application.getCity(),
-                application.getUser().getId(),
-                application.getMotivation());
+        Organisation organization = createOrganization(application);
+
+        organisationService.createOrganisation(organization, application.getUser().getId());
+
         return organizationApplicationRepository.save(application);
+    }
+
+    private Organisation createOrganization(OrganizationApplication application) {
+        Organisation organization = new Organisation();
+        organization.setName(application.getOrganizationName());
+        organization.setDescription(application.getDescription());
+        organization.setOrgCity(application.getCity());
+        organization.setMotivation(application.getMotivation());
+        return organization;
     }
 
     @Transactional
