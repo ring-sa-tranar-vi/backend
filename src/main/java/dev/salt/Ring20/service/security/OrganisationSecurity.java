@@ -4,8 +4,8 @@ import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
-//TODO: not consistent as with the SecurityService
-@Service
+
+@Service("organisationSecurity")
 public class OrganisationSecurity {
 
     private final OrganisationRepository repository;
