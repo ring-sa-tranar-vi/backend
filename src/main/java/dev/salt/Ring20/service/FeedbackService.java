@@ -1,7 +1,8 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.entity.Feedback;
+import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
 import dev.salt.Ring20.entity.enums.FeedbackStatus;
 import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
@@ -11,23 +12,26 @@ import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.RecentFeedbackData;
 import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 public class FeedbackService {
 
     private static final String STATUS_COMPLETED = "COMPLETED";
-    private static final String UNKNOWN_WORKOUT = "Unknown workout";
     private static final int MIN_FEEDBACK_FOR_REVIEW = 3;
+    private static final int MIN_FEEDBACK = 1;
+    private static final int MAX_FEEDBACK = 5;
     private static final double BAD_DISLIKE_RATE = 0.40;
     private static final double BAD_TOO_HARD_RATE = 0.50;
     private static final double BAD_MIN_RATING = 2.80;
     private static final double GOOD_MIN_RATING = 4.00;
     private static final double GOOD_MAX_DISLIKE_RATE = 0.20;
     private static final double GOOD_MAX_TOO_HARD_RATE = 0.30;
+    private static final int MIN_RATING = 0;
     private final FeedbackRepository feedbackRepository;
     private final WorkoutRepository workoutRepository;
     private final UserWorkoutPreferenceService preferenceService;
@@ -68,74 +72,6 @@ public class FeedbackService {
         return savedFeedback;
     }
 
-    // TODO: public methods first then private methods
-    private void validateFeedback(Feedback feedback) {
-        if (feedback.getUserId() == null || feedback.getWorkoutId() == null) {
-            throw new IllegalArgumentException("UserId and workoutId are required.");
-        }
-
-        //TODO: magic number
-        Integer rating = feedback.getRating();
-        if (rating != null && (rating < 1 || rating > 5)) {
-            throw new IllegalArgumentException("Rating must be between 1 and 5.");
-        }
-
-        if (feedback.getDifficulty() == null && rating == null && feedback.getLiked() == null) {
-            throw new IllegalArgumentException(
-                    "At least one of difficulty, liked, or rating must be provided.");
-        }
-
-        Long activityLogId = feedback.getActivityLogId();
-        if (activityLogId != null) {
-            ActivityLog activityLog =
-                    activityLogRepository
-                            .findById(activityLogId)
-                            .orElseThrow(
-                                    () ->
-                                            new IllegalArgumentException(
-                                                    "ActivityLogId does not exist"));
-
-            if (!Objects.equals(activityLog.getUserId(), feedback.getUserId())
-                    || !Objects.equals(activityLog.getWorkoutId(), feedback.getWorkoutId())) {
-                throw new IllegalArgumentException("ActivityLogId must match userId and workoutId");
-            }
-        }
-    }
-
-    //TODO: this seems to do 2 things, must be seperate methods then
-    private void attachActivityLog(Feedback feedback) {
-        if (feedback.getActivityLogId() != null) {
-            return;
-        }
-
-        Long userId = feedback.getUserId();
-        Long workoutId = feedback.getWorkoutId();
-
-        Optional<Long> matchedActivityLogId =
-                activityLogRepository
-                        .findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
-                                userId, workoutId, STATUS_COMPLETED)
-                        .or(
-                                () ->
-                                        activityLogRepository
-                                                .findTopByUserIdAndWorkoutIdOrderByCompletedAtDesc(
-                                                        userId, workoutId))
-                        .map(ActivityLog::getId);
-
-        if (matchedActivityLogId.isPresent()) {
-            feedback.setActivityLogId(matchedActivityLogId.get());
-            return;
-        }
-
-        ActivityLog fallbackLog = new ActivityLog();
-        fallbackLog.setUserId(userId);
-        fallbackLog.setWorkoutId(workoutId);
-        fallbackLog.setStatus(STATUS_COMPLETED);
-        fallbackLog.setCompletedAt(LocalDateTime.now());
-        ActivityLog savedLog = activityLogRepository.save(fallbackLog);
-        feedback.setActivityLogId(savedLog.getId());
-    }
-
     public Feedback getFeedbackById(Long id) {
         return feedbackRepository
                 .findById(id)
@@ -159,7 +95,6 @@ public class FeedbackService {
         }
     }
 
-    //TODO: check if feedback exists two times (once in controller and once here) enough to do it once.
     @Transactional
     public void deleteFeedback(Long id) {
         Feedback feedback =
@@ -191,13 +126,45 @@ public class FeedbackService {
                 .toList();
     }
 
+    public RecentFeedbackData getRecentFeedbackEntries() {
+        List<Feedback> feedbacks = feedbackRepository.findAll();
+        feedbacks.sort(
+                Comparator.comparing(
+                        Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
+
+        Map<Long, String> workoutNameById = workoutRepository
+                .findAll()
+                .stream()
+                .collect(Collectors.toMap(Workout::getId, Workout::getName));
+
+        return new RecentFeedbackData(feedbacks, workoutNameById);
+    }
+
+    private String deriveStatus(
+            int feedbackCount, double avgRating, double dislikeRate, double tooHardRate) {
+        if (feedbackCount < MIN_FEEDBACK_FOR_REVIEW) {
+            return FeedbackStatus.NEEDS_REVIEW.toString();
+        }
+
+        if (isBadFeedback(avgRating, dislikeRate, tooHardRate)) {
+            return FeedbackStatus.BAD.toString();
+        }
+
+        if (isGoodFeedback(avgRating, dislikeRate, tooHardRate)) {
+            return FeedbackStatus.GOOD.toString();
+        }
+
+        return FeedbackStatus.NEEDS_REVIEW.toString();
+    }
+
     private WorkoutFeedbackSummaryData createWorkoutSummary(
             Workout workout, List<Feedback> feedbacks) {
         int feedbackCount = feedbacks.size();
 
-        //TODO: consistency in writing thing or dividing on different lines
         long ratingCount =
-                feedbacks.stream().filter(feedback -> feedback.getRating() != null).count();
+                feedbacks.stream()
+                        .filter(feedback -> feedback.getRating() != null)
+                        .count();
 
         double ratingSum =
                 feedbacks.stream()
@@ -228,44 +195,81 @@ public class FeedbackService {
                 deriveStatus(feedbackCount, avgRating, dislikeRate, tooHardRate));
     }
 
-    private double calculateRate(double numerator, double denominator) {
-        return denominator == 0 ? 0 : roundTwoDecimals(numerator / denominator);
+    private void validateFeedback(Feedback feedback) {
+        if (feedback.getUserId() == null || feedback.getWorkoutId() == null) {
+            throw new IllegalArgumentException("UserId and workoutId are required.");
+        }
+
+        Integer rating = feedback.getRating();
+        if (rating != null && (rating < MIN_FEEDBACK || rating > MAX_FEEDBACK)) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
+
+        if (feedback.getDifficulty() == null && rating == null && feedback.getLiked() == null) {
+            throw new IllegalArgumentException(
+                    "At least one of difficulty, liked, or rating must be provided.");
+        }
+
+        Long activityLogId = feedback.getActivityLogId();
+        if (activityLogId != null) {
+            ActivityLog activityLog = getActivityLog(activityLogId);
+
+            if (!Objects.equals(activityLog.getUserId(), feedback.getUserId())
+                    || !Objects.equals(activityLog.getWorkoutId(), feedback.getWorkoutId())) {
+                throw new IllegalArgumentException("ActivityLogId must match userId and workoutId");
+            }
+        }
     }
-    //TODO: consistency of writing and dividing on lines
-    public RecentFeedbackData getRecentFeedbackEntries() {
-        List<Feedback> feedbacks = new ArrayList<>(feedbackRepository.findAll());
-        feedbacks.sort(
-                Comparator.comparing(
-                        Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
 
-        Map<Long, String> workoutNameById =
-                workoutRepository.findAll().stream()
-                        .collect(Collectors.toMap(Workout::getId, Workout::getName));
-
-        return new RecentFeedbackData(feedbacks, workoutNameById);
+    private ActivityLog getActivityLog(Long activityLogId) {
+        return activityLogRepository
+                .findById(activityLogId)
+                .orElseThrow(
+                        () ->
+                                new IllegalArgumentException(
+                                        "ActivityLogId does not exist"));
     }
 
-    private String deriveStatus(
-            int feedbackCount, double avgRating, double dislikeRate, double tooHardRate) {
-        if (feedbackCount < MIN_FEEDBACK_FOR_REVIEW) {
-            return FeedbackStatus.NEEDS_REVIEW.toString();
+    private void attachActivityLog(Feedback feedback) {
+        if (feedback.getActivityLogId() != null) {
+            return;
         }
 
-        if (isBadFeedback(avgRating, dislikeRate, tooHardRate)) {
-            return FeedbackStatus.BAD.toString();
+        Long userId = feedback.getUserId();
+        Long workoutId = feedback.getWorkoutId();
+
+        Optional<Long> matchedActivityLogId = getMatchedActivityLogId(userId, workoutId);
+
+        if (matchedActivityLogId.isPresent()) {
+            feedback.setActivityLogId(matchedActivityLogId.get());
+            return;
         }
 
-        if (isGoodFeedback(avgRating, dislikeRate, tooHardRate)) {
-            return FeedbackStatus.GOOD.toString();
-        }
+        ActivityLog fallbackLog = new ActivityLog();
+        fallbackLog.setUserId(userId);
+        fallbackLog.setWorkoutId(workoutId);
+        fallbackLog.setStatus(STATUS_COMPLETED);
+        fallbackLog.setCompletedAt(LocalDateTime.now());
+        ActivityLog savedLog = activityLogRepository.save(fallbackLog);
+        feedback.setActivityLogId(savedLog.getId());
+    }
 
-        return FeedbackStatus.NEEDS_REVIEW.toString();
+    private Optional<Long> getMatchedActivityLogId(Long userId, Long workoutId) {
+        return activityLogRepository
+                .findTopByUserIdAndWorkoutIdAndStatusOrderByCompletedAtDesc(
+                        userId, workoutId, STATUS_COMPLETED)
+                .or(
+                        () ->
+                                activityLogRepository
+                                        .findTopByUserIdAndWorkoutIdOrderByCompletedAtDesc(
+                                                userId, workoutId))
+                .map(ActivityLog::getId);
     }
 
     private boolean isBadFeedback(double avgRating, double dislikeRate, double tooHardRate) {
         return dislikeRate >= BAD_DISLIKE_RATE
                 || tooHardRate >= BAD_TOO_HARD_RATE
-                || (avgRating > 0 && avgRating < BAD_MIN_RATING);
+                || (avgRating > MIN_RATING && avgRating < BAD_MIN_RATING);
     }
 
     private boolean isGoodFeedback(double avgRating, double dislikeRate, double tooHardRate) {
@@ -275,11 +279,15 @@ public class FeedbackService {
     }
 
     private double roundTwoDecimals(double value) {
-        return Math.round(value * 100.0) / 100.0;
+        double roundingFactor = 100.0;
+        return Math.round(value * roundingFactor) / roundingFactor;
     }
 
-    //TODO: method is neither public or private, must be one of them
-    void validateId(Long id) {
+    private double calculateRate(double numerator, double denominator) {
+        return denominator == 0 ? 0 : roundTwoDecimals(numerator / denominator);
+    }
+
+    private void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid ID");
         }
