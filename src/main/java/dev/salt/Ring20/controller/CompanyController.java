@@ -69,11 +69,8 @@ public class CompanyController {
         Organisation updated =
                 companyService
                         .getOrganisationService()
-                        .updateOrganisationById(
-                                organisation.getId(),
-                                request.name(),
-                                request.description(),
-                                request.orgCity());
+                        .updateOrganisationById(OrganizationMapper.toOrganization(request),
+                                organisation.getId());
         return ResponseEntity.ok().body(OrganizationMapper.toCompanyOrganisationDto(updated));
     }
 
