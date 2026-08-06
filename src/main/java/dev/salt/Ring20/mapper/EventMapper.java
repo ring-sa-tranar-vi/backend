@@ -30,12 +30,14 @@ public class EventMapper {
     }
 
     public static EventResponseDto toEventResponseDto(Event event) {
+        Long organisationId =
+                event.getOrganisation() == null ? null : event.getOrganisation().getId();
         return new EventResponseDto(
                 event.getId(),
                 event.getName(),
                 event.getDescription(),
                 event.getTime(),
-                event.getOrganisation().getId(),
+                organisationId,
                 event.getCity(),
                 event.getVenue(),
                 event.getEventType());
@@ -61,6 +63,19 @@ public class EventMapper {
         return createEvent(dto.name(), dto.description(), dto.time(), org.getOrgCity(), null, EventType.IN_PERSON);
     }
 
+//    public static EventResponseDto toEventResponseDto(Event event) {
+//        Long organisationId =
+//                event.getOrganisation() == null ? null : event.getOrganisation().getId();
+//        return new EventResponseDto(
+//                event.getId(),
+//                event.getName(),
+//                event.getDescription(),
+//                event.getTime(),
+//                organisationId,
+//                event.getCity(),
+//                event.getVenue(),
+//                event.getEventType());
+//    }
     private static EventType parseEventType(String eventType) {
         try {
             return EventType.valueOf(eventType);
