@@ -1,12 +1,13 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.AdminCreateEventDto;
-import dev.salt.Ring20.dto.AdminOrganisationDto;
-import dev.salt.Ring20.dto.AdminOrganisationEventDto;
+import dev.salt.Ring20.dto.adminDtos.AdminCreateEventDto;
+import dev.salt.Ring20.dto.adminDtos.AdminOrganisationDto;
+import dev.salt.Ring20.dto.adminDtos.AdminOrganisationEventDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.enums.EventType;
+import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -84,14 +85,8 @@ public class AdminOrganisationController {
         Organisation organisation =
                 organisationService.getOrganisationById(request.organisationId());
         Event created =
-                eventService.createEvent(
-                        request.name(),
-                        request.description(),
-                        request.time(),
-                        organisation.getId(),
-                        organisation.getOrgCity(),
-                        null,
-                        EventType.IN_PERSON);
+                eventService.createEvent(EventMapper.toEvent(request, organisation),
+                        organisation.getId());
         AdminOrganisationEventDto response = toEventDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()

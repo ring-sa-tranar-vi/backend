@@ -2,16 +2,19 @@ package dev.salt.Ring20.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dev.salt.Ring20.dto.AdminCreateEventDto;
-import dev.salt.Ring20.dto.AdminOrganisationDto;
-import dev.salt.Ring20.dto.AdminOrganisationEventDto;
+import dev.salt.Ring20.dto.adminDtos.AdminCreateEventDto;
+import dev.salt.Ring20.dto.adminDtos.AdminOrganisationDto;
+import dev.salt.Ring20.dto.adminDtos.AdminOrganisationEventDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import java.time.LocalDateTime;
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -93,24 +97,25 @@ class AdminOrganisationControllerTest {
         Organisation organisation = organisation(1L);
         Event created = event(5L, organisation);
         LocalDateTime time = LocalDateTime.of(2026, 8, 4, 10, 0);
+        AdminCreateEventDto dto = new AdminCreateEventDto(organisation.getId(), "Morning event", "Description",time);
         when(organisationService.getOrganisationById(1L)).thenReturn(organisation);
-        when(eventService.createEvent(
-                        "Morning event",
-                        "Description",
-                        time,
-                        organisation.getId(),
-                        "Stockholm",
-                        null,
-                        dev.salt.Ring20.entity.EventType.IN_PERSON))
+                when(eventService.createEvent(any(Event.class), eq(organisation.getId())))
                 .thenReturn(created);
 
         ResponseEntity<AdminOrganisationEventDto> response =
-                controller.createEvent(
-                        new AdminCreateEventDto(1L, "Morning event", "Description", time));
+                controller.createEvent(dto);
+        ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+
+        verify(eventService).createEvent(captor.capture(), eq(1L));
+
+        Event passed = captor.getValue();
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(5L, response.getBody().id());
         assertEquals(1L, response.getBody().organisationId());
+        assertEquals("Morning event", response.getBody().name());
+        assertEquals("Morning event", passed.getName());
+        assertEquals("Description", passed.getDescription());
     }
 
     @Test
