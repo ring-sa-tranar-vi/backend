@@ -3,6 +3,7 @@ package dev.salt.Ring20.mapper;
 import dev.salt.Ring20.dto.UpdateCompanyOrganisationDto;
 import dev.salt.Ring20.dto.company.CompanyOrganisationDto;
 import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
+import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
@@ -46,6 +47,15 @@ public class OrganizationMapper {
         organization.setName(dto.name());
         organization.setDescription(dto.description());
         organization.setOrgCity(dto.orgCity());
+        return organization;
+    }
+
+    public static Organisation toOrganization(OrganisationCreateRequestDto dto){
+        Organisation organization = new Organisation();
+        organization.setName(dto.name());
+        organization.setDescription(dto.description());
+        organization.setOrgCity(dto.orgCity());
+        organization.setMotivation(dto.motivation());
         return organization;
     }
 
