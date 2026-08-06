@@ -141,14 +141,4 @@ public class CompanyController {
         }
         return jwt.getSubject();
     }
-
-
-    private EventType parseEventType(String eventType) {
-        try {
-            return EventType.valueOf(eventType);
-        } catch (IllegalArgumentException exception) {
-            throw new ResponseStatusException(
-                    BAD_REQUEST, "Unsupported eventType: " + eventType, exception);
-        }
-    }
 }
