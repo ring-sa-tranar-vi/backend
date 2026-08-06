@@ -11,43 +11,40 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrganisationService {
-    // TODO: consistent naming -> other controllers have names like eventRepository
-    private final OrganisationRepository repo;
-    private final UserRepository userRepo;
+
+    private final OrganisationRepository organizationRepository;
+    private final UserRepository userRepository;
 
     public OrganisationService(OrganisationRepository repo, UserRepository userRepo) {
-        this.repo = repo;
-        this.userRepo = userRepo;
+        this.organizationRepository = repo;
+        this.userRepository = userRepo;
     }
 
-    // TODO: formating line indentation
     @Transactional
     public Organisation createOrganisation(
-            String name, String description, String orgCity, Long userId, String motivation) {
+            Organisation organization, Long userId) {
         User organizer = getUserById(userId);
 
-        Organisation organisation =
-                new Organisation(name, description, orgCity, organizer, motivation);
-        return repo.save(organisation);
+        organization.setOrganizer(organizer);
+        return organizationRepository.save(organization);
     }
 
     @Transactional(readOnly = true)
     public List<Organisation> getAllOrganisations() {
-        return repo.findAllWithEvents();
+        return organizationRepository.findAllWithEvents();
     }
 
-    // TODO: formating line indentation
 
     @Transactional(readOnly = true)
     public Organisation getOrganisationById(Long id) {
-        return repo.findByIdWithEvents(id)
+        return organizationRepository.findByIdWithEvents(id)
                 .orElseThrow(
                         () -> new NoSuchElementException("Organisation not found with id: " + id));
     }
 
     @Transactional
     public void deleteOrganisationById(Long id) {
-        repo.delete(getOrganisationById(id));
+        organizationRepository.delete(getOrganisationById(id));
     }
 
 //    @Transactional
@@ -66,11 +63,11 @@ public class OrganisationService {
         foundOrg.setDescription(organization.getDescription());
         foundOrg.setOrgCity(organization.getOrgCity());
 
-        return repo.save(foundOrg);
+        return organizationRepository.save(foundOrg);
     }
 
     public List<Organisation> getOrganisationForUser(String clerkId) {
-        List<Organisation> organisations = repo.findByOrganizer_ClerkIdWithEvents(clerkId);
+        List<Organisation> organisations = organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
         if (organisations.isEmpty()) {
             throw new NoSuchElementException(
@@ -81,7 +78,7 @@ public class OrganisationService {
     }
 
     private User getUserById(Long userId) {
-        return userRepo.findById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(
                         () -> new NoSuchElementException("No user found with this id:  " + userId));
     }
