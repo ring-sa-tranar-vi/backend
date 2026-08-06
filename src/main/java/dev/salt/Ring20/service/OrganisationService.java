@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrganisationService {
-    //TODO: consistent naming -> other controllers have names like eventRepository
+    // TODO: consistent naming -> other controllers have names like eventRepository
     private final OrganisationRepository repo;
     private final UserRepository userRepo;
 
@@ -19,6 +19,7 @@ public class OrganisationService {
         this.repo = repo;
         this.userRepo = userRepo;
     }
+
     // TODO: formating line indentation
     @Transactional
     public Organisation createOrganisation(
@@ -49,23 +50,22 @@ public class OrganisationService {
         repo.delete(getOrganisationById(id));
     }
 
-    // TODO: formating line indentation
-    @Transactional
-    public Organisation updateOrganisationById(
-            Long id, String name, String description, String orgCity) {
-        return updateOrganisationById(id, name, description, orgCity, null);
-    }
+//    @Transactional
+//    public Organisation updateOrganisationById(
+//            Long id, String name, String description, String orgCity) {
+//        return updateOrganisationById(id, name, description, orgCity, null);
+//    }
 
     @Transactional
-    public Organisation updateOrganisationById(
-            Long id, String name, String description, String orgCity, Long organizerId) {
+    public Organisation updateOrganisationById(Organisation organization,
+            Long id) {
+
         Organisation foundOrg = getOrganisationById(id);
-        foundOrg.setName(name);
-        foundOrg.setDescription(description);
-        foundOrg.setOrgCity(orgCity);
-        if (organizerId != null) {
-            foundOrg.setOrganizer(getUserById(organizerId));
-        }
+
+        foundOrg.setName(organization.getName());
+        foundOrg.setDescription(organization.getDescription());
+        foundOrg.setOrgCity(organization.getOrgCity());
+
         return repo.save(foundOrg);
     }
 
