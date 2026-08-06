@@ -94,7 +94,7 @@ public class GeminiWorkoutService {
                         // worker
                         // thread
                         String url =
-                                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key="
+                                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key="
                                         + googleApiKey;
                         String rawResponse =
                                 restTemplate.postForObject(url, requestBody, String.class);
