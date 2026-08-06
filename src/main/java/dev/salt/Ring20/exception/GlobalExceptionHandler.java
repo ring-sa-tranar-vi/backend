@@ -2,10 +2,8 @@ package dev.salt.Ring20.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
-
 import java.time.Instant;
 import java.util.NoSuchElementException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -109,11 +107,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleQuotaExceeded(
             QuotaExceededException ex, HttpServletRequest request) {
 
-        return build(
-                HttpStatus.TOO_MANY_REQUESTS,
-                ex.getMessage(),
-                request.getRequestURI()
-        );
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request.getRequestURI());
     }
 
     private ResponseEntity<ProblemDetail> build(HttpStatus status, String message, String path) {
