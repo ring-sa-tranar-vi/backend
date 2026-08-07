@@ -4,6 +4,16 @@
 
 This backend powers the Ring så Tränar vi fitness app for older adults. It provides REST APIs for managing users, workouts, trainers, activity logs, and feedback, while handling authentication, data storage, and AI-generated workout suggestions.
 
+## Local Development
+
+To setup the backend for local development, see Installation section below. The backend runs on http://localhost:8080 and connects to a local Postgres database via Docker Compose.
+
+**ALWAYS** use the provided Docker Compose setup for local development to ensure consistent database configuration and avoid exceeding NEON's free plan limit.
+
+***If an entity is added and/or updated**, create a .sql in the db-init folder to update the database with the changes. Follow the naming convention such as 01-xxx.sql, 02-xxx.sql etc. and use the next number in chronological order.*
+
+If you need to reset the database on local development environment, run ```docker compose down -v``` to remove the volume and start fresh with ```docker compose up```.
+
 ## Architecture
 
 The backend follows a layered MVC architecture:
@@ -100,8 +110,14 @@ Main entities:
 - Workout
 - Activity Log
 - Feedback
+- Organisation
+- Event
 
-Relationships and database schema are managed through JPA entity mappings.
+**ALWAYS** use the provided Docker Compose setup for local development to ensure consistent database configuration and avoid exceeding NEON's free plan limit.
+
+***If an entity is added and/or updated**, create a .sql in the db-init folder to update the database with the changes. Follow the naming convention such as 01-xxx.sql, 02-xxx.sql etc. and use the next number in chronological order. These files are used to update the database on NEON and in docker compose.*
+
+If you need to reset the database on local development environment, run ```docker compose down -v``` to remove the volume and start fresh with ```docker compose up```.
 
 ## Environment Variables
 
