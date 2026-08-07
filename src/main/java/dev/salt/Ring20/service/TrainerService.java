@@ -8,19 +8,21 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.data.NormalizedTrainerData;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TrainerService {
 
     // TODO: remove comment this info can be added in java doc in the method where it is used.
-    //TODO: samla ihop alla av samma typ och seperara med empty line
+    // TODO: samla ihop alla av samma typ och seperara med empty line
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
     private final GeminiWorkoutService geminiWorkoutService;
@@ -50,36 +52,12 @@ public class TrainerService {
             throw new IllegalArgumentException("Request body is required");
         }
 
-        //TODO: magic numbers
-        // DRY!!
-        String name = normalizeRequired(request.name(), "name", 120);
-        String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
-        String voice = normalizeRequired(request.voice(), "voice", 120);
-        String intro = normalizeRequired(request.intro(), "intro", 2048);
-        String language = normalizeRequired(request.language(), "language", 40);
+        NormalizedTrainerData data = normalizedTrainerData(request);
 
-        if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)) {
-            throw new IllegalArgumentException(
-                    "Trainer with name '"
-                            + name
-                            + "' already exists in language '"
-                            + language
-                            + "'");
-        }
+        validateUniqueNameAndLanguage(data);
 
-        //TODO: DRY!! make own method for repated actions
         Trainer trainer = new Trainer();
-        trainer.setName(name);
-        trainer.setPrompt(prompt);
-        trainer.setVoice(voice);
-        trainer.setIntro(intro);
-        trainer.setLanguage(language);
-        trainer.setImageSelect(normalizeOptional(request.imageSelect(), "imageSelect", 2048));
-        trainer.setImageCall(normalizeOptional(request.imageCall(), "imageCall", 2048));
-        trainer.setImageStart(normalizeOptional(request.imageStart(), "imageStart", 2048));
-        trainer.setAmbience(normalizeOptional(request.ambience(), "ambience", 255));
-
-        return trainerRepository.save(trainer);
+        return getTrainer(request, data.name(), data.prompt(), data.voice(), data.intro(), data.language(), trainer);
     }
 
     @Transactional
@@ -98,35 +76,11 @@ public class TrainerService {
                                         new NoSuchElementException(
                                                 "Trainer not found with id: " + id));
 
-        String name = normalizeRequired(request.name(), "name", 120);
-        String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
-        String voice = normalizeRequired(request.voice(), "voice", 120);
-        String intro = normalizeRequired(request.intro(), "intro", 2048);
-        String language = normalizeRequired(request.language(), "language", 40);
+        NormalizedTrainerData data = normalizedTrainerData(request);
 
-        //TODO: fix readability
-        if (trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(name, language)
-                && (!name.equalsIgnoreCase(trainer.getName())
-                        || !language.equalsIgnoreCase(trainer.getLanguage()))) {
-            throw new IllegalArgumentException(
-                    "Trainer with name '"
-                            + name
-                            + "' already exists in language '"
-                            + language
-                            + "'");
-        }
+        validateNameAndLanguageForUpdate(data, trainer);
 
-        trainer.setName(name);
-        trainer.setPrompt(prompt);
-        trainer.setVoice(voice);
-        trainer.setIntro(intro);
-        trainer.setLanguage(language);
-        trainer.setImageSelect(normalizeOptional(request.imageSelect(), "imageSelect", 2048));
-        trainer.setImageCall(normalizeOptional(request.imageCall(), "imageCall", 2048));
-        trainer.setImageStart(normalizeOptional(request.imageStart(), "imageStart", 2048));
-        trainer.setAmbience(normalizeOptional(request.ambience(), "ambience", 255));
-
-        return trainerRepository.save(trainer);
+        return getTrainer(request, data.name(), data.prompt(), data.voice(), data.intro(), data.language(), trainer);
     }
 
     public Trainer getTrainerById(Long id) {
@@ -141,6 +95,67 @@ public class TrainerService {
         validateId(id);
         Trainer trainer = getTrainerById(id);
         trainerRepository.delete(trainer);
+    }
+
+    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(Long userId) {
+        validateId(userId);
+        List<Workout> workouts = getEnabledWorkouts();
+        User user = getUser(userId);
+
+        return geminiWorkoutService
+                .recommendWorkoutWithReasoning(user, workouts)
+                .thenApply(this::parseRecommendedWorkout);
+    }
+
+    private void validateUniqueNameAndLanguage(NormalizedTrainerData data) {
+        boolean exist = trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(data.name(), data.language());
+        if (exist) {
+            throw new IllegalArgumentException(
+                    "Trainer with name '"
+                            + data.name()
+                            + "' already exists in language '"
+                            + data.language()
+                            + "'");
+        }
+    }
+
+    private void validateNameAndLanguageForUpdate(NormalizedTrainerData data, Trainer trainer) {
+        boolean exist = trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(data.name(), data.language());
+        if (exist
+                && (!data.name().equalsIgnoreCase(trainer.getName())
+                || !data.language().equalsIgnoreCase(trainer.getLanguage()))) {
+            throw new IllegalArgumentException(
+                    "Trainer with name '"
+                            + data.name()
+                            + "' already exists in language '"
+                            + data.language()
+                            + "'");
+        }
+    }
+
+    private NormalizedTrainerData normalizedTrainerData(TrainerData request) {
+        String name = normalizeRequired(request.name(), "name", 120);
+        String prompt = normalizeRequired(request.prompt(), "prompt", 8000);
+        String voice = normalizeRequired(request.voice(), "voice", 120);
+        String intro = normalizeRequired(request.intro(), "intro", 2048);
+        String language = normalizeRequired(request.language(), "language", 40);
+
+        return new NormalizedTrainerData(name, prompt, voice, intro, language);
+    }
+
+    private Trainer getTrainer(TrainerData request, String name, String prompt, String voice, String intro, String language, Trainer trainer) {
+
+        trainer.setName(name);
+        trainer.setPrompt(prompt);
+        trainer.setVoice(voice);
+        trainer.setIntro(intro);
+        trainer.setLanguage(language);
+        trainer.setImageSelect(normalizeOptional(request.imageSelect(), "imageSelect", 2048));
+        trainer.setImageCall(normalizeOptional(request.imageCall(), "imageCall", 2048));
+        trainer.setImageStart(normalizeOptional(request.imageStart(), "imageStart", 2048));
+        trainer.setAmbience(normalizeOptional(request.ambience(), "ambience", 255));
+
+        return trainerRepository.save(trainer);
     }
 
     private void validateId(Long id) {
@@ -183,16 +198,6 @@ public class TrainerService {
         return normalized;
     }
 
-    public CompletableFuture<RecommendedWorkoutData> getAiRecommendedWorkout(Long userId) {
-        validateId(userId);
-        List<Workout> workouts = getEnabledWorkouts();
-        User user = getUser(userId);
-
-        return geminiWorkoutService
-                .recommendWorkoutWithReasoning(user, workouts)
-                .thenApply(this::parseRecommendedWorkout);
-    }
-
     private List<Workout> getEnabledWorkouts() {
         List<Workout> workouts = workoutRepository.findByEnabledTrue();
 
@@ -216,8 +221,9 @@ public class TrainerService {
             Long workoutId = extractWorkoutId(node);
             validateRecommendedWorkout(workoutId);
 
-            //TODO: constant
-            String reasoning = node.path("reasoning").asText("No reasoning provided.");
+            String nodePath = "reasoning";
+
+            String reasoning = node.path(nodePath).asText("No reasoning provided.");
 
             return new RecommendedWorkoutData(workoutId, reasoning);
 
@@ -228,8 +234,8 @@ public class TrainerService {
     }
 
     private Long extractWorkoutId(JsonNode node) {
-        //TODO: constant
-        JsonNode idNode = node.path("workoutId");
+        String nodePath = "workoutId";
+        JsonNode idNode = node.path(nodePath);
 
         if (idNode.isMissingNode() || idNode.isNull()) {
             return null;
