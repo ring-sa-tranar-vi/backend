@@ -2,6 +2,7 @@ package dev.salt.Ring20.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.salt.Ring20.service.storage.LocalStorageService;
 import org.junit.jupiter.api.Test;
 
 class LocalStorageServiceTest {
