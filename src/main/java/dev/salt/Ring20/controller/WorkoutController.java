@@ -4,10 +4,10 @@ import dev.salt.Ring20.dto.workoutDtos.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
-import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.WorkoutService;
 import dev.salt.Ring20.service.security.CurrentUserService;
 import dev.salt.Ring20.service.security.SecurityService;
+import dev.salt.Ring20.service.storage.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.*;
         name = "Workouts",
         description = "Endpoints for managing workouts and tracking user workout activities.")
 public class WorkoutController {
-    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
-    //TODO: empty line between grouped fields
 
     private final WorkoutService workoutService;
     private final FileStorageService fileStorageService;
@@ -59,7 +57,7 @@ public class WorkoutController {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
         Workout workout = workoutService.getWorkoutById(id, includeDisabled);
 
-        return ResponseEntity.ok(toWorkoutResponse(workout));
+        return ResponseEntity.ok().body(toWorkoutResponse(workout));
     }
 
     @PostMapping
@@ -70,7 +68,7 @@ public class WorkoutController {
     public ResponseEntity<WorkoutResponseDto> createWorkout(
             @Valid @RequestBody WorkoutRequestDto workoutRequest) {
         Workout createdWorkout = workoutService.createWorkout(toEntity(workoutRequest));
-        return ResponseEntity.ok(toWorkoutResponse(createdWorkout));
+        return ResponseEntity.ok().body(toWorkoutResponse(createdWorkout));
     }
 
     @PutMapping("/{id}")
@@ -81,7 +79,7 @@ public class WorkoutController {
     public ResponseEntity<WorkoutResponseDto> updateWorkout(
             @PathVariable Long id, @Valid @RequestBody WorkoutRequestDto workoutRequest) {
         Workout updatedWorkout = workoutService.updateWorkout(id, toEntity(workoutRequest));
-        return ResponseEntity.ok(toWorkoutResponse(updatedWorkout));
+        return ResponseEntity.ok().body(toWorkoutResponse(updatedWorkout));
     }
 
     @DeleteMapping("/{id}")
@@ -104,7 +102,7 @@ public class WorkoutController {
         if (request.enabled() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().body(
                 toWorkoutResponse(workoutService.setWorkoutEnabled(id, request.enabled())));
     }
 
