@@ -78,7 +78,7 @@ public class UserService {
 
             return user;
         }
-        //TODO: constant
+
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
@@ -96,13 +96,8 @@ public class UserService {
 
     @Transactional
     public User updateUserPreferencesByClerkId(
-            String clerkId,
-            String name,
-            int intensityLevel,
-            String context,
-            Long trainerId,
-            String city,
-            boolean onboarding) {
+            String clerkId, User user) {
+        Long trainerId = user.getTrainerId();
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
@@ -110,15 +105,15 @@ public class UserService {
             throw new IllegalArgumentException("Trainer does not exist with id: " + trainerId);
         }
 
-        User user = getByClerkIdOrThrow(clerkId);
+        User foundUser = getByClerkIdOrThrow(clerkId);
 
-        user.setName(sanitizeDisplayName(name));
-        user.setIntensityLevel(intensityLevel);
-        user.setContext(context);
-        user.setTrainerId(trainerId);
-        user.setCity(city);
-        user.setOnboarding(onboarding);
-        return userRepository.save(user);
+        foundUser.setName(sanitizeDisplayName(user.getName()));
+        foundUser.setIntensityLevel(user.getIntensityLevel());
+        foundUser.setContext(user.getContext());
+        foundUser.setTrainerId(user.getTrainerId());
+        foundUser.setCity(user.getCity());
+        foundUser.setOnboarding(user.isOnboarding());
+        return userRepository.save(foundUser);
     }
 
     public User getUserById(Long id) {
@@ -126,8 +121,8 @@ public class UserService {
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
-    //TODO: fix typo
-    public List<Organisation> getUserOrgsById(Long id) {
+
+    public List<Organisation> getUserOrganizationById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
         }
@@ -160,7 +155,6 @@ public class UserService {
 
         if (!alreadyFollowing) {
             user.getFollowedOrganisations().add(org);
-            //TODO: Magic number ?
             org.setUsersFollowing(org.getUsersFollowing() + 1);
         }
 
@@ -204,7 +198,7 @@ public class UserService {
 
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
-            //TODO: magic number?
+            // TODO: magic number?
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
 
