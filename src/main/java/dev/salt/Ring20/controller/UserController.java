@@ -21,6 +21,7 @@ import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.mapper.UserMapper;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.UserService;
+import dev.salt.Ring20.service.security.DisplayResolverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,15 +47,16 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
                 "Endpoints for managing user profiles, preferences, progress, and personal data.")
 public class UserController {
 
-    private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private final UserService userService;
     private final ActivityLogService activityLogService;
+    private final DisplayResolverService displayResolverService;
 
     public UserController(
             UserService userService,
-            ActivityLogService activityLogService) {
+            ActivityLogService activityLogService, DisplayResolverService displayResolverService) {
         this.userService = userService;
         this.activityLogService = activityLogService;
+        this.displayResolverService = displayResolverService;
     }
 
     @GetMapping("/me/role")
@@ -123,7 +125,7 @@ public class UserController {
                         jwt.getSubject(),
                         requestedName != null && !requestedName.isBlank()
                                 ? requestedName
-                                : resolveDisplayName(jwt));
+                                : displayResolverService.resolveDisplayName(jwt));
 
         boolean isAdmin = userService.isAdmin(jwt.getSubject());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -182,7 +184,7 @@ public class UserController {
         User currentUser = getCurrentUser(authentication);
 
         return ResponseEntity.ok().body(
-                userService.getUserOrgsById(currentUser.getId()).stream()
+                userService.getUserOrganizationById(currentUser.getId()).stream()
                         .map(OrganizationMapper::toResponseDto)
                         .toList());
     }
@@ -314,41 +316,4 @@ public class UserController {
         }
         return jwt;
     }
-
-    // TODO: DOCUMENT, remove other comments, if possible refactor with smaller methods
-    private String resolveDisplayName(Jwt jwt) {
-        // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        // TODO: constant
-        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
-        for (String key : claimKeys) {
-            Object claimVal = jwt.getClaims().get(key);
-            if (claimVal instanceof String) {
-                String s = ((String) claimVal).trim();
-                if (!s.isEmpty()) return s;
-            }
-        }
-        // TODO: constant
-        String givenName = jwt.getClaimAsString("given_name");
-        String familyName = jwt.getClaimAsString("family_name");
-        String fullName =
-                String.join(
-                                " ",
-                                Stream.of(givenName, familyName)
-                                        .filter(part -> part != null && !part.isBlank())
-                                        .toList())
-                        .trim();
-
-        if (!fullName.isEmpty()) {
-            return fullName;
-        }
-
-        String email = jwt.getClaimAsString("email");
-        if (email != null && !email.isBlank()) {
-            return email.trim();
-        }
-
-        // If Clerk does not provide a name claim, store a readable placeholder.
-        return DEFAULT_DISPLAY_NAME;
-    }
-
 }
