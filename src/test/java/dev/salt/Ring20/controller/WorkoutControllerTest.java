@@ -1,19 +1,11 @@
 package dev.salt.Ring20.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import dev.salt.Ring20.dto.workoutDtos.WorkoutEnabledRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
-import dev.salt.Ring20.service.FileStorageService;
-import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
-import dev.salt.Ring20.service.security.CurrentUserService;
 import dev.salt.Ring20.service.security.SecurityService;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,20 +16,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkoutController Tests")
 class WorkoutControllerTest {
 
-    @Mock private WorkoutService workoutService;
+    @Mock
+    private WorkoutService workoutService;
 
-    @Mock private UserService userService;
+    @InjectMocks
+    private WorkoutController workoutController;
 
-    @Mock private FileStorageService fileStorageService;
-
-    @InjectMocks private WorkoutController workoutController;
-    @InjectMocks CurrentUserService currentUserService;
-
-    @Mock private SecurityService securityService;
+    @Mock
+    private SecurityService securityService;
 
     @Test
     void getAllWorkoutsReturnsData() {
