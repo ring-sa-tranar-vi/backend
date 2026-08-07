@@ -13,6 +13,7 @@ import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
 import java.util.Optional;
 
+import dev.salt.Ring20.service.security.CurrentUserService;
 import dev.salt.Ring20.service.security.DisplayResolverService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,11 @@ class UserControllerTest {
 
     @Mock private DisplayResolverService displayResolverService;
 
+    @Mock private CurrentUserService currentUserService;
+
     @Test
     void createUserReturnsResponseBody() {
-        UserController controller = new UserController(userService, activityLogService, displayResolverService);
+        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(1L);
         when(userService.createUser(eq("clerk_1"), any())).thenReturn(user);
@@ -51,7 +54,7 @@ class UserControllerTest {
 
     @Test
     void updateCurrentUserProfileReturnsOk() {
-        UserController controller = new UserController(userService, activityLogService, displayResolverService);
+        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
         when(userService.updateUserPreferencesByClerkId( eq("clerk_1"),
@@ -70,7 +73,7 @@ class UserControllerTest {
     @Test
     void updateUserPreferencesUpdatesCurrentUser() {
 
-        UserController controller = new UserController(userService, activityLogService, displayResolverService);
+        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
 
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setId(1L);
@@ -93,7 +96,7 @@ class UserControllerTest {
 
     @Test
     void getUserByIdReturnsMappedResponse() {
-        UserController controller = new UserController(userService, activityLogService, displayResolverService);
+        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(9L);
         when(userService.getUserById(1L)).thenReturn(user);
