@@ -39,8 +39,9 @@ import org.springframework.web.server.ResponseStatusException;
         description =
                 "Endpoints for managing user profiles, preferences, progress, and personal data.")
 public class UserController {
-    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
-    //TODO: empty line between grouped fields
+    // TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or
+    // .ok().body(whats in the body) not both
+    // TODO: empty line between grouped fields
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private final UserService userService;
@@ -63,7 +64,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get my role", description = "Retrieves the current user's role.")
     public ResponseEntity<UserRole> getMyRole(Authentication authentication) {
-        return ResponseEntity.ok(userService.getUserRole(authentication.getName()));
+        return ResponseEntity.ok().body(userService.getUserRole(authentication.getName()));
     }
 
     @PostMapping("/me/fcm-token")
@@ -85,7 +86,7 @@ public class UserController {
     public ResponseEntity<UserResponseDto> getCurrentUserProfile(Authentication authentication) {
         User currentUser = userService.getByClerkIdOrThrow(getClerkId(authentication));
 
-        return ResponseEntity.ok(toResponse(currentUser, getClerkId(authentication)));
+        return ResponseEntity.ok().body(toResponse(currentUser, getClerkId(authentication)));
     }
 
     @GetMapping("/by-clerk/{clerkId}")
@@ -98,7 +99,7 @@ public class UserController {
         getJwtOrThrow(authentication);
         User user = userService.getByClerkIdOrThrow(clerkId);
 
-        return ResponseEntity.ok(toResponse(user, clerkId));
+        return ResponseEntity.ok().body(toResponse(user, clerkId));
     }
 
     @GetMapping("/{id}")
@@ -106,7 +107,7 @@ public class UserController {
     @Operation(summary = "Get user by ID", description = "Retrieves a user using their ID.")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        return ResponseEntity.ok(toResponse(user));
+        return ResponseEntity.ok().body(toResponse(user));
     }
 
     @PostMapping
@@ -119,7 +120,7 @@ public class UserController {
         Jwt jwt = getJwtOrThrow(authentication);
         String requestedName = request != null ? request.displayName() : null;
 
-        //TODO: readability
+        // TODO: readability
         User created =
                 userService.createUser(
                         jwt.getSubject(),
@@ -147,10 +148,10 @@ public class UserController {
                         userRequest.city(),
                         userRequest.onboarding());
 
-        return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
+        return ResponseEntity.ok().body(toResponse(updated, getClerkId(authentication)));
     }
 
-    //TODO: remove unused variables
+    // TODO: remove unused variables
     @PutMapping("/{id}")
     @PreAuthorize("#id == @securityService.currentUserId(authentication.name)")
     @Operation(summary = "Update user preferences", description = "Updates a user's preferences.")
@@ -170,9 +171,10 @@ public class UserController {
                         userRequest.city(),
                         userRequest.onboarding());
 
-        return ResponseEntity.ok(toResponse(updated, getClerkId(authentication)));
+        return ResponseEntity.ok().body(toResponse(updated, getClerkId(authentication)));
     }
-    //TODO: fix typo
+
+    // TODO: fix typo
     @GetMapping("/me/followed-orgs")
     @Operation(
             summary = "Get followed organisations",
@@ -181,7 +183,7 @@ public class UserController {
             Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().body(
                 userService.getUserOrgsById(currentUser.getId()).stream()
                         .map(this::toOrgResponseDto)
                         .toList());
@@ -217,7 +219,7 @@ public class UserController {
             Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().body(
                 userService.getUserEventsById(currentUser.getId()).stream()
                         .map(this::toEventResponseDto)
                         .toList());
@@ -251,7 +253,7 @@ public class UserController {
             summary = "Get user progress",
             description = "Retrieves workout progress for a user.")
     public ResponseEntity<Map<String, Object>> getUserProgress(@PathVariable Long userId) {
-        return ResponseEntity.ok(activityLogService.getUserProgress(userId));
+        return ResponseEntity.ok().body(activityLogService.getUserProgress(userId));
     }
 
     @GetMapping("/me/progress")
@@ -261,7 +263,7 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getMyProgress(Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
 
-        return ResponseEntity.ok(activityLogService.getUserProgress(currentUser.getId()));
+        return ResponseEntity.ok().body(activityLogService.getUserProgress(currentUser.getId()));
     }
 
     @GetMapping("/{userId}/callback-preference")
@@ -269,10 +271,10 @@ public class UserController {
     @Operation(
             summary = "Get callback preferences",
             description = "Retrieves callback preferences for a user.")
-    public List<CallbackPreferenceResponseDto> getAllCallbackPreference(@PathVariable Long userId) {
-        return userService.getCallbackPreferences(userId).stream()
+    public  ResponseEntity<List<CallbackPreferenceResponseDto>> getAllCallbackPreference(@PathVariable Long userId) {
+        return ResponseEntity.ok().body(userService.getCallbackPreferences(userId).stream()
                 .map(this::toCallbackResponse)
-                .toList();
+                .toList());
     }
 
     @PostMapping("/{userId}/callback-preference")
@@ -285,7 +287,7 @@ public class UserController {
         CallbackPreference saved =
                 userService.addOrUpdateCallbackPreference(userId, toCallbackPreference(request));
 
-        return ResponseEntity.ok(toCallbackResponse(saved));
+        return ResponseEntity.ok().body(toCallbackResponse(saved));
     }
 
     @DeleteMapping("/{userId}/callback-preference/{day}")
@@ -315,10 +317,10 @@ public class UserController {
         return jwt;
     }
 
-    //TODO: DOCUMENT, remove other comments, if possible refactor with smaller methods
+    // TODO: DOCUMENT, remove other comments, if possible refactor with smaller methods
     private String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
-        //TODO: constant
+        // TODO: constant
         String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
@@ -327,7 +329,7 @@ public class UserController {
                 if (!s.isEmpty()) return s;
             }
         }
-//TODO: constant
+        // TODO: constant
         String givenName = jwt.getClaimAsString("given_name");
         String familyName = jwt.getClaimAsString("family_name");
         String fullName =
