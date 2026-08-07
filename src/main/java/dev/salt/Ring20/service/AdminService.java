@@ -37,7 +37,7 @@ public class AdminService {
         this.trainerRepository = trainerRepository;
     }
 
-    // TODO DOCUMENT methods. what do they do,
+
     public UserSummaryData getUserSummaries() {
         List<User> users = userRepository.findAll();
         Map<Long, LocalDateTime> lastCompletedAtByUserId =

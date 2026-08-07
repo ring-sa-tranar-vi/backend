@@ -197,7 +197,7 @@ public class UserService {
 
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
-            // TODO: magic number?
+
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
 

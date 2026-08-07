@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
-// TODO: consistent naming -> other controllers have names like eventRepository
+
 @Service
 public class EventService {
     private final EventRepository eventRepository;
@@ -38,12 +38,12 @@ public class EventService {
         return eventRepository.findByOrganisationId(id);
     }
 
-    // TODO: should have an message for frontend
     public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElseThrow();
+        return eventRepository.findById(id).orElseThrow( () ->
+                new NoSuchElementException(
+                        " Event not found with id: " + id));
     }
 
-    // TODO: spacing/indendation  is looking weird
     @Transactional
     public Event updateEvent(Event event, Long id) {
 

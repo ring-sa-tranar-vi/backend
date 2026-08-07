@@ -22,9 +22,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Tag(name = "Events", description = "Endpoints for creating, managing, and retrieving events.")
 public class EventController {
 
-    // TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or
-    // .ok().body(whats in the body) not both
-
     private final EventService eventService;
 
     public EventController(EventService eventService) {

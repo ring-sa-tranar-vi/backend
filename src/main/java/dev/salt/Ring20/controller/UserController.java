@@ -145,7 +145,6 @@ public class UserController {
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
     }
 
-    // TODO: remove unused variables
     @PutMapping("/{id}")
     @PreAuthorize("#id == @securityService.currentUserId(authentication.name)")
     @Operation(summary = "Update user preferences", description = "Updates a user's preferences.")
