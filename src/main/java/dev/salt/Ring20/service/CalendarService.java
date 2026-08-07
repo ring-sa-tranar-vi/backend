@@ -1,10 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
-import dev.salt.Ring20.entity.ActivityLog;
-import dev.salt.Ring20.entity.CallbackPreference;
-import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;
@@ -106,34 +103,52 @@ public class CalendarService {
     }
 
     private List<CalendarEventDto> getScheduledCalls(Long userId, YearMonth yearMonth) {
-        List<CallbackPreference> preferences = callbackPreferenceRepository.findByUserId(userId);
-        List<CalendarEventDto> callEvents = new ArrayList<>();
+        List<CalendarEventDto> events = new ArrayList<>();
 
-        LocalDate currentDate = yearMonth.atDay(1);
-        LocalDate endDate = yearMonth.atEndOfMonth();
+        LocalDate start = yearMonth.atDay(1);
+        LocalDate end = yearMonth.atEndOfMonth();
         LocalDateTime now = LocalDateTime.now();
 
-        for (CallbackPreference pref : preferences) {
+        for (CallbackPreference pref : callbackPreferenceRepository.findByUserId(userId)) {
+
             DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
+            LocalDate date = start;
 
-            LocalDate dateIterator = currentDate;
-            while (!dateIterator.isAfter(endDate)) {
-                if (dateIterator.getDayOfWeek() == targetDay) {
-                    LocalDateTime callTime = LocalDateTime.of(dateIterator, pref.getTime());
+            while (!date.isAfter(end)) {
 
-                    callEvents.add(
-                            new CalendarEventDto(
-                                    "CALL-" + pref.getId() + "-" + dateIterator.toString(),
-                                    "CALL",
-                                    "Trainer Call",
-                                    "Trainer call",
-                                    callTime,
-                                    callTime.isBefore(now)));
+                // skip days that don't match
+                if (date.getDayOfWeek() != targetDay) {
+                    date = date.plusDays(1);
+                    continue;
                 }
-                dateIterator = dateIterator.plusDays(1);
+
+                LocalDateTime callTime = LocalDateTime.of(date, pref.getTime());
+
+                // skip past calls for NEVER
+                if (pref.getRepeat() == RepeatType.NEVER && callTime.isBefore(now)) {
+                    date = date.plusDays(1);
+                    continue;
+                }
+
+                // create event
+                events.add(new CalendarEventDto(
+                        "CALL-" + pref.getId() + "-" + date,
+                        "CALL",
+                        "Trainer Call",
+                        "Trainer call",
+                        callTime,
+                        callTime.isBefore(now)
+                ));
+
+                // stop after first match if NEVER
+                if (pref.getRepeat() == RepeatType.NEVER) {
+                    break;
+                }
+
+                date = date.plusDays(1);
             }
         }
 
-        return callEvents;
+        return events;
     }
 }
