@@ -261,7 +261,7 @@ public class UserService {
             user.getCallbackPreferences().add(callback);
             result = callback;
         }
-        scheduledCallService.generateCallsFromUser();
+        scheduledCallService.generateCallsFromUser(userId);
 
         return result;
     }
