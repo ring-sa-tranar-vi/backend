@@ -27,19 +27,23 @@ public class ScheduledCallService {
         this.scheduledCallRepository = scheduledCallRepository;
     }
 
-    public void generateCallsFromPreferences() {
-        List<CallbackPreference> prefs = callbackPreferenceRepository.findAll();
+    public void generateCallsFromUser(Long userId) {
+        List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
         for (CallbackPreference pref : prefs) {
             Instant nextCallTime = calculateNext(pref);
+            boolean exists =
+                    scheduledCallRepository.existsByUserIdAndTargetTimeAndCallBackStatus(
+                            userId, nextCallTime, CallBackStatus.PENDING);
+
+            if (exists) continue;
 
             ScheduledCall call = new ScheduledCall();
-            call.setUserId(pref.getUser().getId());
-            call.setTrainerId(1L); // or your logic
+            call.setUserId(userId);
+            call.setTrainerId(pref.getUser().getTrainerId());
             call.setTargetTime(nextCallTime);
             call.setFcmToken(pref.getUser().getFcmToken());
             call.setCallBackStatus(CallBackStatus.PENDING);
-
             scheduledCallRepository.save(call);
         }
     }
