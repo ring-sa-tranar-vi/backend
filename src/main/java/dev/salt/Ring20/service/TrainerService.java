@@ -21,8 +21,6 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class TrainerService {
 
-    // TODO: remove comment this info can be added in java doc in the method where it is used.
-    // TODO: samla ihop alla av samma typ och seperara med empty line
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
     private final GeminiWorkoutService geminiWorkoutService;
