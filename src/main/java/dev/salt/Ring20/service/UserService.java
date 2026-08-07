@@ -20,16 +20,18 @@ public class UserService {
     private final TrainerRepository trainerRepository;
     private final OrganisationRepository organisationRepository;
     private final EventRepository eventRepository;
+    private final ScheduledCallService scheduledCallService;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
             OrganisationRepository organisationRepository,
-            EventRepository eventRepository) {
+            EventRepository eventRepository, ScheduledCallService scheduledCallService) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
         this.organisationRepository = organisationRepository;
         this.eventRepository = eventRepository;
+        this.scheduledCallService = scheduledCallService;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -247,19 +249,21 @@ public class UserService {
                 user.getCallbackPreferences().stream()
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
+        CallbackPreference result;
 
         if (existing.isPresent()) {
             CallbackPreference preference = existing.get();
             preference.setTime(callback.getTime());
             preference.setRepeat(callback.getRepeat());
-
-            return preference;
+            result = preference;
+        }else {
+            callback.setUser(user);
+            user.getCallbackPreferences().add(callback);
+            result = callback;
         }
+        scheduledCallService.generateCallsFromUser();
 
-        callback.setUser(user);
-        user.getCallbackPreferences().add(callback);
-
-        return callback;
+        return result;
     }
 
     @Transactional
