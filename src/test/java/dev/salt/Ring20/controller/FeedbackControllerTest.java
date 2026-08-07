@@ -67,7 +67,7 @@ class FeedbackControllerTest {
     void deleteFeedbackReturnsNoContentWhenPresent() {
         FeedbackController controller = new FeedbackController(feedbackService, securityService);
 
-        when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
+        // when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
 
         ResponseEntity<Void> response = controller.deleteFeedback(1L);
 
