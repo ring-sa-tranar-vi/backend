@@ -117,7 +117,7 @@ public class ScheduledCallService {
 
             sendNotification(call);
 
-            call.setCallBackStatus(CallBackStatus.COMPLETED);
+            call.setCallBackStatus(CallBackStatus.TRIGGERED);
             scheduledCallRepository.save(call);
         }
 
