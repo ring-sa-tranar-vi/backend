@@ -94,9 +94,14 @@ class UserServiceTest {
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        User preferences = new User("  Updated  ", 4, "new", "clerk_1");
+        preferences.setTrainerId(7L);
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
+
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm", false);
+                        "clerk_1", preferences);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
@@ -109,12 +114,17 @@ class UserServiceTest {
 
     @Test
     void updateUserPreferencesByClerkIdRejectsMissingTrainer() {
+        User preferences = new User("Name", 3, "context", "clerk_1");
+        preferences.setTrainerId(null);
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
+
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", null, "Stockholm", false));
+                                        "clerk_1", preferences));
 
         assertEquals("Trainer is required", ex.getMessage());
     }
@@ -123,12 +133,17 @@ class UserServiceTest {
     void updateUserPreferencesRejectsUnknownTrainer() {
         when(trainerRepository.existsById(999L)).thenReturn(false);
 
+        User preferences = new User("Name", 3, "context", "clerk_1");
+        preferences.setTrainerId(999L);
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
+
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", 999L, "Stockholm", false));
+                                        "clerk_1", preferences));
 
         assertEquals("Trainer does not exist with id: 999", ex.getMessage());
     }
