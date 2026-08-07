@@ -1,6 +1,7 @@
 package dev.salt.Ring20.mapper;
 
 import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.userDtos.UserResponseDto;
 import dev.salt.Ring20.entity.User;
 
 public class UserMapper {
@@ -16,4 +17,29 @@ public class UserMapper {
 
         return user;
     }
+
+    public static UserResponseDto toResponse(User user, boolean isAdmin ) {
+        return new UserResponseDto(
+                user.getId(),
+                user.getName(),
+                user.getIntensityLevel(),
+                user.getContext(),
+                isAdmin,
+                user.getTrainerId(),
+                user.getCity(),
+                user.isOnboarding());
+    }
+
+    public static UserResponseDto toResponse(User user) {
+        return new UserResponseDto(
+                user.getId(),
+                user.getName(),
+                user.getIntensityLevel(),
+                user.getContext(),
+                "ADMIN".equals(user.getRole()),
+                user.getTrainerId(),
+                user.getCity(),
+                user.isOnboarding());
+    }
+
 }
