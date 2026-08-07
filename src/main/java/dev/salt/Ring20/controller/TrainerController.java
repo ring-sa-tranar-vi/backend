@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.*;
         description = "Endpoints for managing trainers and generating workout recommendations.")
 public class TrainerController {
 
-    //TODO: use the same way of sending ResponseEntity, either .ok(whats in the body) or .ok().body(whats in the body) not both
-
     private final TrainerService trainerService;
     private final FileStorageService fileStorageService;
 
@@ -39,7 +37,7 @@ public class TrainerController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
-        return ResponseEntity.ok(
+        return ResponseEntity.ok().body(
                 trainerService.getAllTrainers().stream().map(this::toResponseDto).toList());
     }
 
@@ -48,7 +46,7 @@ public class TrainerController {
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
-        return ResponseEntity.ok(toResponseDto(trainer));
+        return ResponseEntity.ok().body(toResponseDto(trainer));
     }
 
     @PostMapping
@@ -70,7 +68,7 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
-        return ResponseEntity.ok(toResponseDto(trainer));
+        return ResponseEntity.ok().body(toResponseDto(trainer));
     }
 
     @DeleteMapping("/{id}")
@@ -83,8 +81,21 @@ public class TrainerController {
         return ResponseEntity.noContent().build();
     }
 
-    //TODO: private methods last, all public methods first
-    //TODO: magic number
+
+
+    @GetMapping("/recommend-for/{userId}")
+    @Operation(
+            summary = "Get AI workout recommendation",
+            description = "Generates an AI recommended workout for a user based on a trainer.")
+    public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
+            getTrainerAiRecommendation(@PathVariable Long userId) {
+
+        return trainerService
+                .getAiRecommendedWorkout(userId)
+                .thenApply(data -> ResponseEntity.ok().body(toRecommendedWorkoutResponse(data)));
+    }
+
+    // TODO: magic number
     private TrainerResponseDto toResponseDto(Trainer trainer) {
         String introUrl =
                 (trainer.getIntro() != null)
@@ -113,18 +124,6 @@ public class TrainerController {
                 imageCallUrl,
                 imageStartUrl,
                 trainer.getAmbience());
-    }
-
-    @GetMapping("/recommend-for/{userId}")
-    @Operation(
-            summary = "Get AI workout recommendation",
-            description = "Generates an AI recommended workout for a user based on a trainer.")
-    public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-            getTrainerAiRecommendation(@PathVariable Long userId) {
-
-        return trainerService
-                .getAiRecommendedWorkout(userId)
-                .thenApply(data -> ResponseEntity.ok(toRecommendedWorkoutResponse(data)));
     }
 
     private RecommendWorkoutResponseDto toRecommendedWorkoutResponse(RecommendedWorkoutData data) {
