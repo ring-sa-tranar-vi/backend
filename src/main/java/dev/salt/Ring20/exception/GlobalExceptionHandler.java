@@ -106,6 +106,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(QuotaExceededException.class)
     public ResponseEntity<ProblemDetail> handleQuotaExceeded(
             QuotaExceededException ex, HttpServletRequest request) {
+        log.warn("Gemini API quota exceeded: {}", ex.getMessage());
 
         return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request.getRequestURI());
     }
