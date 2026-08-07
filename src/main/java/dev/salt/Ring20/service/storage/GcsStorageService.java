@@ -1,4 +1,4 @@
-package dev.salt.Ring20.service;
+package dev.salt.Ring20.service.storage;
 
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;

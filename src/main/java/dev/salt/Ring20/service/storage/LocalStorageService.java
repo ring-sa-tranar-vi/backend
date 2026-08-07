@@ -1,4 +1,4 @@
-package dev.salt.Ring20.service;
+package dev.salt.Ring20.service.storage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -14,7 +14,7 @@ public class LocalStorageService implements FileStorageService {
         this.serverPort = serverPort;
     }
 
-    //TODO: constants
+    // TODO: constants
     @Override
     public String getFileAccess(String filePath, int validForMinutes) {
         if (filePath == null || filePath.isBlank()) {

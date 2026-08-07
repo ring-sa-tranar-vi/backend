@@ -1,4 +1,4 @@
-package dev.salt.Ring20.service;
+package dev.salt.Ring20.service.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class SupabaseBucketService {
 
-    //TODO: remove unused classes
+    // TODO: remove unused classes
     @Autowired private RestTemplate restTemplate;
 
     @Value("${supabase.url}")
@@ -23,14 +23,14 @@ public class SupabaseBucketService {
     @Value("${supabase.bucket-name}")
     private String bucketName;
 
-    //TODO: constants
+    // TODO: constants
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
         return headers;
     }
 
-    //TODO: constants
+    // TODO: constants
     public void uploadFile(String fileName, byte[] fileContent) {
         String url = supabaseUrl + "/storage/v1/object/" + bucketName + "/" + fileName;
         HttpHeaders headers = getHeaders();
@@ -38,14 +38,14 @@ public class SupabaseBucketService {
         restTemplate.postForObject(url, entity, String.class);
     }
 
-    //TODO: constants
+    // TODO: constants
     public void deleteFile(String fileName) {
         String url = supabaseUrl + "/storage/v1/object/" + bucketName + "/" + fileName;
         HttpEntity<String> entity = new HttpEntity<>(getHeaders());
         restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
     }
 
-    //TODO: constants
+    // TODO: constants
     public String getPublicUrl(String fileName) {
         return supabaseUrl + "/storage/v1/object/public/" + bucketName + "/" + fileName;
     }

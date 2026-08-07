@@ -1,4 +1,4 @@
-package dev.salt.Ring20.service;
+package dev.salt.Ring20.service.storage;
 
 public interface FileStorageService {
 
