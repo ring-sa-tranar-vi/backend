@@ -8,11 +8,7 @@ import dev.salt.Ring20.dto.userDtos.UserCreateRequestDto;
 import dev.salt.Ring20.dto.userDtos.UserRequestDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
-import dev.salt.Ring20.service.EventService;
-import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
-import java.util.Optional;
-
 import dev.salt.Ring20.service.security.CurrentUserService;
 import dev.salt.Ring20.service.security.DisplayResolverService;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +35,12 @@ class UserControllerTest {
 
     @Test
     void createUserReturnsResponseBody() {
-        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
+        UserController controller =
+                new UserController(
+                        userService,
+                        activityLogService,
+                        displayResolverService,
+                        currentUserService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(1L);
         when(userService.createUser(eq("clerk_1"), any())).thenReturn(user);
@@ -54,11 +55,15 @@ class UserControllerTest {
 
     @Test
     void updateCurrentUserProfileReturnsOk() {
-        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
+        UserController controller =
+                new UserController(
+                        userService,
+                        activityLogService,
+                        displayResolverService,
+                        currentUserService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
-        when(userService.updateUserPreferencesByClerkId( eq("clerk_1"),
-                any(User.class)))
+        when(userService.updateUserPreferencesByClerkId(eq("clerk_1"), any(User.class)))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
@@ -73,16 +78,19 @@ class UserControllerTest {
     @Test
     void updateUserPreferencesUpdatesCurrentUser() {
 
-        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
+        UserController controller =
+                new UserController(
+                        userService,
+                        activityLogService,
+                        displayResolverService,
+                        currentUserService);
 
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setId(1L);
 
-        //when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
+        // when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
 
-        when(userService.updateUserPreferencesByClerkId(
-                eq("clerk_1"),
-                any(User.class)))
+        when(userService.updateUserPreferencesByClerkId(eq("clerk_1"), any(User.class)))
                 .thenReturn(user);
 
         ResponseEntity<?> response =
@@ -96,7 +104,12 @@ class UserControllerTest {
 
     @Test
     void getUserByIdReturnsMappedResponse() {
-        UserController controller = new UserController(userService, activityLogService, displayResolverService, currentUserService);
+        UserController controller =
+                new UserController(
+                        userService,
+                        activityLogService,
+                        displayResolverService,
+                        currentUserService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(9L);
         when(userService.getUserById(1L)).thenReturn(user);

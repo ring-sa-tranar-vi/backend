@@ -3,7 +3,8 @@ package dev.salt.Ring20.service.security;
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import org.springframework.stereotype.Service;
-//TODO: not consistent as with the SecurityService
+
+// TODO: not consistent as with the SecurityService
 @Service
 public class ActivityLogSecurityService {
 

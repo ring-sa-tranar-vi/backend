@@ -4,7 +4,6 @@ import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
 import dev.salt.Ring20.mapper.CalendarMapper;
 import dev.salt.Ring20.service.CalendarService;
 import dev.salt.Ring20.service.model.CalendarEvent;
-import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

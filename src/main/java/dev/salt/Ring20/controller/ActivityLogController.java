@@ -9,13 +9,12 @@ import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/activity-logs")
@@ -58,7 +57,8 @@ public class ActivityLogController {
         activityLog.setUserId(securityService.currentUserId(authentication.getName()));
 
         ActivityLog created = activityLogService.createActivityLog(activityLog);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ActivityLogMapper.toResponse(created));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ActivityLogMapper.toResponse(created));
     }
 
     @PutMapping("/{id}/complete")
@@ -70,6 +70,5 @@ public class ActivityLogController {
 
         ActivityLog completed = activityLogService.completeActivityLog(id);
         return ResponseEntity.ok().body(ActivityLogMapper.toResponse(completed));
-
     }
 }

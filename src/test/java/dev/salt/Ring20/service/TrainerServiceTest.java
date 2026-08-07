@@ -1,8 +1,16 @@
 package dev.salt.Ring20.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.service.data.TrainerData;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,24 +19,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TrainerService Tests")
 class TrainerServiceTest {
 
-    @Mock
-    private TrainerRepository trainerRepository;
+    @Mock private TrainerRepository trainerRepository;
 
-    @InjectMocks
-    private TrainerService trainerService;
+    @InjectMocks private TrainerService trainerService;
 
     private Trainer trainer;
     private TrainerData trainerRequest;

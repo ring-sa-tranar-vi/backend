@@ -52,11 +52,7 @@ class UserServiceIntegrationTest {
         preferences.setCity("Stockholm");
         preferences.setOnboarding(false);
 
-
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        "clerk_int_2",
-                        preferences);
+        User updated = userService.updateUserPreferencesByClerkId("clerk_int_2", preferences);
 
         assertEquals("Updated", updated.getName());
         assertEquals(5, updated.getIntensityLevel());

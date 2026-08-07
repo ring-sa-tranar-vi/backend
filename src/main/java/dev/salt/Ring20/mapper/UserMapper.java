@@ -18,7 +18,7 @@ public class UserMapper {
         return user;
     }
 
-    public static UserResponseDto toResponse(User user, boolean isAdmin ) {
+    public static UserResponseDto toResponse(User user, boolean isAdmin) {
         return new UserResponseDto(
                 user.getId(),
                 user.getName(),
@@ -41,5 +41,4 @@ public class UserMapper {
                 user.getCity(),
                 user.isOnboarding());
     }
-
 }

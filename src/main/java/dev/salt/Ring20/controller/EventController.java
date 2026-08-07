@@ -51,13 +51,18 @@ public class EventController {
     @GetMapping
     @Operation(summary = "Get all events", description = "Retrieves all available events.")
     public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        return ResponseEntity.ok().body(eventService.getAllEvents().stream().map(EventMapper::toEventResponseDto).toList());
+        return ResponseEntity.ok()
+                .body(
+                        eventService.getAllEvents().stream()
+                                .map(EventMapper::toEventResponseDto)
+                                .toList());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get event by ID", description = "Retrieves an event using its ID.")
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id) {
-        return ResponseEntity.ok().body(EventMapper.toEventResponseDto(eventService.getEventById(id)));
+        return ResponseEntity.ok()
+                .body(EventMapper.toEventResponseDto(eventService.getEventById(id)));
     }
 
     @DeleteMapping("/{id}")
@@ -73,8 +78,7 @@ public class EventController {
     @Operation(summary = "Update event", description = "Updates an existing event by its ID.")
     public ResponseEntity<EventResponseDto> updateEventById(
             @PathVariable Long id, @Valid @RequestBody EventUpdateRequestDto request) {
-        Event updatedEvent =
-                eventService.updateEvent(EventMapper.toEvent(request), id);
+        Event updatedEvent = eventService.updateEvent(EventMapper.toEvent(request), id);
         return ResponseEntity.ok().body(EventMapper.toEventResponseDto(updatedEvent));
     }
 
@@ -84,6 +88,10 @@ public class EventController {
             summary = "Get my events",
             description = "Retrieves all events created by the authenticated organiser.")
     public ResponseEntity<List<EventResponseDto>> getMyEvents(Authentication auth) {
-        return  ResponseEntity.ok().body(eventService.getEventsForUser(auth.getName()).stream().map(EventMapper::toEventResponseDto).toList());
+        return ResponseEntity.ok()
+                .body(
+                        eventService.getEventsForUser(auth.getName()).stream()
+                                .map(EventMapper::toEventResponseDto)
+                                .toList());
     }
 }

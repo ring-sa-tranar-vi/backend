@@ -5,7 +5,8 @@ import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.OrganizationApplication;
 
 public class OrganizationApplicationMapper {
-    public static OrganizationApplicationResponseDto toResponse(OrganizationApplication application) {
+    public static OrganizationApplicationResponseDto toResponse(
+            OrganizationApplication application) {
         return new OrganizationApplicationResponseDto(
                 application.getId(),
                 application.getUser().getId(),
@@ -18,7 +19,8 @@ public class OrganizationApplicationMapper {
                 application.getReviewedAt(),
                 application.getPaymentStatus());
     }
-    public static OrganizationApplication toEntity(OrganizationApplicationRequestDto dto){
+
+    public static OrganizationApplication toEntity(OrganizationApplicationRequestDto dto) {
         OrganizationApplication application = new OrganizationApplication();
         application.setOrganizationName(dto.organizationName());
         application.setDescription(dto.description());

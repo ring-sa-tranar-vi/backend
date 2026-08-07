@@ -4,9 +4,8 @@ import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
-import org.springframework.stereotype.Service;
-
 import java.util.NoSuchElementException;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CompanyService {

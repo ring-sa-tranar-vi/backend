@@ -1,5 +1,8 @@
 package dev.salt.Ring20.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -32,8 +31,10 @@ public class SecurityConfig {
 
     private static final String LOCAL_HOST_1573 = "http://localhost:5173";
     private static final String LOCAL_HOST_8081 = "http://localhost:8081";
-    private static final String CLERK_JWT_URI = "https://unique-man-24.clerk.accounts.dev/.well-known/jwks.json";
-    private static final List<String> METHOD_LIST = List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
+    private static final String CLERK_JWT_URI =
+            "https://unique-man-24.clerk.accounts.dev/.well-known/jwks.json";
+    private static final List<String> METHOD_LIST =
+            List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -92,7 +93,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(CLERK_JWT_URI)
-                .build();
+        return NimbusJwtDecoder.withJwkSetUri(CLERK_JWT_URI).build();
     }
 }

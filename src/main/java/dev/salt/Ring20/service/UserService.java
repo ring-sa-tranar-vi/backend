@@ -95,8 +95,7 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUserPreferencesByClerkId(
-            String clerkId, User user) {
+    public User updateUserPreferencesByClerkId(String clerkId, User user) {
         Long trainerId = user.getTrainerId();
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");

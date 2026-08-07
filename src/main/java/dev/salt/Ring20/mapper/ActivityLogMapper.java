@@ -25,5 +25,4 @@ public class ActivityLogMapper {
                 activityLog.getFeedback(),
                 activityLog.getStatus());
     }
-
 }

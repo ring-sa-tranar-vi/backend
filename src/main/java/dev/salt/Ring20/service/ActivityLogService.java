@@ -5,13 +5,12 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ActivityLogService {
@@ -40,9 +39,7 @@ public class ActivityLogService {
         ActivityLog log =
                 activityLogRepository
                         .findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(message + id));
+                        .orElseThrow(() -> new NoSuchElementException(message + id));
         log.setStatus(STATUS_COMPLETED);
         log.setCompletedAt(LocalDateTime.now());
         return activityLogRepository.save(log);

@@ -99,9 +99,7 @@ class UserServiceTest {
         preferences.setCity("Stockholm");
         preferences.setOnboarding(false);
 
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        "clerk_1", preferences);
+        User updated = userService.updateUserPreferencesByClerkId("clerk_1", preferences);
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
@@ -122,9 +120,7 @@ class UserServiceTest {
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class,
-                        () ->
-                                userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", preferences));
+                        () -> userService.updateUserPreferencesByClerkId("clerk_1", preferences));
 
         assertEquals("Trainer is required", ex.getMessage());
     }
@@ -141,9 +137,7 @@ class UserServiceTest {
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class,
-                        () ->
-                                userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", preferences));
+                        () -> userService.updateUserPreferencesByClerkId("clerk_1", preferences));
 
         assertEquals("Trainer does not exist with id: 999", ex.getMessage());
     }

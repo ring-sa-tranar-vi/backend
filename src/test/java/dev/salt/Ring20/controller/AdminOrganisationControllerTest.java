@@ -14,7 +14,6 @@ import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import java.time.LocalDateTime;
@@ -74,14 +73,21 @@ class AdminOrganisationControllerTest {
     void createOrganisationReturnsCreatedOrganisation() {
         OrganisationCreateRequestDto request =
                 new OrganisationCreateRequestDto("Salt", "Training", "Stockholm", 1L, "Motivation");
-        when(organisationService.createOrganisation(
-                        "Salt", "Training", "Stockholm", 1L, "Motivation"))
+        when(organisationService.createOrganisation(any(Organisation.class), eq(1L)))
                 .thenReturn(organisation(3L));
 
         ResponseEntity<AdminOrganisationDto> response = controller.createOrganisation(request);
 
+        ArgumentCaptor<Organisation> captor = ArgumentCaptor.forClass(Organisation.class);
+
+        verify(organisationService).createOrganisation(captor.capture(), eq(1L));
+
+        Organisation passed = captor.getValue();
+
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(3L, response.getBody().id());
+        assertEquals("Salt", passed.getName());
+        assertEquals("Training", passed.getDescription());
     }
 
     @Test
@@ -97,13 +103,13 @@ class AdminOrganisationControllerTest {
         Organisation organisation = organisation(1L);
         Event created = event(5L, organisation);
         LocalDateTime time = LocalDateTime.of(2026, 8, 4, 10, 0);
-        AdminCreateEventDto dto = new AdminCreateEventDto(organisation.getId(), "Morning event", "Description",time);
+        AdminCreateEventDto dto =
+                new AdminCreateEventDto(organisation.getId(), "Morning event", "Description", time);
         when(organisationService.getOrganisationById(1L)).thenReturn(organisation);
-                when(eventService.createEvent(any(Event.class), eq(organisation.getId())))
+        when(eventService.createEvent(any(Event.class), eq(organisation.getId())))
                 .thenReturn(created);
 
-        ResponseEntity<AdminOrganisationEventDto> response =
-                controller.createEvent(dto);
+        ResponseEntity<AdminOrganisationEventDto> response = controller.createEvent(dto);
         ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
 
         verify(eventService).createEvent(captor.capture(), eq(1L));

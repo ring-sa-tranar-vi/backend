@@ -5,19 +5,17 @@ import dev.salt.Ring20.dto.trainerDtos.TrainerResponseDto;
 import dev.salt.Ring20.dto.workoutDtos.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.mapper.TrainerMapper;
-import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.TrainerService;
-import dev.salt.Ring20.service.data.RecommendedWorkoutData;
+import dev.salt.Ring20.service.storage.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/trainers")
@@ -40,8 +38,14 @@ public class TrainerController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
-        return ResponseEntity.ok().body(
-                trainerService.getAllTrainers().stream().map(t -> TrainerMapper.toResponseDto(t,fileStorageService, VALID_MINUTES)).toList());
+        return ResponseEntity.ok()
+                .body(
+                        trainerService.getAllTrainers().stream()
+                                .map(
+                                        t ->
+                                                TrainerMapper.toResponseDto(
+                                                        t, fileStorageService, VALID_MINUTES))
+                                .toList());
     }
 
     @GetMapping("/{id}")
@@ -49,7 +53,8 @@ public class TrainerController {
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
-        return ResponseEntity.ok().body(TrainerMapper.toResponseDto(trainer,fileStorageService, VALID_MINUTES));
+        return ResponseEntity.ok()
+                .body(TrainerMapper.toResponseDto(trainer, fileStorageService, VALID_MINUTES));
     }
 
     @PostMapping
@@ -60,7 +65,8 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.createTrainer(TrainerMapper.toTrainerData(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(TrainerMapper.toResponseDto(trainer,fileStorageService, VALID_MINUTES));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(TrainerMapper.toResponseDto(trainer, fileStorageService, VALID_MINUTES));
     }
 
     @PutMapping("/{id}")
@@ -71,7 +77,8 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, TrainerMapper.toTrainerData(request));
-        return ResponseEntity.ok().body(TrainerMapper.toResponseDto(trainer,fileStorageService, VALID_MINUTES));
+        return ResponseEntity.ok()
+                .body(TrainerMapper.toResponseDto(trainer, fileStorageService, VALID_MINUTES));
     }
 
     @DeleteMapping("/{id}")
@@ -89,11 +96,13 @@ public class TrainerController {
             summary = "Get AI workout recommendation",
             description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-    getTrainerAiRecommendation(@PathVariable Long userId) {
+            getTrainerAiRecommendation(@PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(userId)
-                .thenApply(data -> ResponseEntity.ok().body(TrainerMapper.toRecommendedWorkoutResponse(data)));
+                .thenApply(
+                        data ->
+                                ResponseEntity.ok()
+                                        .body(TrainerMapper.toRecommendedWorkoutResponse(data)));
     }
-
 }

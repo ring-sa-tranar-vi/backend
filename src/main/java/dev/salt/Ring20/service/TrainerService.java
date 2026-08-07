@@ -8,15 +8,15 @@ import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.ai.GeminiWorkoutService;
 import dev.salt.Ring20.service.data.NormalizedTrainerData;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
 import dev.salt.Ring20.service.data.TrainerData;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TrainerService {
@@ -55,7 +55,14 @@ public class TrainerService {
         validateUniqueNameAndLanguage(data);
 
         Trainer trainer = new Trainer();
-        return getTrainer(request, data.name(), data.prompt(), data.voice(), data.intro(), data.language(), trainer);
+        return getTrainer(
+                request,
+                data.name(),
+                data.prompt(),
+                data.voice(),
+                data.intro(),
+                data.language(),
+                trainer);
     }
 
     @Transactional
@@ -78,7 +85,14 @@ public class TrainerService {
 
         validateNameAndLanguageForUpdate(data, trainer);
 
-        return getTrainer(request, data.name(), data.prompt(), data.voice(), data.intro(), data.language(), trainer);
+        return getTrainer(
+                request,
+                data.name(),
+                data.prompt(),
+                data.voice(),
+                data.intro(),
+                data.language(),
+                trainer);
     }
 
     public Trainer getTrainerById(Long id) {
@@ -106,7 +120,9 @@ public class TrainerService {
     }
 
     private void validateUniqueNameAndLanguage(NormalizedTrainerData data) {
-        boolean exist = trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(data.name(), data.language());
+        boolean exist =
+                trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(
+                        data.name(), data.language());
         if (exist) {
             throw new IllegalArgumentException(
                     "Trainer with name '"
@@ -118,10 +134,12 @@ public class TrainerService {
     }
 
     private void validateNameAndLanguageForUpdate(NormalizedTrainerData data, Trainer trainer) {
-        boolean exist = trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(data.name(), data.language());
+        boolean exist =
+                trainerRepository.existsByNameIgnoreCaseAndLanguageIgnoreCase(
+                        data.name(), data.language());
         if (exist
                 && (!data.name().equalsIgnoreCase(trainer.getName())
-                || !data.language().equalsIgnoreCase(trainer.getLanguage()))) {
+                        || !data.language().equalsIgnoreCase(trainer.getLanguage()))) {
             throw new IllegalArgumentException(
                     "Trainer with name '"
                             + data.name()
@@ -141,7 +159,14 @@ public class TrainerService {
         return new NormalizedTrainerData(name, prompt, voice, intro, language);
     }
 
-    private Trainer getTrainer(TrainerData request, String name, String prompt, String voice, String intro, String language, Trainer trainer) {
+    private Trainer getTrainer(
+            TrainerData request,
+            String name,
+            String prompt,
+            String voice,
+            String intro,
+            String language,
+            Trainer trainer) {
 
         trainer.setName(name);
         trainer.setPrompt(prompt);

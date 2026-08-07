@@ -29,8 +29,8 @@ public class OrganizationApplicationService {
     }
 
     @Transactional
-    public OrganizationApplication createApplication( OrganizationApplication application,
-            String clerkId) {
+    public OrganizationApplication createApplication(
+            OrganizationApplication application, String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
 
         application.setUser(user);

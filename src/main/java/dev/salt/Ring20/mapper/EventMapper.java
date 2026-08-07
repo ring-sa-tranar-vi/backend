@@ -1,5 +1,7 @@
 package dev.salt.Ring20.mapper;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
 import dev.salt.Ring20.dto.UpdateCompanyEventDto;
 import dev.salt.Ring20.dto.adminDtos.AdminCreateEventDto;
 import dev.salt.Ring20.dto.company.CompanyEventDto;
@@ -10,11 +12,8 @@ import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.enums.EventType;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import org.springframework.web.server.ResponseStatusException;
 
 public class EventMapper {
     public static CompanyEventDto toCompanyEventDto(Event event) {
@@ -44,38 +43,68 @@ public class EventMapper {
     }
 
     public static Event toEvent(EventCreateRequestDto dto) {
-        return createEvent(dto.name(), dto.description(), dto.time(), dto.city(), dto.venue(), dto.eventType());
+        return createEvent(
+                dto.name(),
+                dto.description(),
+                dto.time(),
+                dto.city(),
+                dto.venue(),
+                dto.eventType());
     }
 
     public static Event toEvent(CreateCompanyEventDto dto) {
-        return createEvent(dto.name(), dto.description(), dto.time(), dto.city(), dto.venue(), parseEventType(dto.eventType()));
+        return createEvent(
+                dto.name(),
+                dto.description(),
+                dto.time(),
+                dto.city(),
+                dto.venue(),
+                parseEventType(dto.eventType()));
     }
 
     public static Event toEvent(EventUpdateRequestDto dto) {
-        return createEvent(dto.name(), dto.description(), dto.time(), dto.city(), dto.venue(), dto.eventType());
+        return createEvent(
+                dto.name(),
+                dto.description(),
+                dto.time(),
+                dto.city(),
+                dto.venue(),
+                dto.eventType());
     }
 
     public static Event toEvent(UpdateCompanyEventDto dto) {
-        return createEvent(dto.name(), dto.description(), dto.time(), dto.city(), dto.venue(), parseEventType(dto.eventType()));
+        return createEvent(
+                dto.name(),
+                dto.description(),
+                dto.time(),
+                dto.city(),
+                dto.venue(),
+                parseEventType(dto.eventType()));
     }
 
     public static Event toEvent(AdminCreateEventDto dto, Organisation org) {
-        return createEvent(dto.name(), dto.description(), dto.time(), org.getOrgCity(), null, EventType.IN_PERSON);
+        return createEvent(
+                dto.name(),
+                dto.description(),
+                dto.time(),
+                org.getOrgCity(),
+                null,
+                EventType.IN_PERSON);
     }
 
-//    public static EventResponseDto toEventResponseDto(Event event) {
-//        Long organisationId =
-//                event.getOrganisation() == null ? null : event.getOrganisation().getId();
-//        return new EventResponseDto(
-//                event.getId(),
-//                event.getName(),
-//                event.getDescription(),
-//                event.getTime(),
-//                organisationId,
-//                event.getCity(),
-//                event.getVenue(),
-//                event.getEventType());
-//    }
+    //    public static EventResponseDto toEventResponseDto(Event event) {
+    //        Long organisationId =
+    //                event.getOrganisation() == null ? null : event.getOrganisation().getId();
+    //        return new EventResponseDto(
+    //                event.getId(),
+    //                event.getName(),
+    //                event.getDescription(),
+    //                event.getTime(),
+    //                organisationId,
+    //                event.getCity(),
+    //                event.getVenue(),
+    //                event.getEventType());
+    //    }
     private static EventType parseEventType(String eventType) {
         try {
             return EventType.valueOf(eventType);
@@ -85,7 +114,13 @@ public class EventMapper {
         }
     }
 
-    private static Event createEvent(String name, String description, LocalDateTime time, String city, String venue, EventType eventType) {
+    private static Event createEvent(
+            String name,
+            String description,
+            LocalDateTime time,
+            String city,
+            String venue,
+            EventType eventType) {
         Event event = new Event();
         event.setName(name);
         event.setDescription(description);

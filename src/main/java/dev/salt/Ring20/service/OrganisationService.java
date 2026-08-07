@@ -21,8 +21,7 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation createOrganisation(
-            Organisation organization, Long userId) {
+    public Organisation createOrganisation(Organisation organization, Long userId) {
         User organizer = getUserById(userId);
 
         organization.setOrganizer(organizer);
@@ -34,10 +33,10 @@ public class OrganisationService {
         return organizationRepository.findAllWithEvents();
     }
 
-
     @Transactional(readOnly = true)
     public Organisation getOrganisationById(Long id) {
-        return organizationRepository.findByIdWithEvents(id)
+        return organizationRepository
+                .findByIdWithEvents(id)
                 .orElseThrow(
                         () -> new NoSuchElementException("Organisation not found with id: " + id));
     }
@@ -47,15 +46,14 @@ public class OrganisationService {
         organizationRepository.delete(getOrganisationById(id));
     }
 
-//    @Transactional
-//    public Organisation updateOrganisationById(
-//            Long id, String name, String description, String orgCity) {
-//        return updateOrganisationById(id, name, description, orgCity, null);
-//    }
+    //    @Transactional
+    //    public Organisation updateOrganisationById(
+    //            Long id, String name, String description, String orgCity) {
+    //        return updateOrganisationById(id, name, description, orgCity, null);
+    //    }
 
     @Transactional
-    public Organisation updateOrganisationById(Organisation organization,
-            Long id) {
+    public Organisation updateOrganisationById(Organisation organization, Long id) {
 
         Organisation foundOrg = getOrganisationById(id);
 
@@ -67,7 +65,8 @@ public class OrganisationService {
     }
 
     public List<Organisation> getOrganisationForUser(String clerkId) {
-        List<Organisation> organisations = organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
+        List<Organisation> organisations =
+                organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
         if (organisations.isEmpty()) {
             throw new NoSuchElementException(
@@ -78,7 +77,8 @@ public class OrganisationService {
     }
 
     private User getUserById(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository
+                .findById(userId)
                 .orElseThrow(
                         () -> new NoSuchElementException("No user found with this id:  " + userId));
     }

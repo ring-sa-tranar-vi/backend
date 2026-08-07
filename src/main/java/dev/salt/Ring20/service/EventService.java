@@ -2,11 +2,9 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
-import dev.salt.Ring20.entity.enums.EventType;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
@@ -29,7 +27,7 @@ public class EventService {
 
     public Event createEvent(Event event, Long organizationId) {
         event.setOrganisation(getOrganisationById(organizationId));
-        return eventRepository.save( event);
+        return eventRepository.save(event);
     }
 
     public List<Event> getAllEvents() {
@@ -47,8 +45,7 @@ public class EventService {
 
     // TODO: spacing/indendation  is looking weird
     @Transactional
-    public Event updateEvent(Event event,
-            Long id) {
+    public Event updateEvent(Event event, Long id) {
 
         Event eventToUpdate =
                 eventRepository

@@ -25,18 +25,14 @@ import dev.salt.Ring20.service.security.DisplayResolverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/users")
@@ -53,7 +49,9 @@ public class UserController {
 
     public UserController(
             UserService userService,
-            ActivityLogService activityLogService, DisplayResolverService displayResolverService, CurrentUserService currentUserService) {
+            ActivityLogService activityLogService,
+            DisplayResolverService displayResolverService,
+            CurrentUserService currentUserService) {
         this.userService = userService;
         this.activityLogService = activityLogService;
         this.displayResolverService = displayResolverService;
@@ -122,12 +120,11 @@ public class UserController {
         Jwt jwt = currentUserService.getJwtOrThrow(authentication);
 
         String requestedName = request != null ? request.displayName() : null;
-        String displayName = requestedName != null && !requestedName.isBlank()
-                ? requestedName
-                : displayResolverService.resolveDisplayName(jwt);
-        User created =
-                userService.createUser(
-                        jwt.getSubject(), displayName);
+        String displayName =
+                requestedName != null && !requestedName.isBlank()
+                        ? requestedName
+                        : displayResolverService.resolveDisplayName(jwt);
+        User created = userService.createUser(jwt.getSubject(), displayName);
 
         boolean isAdmin = userService.isAdmin(jwt.getSubject());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -142,10 +139,7 @@ public class UserController {
             @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
         User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = currentUserService.getClerkId(authentication);
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        clerkId,
-                        userToUpdate);
+        User updated = userService.updateUserPreferencesByClerkId(clerkId, userToUpdate);
 
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -161,10 +155,7 @@ public class UserController {
             Authentication authentication) {
         User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = currentUserService.getClerkId(authentication);
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        clerkId,
-                        userToUpdate);
+        User updated = userService.updateUserPreferencesByClerkId(clerkId, userToUpdate);
 
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -178,10 +169,11 @@ public class UserController {
             Authentication authentication) {
         User currentUser = currentUserService.getCurrentUser(authentication);
 
-        return ResponseEntity.ok().body(
-                userService.getUserOrganizationById(currentUser.getId()).stream()
-                        .map(OrganizationMapper::toResponseDto)
-                        .toList());
+        return ResponseEntity.ok()
+                .body(
+                        userService.getUserOrganizationById(currentUser.getId()).stream()
+                                .map(OrganizationMapper::toResponseDto)
+                                .toList());
     }
 
     @PostMapping("/me/followed-orgs/{orgId}")
@@ -192,7 +184,8 @@ public class UserController {
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = currentUserService.getCurrentUser(authentication);
         Organisation org = userService.addFollowOrganization(currentUser.getId(), orgId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(OrganizationMapper.toResponseDto(org));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(OrganizationMapper.toResponseDto(org));
     }
 
     @DeleteMapping("/me/followed-orgs/{orgId}")
@@ -214,10 +207,11 @@ public class UserController {
             Authentication authentication) {
         User currentUser = currentUserService.getCurrentUser(authentication);
 
-        return ResponseEntity.ok().body(
-                userService.getUserEventsById(currentUser.getId()).stream()
-                        .map(EventMapper::toEventResponseDto)
-                        .toList());
+        return ResponseEntity.ok()
+                .body(
+                        userService.getUserEventsById(currentUser.getId()).stream()
+                                .map(EventMapper::toEventResponseDto)
+                                .toList());
     }
 
     @PostMapping("/me/attending-events/{eventId}")
@@ -228,7 +222,8 @@ public class UserController {
             Authentication authentication, @PathVariable Long eventId) {
         User currentUser = currentUserService.getCurrentUser(authentication);
         Event event = userService.addAttendEvent(currentUser.getId(), eventId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(EventMapper.toEventResponseDto(event));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(EventMapper.toEventResponseDto(event));
     }
 
     @DeleteMapping("/me/attending-events/{eventId}")
@@ -266,10 +261,13 @@ public class UserController {
     @Operation(
             summary = "Get callback preferences",
             description = "Retrieves callback preferences for a user.")
-    public ResponseEntity<List<CallbackPreferenceResponseDto>> getAllCallbackPreference(@PathVariable Long userId) {
-        return ResponseEntity.ok().body(userService.getCallbackPreferences(userId).stream()
-                .map(CallBackPreferenceMapper::toCallbackResponse)
-                .toList());
+    public ResponseEntity<List<CallbackPreferenceResponseDto>> getAllCallbackPreference(
+            @PathVariable Long userId) {
+        return ResponseEntity.ok()
+                .body(
+                        userService.getCallbackPreferences(userId).stream()
+                                .map(CallBackPreferenceMapper::toCallbackResponse)
+                                .toList());
     }
 
     @PostMapping("/{userId}/callback-preference")
@@ -280,7 +278,8 @@ public class UserController {
     public ResponseEntity<CallbackPreferenceResponseDto> addOrUpdateCallBackPreference(
             @PathVariable Long userId, @Valid @RequestBody CallbackPreferenceRequestDto request) {
         CallbackPreference saved =
-                userService.addOrUpdateCallbackPreference(userId, CallBackPreferenceMapper.toCallbackPreference(request));
+                userService.addOrUpdateCallbackPreference(
+                        userId, CallBackPreferenceMapper.toCallbackPreference(request));
 
         return ResponseEntity.ok().body(CallBackPreferenceMapper.toCallbackResponse(saved));
     }
@@ -296,19 +295,19 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-//    private User getCurrentUser(Authentication authentication) {
-//        return userService.getByClerkIdOrThrow(getClerkId(authentication));
-//    }
-//
-//    private String getClerkId(Authentication authentication) {
-//        return currentUserService.getJwtOrThrow(authentication).getSubject();
-//    }
+    //    private User getCurrentUser(Authentication authentication) {
+    //        return userService.getByClerkIdOrThrow(getClerkId(authentication));
+    //    }
+    //
+    //    private String getClerkId(Authentication authentication) {
+    //        return currentUserService.getJwtOrThrow(authentication).getSubject();
+    //    }
 
-//    private Jwt getJwtOrThrow(Authentication authentication) {
-//        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-//            throw new ResponseStatusException(
-//                    UNAUTHORIZED, "Missing or invalid authentication token");
-//        }
-//        return jwt;
-//    }
+    //    private Jwt getJwtOrThrow(Authentication authentication) {
+    //        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+    //            throw new ResponseStatusException(
+    //                    UNAUTHORIZED, "Missing or invalid authentication token");
+    //        }
+    //        return jwt;
+    //    }
 }

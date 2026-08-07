@@ -39,8 +39,8 @@ public class OrganizationApplicationController {
             Authentication authentication) {
 
         OrganizationApplication app =
-                applicationService.createApplication(OrganizationApplicationMapper.toEntity(request),
-                        authentication.getName());
+                applicationService.createApplication(
+                        OrganizationApplicationMapper.toEntity(request), authentication.getName());
 
         URI location = URI.create("/api/organization-applications/" + app.getId());
 
@@ -53,8 +53,11 @@ public class OrganizationApplicationController {
             summary = "Get all applications",
             description = "Retrieves all organisation applications.")
     public ResponseEntity<List<OrganizationApplicationResponseDto>> getAll() {
-        return ResponseEntity.ok().body(
-                applicationService.getAll().stream().map((OrganizationApplicationMapper::toResponse)).toList());
+        return ResponseEntity.ok()
+                .body(
+                        applicationService.getAll().stream()
+                                .map((OrganizationApplicationMapper::toResponse))
+                                .toList());
     }
 
     @GetMapping("/{id}")
@@ -64,7 +67,8 @@ public class OrganizationApplicationController {
             description = "Retrieves an organisation application using its ID.")
     public ResponseEntity<OrganizationApplicationResponseDto> getById(@PathVariable Long id) {
 
-        return ResponseEntity.ok().body(OrganizationApplicationMapper.toResponse(applicationService.getById(id)));
+        return ResponseEntity.ok()
+                .body(OrganizationApplicationMapper.toResponse(applicationService.getById(id)));
     }
 
     @PutMapping("/{id}/approve")
@@ -75,7 +79,8 @@ public class OrganizationApplicationController {
                     "Updates an application status to approved. Used by administrators to approve applications.")
     public ResponseEntity<OrganizationApplicationResponseDto> approve(@PathVariable Long id) {
 
-        return ResponseEntity.ok().body(OrganizationApplicationMapper.toResponse(applicationService.approve(id)));
+        return ResponseEntity.ok()
+                .body(OrganizationApplicationMapper.toResponse(applicationService.approve(id)));
     }
 
     @PutMapping("/{id}/reject")
@@ -86,7 +91,8 @@ public class OrganizationApplicationController {
                     "Updates an application status to rejected. Used by administrators to reject applications.")
     public ResponseEntity<OrganizationApplicationResponseDto> reject(@PathVariable Long id) {
 
-        return ResponseEntity.ok().body(OrganizationApplicationMapper.toResponse(applicationService.reject(id)));
+        return ResponseEntity.ok()
+                .body(OrganizationApplicationMapper.toResponse(applicationService.reject(id)));
     }
 
     @PutMapping("/{id}/payment-status")
@@ -111,5 +117,4 @@ public class OrganizationApplicationController {
         applicationService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }

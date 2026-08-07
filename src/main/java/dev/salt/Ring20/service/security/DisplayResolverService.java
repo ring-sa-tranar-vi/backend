@@ -1,9 +1,8 @@
 package dev.salt.Ring20.service.security;
 
+import java.util.stream.Stream;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Stream;
 
 @Service
 public class DisplayResolverService {
@@ -13,7 +12,7 @@ public class DisplayResolverService {
     public String resolveDisplayName(Jwt jwt) {
         // Try common claim keys that Clerk/OpenID might provide for a user's name.
 
-        String[] claimKeys = new String[]{"name", "full_name", "preferred_username"};
+        String[] claimKeys = new String[] {"name", "full_name", "preferred_username"};
         for (String key : claimKeys) {
             Object claimVal = jwt.getClaims().get(key);
             if (claimVal instanceof String) {
@@ -25,7 +24,6 @@ public class DisplayResolverService {
         String givenName = jwt.getClaimAsString("given_name");
         String familyName = jwt.getClaimAsString("family_name");
         String fullName = getFullName(givenName, familyName);
-
 
         if (!fullName.isEmpty()) {
             return fullName;
@@ -41,6 +39,11 @@ public class DisplayResolverService {
     }
 
     private String getFullName(String givenName, String familyName) {
-        return String.join(" ", Stream.of(givenName, familyName).filter(part -> part != null && !part.isBlank()).toList()).trim();
+        return String.join(
+                        " ",
+                        Stream.of(givenName, familyName)
+                                .filter(part -> part != null && !part.isBlank())
+                                .toList())
+                .trim();
     }
 }

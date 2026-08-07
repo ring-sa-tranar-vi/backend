@@ -2,7 +2,6 @@ package dev.salt.Ring20.mapper;
 
 import dev.salt.Ring20.dto.adminDtos.*;
 import dev.salt.Ring20.service.data.*;
-
 import java.util.List;
 
 public class AdminMapper {
@@ -84,7 +83,8 @@ public class AdminMapper {
                 .toList();
     }
 
-    public static List<AdminUserSummaryResponseDto> toAdminUserSummaryResponseDto(UserSummaryData data) {
+    public static List<AdminUserSummaryResponseDto> toAdminUserSummaryResponseDto(
+            UserSummaryData data) {
         return data.users().stream()
                 .map(
                         user ->
@@ -122,6 +122,6 @@ public class AdminMapper {
     private static boolean isActive(java.time.LocalDateTime lastCompletedAt) {
         return lastCompletedAt != null
                 && !lastCompletedAt.isBefore(
-                java.time.LocalDateTime.now().minusDays(ACTIVE_USER_DAYS));
+                        java.time.LocalDateTime.now().minusDays(ACTIVE_USER_DAYS));
     }
 }

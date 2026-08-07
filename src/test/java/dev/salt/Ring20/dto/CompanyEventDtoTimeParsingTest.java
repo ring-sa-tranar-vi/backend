@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.time.LocalDateTime;
-
 import dev.salt.Ring20.dto.company.CreateCompanyEventDto;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 class CompanyEventDtoTimeParsingTest {

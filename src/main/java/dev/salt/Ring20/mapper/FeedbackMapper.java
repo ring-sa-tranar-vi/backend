@@ -5,7 +5,7 @@ import dev.salt.Ring20.dto.feedbackDtos.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 
 public class FeedbackMapper {
-    public static FeedbackResponseDto toResponse(Feedback feedback){
+    public static FeedbackResponseDto toResponse(Feedback feedback) {
         return new FeedbackResponseDto(
                 feedback.getId(),
                 feedback.getUserId(),

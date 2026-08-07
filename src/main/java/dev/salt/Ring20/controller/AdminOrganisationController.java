@@ -6,8 +6,8 @@ import dev.salt.Ring20.dto.adminDtos.AdminOrganisationEventDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
-import dev.salt.Ring20.entity.enums.EventType;
 import dev.salt.Ring20.mapper.EventMapper;
+import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganisationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("@securityService.isAdmin(authentication.name)")
-@Tag(name = "Admin Organizations", description = "Administrative endpoints for managing organisation and events")
+@Tag(
+        name = "Admin Organizations",
+        description = "Administrative endpoints for managing organisation and events")
 public class AdminOrganisationController {
 
     private final OrganisationService organisationService;
@@ -48,18 +50,12 @@ public class AdminOrganisationController {
     }
 
     @PostMapping("/organisations")
-    @Operation(
-            summary = "Create organisation",
-            description = "Creates a new organisation.")
+    @Operation(summary = "Create organisation", description = "Creates a new organisation.")
     public ResponseEntity<AdminOrganisationDto> createOrganisation(
             @Valid @RequestBody OrganisationCreateRequestDto request) {
         Organisation created =
                 organisationService.createOrganisation(
-                        request.name(),
-                        request.description(),
-                        request.orgCity(),
-                        request.organizerId(),
-                        request.motivation());
+                        OrganizationMapper.toOrganization(request), request.organizerId());
         AdminOrganisationDto response = toOrganisationDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
@@ -70,7 +66,8 @@ public class AdminOrganisationController {
     }
 
     @DeleteMapping("/organisations/{id}")
-    @Operation(summary = "Get organisation by ID",
+    @Operation(
+            summary = "Get organisation by ID",
             description = "Retrieves an organisation using its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         organisationService.deleteOrganisationById(id);
@@ -78,15 +75,14 @@ public class AdminOrganisationController {
     }
 
     @PostMapping("/events")
-    @Operation(summary = "Create event",
-            description = "Creates a new event.")
+    @Operation(summary = "Create event", description = "Creates a new event.")
     public ResponseEntity<AdminOrganisationEventDto> createEvent(
             @Valid @RequestBody AdminCreateEventDto request) {
         Organisation organisation =
                 organisationService.getOrganisationById(request.organisationId());
         Event created =
-                eventService.createEvent(EventMapper.toEvent(request, organisation),
-                        organisation.getId());
+                eventService.createEvent(
+                        EventMapper.toEvent(request, organisation), organisation.getId());
         AdminOrganisationEventDto response = toEventDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()

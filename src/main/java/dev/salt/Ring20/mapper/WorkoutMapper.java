@@ -5,11 +5,10 @@ import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.storage.FileStorageService;
 
-import javax.swing.plaf.PanelUI;
-
 public class WorkoutMapper {
 
-    public static WorkoutResponseDto toWorkoutResponse(Workout workout, FileStorageService fileStorageService,  int validMinutes) {
+    public static WorkoutResponseDto toWorkoutResponse(
+            Workout workout, FileStorageService fileStorageService, int validMinutes) {
         String imageUrl = getFileUrl(workout.getImage(), fileStorageService, validMinutes);
 
         String videoUrl = getFileUrl(workout.getVideo(), fileStorageService, validMinutes);
@@ -44,7 +43,6 @@ public class WorkoutMapper {
 
         return workout;
     }
-
 
     private static String getFileUrl(
             String file, FileStorageService fileStorageService, int validMinutes) {

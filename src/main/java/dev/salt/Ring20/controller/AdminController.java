@@ -12,12 +12,11 @@ import dev.salt.Ring20.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -51,10 +50,11 @@ public class AdminController {
     public ResponseEntity<String> adminPage(Authentication authentication) {
         final String name = userService.getByClerkIdOrThrow(authentication.getName()).getName();
 
-        return ResponseEntity.ok().body(
-                "Congrats, "
-                        + name
-                        + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
+        return ResponseEntity.ok()
+                .body(
+                        "Congrats, "
+                                + name
+                                + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
     @GetMapping("/users/count")
@@ -76,7 +76,8 @@ public class AdminController {
             description = "Retrieves a summary of all registered users.")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
 
-        return ResponseEntity.ok().body(AdminMapper.toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
+        return ResponseEntity.ok()
+                .body(AdminMapper.toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
     @PutMapping("/users/{id}")
@@ -86,7 +87,8 @@ public class AdminController {
             @PathVariable Long id, @Valid @RequestBody UserRequestDto updateData) {
         User updated = adminService.updateUser(id, UserMapper.toUserEntity(updateData));
 
-        return ResponseEntity.ok().body("User with ID " + updated.getId() + " updated successfully");
+        return ResponseEntity.ok()
+                .body("User with ID " + updated.getId() + " updated successfully");
     }
 
     @DeleteMapping("/users/{id}")
@@ -104,8 +106,10 @@ public class AdminController {
             summary = "Get recent activity logs",
             description = "Retrieves the most recent workout activity logs.")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
-        return ResponseEntity.ok().body(
-                AdminMapper.toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toAdminRecentActivityResponseDto(
+                                adminService.getRecentActivityLogs()));
     }
 
     @GetMapping("/workouts/usage")
@@ -115,7 +119,8 @@ public class AdminController {
             description = "Retrieves usage statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
 
-        return ResponseEntity.ok().body(AdminMapper.toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
+        return ResponseEntity.ok()
+                .body(AdminMapper.toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
     }
 
     @GetMapping("/workouts/feedback-summary")
@@ -124,10 +129,12 @@ public class AdminController {
             summary = "Get workout feedback summary",
             description = "Retrieves aggregated feedback statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
-    getWorkoutFeedbackSummary() {
+            getWorkoutFeedbackSummary() {
 
-        return ResponseEntity.ok().body(
-                AdminMapper.toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toWorkoutFeedbackSummaryDto(
+                                feedbackService.getWorkoutFeedbackSummary()));
     }
 
     @GetMapping("/feedbacks")
@@ -137,8 +144,10 @@ public class AdminController {
             description = "Retrieves the most recent workout feedback entries.")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
 
-        return ResponseEntity.ok().body(
-                AdminMapper.toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toAdminRecentFeedbackResponseDto(
+                                feedbackService.getRecentFeedbackEntries()));
     }
 
     @GetMapping("/trainers/overview")
@@ -148,7 +157,9 @@ public class AdminController {
             description = "Retrieves overview information for all trainers.")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
 
-        return ResponseEntity.ok().body(
-                AdminMapper.toAdminTrainerOverviewsResponseDto(adminService.getTrainerOverview()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toAdminTrainerOverviewsResponseDto(
+                                adminService.getTrainerOverview()));
     }
 }

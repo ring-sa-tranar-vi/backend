@@ -49,7 +49,14 @@ public class WorkoutController {
     public ResponseEntity<List<WorkoutResponseDto>> getAllWorkouts(Authentication authentication) {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
         List<Workout> workouts = workoutService.getAllWorkouts(includeDisabled);
-        return ResponseEntity.ok().body(workouts.stream().map(w -> WorkoutMapper.toWorkoutResponse(w, fileStorageService, VALID_MINUTES)).toList());
+        return ResponseEntity.ok()
+                .body(
+                        workouts.stream()
+                                .map(
+                                        w ->
+                                                WorkoutMapper.toWorkoutResponse(
+                                                        w, fileStorageService, VALID_MINUTES))
+                                .toList());
     }
 
     @GetMapping("/{id}")
@@ -60,7 +67,8 @@ public class WorkoutController {
         boolean includeDisabled = securityService.isAdminIfAuthenticated(authentication);
         Workout workout = workoutService.getWorkoutById(id, includeDisabled);
 
-        return ResponseEntity.ok().body(WorkoutMapper.toWorkoutResponse(workout, fileStorageService, VALID_MINUTES));
+        return ResponseEntity.ok()
+                .body(WorkoutMapper.toWorkoutResponse(workout, fileStorageService, VALID_MINUTES));
     }
 
     @PostMapping
@@ -70,8 +78,12 @@ public class WorkoutController {
             description = "Creates a new workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> createWorkout(
             @Valid @RequestBody WorkoutRequestDto workoutRequest) {
-        Workout createdWorkout = workoutService.createWorkout(WorkoutMapper.toEntity(workoutRequest));
-        return ResponseEntity.ok().body(WorkoutMapper.toWorkoutResponse(createdWorkout, fileStorageService, VALID_MINUTES));
+        Workout createdWorkout =
+                workoutService.createWorkout(WorkoutMapper.toEntity(workoutRequest));
+        return ResponseEntity.ok()
+                .body(
+                        WorkoutMapper.toWorkoutResponse(
+                                createdWorkout, fileStorageService, VALID_MINUTES));
     }
 
     @PutMapping("/{id}")
@@ -81,8 +93,12 @@ public class WorkoutController {
             description = "Updates an existing workout. Available to administrators only.")
     public ResponseEntity<WorkoutResponseDto> updateWorkout(
             @PathVariable Long id, @Valid @RequestBody WorkoutRequestDto workoutRequest) {
-        Workout updatedWorkout = workoutService.updateWorkout(id, WorkoutMapper.toEntity(workoutRequest));
-        return ResponseEntity.ok().body(WorkoutMapper.toWorkoutResponse(updatedWorkout, fileStorageService, VALID_MINUTES));
+        Workout updatedWorkout =
+                workoutService.updateWorkout(id, WorkoutMapper.toEntity(workoutRequest));
+        return ResponseEntity.ok()
+                .body(
+                        WorkoutMapper.toWorkoutResponse(
+                                updatedWorkout, fileStorageService, VALID_MINUTES));
     }
 
     @DeleteMapping("/{id}")
@@ -105,8 +121,12 @@ public class WorkoutController {
         if (request.enabled() == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(
-                WorkoutMapper.toWorkoutResponse(workoutService.setWorkoutEnabled(id, request.enabled()), fileStorageService, VALID_MINUTES));
+        return ResponseEntity.ok()
+                .body(
+                        WorkoutMapper.toWorkoutResponse(
+                                workoutService.setWorkoutEnabled(id, request.enabled()),
+                                fileStorageService,
+                                VALID_MINUTES));
     }
 
     @PostMapping("/{id}/start")
@@ -117,7 +137,7 @@ public class WorkoutController {
             @PathVariable Long id, Authentication authentication) {
         Long userId = currentUserService.getCurrentUserId(authentication);
         Workout workout = workoutService.startWorkout(id, userId);
-        return ResponseEntity.ok().body(WorkoutMapper.toWorkoutResponse(workout, fileStorageService, VALID_MINUTES));
+        return ResponseEntity.ok()
+                .body(WorkoutMapper.toWorkoutResponse(workout, fileStorageService, VALID_MINUTES));
     }
-
 }

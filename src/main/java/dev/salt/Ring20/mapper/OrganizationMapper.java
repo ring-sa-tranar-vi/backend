@@ -6,24 +6,25 @@ import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
 import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
-import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
-
 import java.util.List;
 
 public class OrganizationMapper {
-    public static CompanyOrganisationDto toCompanyOrganisationDto(Organisation organisation){
+    public static CompanyOrganisationDto toCompanyOrganisationDto(Organisation organisation) {
         return new CompanyOrganisationDto(
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
                 organisation.getOrgCity());
     }
+
     public static OrganisationResponseDto toResponseDto(Organisation organisation) {
         List<EventResponseDto> events =
                 organisation.getEvents() == null
                         ? List.of()
-                        : organisation.getEvents().stream().map(EventMapper::toEventResponseDto).toList();
+                        : organisation.getEvents().stream()
+                                .map(EventMapper::toEventResponseDto)
+                                .toList();
         return new OrganisationResponseDto(
                 organisation.getId(),
                 organisation.getName(),
@@ -34,7 +35,7 @@ public class OrganizationMapper {
                 organisation.getMotivation());
     }
 
-    public static Organisation toOrganization(OrganisationUpdateRequestDto dto){
+    public static Organisation toOrganization(OrganisationUpdateRequestDto dto) {
         Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
@@ -42,7 +43,7 @@ public class OrganizationMapper {
         return organization;
     }
 
-    public static Organisation toOrganization(UpdateCompanyOrganisationDto dto){
+    public static Organisation toOrganization(UpdateCompanyOrganisationDto dto) {
         Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
@@ -50,7 +51,7 @@ public class OrganizationMapper {
         return organization;
     }
 
-    public static Organisation toOrganization(OrganisationCreateRequestDto dto){
+    public static Organisation toOrganization(OrganisationCreateRequestDto dto) {
         Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
@@ -58,5 +59,4 @@ public class OrganizationMapper {
         organization.setMotivation(dto.motivation());
         return organization;
     }
-
 }

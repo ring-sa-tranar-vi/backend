@@ -9,13 +9,12 @@ import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/feedbacks")
@@ -43,7 +42,8 @@ public class FeedbackController {
 
         List<Feedback> feedbacks = feedbackService.getFeedback(userId, workoutId);
 
-        return ResponseEntity.ok().body(feedbacks.stream().map(FeedbackMapper::toResponse).toList());
+        return ResponseEntity.ok()
+                .body(feedbacks.stream().map(FeedbackMapper::toResponse).toList());
     }
 
     @GetMapping("/{id}")
@@ -77,5 +77,4 @@ public class FeedbackController {
         feedbackService.deleteFeedback(id);
         return ResponseEntity.noContent().build();
     }
-
 }

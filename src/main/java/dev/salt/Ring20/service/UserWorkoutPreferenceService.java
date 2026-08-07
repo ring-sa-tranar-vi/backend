@@ -7,8 +7,6 @@ import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,16 +37,15 @@ public class UserWorkoutPreferenceService {
             Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
         return preferenceRepository
                 .findByUserIdAndWorkoutIdAndPreferenceType(userId, workoutId, preferenceType)
-                .orElseGet(
-                        () -> getWorkoutPreference(userId, workoutId, preferenceType));
+                .orElseGet(() -> getWorkoutPreference(userId, workoutId, preferenceType));
     }
 
-    private UserWorkoutPreference getWorkoutPreference(Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
+    private UserWorkoutPreference getWorkoutPreference(
+            Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
         UserWorkoutPreference preference = new UserWorkoutPreference();
         preference.setUserId(userId);
         if (!workoutRepository.existsById(workoutId)) {
-            throw new IllegalArgumentException(
-                    "Workout does not exist with id: " + workoutId);
+            throw new IllegalArgumentException("Workout does not exist with id: " + workoutId);
         }
         preference.setWorkoutId(workoutId);
         preference.setPreferenceType(preferenceType);
@@ -64,15 +61,16 @@ public class UserWorkoutPreferenceService {
                 userId, workoutId, preferenceType);
     }
 
-    private List<Long> getDislikedWorkoutIds(Long userId){
+    private List<Long> getDislikedWorkoutIds(Long userId) {
         return preferenceRepository
                 .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.DISLIKED)
                 .stream()
                 .map(UserWorkoutPreference::getWorkoutId)
                 .toList();
     }
-    private List<Long> getFavouriteWorkoutIds(Long userId){
-        return  preferenceRepository
+
+    private List<Long> getFavouriteWorkoutIds(Long userId) {
+        return preferenceRepository
                 .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.FAVORITE)
                 .stream()
                 .map(UserWorkoutPreference::getWorkoutId)

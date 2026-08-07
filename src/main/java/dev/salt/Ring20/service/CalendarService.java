@@ -6,10 +6,6 @@ import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.model.CalendarEvent;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +13,9 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +46,7 @@ public class CalendarService {
         return calendarEvents;
     }
 
-    private List<CalendarEvent> getWorkouts(
-            Long userId, LocalDateTime start, LocalDateTime end) {
+    private List<CalendarEvent> getWorkouts(Long userId, LocalDateTime start, LocalDateTime end) {
         List<ActivityLog> logs =
                 activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
                         userId, "COMPLETED", start, end);
@@ -109,7 +107,8 @@ public class CalendarService {
         return callEvents;
     }
 
-    private CalendarEvent createCallCalendarEvent(CallbackPreference pref, LocalDateTime callTime, LocalDate dateIterator) {
+    private CalendarEvent createCallCalendarEvent(
+            CallbackPreference pref, LocalDateTime callTime, LocalDate dateIterator) {
         LocalDateTime now = LocalDateTime.now();
         return createCalenderEvent(
                 "CALL-" + pref.getId() + "-" + dateIterator,
@@ -127,8 +126,8 @@ public class CalendarService {
                 workoutName,
                 "Time: "
                         + (log.getDurationSeconds() != null
-                        ? log.getDurationSeconds() / 60 + " min"
-                        : "N/A"),
+                                ? log.getDurationSeconds() / 60 + " min"
+                                : "N/A"),
                 log.getCompletedAt(),
                 true);
     }
@@ -144,7 +143,13 @@ public class CalendarService {
                 event.getTime().isBefore(now));
     }
 
-    private CalendarEvent createCalenderEvent(String id, String type, String title, String description, LocalDateTime time, boolean completed) {
+    private CalendarEvent createCalenderEvent(
+            String id,
+            String type,
+            String title,
+            String description,
+            LocalDateTime time,
+            boolean completed) {
         CalendarEvent calendarEvent = new CalendarEvent();
         calendarEvent.setId(id);
         calendarEvent.setType(type);
@@ -154,5 +159,4 @@ public class CalendarService {
         calendarEvent.setCompleted(completed);
         return calendarEvent;
     }
-
 }
