@@ -10,7 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CurrentUserService {
-    //TODO: not consistent as with the SecurityService
+    // TODO: not consistent as with the SecurityService
 
     private final UserService userService;
 
@@ -19,15 +19,19 @@ public class CurrentUserService {
     }
 
     public User getCurrentUser(Authentication authentication) {
-        Jwt jwt = getJwt(authentication);
+        Jwt jwt = getJwtOrThrow(authentication);
         return userService.getByClerkIdOrThrow(jwt.getSubject());
+    }
+
+    public String getClerkId(Authentication authentication) {
+        return getJwtOrThrow(authentication).getSubject();
     }
 
     public Long getCurrentUserId(Authentication authentication) {
         return getCurrentUser(authentication).getId();
     }
 
-    private Jwt getJwt(Authentication authentication) {
+    public Jwt getJwtOrThrow(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED, "Missing or invalid authentication token");
