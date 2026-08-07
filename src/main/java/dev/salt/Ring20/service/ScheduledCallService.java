@@ -5,10 +5,12 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import dev.salt.Ring20.entity.CallBackStatus;
 import dev.salt.Ring20.entity.CallbackPreference;
+import dev.salt.Ring20.entity.RepeatType;
 import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 public class ScheduledCallService {
     private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final ScheduledCallRepository scheduledCallRepository;
+    private final static int REPEAT_TIMES_IF_WEEKLY = 4;
+    private final static int NO_REPEAT_TIMES = 1;
 
     public ScheduledCallService(
             CallbackPreferenceRepository callbackPreferenceRepository,
@@ -31,21 +35,40 @@ public class ScheduledCallService {
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
         for (CallbackPreference pref : prefs) {
-            Instant nextCallTime = calculateNext(pref);
-            boolean exists =
-                    scheduledCallRepository.existsByUserIdAndTargetTimeAndCallBackStatus(
-                            userId, nextCallTime, CallBackStatus.PENDING);
 
-            if (exists) continue;
+            int occurrences = getOccurrences(pref);
 
-            ScheduledCall call = new ScheduledCall();
-            call.setUserId(userId);
-            call.setTrainerId(pref.getUser().getTrainerId());
-            call.setTargetTime(nextCallTime);
-            call.setFcmToken(pref.getUser().getFcmToken());
-            call.setCallBackStatus(CallBackStatus.PENDING);
-            scheduledCallRepository.save(call);
+            for (int i = 0; i < occurrences; i++) {
+
+                Instant targetTime = getTargetTime(pref, i);
+
+                if (alreadyExists(userId, targetTime)) continue;
+
+                scheduledCallRepository.save(buildCall(userId, pref, targetTime));
+            }
         }
+    }
+
+    private ScheduledCall buildCall(Long userId, CallbackPreference pref, Instant time) {
+        ScheduledCall call = new ScheduledCall();
+        call.setUserId(userId);
+        call.setTrainerId(pref.getUser().getTrainerId());
+        call.setTargetTime(time);
+        call.setFcmToken(pref.getUser().getFcmToken());
+        call.setCallBackStatus(CallBackStatus.PENDING);
+        return call;
+    }
+
+    private boolean alreadyExists(Long userId, Instant time) {
+        return scheduledCallRepository.existsByUserIdAndTargetTime(userId, time);
+    }
+
+    private Instant getTargetTime(CallbackPreference pref, int weekOffset) {
+        return calculateNext(pref).plus(weekOffset, ChronoUnit.WEEKS);
+    }
+
+    private int getOccurrences(CallbackPreference pref) {
+        return pref.getRepeat() == RepeatType.WEEKLY ? REPEAT_TIMES_IF_WEEKLY : NO_REPEAT_TIMES;
     }
 
     private Instant calculateNext(CallbackPreference pref) {

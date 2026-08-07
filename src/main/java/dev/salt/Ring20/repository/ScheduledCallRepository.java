@@ -18,5 +18,5 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     @Query("SELECT c FROM ScheduledCall c WHERE c.targetTime < :time AND c.callBackStatus = 'PENDING'")
     List<ScheduledCall> findMissedCalls(@Param("time") Instant time);
 
-    boolean existsByUserIdAndTargetTimeAndCallBackStatus(Long userId, Instant targetTime, CallBackStatus status);
+    boolean existsByUserIdAndTargetTime(Long userId, Instant targetTime);
 }
