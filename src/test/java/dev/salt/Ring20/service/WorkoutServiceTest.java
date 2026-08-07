@@ -1,15 +1,9 @@
 package dev.salt.Ring20.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,17 +13,27 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 @DisplayName("WorkoutService Tests")
 class WorkoutServiceTest {
 
-    @Mock private WorkoutRepository workoutRepository;
+    @Mock
+    private WorkoutRepository workoutRepository;
 
-    @Mock private ActivityLogRepository activityLogRepository;
+    @Mock
+    private ActivityLogRepository activityLogRepository;
 
-    @Mock private FileStorageService fileStorageService;
-
-    @InjectMocks private WorkoutService workoutService;
+    @InjectMocks
+    private WorkoutService workoutService;
 
     private Workout workout;
 
