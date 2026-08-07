@@ -116,7 +116,6 @@ public class CalendarService {
 
             while (!date.isAfter(end)) {
 
-                // skip days that don't match
                 if (date.getDayOfWeek() != targetDay) {
                     date = date.plusDays(1);
                     continue;
@@ -124,23 +123,20 @@ public class CalendarService {
 
                 LocalDateTime callTime = LocalDateTime.of(date, pref.getTime());
 
-                // skip past calls for NEVER
                 if (pref.getRepeat() == RepeatType.NEVER && callTime.isBefore(now)) {
                     date = date.plusDays(1);
                     continue;
                 }
 
-                // create event
-                events.add(new CalendarEventDto(
-                        "CALL-" + pref.getId() + "-" + date,
-                        "CALL",
-                        "Trainer Call",
-                        "Trainer call",
-                        callTime,
-                        callTime.isBefore(now)
-                ));
+                events.add(
+                        new CalendarEventDto(
+                                "CALL-" + pref.getId() + "-" + date,
+                                "CALL",
+                                "Trainer Call",
+                                "Trainer call",
+                                callTime,
+                                callTime.isBefore(now)));
 
-                // stop after first match if NEVER
                 if (pref.getRepeat() == RepeatType.NEVER) {
                     break;
                 }
