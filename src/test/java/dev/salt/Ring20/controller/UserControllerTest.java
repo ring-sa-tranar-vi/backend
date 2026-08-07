@@ -54,8 +54,8 @@ class UserControllerTest {
         UserController controller = new UserController(userService, activityLogService, displayResolverService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
-        when(userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "Jane", 3, "context", 4L, "Stockholm", false))
+        when(userService.updateUserPreferencesByClerkId( eq("clerk_1"),
+                any(User.class)))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
@@ -75,10 +75,11 @@ class UserControllerTest {
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setId(1L);
 
-        when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
+        //when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
 
         when(userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "Other", 2, "x", 1L, "Stockholm", false))
+                eq("clerk_1"),
+                any(User.class)))
                 .thenReturn(user);
 
         ResponseEntity<?> response =
