@@ -1,5 +1,6 @@
 package dev.salt.Ring20.mapper;
 
+import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
 import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
 import dev.salt.Ring20.service.storage.FileStorageService;
@@ -26,6 +27,22 @@ public class WorkoutMapper {
                 imageUrl,
                 videoUrl,
                 workout.getEnabled());
+    }
+
+    public static Workout toEntity(WorkoutRequestDto request) {
+        Workout workout = new Workout();
+        workout.setName(request.name());
+        workout.setDescription(request.description());
+        workout.setDashboardName(request.dashboardName());
+        workout.setDashboardDescription(request.dashboardDescription());
+        workout.setInstructions(request.instructions());
+        workout.setGuidance(request.guidance());
+        workout.setLevel(request.level());
+        workout.setType(request.type());
+        workout.setImage(request.image());
+        workout.setVideo(request.video());
+
+        return workout;
     }
 
 
