@@ -13,7 +13,6 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
-import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.mapper.CallBackPreferenceMapper;
 import dev.salt.Ring20.mapper.EventMapper;
@@ -35,7 +34,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -118,14 +116,14 @@ public class UserController {
             @Valid @RequestBody(required = false) UserCreateRequestDto request,
             Authentication authentication) {
         Jwt jwt = getJwtOrThrow(authentication);
-        String requestedName = request != null ? request.displayName() : null;
 
+        String requestedName = request != null ? request.displayName() : null;
+        String displayName = requestedName != null && !requestedName.isBlank()
+                ? requestedName
+                : displayResolverService.resolveDisplayName(jwt);
         User created =
                 userService.createUser(
-                        jwt.getSubject(),
-                        requestedName != null && !requestedName.isBlank()
-                                ? requestedName
-                                : displayResolverService.resolveDisplayName(jwt));
+                        jwt.getSubject(), displayName);
 
         boolean isAdmin = userService.isAdmin(jwt.getSubject());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -138,15 +136,11 @@ public class UserController {
             description = "Updates the profile of the authenticated user.")
     public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
             @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
+        User userToUpdate = UserMapper.toUserEntity(userRequest);
         User updated =
                 userService.updateUserPreferencesByClerkId(
                         getClerkId(authentication),
-                        userRequest.name(),
-                        userRequest.intensityLevel(),
-                        userRequest.context(),
-                        userRequest.trainerId(),
-                        userRequest.city(),
-                        userRequest.onboarding());
+                        userToUpdate);
 
         boolean isAdmin = userService.isAdmin(getClerkId(authentication));
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -160,16 +154,12 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
+        User userToUpdate = UserMapper.toUserEntity(userRequest);
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
                         getClerkId(authentication),
-                        userRequest.name(),
-                        userRequest.intensityLevel(),
-                        userRequest.context(),
-                        userRequest.trainerId(),
-                        userRequest.city(),
-                        userRequest.onboarding());
+                        userToUpdate);
 
         boolean isAdmin = userService.isAdmin(getClerkId(authentication));
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
