@@ -31,26 +31,35 @@ public class ScheduledCallService {
         this.scheduledCallRepository = scheduledCallRepository;
     }
 
-    public void resetCallsForUser(Long userId) {
-        scheduledCallRepository.deleteByUserIdAndTargetTimeAfter(userId, Instant.now());
-        generateCallsFromUser(userId);
+    public void cancelCall(Long callId) {
+        ScheduledCall call = scheduledCallRepository.findById(callId)
+                .orElseThrow(() -> new NoSuchElementException("Call not found with id: " + callId));
+
+        call.setCallBackStatus(CallBackStatus.CANCELLED);
+        scheduledCallRepository.save(call);
+    }
+    public void resetCallsForPreference(CallbackPreference pref) {
+        scheduledCallRepository.deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
+                pref.getUser().getId(),
+                pref.getDay(),
+                Instant.now(),
+                CallBackStatus.PENDING
+        );
     }
 
-    public void generateCallsFromUser(Long userId) {
-        List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
+    public void generateCallsForPreference(CallbackPreference pref) {
 
-        for (CallbackPreference pref : prefs) {
+        int occurrences = getOccurrences(pref);
 
-            int occurrences = getOccurrences(pref);
+        for (int i = 0; i < occurrences; i++) {
 
-            for (int i = 0; i < occurrences; i++) {
+            Instant targetTime = getTargetTime(pref, i);
 
-                Instant targetTime = getTargetTime(pref, i);
+            if (alreadyExists(pref.getUser().getId(), targetTime)) continue;
 
-                if (alreadyExists(userId, targetTime)) continue;
-
-                scheduledCallRepository.save(buildCall(userId, pref, targetTime));
-            }
+            scheduledCallRepository.save(
+                    buildCall(pref.getUser().getId(), pref, targetTime)
+            );
         }
     }
 

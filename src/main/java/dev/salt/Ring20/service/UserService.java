@@ -261,8 +261,8 @@ public class UserService {
             user.getCallbackPreferences().add(callback);
             result = callback;
         }
-        scheduledCallService.generateCallsFromUser(userId);
-
+        scheduledCallService.resetCallsForPreference(result);
+        scheduledCallService.generateCallsForPreference(result);
         return result;
     }
 
@@ -270,11 +270,14 @@ public class UserService {
     public void removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        boolean removed = user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
+        CallbackPreference pref = user.getCallbackPreferences().stream()
+                .filter(c -> c.getDay() == day)
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No callback preference found"));
 
-        if (!removed) {
-            throw new NoSuchElementException("No callback preference found for day: " + day);
-        }
+        scheduledCallService.resetCallsForPreference(pref);
+
+        user.getCallbackPreferences().remove(pref);
     }
 
     public long getUserCount() {

@@ -1,6 +1,7 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.CallBackStatus;
+import dev.salt.Ring20.entity.DayOfWeekType;
 import dev.salt.Ring20.entity.ScheduledCall;
 
 import java.time.Instant;
@@ -19,4 +20,6 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     List<ScheduledCall> findMissedCalls(@Param("time") Instant time);
 
     boolean existsByUserIdAndTargetTime(Long userId, Instant targetTime);
+
+    void deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(Long id, DayOfWeekType day, Instant now, CallBackStatus callBackStatus);
 }
