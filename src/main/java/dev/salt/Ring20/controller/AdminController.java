@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.adminDtos.*;
-import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.admin.*;
+import dev.salt.Ring20.dto.user.UserRequestDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.mapper.AdminMapper;
 import dev.salt.Ring20.mapper.UserMapper;

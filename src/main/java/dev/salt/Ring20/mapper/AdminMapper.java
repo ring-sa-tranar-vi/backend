@@ -1,6 +1,6 @@
 package dev.salt.Ring20.mapper;
 
-import dev.salt.Ring20.dto.adminDtos.*;
+import dev.salt.Ring20.dto.admin.*;
 import dev.salt.Ring20.service.data.*;
 import java.util.List;
 

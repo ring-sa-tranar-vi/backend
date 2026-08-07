@@ -1,7 +1,7 @@
 package dev.salt.Ring20.mapper;
 
-import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceRequestDto;
-import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceResponseDto;
+import dev.salt.Ring20.dto.callback.CallbackPreferenceRequestDto;
+import dev.salt.Ring20.dto.callback.CallbackPreferenceResponseDto;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.RepeatType;

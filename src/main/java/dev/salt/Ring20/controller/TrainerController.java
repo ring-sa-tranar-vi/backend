@@ -1,8 +1,8 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.trainerDtos.TrainerRequestDto;
-import dev.salt.Ring20.dto.trainerDtos.TrainerResponseDto;
-import dev.salt.Ring20.dto.workoutDtos.RecommendWorkoutResponseDto;
+import dev.salt.Ring20.dto.trainer.TrainerRequestDto;
+import dev.salt.Ring20.dto.trainer.TrainerResponseDto;
+import dev.salt.Ring20.dto.workout.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.mapper.TrainerMapper;
 import dev.salt.Ring20.service.TrainerService;

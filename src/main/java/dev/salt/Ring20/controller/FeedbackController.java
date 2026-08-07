@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.feedbackDtos.FeedbackRequestDto;
-import dev.salt.Ring20.dto.feedbackDtos.FeedbackResponseDto;
+import dev.salt.Ring20.dto.feedback.FeedbackRequestDto;
+import dev.salt.Ring20.dto.feedback.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.mapper.FeedbackMapper;
 import dev.salt.Ring20.service.FeedbackService;

@@ -1,13 +1,13 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceRequestDto;
-import dev.salt.Ring20.dto.callbackDtos.CallbackPreferenceResponseDto;
-import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
-import dev.salt.Ring20.dto.fcmTokenDtos.FcmTokenRequestDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
-import dev.salt.Ring20.dto.userDtos.UserCreateRequestDto;
-import dev.salt.Ring20.dto.userDtos.UserRequestDto;
-import dev.salt.Ring20.dto.userDtos.UserResponseDto;
+import dev.salt.Ring20.dto.callback.CallbackPreferenceRequestDto;
+import dev.salt.Ring20.dto.callback.CallbackPreferenceResponseDto;
+import dev.salt.Ring20.dto.event.EventResponseDto;
+import dev.salt.Ring20.dto.fcmToken.FcmTokenRequestDto;
+import dev.salt.Ring20.dto.organisation.OrganisationResponseDto;
+import dev.salt.Ring20.dto.user.UserCreateRequestDto;
+import dev.salt.Ring20.dto.user.UserRequestDto;
+import dev.salt.Ring20.dto.user.UserResponseDto;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;

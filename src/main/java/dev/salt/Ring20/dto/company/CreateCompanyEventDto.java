@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto.company;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dev.salt.Ring20.config.FlexibleLocalDateTimeDeserializer;
-import dev.salt.Ring20.dto.OrganisationReferenceDto;
+import dev.salt.Ring20.dto.organisation.OrganisationReferenceDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,8 +1,8 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.eventDtos.EventCreateRequestDto;
-import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
-import dev.salt.Ring20.dto.eventDtos.EventUpdateRequestDto;
+import dev.salt.Ring20.dto.event.EventCreateRequestDto;
+import dev.salt.Ring20.dto.event.EventResponseDto;
+import dev.salt.Ring20.dto.event.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.service.EventService;

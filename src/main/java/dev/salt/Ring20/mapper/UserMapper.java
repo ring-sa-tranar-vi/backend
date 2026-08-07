@@ -1,7 +1,7 @@
 package dev.salt.Ring20.mapper;
 
-import dev.salt.Ring20.dto.userDtos.UserRequestDto;
-import dev.salt.Ring20.dto.userDtos.UserResponseDto;
+import dev.salt.Ring20.dto.user.UserRequestDto;
+import dev.salt.Ring20.dto.user.UserResponseDto;
 import dev.salt.Ring20.entity.User;
 
 public class UserMapper {

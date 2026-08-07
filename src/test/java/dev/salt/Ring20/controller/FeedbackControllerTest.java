@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.feedbackDtos.FeedbackRequestDto;
-import dev.salt.Ring20.dto.feedbackDtos.FeedbackResponseDto;
+import dev.salt.Ring20.dto.feedback.FeedbackRequestDto;
+import dev.salt.Ring20.dto.feedback.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;

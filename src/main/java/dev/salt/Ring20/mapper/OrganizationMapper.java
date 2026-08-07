@@ -1,11 +1,11 @@
 package dev.salt.Ring20.mapper;
 
-import dev.salt.Ring20.dto.UpdateCompanyOrganisationDto;
+import dev.salt.Ring20.dto.company.UpdateCompanyOrganisationDto;
 import dev.salt.Ring20.dto.company.CompanyOrganisationDto;
-import dev.salt.Ring20.dto.eventDtos.EventResponseDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganisationCreateRequestDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganisationResponseDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganisationUpdateRequestDto;
+import dev.salt.Ring20.dto.event.EventResponseDto;
+import dev.salt.Ring20.dto.organisation.OrganisationCreateRequestDto;
+import dev.salt.Ring20.dto.organisation.OrganisationResponseDto;
+import dev.salt.Ring20.dto.organisation.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Organisation;
 import java.util.List;
 

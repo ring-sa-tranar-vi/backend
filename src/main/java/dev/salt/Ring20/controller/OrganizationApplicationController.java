@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationRequestDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationResponseDto;
+import dev.salt.Ring20.dto.organisation.OrganizationApplicationRequestDto;
+import dev.salt.Ring20.dto.organisation.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.enums.PaymentStatus;
 import dev.salt.Ring20.mapper.OrganizationApplicationMapper;

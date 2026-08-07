@@ -3,8 +3,8 @@ package dev.salt.Ring20.controller;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-import dev.salt.Ring20.dto.UpdateCompanyEventDto;
-import dev.salt.Ring20.dto.UpdateCompanyOrganisationDto;
+import dev.salt.Ring20.dto.company.UpdateCompanyEventDto;
+import dev.salt.Ring20.dto.company.UpdateCompanyOrganisationDto;
 import dev.salt.Ring20.dto.company.CompanyEventDto;
 import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
 import dev.salt.Ring20.dto.company.CompanyOrganisationDto;
