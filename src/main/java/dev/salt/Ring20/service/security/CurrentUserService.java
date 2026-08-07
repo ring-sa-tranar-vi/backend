@@ -8,9 +8,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-@Service
+@Service("currentUserService")
 public class CurrentUserService {
-    // TODO: not consistent as with the SecurityService
 
     private final UserService userService;
 
