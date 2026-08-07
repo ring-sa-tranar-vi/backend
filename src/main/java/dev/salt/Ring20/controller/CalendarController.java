@@ -3,14 +3,15 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.calendarEvent.CalendarEventDto;
 import dev.salt.Ring20.mapper.CalendarMapper;
 import dev.salt.Ring20.service.CalendarService;
-import dev.salt.Ring20.service.model.CalendarEvent;
+import dev.salt.Ring20.service.data.CalendarEventData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/calendar")
@@ -35,7 +36,7 @@ public class CalendarController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<CalendarEvent> events = calendarService.getMonthlyCalendar(userId, year, month);
+        List<CalendarEventData> events = calendarService.getMonthlyCalendar(userId, year, month);
 
         return ResponseEntity.ok().body(events.stream().map(CalendarMapper::toDto).toList());
     }
