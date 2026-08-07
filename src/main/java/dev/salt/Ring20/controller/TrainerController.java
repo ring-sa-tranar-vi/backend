@@ -41,7 +41,7 @@ public class TrainerController {
     @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
         return ResponseEntity.ok().body(
-                trainerService.getAllTrainers().stream().map(this::toResponseDto).toList());
+                trainerService.getAllTrainers().stream().map(t -> TrainerMapper.toResponseDto(t,fileStorageService, VALID_MINUTES)).toList());
     }
 
     @GetMapping("/{id}")
@@ -49,7 +49,7 @@ public class TrainerController {
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
-        return ResponseEntity.ok().body(toResponseDto(trainer));
+        return ResponseEntity.ok().body(TrainerMapper.toResponseDto(trainer,fileStorageService, VALID_MINUTES));
     }
 
     @PostMapping
@@ -60,7 +60,7 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.createTrainer(TrainerMapper.toTrainerData(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(trainer));
+        return ResponseEntity.status(HttpStatus.CREATED).body(TrainerMapper.toResponseDto(trainer,fileStorageService, VALID_MINUTES));
     }
 
     @PutMapping("/{id}")
@@ -71,7 +71,7 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
         Trainer trainer = trainerService.updateTrainer(id, TrainerMapper.toTrainerData(request));
-        return ResponseEntity.ok().body(toResponseDto(trainer));
+        return ResponseEntity.ok().body(TrainerMapper.toResponseDto(trainer,fileStorageService, VALID_MINUTES));
     }
 
     @DeleteMapping("/{id}")
@@ -84,7 +84,6 @@ public class TrainerController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/recommend-for/{userId}")
     @Operation(
             summary = "Get AI workout recommendation",
@@ -95,36 +94,6 @@ public class TrainerController {
         return trainerService
                 .getAiRecommendedWorkout(userId)
                 .thenApply(data -> ResponseEntity.ok().body(TrainerMapper.toRecommendedWorkoutResponse(data)));
-    }
-
-    private TrainerResponseDto toResponseDto(Trainer trainer) {
-        String introUrl =
-                (trainer.getIntro() != null)
-                        ? fileStorageService.getFileAccess(trainer.getIntro(), VALID_MINUTES)
-                        : null;
-        String imageSelectUrl =
-                (trainer.getImageSelect() != null)
-                        ? fileStorageService.getFileAccess(trainer.getImageSelect(), VALID_MINUTES)
-                        : null;
-        String imageCallUrl =
-                (trainer.getImageCall()) != null
-                        ? fileStorageService.getFileAccess(trainer.getImageCall(), VALID_MINUTES)
-                        : null;
-        String imageStartUrl =
-                (trainer.getImageStart()) != null
-                        ? fileStorageService.getFileAccess(trainer.getImageStart(), VALID_MINUTES)
-                        : null;
-        return new TrainerResponseDto(
-                trainer.getId(),
-                trainer.getName(),
-                trainer.getPrompt(),
-                trainer.getVoice(),
-                introUrl,
-                trainer.getLanguage(),
-                imageSelectUrl,
-                imageCallUrl,
-                imageStartUrl,
-                trainer.getAmbience());
     }
 
 }
