@@ -12,11 +12,10 @@ import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.RecentFeedbackData;
 import dev.salt.Ring20.service.data.WorkoutFeedbackSummaryData;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FeedbackService {
@@ -97,13 +96,7 @@ public class FeedbackService {
 
     @Transactional
     public void deleteFeedback(Long id) {
-        Feedback feedback =
-                feedbackRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Feedback not found with id: " + id));
+        Feedback feedback = getFeedbackById(id);
 
         feedbackRepository.delete(feedback);
     }
@@ -132,10 +125,9 @@ public class FeedbackService {
                 Comparator.comparing(
                         Feedback::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())));
 
-        Map<Long, String> workoutNameById = workoutRepository
-                .findAll()
-                .stream()
-                .collect(Collectors.toMap(Workout::getId, Workout::getName));
+        Map<Long, String> workoutNameById =
+                workoutRepository.findAll().stream()
+                        .collect(Collectors.toMap(Workout::getId, Workout::getName));
 
         return new RecentFeedbackData(feedbacks, workoutNameById);
     }
@@ -162,9 +154,7 @@ public class FeedbackService {
         int feedbackCount = feedbacks.size();
 
         long ratingCount =
-                feedbacks.stream()
-                        .filter(feedback -> feedback.getRating() != null)
-                        .count();
+                feedbacks.stream().filter(feedback -> feedback.getRating() != null).count();
 
         double ratingSum =
                 feedbacks.stream()
@@ -224,10 +214,7 @@ public class FeedbackService {
     private ActivityLog getActivityLog(Long activityLogId) {
         return activityLogRepository
                 .findById(activityLogId)
-                .orElseThrow(
-                        () ->
-                                new IllegalArgumentException(
-                                        "ActivityLogId does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("ActivityLogId does not exist"));
     }
 
     private void attachActivityLog(Feedback feedback) {
