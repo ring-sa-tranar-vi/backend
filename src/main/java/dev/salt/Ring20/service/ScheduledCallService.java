@@ -31,6 +31,11 @@ public class ScheduledCallService {
         this.scheduledCallRepository = scheduledCallRepository;
     }
 
+    public void resetCallsForUser(Long userId) {
+        scheduledCallRepository.deleteByUserIdAndTargetTimeAfter(userId, Instant.now());
+        generateCallsFromUser(userId);
+    }
+
     public void generateCallsFromUser(Long userId) {
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
