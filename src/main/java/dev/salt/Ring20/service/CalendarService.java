@@ -6,10 +6,6 @@ import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.CalendarEventData;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +13,9 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +46,8 @@ public class CalendarService {
         return calendarEvents;
     }
 
-    private List<CalendarEventData> getWorkouts(Long userId, LocalDateTime start, LocalDateTime end) {
+    private List<CalendarEventData> getWorkouts(
+            Long userId, LocalDateTime start, LocalDateTime end) {
         List<ActivityLog> logs =
                 activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
                         userId, "COMPLETED", start, end);
@@ -127,8 +127,8 @@ public class CalendarService {
                 workoutName,
                 "Time: "
                         + (log.getDurationSeconds() != null
-                        ? log.getDurationSeconds() / 60 + " min"
-                        : "N/A"),
+                                ? log.getDurationSeconds() / 60 + " min"
+                                : "N/A"),
                 log.getCompletedAt(),
                 true);
     }
@@ -152,7 +152,6 @@ public class CalendarService {
             LocalDateTime time,
             boolean completed) {
 
-        return new CalendarEventData(id, type, title, description, time, completed
-        );
+        return new CalendarEventData(id, type, title, description, time, completed);
     }
 }

@@ -10,8 +10,7 @@ public class ActivityLogSecurity {
     private final ActivityLogRepository repository;
     private final SecurityService securityService;
 
-    public ActivityLogSecurity(
-            ActivityLogRepository repository, SecurityService securityService) {
+    public ActivityLogSecurity(ActivityLogRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
     }

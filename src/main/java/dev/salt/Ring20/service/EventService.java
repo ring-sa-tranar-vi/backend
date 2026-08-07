@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class EventService {
     private final EventRepository eventRepository;
@@ -39,9 +38,9 @@ public class EventService {
     }
 
     public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElseThrow( () ->
-                new NoSuchElementException(
-                        " Event not found with id: " + id));
+        return eventRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException(" Event not found with id: " + id));
     }
 
     @Transactional

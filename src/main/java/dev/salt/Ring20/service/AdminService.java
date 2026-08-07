@@ -37,7 +37,6 @@ public class AdminService {
         this.trainerRepository = trainerRepository;
     }
 
-
     public UserSummaryData getUserSummaries() {
         List<User> users = userRepository.findAll();
         Map<Long, LocalDateTime> lastCompletedAtByUserId =

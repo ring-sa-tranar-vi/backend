@@ -2,10 +2,10 @@ package dev.salt.Ring20.mapper;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-import dev.salt.Ring20.dto.company.UpdateCompanyEventDto;
 import dev.salt.Ring20.dto.admin.AdminCreateEventDto;
 import dev.salt.Ring20.dto.company.CompanyEventDto;
 import dev.salt.Ring20.dto.company.CreateCompanyEventDto;
+import dev.salt.Ring20.dto.company.UpdateCompanyEventDto;
 import dev.salt.Ring20.dto.event.EventCreateRequestDto;
 import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.event.EventUpdateRequestDto;
