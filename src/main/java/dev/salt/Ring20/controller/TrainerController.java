@@ -4,19 +4,20 @@ import dev.salt.Ring20.dto.trainerDtos.TrainerRequestDto;
 import dev.salt.Ring20.dto.trainerDtos.TrainerResponseDto;
 import dev.salt.Ring20.dto.workoutDtos.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.mapper.TrainerMapper;
 import dev.salt.Ring20.service.FileStorageService;
 import dev.salt.Ring20.service.TrainerService;
 import dev.salt.Ring20.service.data.RecommendedWorkoutData;
-import dev.salt.Ring20.service.data.TrainerData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/trainers")
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
         name = "Trainers",
         description = "Endpoints for managing trainers and generating workout recommendations.")
 public class TrainerController {
+
+    private static final int VALID_MINUTES = 15;
 
     private final TrainerService trainerService;
     private final FileStorageService fileStorageService;
@@ -56,7 +59,7 @@ public class TrainerController {
             description = "Creates a new trainer. Available to administrators only.")
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
-        Trainer trainer = trainerService.createTrainer(toTrainerData(request));
+        Trainer trainer = trainerService.createTrainer(TrainerMapper.toTrainerData(request));
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(trainer));
     }
 
@@ -67,7 +70,7 @@ public class TrainerController {
             description = "Updates an existing trainer. Available to administrators only.")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
-        Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
+        Trainer trainer = trainerService.updateTrainer(id, TrainerMapper.toTrainerData(request));
         return ResponseEntity.ok().body(toResponseDto(trainer));
     }
 
@@ -82,36 +85,34 @@ public class TrainerController {
     }
 
 
-
     @GetMapping("/recommend-for/{userId}")
     @Operation(
             summary = "Get AI workout recommendation",
             description = "Generates an AI recommended workout for a user based on a trainer.")
     public CompletableFuture<ResponseEntity<RecommendWorkoutResponseDto>>
-            getTrainerAiRecommendation(@PathVariable Long userId) {
+    getTrainerAiRecommendation(@PathVariable Long userId) {
 
         return trainerService
                 .getAiRecommendedWorkout(userId)
-                .thenApply(data -> ResponseEntity.ok().body(toRecommendedWorkoutResponse(data)));
+                .thenApply(data -> ResponseEntity.ok().body(TrainerMapper.toRecommendedWorkoutResponse(data)));
     }
 
-    // TODO: magic number
     private TrainerResponseDto toResponseDto(Trainer trainer) {
         String introUrl =
                 (trainer.getIntro() != null)
-                        ? fileStorageService.getFileAccess(trainer.getIntro(), 15)
+                        ? fileStorageService.getFileAccess(trainer.getIntro(), VALID_MINUTES)
                         : null;
         String imageSelectUrl =
                 (trainer.getImageSelect() != null)
-                        ? fileStorageService.getFileAccess(trainer.getImageSelect(), 15)
+                        ? fileStorageService.getFileAccess(trainer.getImageSelect(), VALID_MINUTES)
                         : null;
         String imageCallUrl =
                 (trainer.getImageCall()) != null
-                        ? fileStorageService.getFileAccess(trainer.getImageCall(), 15)
+                        ? fileStorageService.getFileAccess(trainer.getImageCall(), VALID_MINUTES)
                         : null;
         String imageStartUrl =
                 (trainer.getImageStart()) != null
-                        ? fileStorageService.getFileAccess(trainer.getImageStart(), 15)
+                        ? fileStorageService.getFileAccess(trainer.getImageStart(), VALID_MINUTES)
                         : null;
         return new TrainerResponseDto(
                 trainer.getId(),
@@ -126,20 +127,4 @@ public class TrainerController {
                 trainer.getAmbience());
     }
 
-    private RecommendWorkoutResponseDto toRecommendedWorkoutResponse(RecommendedWorkoutData data) {
-        return new RecommendWorkoutResponseDto(data.workoutId(), data.reasoning());
-    }
-
-    private TrainerData toTrainerData(TrainerRequestDto request) {
-        return new TrainerData(
-                request.name(),
-                request.prompt(),
-                request.voice(),
-                request.intro(),
-                request.language(),
-                request.imageSelect(),
-                request.imageCall(),
-                request.imageStart(),
-                request.ambience());
-    }
 }
