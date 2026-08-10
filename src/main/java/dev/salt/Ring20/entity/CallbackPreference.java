@@ -2,6 +2,9 @@ package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,4 +32,7 @@ public class CallbackPreference {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "callbackPreference")
+    private List<ScheduledCall> scheduledCalls = new ArrayList<>();
 }

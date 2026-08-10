@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ScheduledCallService {
@@ -52,7 +53,7 @@ public class ScheduledCallService {
         call.setTargetTime(time);
         call.setFcmToken(pref.getUser().getFcmToken());
         call.setCallBackStatus(CallBackStatus.PENDING);
-        call.setCallbackPreferenceId(pref.getId());
+        call.setCallbackPreference(pref);
         return call;
     }
 
@@ -185,10 +186,15 @@ public class ScheduledCallService {
     }
     public void cancelFutureCallsForPreference(CallbackPreference pref) {
         scheduledCallRepository
-                .deleteByCallbackPreferenceIdAndTargetTimeAfterAndCallBackStatus(
+                .deleteByCallbackPreference_IdAndTargetTimeAfterAndCallBackStatus(
                         pref.getId(),
                         Instant.now(),
                         CallBackStatus.PENDING
                 );
+    }
+
+    @Transactional
+    public void detachHistoricalCallsFromPreference(Long preferenceId) {
+        scheduledCallRepository.detachPreferenceFromHistoricalCalls( preferenceId);
     }
 }
