@@ -20,6 +20,11 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     List<ScheduledCall> findMissedCalls(@Param("time") Instant time);
 
     boolean existsByUserIdAndTargetTime(Long userId, Instant targetTime);
+    void deleteByUserIdAndTargetTimeAfterAndCallBackStatus(
+            Long userId,
+            Instant time,
+            CallBackStatus status
+    );
 
     void deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
             Long id, DayOfWeekType day, Instant now, CallBackStatus callBackStatus);

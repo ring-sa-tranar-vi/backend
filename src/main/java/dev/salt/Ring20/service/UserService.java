@@ -262,8 +262,7 @@ public class UserService {
             user.getCallbackPreferences().add(callback);
             result = callback;
         }
-        scheduledCallService.resetCallsForPreference(result);
-        scheduledCallService.generateCallsForPreference(result);
+        scheduledCallService.resetCallsForUser(userId);
         return result;
     }
 

@@ -59,13 +59,13 @@ public class ScheduledCallService {
 
             if (alreadyExists(pref.getUser().getId(), targetTime)) continue;
 
-            scheduledCallRepository.save(buildCall(pref.getUser().getId(), pref, targetTime));
+            scheduledCallRepository.save(buildCall(pref, targetTime));
         }
     }
 
-    private ScheduledCall buildCall(Long userId, CallbackPreference pref, Instant time) {
+    private ScheduledCall buildCall(CallbackPreference pref, Instant time) {
         ScheduledCall call = new ScheduledCall();
-        call.setUserId(userId);
+        call.setUserId(pref.getUser().getId());
         call.setTrainerId(pref.getUser().getTrainerId());
         call.setTargetTime(time);
         call.setFcmToken(pref.getUser().getFcmToken());
@@ -169,5 +169,13 @@ public class ScheduledCallService {
                                                 "No scheduled call exist with this id: " + id));
         call.setCallBackStatus(CallBackStatus.COMPLETED);
         scheduledCallRepository.save(call);
+    }
+
+    public void resetCallsForUser(Long userId) {
+        scheduledCallRepository.deleteByUserIdAndTargetTimeAfterAndCallBackStatus(userId, Instant.now(), CallBackStatus.PENDING);
+        List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
+        for (CallbackPreference pref : prefs){
+            generateCallsForPreference(pref);
+        }
     }
 }
