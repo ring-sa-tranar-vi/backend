@@ -90,7 +90,7 @@ public class ScheduledCallService {
         Instant now = Instant.now();
 
         List<ScheduledCall> startingNow =
-                scheduledCallRepository.findCallsBetween(now.minus(30), now.plusSeconds(60));
+                scheduledCallRepository.findCallsBetween(now.minusSeconds(30), now.plusSeconds(60));
 
         for (ScheduledCall call : startingNow) {
 
