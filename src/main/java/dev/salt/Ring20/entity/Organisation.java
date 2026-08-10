@@ -29,7 +29,7 @@ public class Organisation {
     private String orgCity;
 
     @ManyToOne
-    @JoinColumn(name = "organizer_id")
+    @JoinColumn(name = "organizer_id", unique = true)
     private User organizer;
 
     @Column(length = 2000)

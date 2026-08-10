@@ -88,20 +88,38 @@ public class CalendarService {
         List<CallbackPreference> preferences = callbackPreferenceRepository.findByUserId(userId);
         List<CalendarEventData> callEvents = new ArrayList<>();
 
-        LocalDate currentDate = yearMonth.atDay(1);
-        LocalDate endDate = yearMonth.atEndOfMonth();
+        LocalDate start = yearMonth.atDay(1);
+        LocalDate end = yearMonth.atEndOfMonth();
+        LocalDateTime now = LocalDateTime.now();
 
-        for (CallbackPreference pref : preferences) {
+        for (CallbackPreference pref : preferences){
+
             DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
+            LocalDate date = start;
 
-            LocalDate dateIterator = currentDate;
-            while (!dateIterator.isAfter(endDate)) {
-                if (dateIterator.getDayOfWeek() == targetDay) {
-                    LocalDateTime callTime = LocalDateTime.of(dateIterator, pref.getTime());
+            while (!date.isAfter(end)) {
 
-                    callEvents.add(createCallCalendarEvent(pref, callTime, dateIterator));
+                if (date.getDayOfWeek() != targetDay) {
+                    date = date.plusDays(1);
+                    continue;
                 }
-                dateIterator = dateIterator.plusDays(1);
+
+                LocalDateTime callTime = LocalDateTime.of(date, pref.getTime());
+
+                if (pref.getRepeat() == RepeatType.NEVER && callTime.isBefore(now)) {
+                    date = date.plusDays(1);
+                    continue;
+                }
+
+
+                callEvents.add(createCallCalendarEvent(pref, callTime, date));
+
+
+                if (pref.getRepeat() == RepeatType.NEVER) {
+                    break;
+                }
+
+                date = date.plusDays(1);
             }
         }
 
@@ -109,10 +127,10 @@ public class CalendarService {
     }
 
     private CalendarEventData createCallCalendarEvent(
-            CallbackPreference pref, LocalDateTime callTime, LocalDate dateIterator) {
+            CallbackPreference pref, LocalDateTime callTime, LocalDate date) {
         LocalDateTime now = LocalDateTime.now();
         return createCalenderEventData(
-                "CALL-" + pref.getId() + "-" + dateIterator,
+                "CALL-" + pref.getId() + "-" + date,
                 "CALL",
                 "Trainer Call",
                 "Trainer call",

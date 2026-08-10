@@ -60,6 +60,18 @@ public class OrganizationApplicationController {
                                 .toList());
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Get current user's latest application",
+            description =
+                    "Returns the authenticated user's latest organisation application, or 404 if none exists.")
+    public ResponseEntity<OrganizationApplicationResponseDto> getMine(
+            Authentication authentication) {
+        return ResponseEntity.ok(
+                toResponse(applicationService.getLatestForUser(authentication.getName())));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(

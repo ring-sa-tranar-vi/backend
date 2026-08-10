@@ -29,7 +29,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api/company")
-@PreAuthorize("@securityService.isOrganizer(authentication.name)")
 @Tag(
         name = "Company",
         description = "Endpoints for company users to manage their organisation and events")
@@ -45,6 +44,7 @@ public class CompanyController {
             summary = "Get current company",
             description = "Returns information about the authenticated company user.")
     @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CompanyMeResponseDto> getCompanyMe(Authentication authentication) {
         return ResponseEntity.ok().body(companyService.getCompanyMe(getClerkId(authentication)));
     }
@@ -53,6 +53,7 @@ public class CompanyController {
             summary = "Get managed organisation",
             description = " Returns the organisation managed by the authenticated company.")
     @GetMapping("/organisation")
+    @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<CompanyOrganisationDto> getOrganisation(Authentication authentication) {
         Organisation organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
@@ -63,6 +64,7 @@ public class CompanyController {
             summary = "Update organisation",
             description = "Updates the authenticated company's organisation.")
     @PutMapping("/organisation")
+    @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<CompanyOrganisationDto> updateOrganisation(
             Authentication authentication,
             @Valid @RequestBody UpdateCompanyOrganisationDto request) {
@@ -81,6 +83,7 @@ public class CompanyController {
             description =
                     "Returns all events belonging to the authenticated company's organisation.")
     @GetMapping("/events")
+    @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<List<CompanyEventDto>> getEvents(Authentication authentication) {
         Organisation organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
@@ -98,6 +101,7 @@ public class CompanyController {
             summary = "Create event",
             description = "Updates the authenticated company's organisation.")
     @PostMapping("/events")
+    @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<CompanyEventDto> createEvent(
             Authentication authentication, @Valid @RequestBody CreateCompanyEventDto request) {
         Organisation organisation =
@@ -124,6 +128,7 @@ public class CompanyController {
             description =
                     "Returns all events belonging to the authenticated company's organisation.")
     @PutMapping("/events/{eventId}")
+    @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<CompanyEventDto> updateEvent(
             Authentication authentication,
             @PathVariable Long eventId,
@@ -141,6 +146,7 @@ public class CompanyController {
             summary = "Delete event",
             description = "Deletes an event belonging to the authenticated company's organisation.")
     @DeleteMapping("/events/{eventId}")
+    @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<Void> deleteEvent(
             Authentication authentication, @PathVariable Long eventId) {
         companyService.deleteEventForClerkId(eventId, getClerkId(authentication));

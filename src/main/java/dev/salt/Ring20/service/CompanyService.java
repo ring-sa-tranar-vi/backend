@@ -1,6 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
+import dev.salt.Ring20.dto.CompanyMeDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
@@ -25,11 +26,19 @@ public class CompanyService {
         this.userService = userService;
     }
 
-    public CompanyMeResponseDto getCompanyMe(String clerkId) {
+    public CompanyMeDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
-        Organisation organisation = getManagedOrganisationForClerkId(clerkId);
-        return new CompanyMeResponseDto(
-                user.getId(), COMPANY_ROLE, true, organisation.getId(), organisation.getName());
+        Organisation organisation =
+                organisationService.findOrganisationForUser(clerkId).orElse(null);
+        boolean canManageOrganisation = organisation != null;
+        return new CompanyMeDto(
+                user.getId(),
+                canManageOrganisation
+                        ? COMPANY_ROLE
+                        : user.getRole() == null ? "USER" : user.getRole().name(),
+                canManageOrganisation,
+                canManageOrganisation ? organisation.getId() : null,
+                canManageOrganisation ? organisation.getName() : null);
     }
 
     public Organisation getManagedOrganisationForClerkId(String clerkId) {

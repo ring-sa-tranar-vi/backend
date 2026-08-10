@@ -6,6 +6,7 @@ import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +21,17 @@ public class OrganisationService {
         this.userRepository = userRepo;
     }
 
+    @Transactional(readOnly = true)
+    public boolean hasOrganisation(Long userId) {
+        return organizationRepository.existsByOrganizer_Id(userId);
+    }
+
     @Transactional
     public Organisation createOrganisation(Organisation organization, Long userId) {
         User organizer = getUserById(userId);
+        if (hasOrganisation(userId)) {
+            throw new IllegalStateException("User already organizes an organisation");
+        }
 
         organization.setOrganizer(organizer);
         return organizationRepository.save(organization);
@@ -74,6 +83,11 @@ public class OrganisationService {
         }
 
         return organisations;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Organisation> findOrganisationForUser(String clerkId) {
+        return organizationRepository.findFirstByOrganizer_ClerkId(clerkId);
     }
 
     private User getUserById(Long userId) {

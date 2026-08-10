@@ -15,6 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrganizationApplicationService {
 
+    private static final List<ApplicationStatus> ACTIVE_APPLICATION_STATUSES =
+            List.of(ApplicationStatus.PENDING, ApplicationStatus.APPROVED);
+
     private final OrganizationApplicationRepository organizationApplicationRepository;
     private final UserService userService;
     private final OrganisationService organisationService;
@@ -32,6 +35,15 @@ public class OrganizationApplicationService {
     public OrganizationApplication createApplication(
             OrganizationApplication application, String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
+
+        if (organisationService.hasOrganisation(user.getId())) {
+            throw new IllegalStateException("User already organizes an organisation");
+        }
+        if (organizationApplicationRepository.existsByUser_IdAndApplicationStatusIn(
+                user.getId(), ACTIVE_APPLICATION_STATUSES)) {
+            throw new IllegalStateException(
+                    "User already has a pending or approved organisation application");
+        }
 
         application.setUser(user);
         application.setApplicationStatus(ApplicationStatus.PENDING);
@@ -52,6 +64,16 @@ public class OrganizationApplicationService {
                         () -> new NoSuchElementException("No application found with id: " + id));
     }
 
+    @Transactional(readOnly = true)
+    public OrganizationApplication getLatestForUser(String clerkId) {
+        return organizationApplicationRepository
+                .findTopByUser_ClerkIdOrderByCreatedAtDesc(clerkId)
+                .orElseThrow(
+                        () ->
+                                new NoSuchElementException(
+                                        "No organisation application found for current user"));
+    }
+
     @Transactional
     public void delete(Long id) {
         if (!organizationApplicationRepository.existsById(id)) {
@@ -62,9 +84,12 @@ public class OrganizationApplicationService {
 
     @Transactional
     public OrganizationApplication approve(Long id) {
-        OrganizationApplication application = getById(id);
+        OrganizationApplication application = getByIdForUpdate(id);
         if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
             throw new IllegalStateException("Application already processed");
+        }
+        if (organisationService.hasOrganisation(application.getUser().getId())) {
+            throw new IllegalStateException("Applicant already organizes an organisation");
         }
 
         application.setApplicationStatus(ApplicationStatus.APPROVED);
@@ -73,6 +98,18 @@ public class OrganizationApplicationService {
 
         organisationService.createOrganisation(organization, application.getUser().getId());
 
+        if (organisationService.hasOrganisation(application.getUser().getId())) {
+            throw new IllegalStateException("Applicant already organizes an organisation");
+        }
+
+        organisationService.createOrganisation(
+                application.getOrganizationName(),
+                application.getDescription(),
+                application.getCity(),
+                application.getUser().getId(),
+                application.getMotivation());
+        application.setApplicationStatus(ApplicationStatus.APPROVED);
+        setReviewedTime(application);
         return organizationApplicationRepository.save(application);
     }
 
@@ -87,7 +124,7 @@ public class OrganizationApplicationService {
 
     @Transactional
     public OrganizationApplication reject(Long id) {
-        OrganizationApplication application = getById(id);
+        OrganizationApplication application = getByIdForUpdate(id);
         if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
             throw new IllegalStateException("Application already processed");
         }
@@ -100,9 +137,17 @@ public class OrganizationApplicationService {
         application.setReviewedAt(LocalDateTime.now());
     }
 
+    @Transactional
     public OrganizationApplication updatePaymentStatus(Long id, PaymentStatus status) {
-        OrganizationApplication application = getById(id);
+        OrganizationApplication application = getByIdForUpdate(id);
         application.setPaymentStatus(status);
         return organizationApplicationRepository.save(application);
+    }
+
+    private OrganizationApplication getByIdForUpdate(Long id) {
+        return organizationApplicationRepository
+                .findByIdForUpdate(id)
+                .orElseThrow(
+                        () -> new NoSuchElementException("No application found with id: " + id));
     }
 }
