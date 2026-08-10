@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import jakarta.transaction.Transactional;
@@ -68,7 +68,7 @@ public class EventService {
     }
 
     public List<Event> getEventsForUser(String clerkId) {
-        List<Organisation> organisations =
+        List<Organization> organisations =
                 organisationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
         if (organisations.isEmpty()) {
@@ -79,7 +79,7 @@ public class EventService {
         return organisations.stream().flatMap(org -> org.getEvents().stream()).toList();
     }
 
-    private Organisation getOrganisationById(Long id) {
+    private Organization getOrganisationById(Long id) {
         return organisationService.getOrganisationById(id);
     }
 }

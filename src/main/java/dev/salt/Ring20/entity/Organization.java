@@ -10,7 +10,8 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Organisation {
+@Table(name ="organisation")
+public class Organization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +36,7 @@ public class Organisation {
     @Column(length = 2000)
     private String motivation;
 
-    public Organisation(
+    public Organization(
             String name, String description, String orgCity, User organizer, String motivation) {
         this.name = name;
         this.description = description;

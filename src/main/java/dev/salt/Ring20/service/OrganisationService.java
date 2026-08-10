@@ -1,6 +1,6 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.OrganisationRepository;
 import dev.salt.Ring20.repository.UserRepository;
@@ -27,7 +27,7 @@ public class OrganisationService {
     }
 
     @Transactional
-    public Organisation createOrganisation(Organisation organization, Long userId) {
+    public Organization createOrganisation(Organization organization, Long userId) {
         User organizer = getUserById(userId);
         if (hasOrganisation(userId)) {
             throw new IllegalStateException("User already organizes an organisation");
@@ -38,12 +38,12 @@ public class OrganisationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Organisation> getAllOrganisations() {
+    public List<Organization> getAllOrganisations() {
         return organizationRepository.findAllWithEvents();
     }
 
     @Transactional(readOnly = true)
-    public Organisation getOrganisationById(Long id) {
+    public Organization getOrganisationById(Long id) {
         return organizationRepository
                 .findByIdWithEvents(id)
                 .orElseThrow(
@@ -62,9 +62,9 @@ public class OrganisationService {
     //    }
 
     @Transactional
-    public Organisation updateOrganisationById(Organisation organization, Long id) {
+    public Organization updateOrganisationById(Organization organization, Long id) {
 
-        Organisation foundOrg = getOrganisationById(id);
+        Organization foundOrg = getOrganisationById(id);
 
         foundOrg.setName(organization.getName());
         foundOrg.setDescription(organization.getDescription());
@@ -73,8 +73,8 @@ public class OrganisationService {
         return organizationRepository.save(foundOrg);
     }
 
-    public List<Organisation> getOrganisationForUser(String clerkId) {
-        List<Organisation> organisations =
+    public List<Organization> getOrganisationForUser(String clerkId) {
+        List<Organization> organisations =
                 organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
         if (organisations.isEmpty()) {
@@ -86,7 +86,7 @@ public class OrganisationService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Organisation> findOrganisationForUser(String clerkId) {
+    public Optional<Organization> findOrganisationForUser(String clerkId) {
         return organizationRepository.findFirstByOrganizer_ClerkId(clerkId);
     }
 

@@ -10,7 +10,7 @@ import dev.salt.Ring20.dto.company.CreateCompanyEventDto;
 import dev.salt.Ring20.dto.company.UpdateCompanyEventDto;
 import dev.salt.Ring20.dto.company.UpdateCompanyOrganizationDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.CompanyService;
@@ -55,7 +55,7 @@ public class CompanyController {
     @GetMapping("/organisation")
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<CompanyOrganizationDto> getOrganisation(Authentication authentication) {
-        Organisation organisation =
+        Organization organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
         return ResponseEntity.ok().body(OrganizationMapper.toCompanyOrganisationDto(organisation));
     }
@@ -68,9 +68,9 @@ public class CompanyController {
     public ResponseEntity<CompanyOrganizationDto> updateOrganisation(
             Authentication authentication,
             @Valid @RequestBody UpdateCompanyOrganizationDto request) {
-        Organisation organisation =
+        Organization organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
-        Organisation updated =
+        Organization updated =
                 companyService
                         .getOrganisationService()
                         .updateOrganisationById(
@@ -85,7 +85,7 @@ public class CompanyController {
     @GetMapping("/events")
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<List<CompanyEventDto>> getEvents(Authentication authentication) {
-        Organisation organisation =
+        Organization organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
         return ResponseEntity.ok()
                 .body(
@@ -104,7 +104,7 @@ public class CompanyController {
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
     public ResponseEntity<CompanyEventDto> createEvent(
             Authentication authentication, @Valid @RequestBody CreateCompanyEventDto request) {
-        Organisation organisation =
+        Organization organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
         if (!organisation.getId().equals(request.organisation().id())) {
             throw new ResponseStatusException(
