@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import dev.salt.Ring20.dto.admin.AdminCreateEventDto;
 import dev.salt.Ring20.dto.admin.AdminOrganisationDto;
 import dev.salt.Ring20.dto.admin.AdminOrganisationEventDto;
-import dev.salt.Ring20.dto.organisation.OrganisationCreateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganisationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;

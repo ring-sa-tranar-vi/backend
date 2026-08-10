@@ -1,4 +1,4 @@
-package dev.salt.Ring20.dto.organisation;
+package dev.salt.Ring20.dto.organization;
 
 import dev.salt.Ring20.dto.event.EventResponseDto;
 import java.util.List;

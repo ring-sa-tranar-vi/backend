@@ -1,7 +1,7 @@
 package dev.salt.Ring20.mapper;
 
-import dev.salt.Ring20.dto.organisation.OrganizationApplicationRequestDto;
-import dev.salt.Ring20.dto.organisation.OrganizationApplicationResponseDto;
+import dev.salt.Ring20.dto.organization.OrganizationApplicationRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.OrganizationApplication;
 
 public class OrganizationApplicationMapper {

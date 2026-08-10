@@ -1,4 +1,4 @@
-package dev.salt.Ring20.dto.organisation;
+package dev.salt.Ring20.dto.organization;
 
 import jakarta.validation.constraints.NotBlank;
 

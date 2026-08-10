@@ -1,6 +1,6 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.organisation.OrganizationApplicationRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationApplicationRequestDto;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.User;

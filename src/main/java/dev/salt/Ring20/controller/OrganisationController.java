@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
 import dev.salt.Ring20.dto.event.EventResponseDto;
-import dev.salt.Ring20.dto.organisation.OrganisationCreateRequestDto;
-import dev.salt.Ring20.dto.organisation.OrganisationResponseDto;
-import dev.salt.Ring20.dto.organisation.OrganisationUpdateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganisationCreateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganisationResponseDto;
+import dev.salt.Ring20.dto.organization.OrganisationUpdateRequestDto;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
