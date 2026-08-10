@@ -5,7 +5,7 @@ import dev.salt.Ring20.repository.OrganizationRepository;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
-@Service("organisationSecurity")
+@Service("organizationSecurity")
 public class OrganizationSecurity {
 
     private final OrganizationRepository repository;

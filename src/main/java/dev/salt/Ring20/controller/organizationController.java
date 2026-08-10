@@ -38,7 +38,7 @@ public class organizationController {
     @PostMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(summary = "Create organization", description = "Creates a new organization.")
-    public ResponseEntity<OrganizationResponseDto> createorganization(
+    public ResponseEntity<OrganizationResponseDto> createOrganization(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organization newOrg =
                 organizationService.createOrganization(
@@ -56,7 +56,7 @@ public class organizationController {
     @Operation(
             summary = "Get all organizations",
             description = "Retrieves all available organizations.")
-    public ResponseEntity<List<OrganizationResponseDto>> getAllorganizations() {
+    public ResponseEntity<List<OrganizationResponseDto>> getAllOrganizations() {
         return ResponseEntity.ok()
                 .body(
                         organizationService.getAllOrganizations().stream()
@@ -68,7 +68,7 @@ public class organizationController {
     @Operation(
             summary = "Get organization by ID",
             description = "Retrieves an organization using its ID.")
-    public ResponseEntity<OrganizationResponseDto> getorganizationById(@PathVariable Long id) {
+    public ResponseEntity<OrganizationResponseDto> getOrganizationById(@PathVariable Long id) {
         return ResponseEntity.ok()
                 .body(
                         OrganizationMapper.toResponseDto(
@@ -79,7 +79,7 @@ public class organizationController {
     @Operation(
             summary = "Get organization events",
             description = "Retrieves all events associated with an organization.")
-    public ResponseEntity<List<EventResponseDto>> getEventsByorganization(@PathVariable Long id) {
+    public ResponseEntity<List<EventResponseDto>> getEventsByOrganization(@PathVariable Long id) {
         return ResponseEntity.ok()
                 .body(
                         eventService.getAllEventsByOrgId(id).stream()
@@ -92,7 +92,7 @@ public class organizationController {
     @Operation(
             summary = "Update organization",
             description = "Updates an existing organization by its ID.")
-    public ResponseEntity<OrganizationResponseDto> updateorganization(
+    public ResponseEntity<OrganizationResponseDto> updateOrganization(
             @PathVariable Long id, @Valid @RequestBody OrganizationUpdateRequestDto request) {
         Organization updatedOrg =
                 organizationService.updateOrganizationById(
@@ -103,7 +103,7 @@ public class organizationController {
     @DeleteMapping("/{id}")
     @PreAuthorize("@organizationSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete organization", description = "Deletes an organization by its ID.")
-    public ResponseEntity<Void> deleteorganization(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteOrganization(@PathVariable Long id) {
         organizationService.deleteOrganizationById(id);
         return ResponseEntity.noContent().build();
     }
