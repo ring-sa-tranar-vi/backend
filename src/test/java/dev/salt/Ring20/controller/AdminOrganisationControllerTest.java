@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dev.salt.Ring20.dto.admin.AdminCreateEventDto;
-import dev.salt.Ring20.dto.admin.AdminOrganisationDto;
-import dev.salt.Ring20.dto.admin.AdminOrganisationEventDto;
+import dev.salt.Ring20.dto.admin.AdminOrganizationDto;
+import dev.salt.Ring20.dto.admin.AdminOrganizationEventDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
@@ -61,7 +61,7 @@ class AdminOrganisationControllerTest {
         organisation.setEvents(List.of(event));
         when(organisationService.getAllOrganisations()).thenReturn(List.of(organisation));
 
-        ResponseEntity<List<AdminOrganisationDto>> response = controller.getOrganisations();
+        ResponseEntity<List<AdminOrganizationDto>> response = controller.getOrganisations();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -76,7 +76,7 @@ class AdminOrganisationControllerTest {
         when(organisationService.createOrganisation(any(Organisation.class), eq(1L)))
                 .thenReturn(organisation(3L));
 
-        ResponseEntity<AdminOrganisationDto> response = controller.createOrganisation(request);
+        ResponseEntity<AdminOrganizationDto> response = controller.createOrganisation(request);
 
         ArgumentCaptor<Organisation> captor = ArgumentCaptor.forClass(Organisation.class);
 
@@ -109,7 +109,7 @@ class AdminOrganisationControllerTest {
         when(eventService.createEvent(any(Event.class), eq(organisation.getId())))
                 .thenReturn(created);
 
-        ResponseEntity<AdminOrganisationEventDto> response = controller.createEvent(dto);
+        ResponseEntity<AdminOrganizationEventDto> response = controller.createEvent(dto);
         ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
 
         verify(eventService).createEvent(captor.capture(), eq(1L));

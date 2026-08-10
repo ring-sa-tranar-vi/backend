@@ -5,10 +5,10 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import dev.salt.Ring20.dto.company.CompanyEventDto;
 import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
-import dev.salt.Ring20.dto.company.CompanyOrganisationDto;
+import dev.salt.Ring20.dto.company.CompanyOrganizationDto;
 import dev.salt.Ring20.dto.company.CreateCompanyEventDto;
 import dev.salt.Ring20.dto.company.UpdateCompanyEventDto;
-import dev.salt.Ring20.dto.company.UpdateCompanyOrganisationDto;
+import dev.salt.Ring20.dto.company.UpdateCompanyOrganizationDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.mapper.EventMapper;
@@ -54,7 +54,7 @@ public class CompanyController {
             description = " Returns the organisation managed by the authenticated company.")
     @GetMapping("/organisation")
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
-    public ResponseEntity<CompanyOrganisationDto> getOrganisation(Authentication authentication) {
+    public ResponseEntity<CompanyOrganizationDto> getOrganisation(Authentication authentication) {
         Organisation organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
         return ResponseEntity.ok().body(OrganizationMapper.toCompanyOrganisationDto(organisation));
@@ -65,9 +65,9 @@ public class CompanyController {
             description = "Updates the authenticated company's organisation.")
     @PutMapping("/organisation")
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
-    public ResponseEntity<CompanyOrganisationDto> updateOrganisation(
+    public ResponseEntity<CompanyOrganizationDto> updateOrganisation(
             Authentication authentication,
-            @Valid @RequestBody UpdateCompanyOrganisationDto request) {
+            @Valid @RequestBody UpdateCompanyOrganizationDto request) {
         Organisation organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
         Organisation updated =

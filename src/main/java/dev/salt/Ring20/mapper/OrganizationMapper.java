@@ -1,7 +1,7 @@
 package dev.salt.Ring20.mapper;
 
-import dev.salt.Ring20.dto.company.CompanyOrganisationDto;
-import dev.salt.Ring20.dto.company.UpdateCompanyOrganisationDto;
+import dev.salt.Ring20.dto.company.CompanyOrganizationDto;
+import dev.salt.Ring20.dto.company.UpdateCompanyOrganizationDto;
 import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
@@ -10,8 +10,8 @@ import dev.salt.Ring20.entity.Organisation;
 import java.util.List;
 
 public class OrganizationMapper {
-    public static CompanyOrganisationDto toCompanyOrganisationDto(Organisation organisation) {
-        return new CompanyOrganisationDto(
+    public static CompanyOrganizationDto toCompanyOrganisationDto(Organisation organisation) {
+        return new CompanyOrganizationDto(
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
@@ -43,7 +43,7 @@ public class OrganizationMapper {
         return organization;
     }
 
-    public static Organisation toOrganization(UpdateCompanyOrganisationDto dto) {
+    public static Organisation toOrganization(UpdateCompanyOrganizationDto dto) {
         Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
