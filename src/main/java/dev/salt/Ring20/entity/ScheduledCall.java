@@ -25,5 +25,6 @@ public class ScheduledCall {
     @Enumerated(EnumType.STRING)
     private CallBackStatus callBackStatus;
 
+    @Column(name = "callback_preference_id")
     private Long callbackPreferenceId;
 }

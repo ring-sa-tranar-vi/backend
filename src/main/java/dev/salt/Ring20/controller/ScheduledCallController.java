@@ -31,7 +31,6 @@ public class ScheduledCallController {
         return ResponseEntity.ok().build();
     }
 
-
     @DeleteMapping("/{id}")
     @PreAuthorize("@scheduledCallSecurity.canModify(#id, authentication.name)")
     public ResponseEntity<Void> cancelCall(@PathVariable Long id) {
@@ -39,4 +38,5 @@ public class ScheduledCallController {
         scheduledCallService.cancelCall(id);
         return ResponseEntity.noContent().build();
     }
+
 }

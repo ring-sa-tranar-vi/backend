@@ -262,7 +262,7 @@ public class UserService {
             user.getCallbackPreferences().add(callback);
             result = callback;
         }
-        resetCallForUser(userId);
+        scheduledCallService.resetCallsForUser(userId);
         return result;
     }
 
@@ -277,12 +277,8 @@ public class UserService {
                         .orElseThrow(
                                 () -> new NoSuchElementException("No callback preference found"));
 
-        resetCallForUser(userId);
+        scheduledCallService.cancelFutureCallsForPreference(pref);
         user.getCallbackPreferences().remove(pref);
-    }
-
-    private void resetCallForUser(Long userId){
-        scheduledCallService.resetCallsForUser(userId);
     }
 
     public long getUserCount() {
