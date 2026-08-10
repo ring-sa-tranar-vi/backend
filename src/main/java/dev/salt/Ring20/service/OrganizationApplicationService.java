@@ -36,7 +36,7 @@ public class OrganizationApplicationService {
             OrganizationApplication application, String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
 
-        if (organizationService.hasOrganisation(user.getId())) {
+        if (organizationService.hasOrganization(user.getId())) {
             throw new IllegalStateException("User already organizes an organisation");
         }
         if (organizationApplicationRepository.existsByUser_IdAndApplicationStatusIn(
@@ -90,12 +90,12 @@ public class OrganizationApplicationService {
             throw new IllegalStateException("Application already processed");
         }
 
-        if (organizationService.hasOrganisation(application.getUser().getId())) {
+        if (organizationService.hasOrganization(application.getUser().getId())) {
             throw new IllegalStateException("Applicant already organizes an organisation");
         }
 
         Organization organization = createOrganization(application);
-        organizationService.createOrganisation(organization, application.getUser().getId());
+        organizationService.createOrganization(organization, application.getUser().getId());
 
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);

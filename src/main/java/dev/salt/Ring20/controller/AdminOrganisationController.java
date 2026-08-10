@@ -44,7 +44,7 @@ public class AdminOrganisationController {
     public ResponseEntity<List<AdminOrganizationDto>> getOrganisations() {
         return ResponseEntity.ok()
                 .body(
-                        organizationService.getAllOrganisations().stream()
+                        organizationService.getAllOrganizations().stream()
                                 .map(this::toOrganisationDto)
                                 .toList());
     }
@@ -54,7 +54,7 @@ public class AdminOrganisationController {
     public ResponseEntity<AdminOrganizationDto> createOrganisation(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organization created =
-                organizationService.createOrganisation(
+                organizationService.createOrganization(
                         OrganizationMapper.toOrganization(request), request.organizerId());
         AdminOrganizationDto response = toOrganisationDto(created);
         URI location =
@@ -70,7 +70,7 @@ public class AdminOrganisationController {
             summary = "Get organisation by ID",
             description = "Retrieves an organisation using its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
-        organizationService.deleteOrganisationById(id);
+        organizationService.deleteOrganizationById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -79,7 +79,7 @@ public class AdminOrganisationController {
     public ResponseEntity<AdminOrganizationEventDto> createEvent(
             @Valid @RequestBody AdminCreateEventDto request) {
         Organization organisation =
-                organizationService.getOrganisationById(request.organisationId());
+                organizationService.getOrganizationById(request.organisationId());
         Event created =
                 eventService.createEvent(
                         EventMapper.toEvent(request, organisation), organisation.getId());

@@ -28,9 +28,9 @@ class CompanyServiceTest {
         owned.setId(12L);
         owned.setName("Owned organisation");
         when(userService.getByClerkIdOrThrow("clerk-company")).thenReturn(user);
-        when(organizationService.getOrganisationForUser("clerk-company"))
+        when(organizationService.getOrganizationForUser("clerk-company"))
                 .thenReturn(List.of(owned));
-        when(organizationService.findOrganisationForUser("clerk-company"))
+        when(organizationService.findOrganizationForUser("clerk-company"))
                 .thenReturn(Optional.of(owned));
 
         assertEquals(12L, service.getManagedOrganisationForClerkId("clerk-company").getId());
@@ -44,7 +44,7 @@ class CompanyServiceTest {
         User user = new User();
         user.setId(7L);
         when(userService.getByClerkIdOrThrow("clerk-user")).thenReturn(user);
-        when(organizationService.findOrganisationForUser("clerk-user"))
+        when(organizationService.findOrganizationForUser("clerk-user"))
                 .thenReturn(Optional.empty());
 
         var response = service.getCompanyMe("clerk-user");

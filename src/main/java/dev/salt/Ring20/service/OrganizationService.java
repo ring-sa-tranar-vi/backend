@@ -22,15 +22,15 @@ public class OrganizationService {
     }
 
     @Transactional(readOnly = true)
-    public boolean hasOrganisation(Long userId) {
+    public boolean hasOrganization(Long userId) {
         return organizationRepository.existsByOrganizer_Id(userId);
     }
 
     @Transactional
-    public Organization createOrganisation(Organization organization, Long userId) {
+    public Organization createOrganization(Organization organization, Long userId) {
         User organizer = getUserById(userId);
-        if (hasOrganisation(userId)) {
-            throw new IllegalStateException("User already organizes an organisation");
+        if (hasOrganization(userId)) {
+            throw new IllegalStateException("User already organizes an organization");
         }
 
         organization.setOrganizer(organizer);
@@ -38,33 +38,33 @@ public class OrganizationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Organization> getAllOrganisations() {
+    public List<Organization> getAllOrganizations() {
         return organizationRepository.findAllWithEvents();
     }
 
     @Transactional(readOnly = true)
-    public Organization getOrganisationById(Long id) {
+    public Organization getOrganizationById(Long id) {
         return organizationRepository
                 .findByIdWithEvents(id)
                 .orElseThrow(
-                        () -> new NoSuchElementException("Organisation not found with id: " + id));
+                        () -> new NoSuchElementException("organization not found with id: " + id));
     }
 
     @Transactional
-    public void deleteOrganisationById(Long id) {
-        organizationRepository.delete(getOrganisationById(id));
+    public void deleteOrganizationById(Long id) {
+        organizationRepository.delete(getOrganizationById(id));
     }
 
     //    @Transactional
-    //    public Organisation updateOrganisationById(
+    //    public organization updateorganizationById(
     //            Long id, String name, String description, String orgCity) {
-    //        return updateOrganisationById(id, name, description, orgCity, null);
+    //        return updateorganizationById(id, name, description, orgCity, null);
     //    }
 
     @Transactional
-    public Organization updateOrganisationById(Organization organization, Long id) {
+    public Organization updateOrganizationById(Organization organization, Long id) {
 
-        Organization foundOrg = getOrganisationById(id);
+        Organization foundOrg = getOrganizationById(id);
 
         foundOrg.setName(organization.getName());
         foundOrg.setDescription(organization.getDescription());
@@ -73,20 +73,20 @@ public class OrganizationService {
         return organizationRepository.save(foundOrg);
     }
 
-    public List<Organization> getOrganisationForUser(String clerkId) {
-        List<Organization> organisations =
+    public List<Organization> getOrganizationForUser(String clerkId) {
+        List<Organization> organizations =
                 organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
-        if (organisations.isEmpty()) {
+        if (organizations.isEmpty()) {
             throw new NoSuchElementException(
-                    "No organisations found for user with clerkId: " + clerkId);
+                    "No organizations found for user with clerkId: " + clerkId);
         }
 
-        return organisations;
+        return organizations;
     }
 
     @Transactional(readOnly = true)
-    public Optional<Organization> findOrganisationForUser(String clerkId) {
+    public Optional<Organization> findOrganizationForUser(String clerkId) {
         return organizationRepository.findFirstByOrganizer_ClerkId(clerkId);
     }
 

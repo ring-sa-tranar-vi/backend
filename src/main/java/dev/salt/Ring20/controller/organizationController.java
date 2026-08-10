@@ -21,27 +21,27 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
-@RequestMapping("/api/organisations")
+@RequestMapping("/api/organizations")
 @Tag(
-        name = "Organisations",
-        description = "Endpoints for creating, managing, and retrieving organisations.")
-public class OrganisationController {
+        name = "organizations",
+        description = "Endpoints for creating, managing, and retrieving organizations.")
+public class organizationController {
 
     private final OrganizationService organizationService;
     private final EventService eventService;
 
-    public OrganisationController(OrganizationService service, EventService eventService) {
+    public organizationController(OrganizationService service, EventService eventService) {
         this.organizationService = service;
         this.eventService = eventService;
     }
 
     @PostMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
-    @Operation(summary = "Create organisation", description = "Creates a new organisation.")
-    public ResponseEntity<OrganizationResponseDto> createOrganisation(
+    @Operation(summary = "Create organization", description = "Creates a new organization.")
+    public ResponseEntity<OrganizationResponseDto> createorganization(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organization newOrg =
-                organizationService.createOrganisation(
+                organizationService.createOrganization(
                         OrganizationMapper.toOrganization(request), request.organizerId());
         OrganizationResponseDto response = OrganizationMapper.toResponseDto(newOrg);
         URI location =
@@ -54,32 +54,32 @@ public class OrganisationController {
 
     @GetMapping
     @Operation(
-            summary = "Get all organisations",
-            description = "Retrieves all available organisations.")
-    public ResponseEntity<List<OrganizationResponseDto>> getAllOrganisations() {
+            summary = "Get all organizations",
+            description = "Retrieves all available organizations.")
+    public ResponseEntity<List<OrganizationResponseDto>> getAllorganizations() {
         return ResponseEntity.ok()
                 .body(
-                        organizationService.getAllOrganisations().stream()
+                        organizationService.getAllOrganizations().stream()
                                 .map(OrganizationMapper::toResponseDto)
                                 .toList());
     }
 
     @GetMapping("/{id}")
     @Operation(
-            summary = "Get organisation by ID",
-            description = "Retrieves an organisation using its ID.")
-    public ResponseEntity<OrganizationResponseDto> getOrganisationById(@PathVariable Long id) {
+            summary = "Get organization by ID",
+            description = "Retrieves an organization using its ID.")
+    public ResponseEntity<OrganizationResponseDto> getorganizationById(@PathVariable Long id) {
         return ResponseEntity.ok()
                 .body(
                         OrganizationMapper.toResponseDto(
-                                organizationService.getOrganisationById(id)));
+                                organizationService.getOrganizationById(id)));
     }
 
     @GetMapping("/{id}/events")
     @Operation(
-            summary = "Get organisation events",
-            description = "Retrieves all events associated with an organisation.")
-    public ResponseEntity<List<EventResponseDto>> getEventsByOrganisation(@PathVariable Long id) {
+            summary = "Get organization events",
+            description = "Retrieves all events associated with an organization.")
+    public ResponseEntity<List<EventResponseDto>> getEventsByorganization(@PathVariable Long id) {
         return ResponseEntity.ok()
                 .body(
                         eventService.getAllEventsByOrgId(id).stream()
@@ -88,37 +88,37 @@ public class OrganisationController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
+    @PreAuthorize("@organizationSecurity.canModify(#id, authentication.name)")
     @Operation(
-            summary = "Update organisation",
-            description = "Updates an existing organisation by its ID.")
-    public ResponseEntity<OrganizationResponseDto> updateOrganisation(
+            summary = "Update organization",
+            description = "Updates an existing organization by its ID.")
+    public ResponseEntity<OrganizationResponseDto> updateorganization(
             @PathVariable Long id, @Valid @RequestBody OrganizationUpdateRequestDto request) {
         Organization updatedOrg =
-                organizationService.updateOrganisationById(
+                organizationService.updateOrganizationById(
                         OrganizationMapper.toOrganization(request), id);
         return ResponseEntity.ok().body(OrganizationMapper.toResponseDto(updatedOrg));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
-    @Operation(summary = "Delete organisation", description = "Deletes an organisation by its ID.")
-    public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
-        organizationService.deleteOrganisationById(id);
+    @PreAuthorize("@organizationSecurity.canModify(#id, authentication.name)")
+    @Operation(summary = "Delete organization", description = "Deletes an organization by its ID.")
+    public ResponseEntity<Void> deleteorganization(@PathVariable Long id) {
+        organizationService.deleteOrganizationById(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     @Operation(
-            summary = "Get my organisation",
-            description = "Retrieves the organisation belonging to the authenticated organiser.")
-    public ResponseEntity<List<OrganizationResponseDto>> getMyOrganisation(
+            summary = "Get my organization",
+            description = "Retrieves the organization belonging to the authenticated organiser.")
+    public ResponseEntity<List<OrganizationResponseDto>> getMyorganization(
             Authentication authentication) {
         return ResponseEntity.ok()
                 .body(
                         organizationService
-                                .getOrganisationForUser(authentication.getName())
+                                .getOrganizationForUser(authentication.getName())
                                 .stream()
                                 .map(OrganizationMapper::toResponseDto)
                                 .toList());

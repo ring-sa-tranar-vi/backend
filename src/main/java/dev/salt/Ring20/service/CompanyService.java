@@ -28,7 +28,7 @@ public class CompanyService {
     public CompanyMeResponseDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
         Organization organisation =
-                organizationService.findOrganisationForUser(clerkId).orElse(null);
+                organizationService.findOrganizationForUser(clerkId).orElse(null);
         boolean canManageOrganisation = organisation != null;
         return new CompanyMeResponseDto(
                 user.getId(),
@@ -42,7 +42,7 @@ public class CompanyService {
 
     public Organization getManagedOrganisationForClerkId(String clerkId) {
         userService.getByClerkIdOrThrow(clerkId);
-        return organizationService.getOrganisationForUser(clerkId).stream()
+        return organizationService.getOrganizationForUser(clerkId).stream()
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
     }

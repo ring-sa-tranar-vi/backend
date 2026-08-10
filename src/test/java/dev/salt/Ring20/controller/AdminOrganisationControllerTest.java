@@ -59,7 +59,7 @@ class AdminOrganisationControllerTest {
         Organization organisation = organisation(1L);
         Event event = event(2L, organisation);
         organisation.setEvents(List.of(event));
-        when(organizationService.getAllOrganisations()).thenReturn(List.of(organisation));
+        when(organizationService.getAllOrganizations()).thenReturn(List.of(organisation));
 
         ResponseEntity<List<AdminOrganizationDto>> response = controller.getOrganisations();
 
@@ -73,14 +73,14 @@ class AdminOrganisationControllerTest {
     void createOrganisationReturnsCreatedOrganisation() {
         OrganizationCreateRequestDto request =
                 new OrganizationCreateRequestDto("Salt", "Training", "Stockholm", 1L, "Motivation");
-        when(organizationService.createOrganisation(any(Organization.class), eq(1L)))
+        when(organizationService.createOrganization(any(Organization.class), eq(1L)))
                 .thenReturn(organisation(3L));
 
         ResponseEntity<AdminOrganizationDto> response = controller.createOrganisation(request);
 
         ArgumentCaptor<Organization> captor = ArgumentCaptor.forClass(Organization.class);
 
-        verify(organizationService).createOrganisation(captor.capture(), eq(1L));
+        verify(organizationService).createOrganization(captor.capture(), eq(1L));
 
         Organization passed = captor.getValue();
 
@@ -95,7 +95,7 @@ class AdminOrganisationControllerTest {
         ResponseEntity<Void> response = controller.deleteOrganisation(4L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(organizationService).deleteOrganisationById(4L);
+        verify(organizationService).deleteOrganizationById(4L);
     }
 
     @Test
@@ -105,7 +105,7 @@ class AdminOrganisationControllerTest {
         LocalDateTime time = LocalDateTime.of(2026, 8, 4, 10, 0);
         AdminCreateEventDto dto =
                 new AdminCreateEventDto(organisation.getId(), "Morning event", "Description", time);
-        when(organizationService.getOrganisationById(1L)).thenReturn(organisation);
+        when(organizationService.getOrganizationById(1L)).thenReturn(organisation);
         when(eventService.createEvent(any(Event.class), eq(organisation.getId())))
                 .thenReturn(created);
 

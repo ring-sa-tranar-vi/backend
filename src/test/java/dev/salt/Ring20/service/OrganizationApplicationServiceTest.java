@@ -70,7 +70,7 @@ class OrganizationApplicationServiceTest {
         assertEquals(PaymentStatus.PENDING, created.getPaymentStatus());
         assertNotNull(created.getCreatedAt());
         assertNull(created.getReviewedAt());
-        verify(organizationService, never()).createOrganisation(any(), any());
+        verify(organizationService, never()).createOrganization(any(), any());
     }
 
     @Test
@@ -83,7 +83,7 @@ class OrganizationApplicationServiceTest {
 
         assertEquals(ApplicationStatus.REJECTED, rejected.getApplicationStatus());
         assertNotNull(rejected.getReviewedAt());
-        verify(organizationService, never()).createOrganisation(any(), any() );
+        verify(organizationService, never()).createOrganization(any(), any() );
     }
 
     @Test
@@ -96,7 +96,7 @@ class OrganizationApplicationServiceTest {
         OrganizationApplication approved = service().approve(9L);
 
         verify(organizationService)
-                .createOrganisation(any(Organization.class), eq(7L)
+                .createOrganization(any(Organization.class), eq(7L)
                 );
         assertEquals(ApplicationStatus.APPROVED, approved.getApplicationStatus());
         assertNotNull(approved.getReviewedAt());

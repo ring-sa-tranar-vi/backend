@@ -80,6 +80,6 @@ public class EventService {
     }
 
     private Organization getOrganisationById(Long id) {
-        return organizationService.getOrganisationById(id);
+        return organizationService.getOrganizationById(id);
     }
 }
