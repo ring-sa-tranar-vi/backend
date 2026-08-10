@@ -52,9 +52,9 @@ public class CompanyController {
     @Operation(
             summary = "Get managed organisation",
             description = " Returns the organisation managed by the authenticated company.")
-    @GetMapping("/organisation")
+    @GetMapping("/organization")
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
-    public ResponseEntity<CompanyOrganizationDto> getOrganisation(Authentication authentication) {
+    public ResponseEntity<CompanyOrganizationDto> getOrganization(Authentication authentication) {
         Organization organisation =
                 companyService.getManagedOrganisationForClerkId(getClerkId(authentication));
         return ResponseEntity.ok().body(OrganizationMapper.toCompanyOrganisationDto(organisation));
@@ -63,9 +63,9 @@ public class CompanyController {
     @Operation(
             summary = "Update organisation",
             description = "Updates the authenticated company's organisation.")
-    @PutMapping("/organisation")
+    @PutMapping("/organization")
     @PreAuthorize("@securityService.isOrganizer(authentication.name)")
-    public ResponseEntity<CompanyOrganizationDto> updateOrganisation(
+    public ResponseEntity<CompanyOrganizationDto> updateOrganization(
             Authentication authentication,
             @Valid @RequestBody UpdateCompanyOrganizationDto request) {
         Organization organisation =
