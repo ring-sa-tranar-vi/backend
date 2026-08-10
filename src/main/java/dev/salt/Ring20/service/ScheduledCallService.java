@@ -125,6 +125,7 @@ public class ScheduledCallService {
             Message message =
                     Message.builder()
                             .setToken(call.getFcmToken())
+                            .putData("callId", String.valueOf(call.getId()))
                             .putData("trainerId", String.valueOf(call.getTrainerId()))
                             .putData("userId", String.valueOf(call.getUserId()))
                             .putData("type", "TRAINING_CALL")
@@ -172,10 +173,5 @@ public class ScheduledCallService {
 
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
-    }
-
-    public void resetCallsForPreference(CallbackPreference pref) {
-        scheduledCallRepository.deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
-                pref.getUser().getId(), pref.getDay(), Instant.now(), CallBackStatus.PENDING);
     }
 }

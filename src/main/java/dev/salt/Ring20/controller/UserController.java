@@ -286,7 +286,7 @@ public class UserController {
     @Operation(
             summary = "Remove callback preference",
             description = "Removes a user's callback preference for a specific day.")
-    public ResponseEntity<Void> removeCallBackPreference(
+    public ResponseEntity<Void> removeAllCallBackPreferenceByDay(
             @PathVariable Long userId, @PathVariable DayOfWeekType day) {
         userService.removeCallbackPreference(userId, day);
         return ResponseEntity.noContent().build();
