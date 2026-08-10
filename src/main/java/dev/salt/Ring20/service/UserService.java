@@ -26,7 +26,8 @@ public class UserService {
             UserRepository userRepository,
             TrainerRepository trainerRepository,
             OrganisationRepository organisationRepository,
-            EventRepository eventRepository, ScheduledCallService scheduledCallService) {
+            EventRepository eventRepository,
+            ScheduledCallService scheduledCallService) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
         this.organisationRepository = organisationRepository;
@@ -256,7 +257,7 @@ public class UserService {
             preference.setTime(callback.getTime());
             preference.setRepeat(callback.getRepeat());
             result = preference;
-        }else {
+        } else {
             callback.setUser(user);
             user.getCallbackPreferences().add(callback);
             result = callback;
@@ -270,10 +271,12 @@ public class UserService {
     public void removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        CallbackPreference pref = user.getCallbackPreferences().stream()
-                .filter(c -> c.getDay() == day)
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("No callback preference found"));
+        CallbackPreference pref =
+                user.getCallbackPreferences().stream()
+                        .filter(c -> c.getDay() == day)
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new NoSuchElementException("No callback preference found"));
 
         scheduledCallService.resetCallsForPreference(pref);
 

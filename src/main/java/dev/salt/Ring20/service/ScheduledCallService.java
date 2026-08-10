@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 public class ScheduledCallService {
     private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final ScheduledCallRepository scheduledCallRepository;
-    private final static int REPEAT_TIMES_IF_WEEKLY = 4;
-    private final static int NO_REPEAT_TIMES = 1;
+    private static final int REPEAT_TIMES_IF_WEEKLY = 4;
+    private static final int NO_REPEAT_TIMES = 1;
 
     public ScheduledCallService(
             CallbackPreferenceRepository callbackPreferenceRepository,
@@ -32,19 +32,21 @@ public class ScheduledCallService {
     }
 
     public void cancelCall(Long callId) {
-        ScheduledCall call = scheduledCallRepository.findById(callId)
-                .orElseThrow(() -> new NoSuchElementException("Call not found with id: " + callId));
+        ScheduledCall call =
+                scheduledCallRepository
+                        .findById(callId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Call not found with id: " + callId));
 
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
     }
+
     public void resetCallsForPreference(CallbackPreference pref) {
         scheduledCallRepository.deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
-                pref.getUser().getId(),
-                pref.getDay(),
-                Instant.now(),
-                CallBackStatus.PENDING
-        );
+                pref.getUser().getId(), pref.getDay(), Instant.now(), CallBackStatus.PENDING);
     }
 
     public void generateCallsForPreference(CallbackPreference pref) {
@@ -57,9 +59,7 @@ public class ScheduledCallService {
 
             if (alreadyExists(pref.getUser().getId(), targetTime)) continue;
 
-            scheduledCallRepository.save(
-                    buildCall(pref.getUser().getId(), pref, targetTime)
-            );
+            scheduledCallRepository.save(buildCall(pref.getUser().getId(), pref, targetTime));
         }
     }
 
