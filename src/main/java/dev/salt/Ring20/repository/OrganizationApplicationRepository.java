@@ -1,6 +1,6 @@
 package dev.salt.Ring20.repository;
 
-import dev.salt.Ring20.entity.ApplicationStatus;
+import dev.salt.Ring20.entity.enums.ApplicationStatus;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import jakarta.persistence.LockModeType;
 import java.util.Collection;

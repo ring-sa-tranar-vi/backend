@@ -1,6 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;

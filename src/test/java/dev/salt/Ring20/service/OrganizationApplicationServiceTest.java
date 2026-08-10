@@ -1,33 +1,35 @@
 package dev.salt.Ring20.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import dev.salt.Ring20.entity.ApplicationStatus;
+import dev.salt.Ring20.dto.organisation.OrganizationApplicationRequestDto;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.OrganizationApplication;
-import dev.salt.Ring20.entity.PaymentStatus;
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.enums.ApplicationStatus;
+import dev.salt.Ring20.entity.enums.PaymentStatus;
+import dev.salt.Ring20.mapper.OrganizationApplicationMapper;
 import dev.salt.Ring20.repository.OrganizationApplicationRepository;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class OrganizationApplicationServiceTest {
 
-    @Mock private OrganizationApplicationRepository applicationRepository;
-    @Mock private UserService userService;
-    @Mock private OrganisationService organisationService;
+    @Mock
+    private OrganizationApplicationRepository applicationRepository;
+    @Mock
+    private UserService userService;
+    @Mock
+    private OrganisationService organisationService;
 
     @Test
     void returnsLatestApplicationForCurrentUser() {
@@ -57,18 +59,18 @@ class OrganizationApplicationServiceTest {
 
         OrganizationApplication created =
                 service()
-                        .createApplication(
-                                "clerk-user",
-                                "Organisation AB",
-                                "Description",
-                                "Stockholm",
-                                "Motivation");
+                        .createApplication(OrganizationApplicationMapper.toEntity(
+                                new OrganizationApplicationRequestDto(
+                                        "Organisation AB",
+                                        "Description",
+                                        "Stockholm",
+                                        "Motivation")), "clerk-user");
 
         assertEquals(ApplicationStatus.PENDING, created.getApplicationStatus());
         assertEquals(PaymentStatus.PENDING, created.getPaymentStatus());
         assertNotNull(created.getCreatedAt());
         assertNull(created.getReviewedAt());
-        verify(organisationService, never()).createOrganisation(any(), any(), any(), any(), any());
+        verify(organisationService, never()).createOrganisation(any(), any());
     }
 
     @Test
@@ -81,7 +83,7 @@ class OrganizationApplicationServiceTest {
 
         assertEquals(ApplicationStatus.REJECTED, rejected.getApplicationStatus());
         assertNotNull(rejected.getReviewedAt());
-        verify(organisationService, never()).createOrganisation(any(), any(), any(), any(), any());
+        verify(organisationService, never()).createOrganisation(any(), any() );
     }
 
     @Test
@@ -94,12 +96,8 @@ class OrganizationApplicationServiceTest {
         OrganizationApplication approved = service().approve(9L);
 
         verify(organisationService)
-                .createOrganisation(
-                        eq("Organisation AB"),
-                        eq("Description"),
-                        eq("Stockholm"),
-                        eq(7L),
-                        eq("Motivation"));
+                .createOrganisation(any(Organisation.class), eq(7L)
+                );
         assertEquals(ApplicationStatus.APPROVED, approved.getApplicationStatus());
         assertNotNull(approved.getReviewedAt());
     }
@@ -113,12 +111,14 @@ class OrganizationApplicationServiceTest {
 
         OrganizationApplication replacement =
                 service()
-                        .createApplication(
-                                "clerk-user",
-                                "New organisation",
-                                "Description",
-                                "Malmo",
-                                "Motivation");
+                        .createApplication(OrganizationApplicationMapper.toEntity(new OrganizationApplicationRequestDto(
+                                        "New organisation",
+                                        "Description",
+                                        "Malmo",
+                                        "Motivation"
+                                )),
+                                "clerk-user"
+                        );
 
         assertEquals(ApplicationStatus.PENDING, replacement.getApplicationStatus());
         verify(applicationRepository)

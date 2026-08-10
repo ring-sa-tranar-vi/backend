@@ -85,31 +85,21 @@ public class OrganizationApplicationService {
     @Transactional
     public OrganizationApplication approve(Long id) {
         OrganizationApplication application = getByIdForUpdate(id);
+
         if (application.getApplicationStatus() != ApplicationStatus.PENDING) {
             throw new IllegalStateException("Application already processed");
         }
+
         if (organisationService.hasOrganisation(application.getUser().getId())) {
             throw new IllegalStateException("Applicant already organizes an organisation");
         }
 
-        application.setApplicationStatus(ApplicationStatus.APPROVED);
-        setReviewedTime(application);
         Organisation organization = createOrganization(application);
-
         organisationService.createOrganisation(organization, application.getUser().getId());
 
-        if (organisationService.hasOrganisation(application.getUser().getId())) {
-            throw new IllegalStateException("Applicant already organizes an organisation");
-        }
-
-        organisationService.createOrganisation(
-                application.getOrganizationName(),
-                application.getDescription(),
-                application.getCity(),
-                application.getUser().getId(),
-                application.getMotivation());
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);
+
         return organizationApplicationRepository.save(application);
     }
 

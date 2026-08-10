@@ -9,12 +9,13 @@ import dev.salt.Ring20.service.OrganizationApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/organization-applications")
@@ -68,8 +69,7 @@ public class OrganizationApplicationController {
                     "Returns the authenticated user's latest organisation application, or 404 if none exists.")
     public ResponseEntity<OrganizationApplicationResponseDto> getMine(
             Authentication authentication) {
-        return ResponseEntity.ok(
-                toResponse(applicationService.getLatestForUser(authentication.getName())));
+        return ResponseEntity.ok().body(OrganizationApplicationMapper.toResponse(applicationService.getLatestForUser(authentication.getName())));
     }
 
     @GetMapping("/{id}")
