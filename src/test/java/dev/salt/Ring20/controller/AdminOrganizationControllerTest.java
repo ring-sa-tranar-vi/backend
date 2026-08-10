@@ -32,16 +32,16 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @ExtendWith(MockitoExtension.class)
-class AdminOrganisationControllerTest {
+class AdminOrganizationControllerTest {
 
     @Mock private OrganizationService organizationService;
     @Mock private EventService eventService;
 
-    private AdminOrganisationController controller;
+    private AdminOrganizationController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new AdminOrganisationController(organizationService, eventService);
+        controller = new AdminOrganizationController(organizationService, eventService);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
         request.setServerName("localhost");
@@ -61,7 +61,7 @@ class AdminOrganisationControllerTest {
         organisation.setEvents(List.of(event));
         when(organizationService.getAllOrganizations()).thenReturn(List.of(organisation));
 
-        ResponseEntity<List<AdminOrganizationDto>> response = controller.getOrganisations();
+        ResponseEntity<List<AdminOrganizationDto>> response = controller.getOrganizations();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -76,7 +76,7 @@ class AdminOrganisationControllerTest {
         when(organizationService.createOrganization(any(Organization.class), eq(1L)))
                 .thenReturn(organisation(3L));
 
-        ResponseEntity<AdminOrganizationDto> response = controller.createOrganisation(request);
+        ResponseEntity<AdminOrganizationDto> response = controller.createOrganization(request);
 
         ArgumentCaptor<Organization> captor = ArgumentCaptor.forClass(Organization.class);
 

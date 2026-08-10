@@ -13,50 +13,51 @@ import dev.salt.Ring20.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("@securityService.isAdmin(authentication.name)")
 @Tag(
         name = "Admin Organizations",
-        description = "Administrative endpoints for managing organisation and events")
-public class AdminOrganisationController {
+        description = "Administrative endpoints for managing organization and events")
+public class AdminOrganizationController {
 
     private final OrganizationService organizationService;
     private final EventService eventService;
 
-    public AdminOrganisationController(
+    public AdminOrganizationController(
             OrganizationService organizationService, EventService eventService) {
         this.organizationService = organizationService;
         this.eventService = eventService;
     }
 
-    @GetMapping("/organisations")
+    @GetMapping("/organizations")
     @Operation(
-            summary = "Get all organisations ",
-            description = "Retrieves all available organisations.")
-    public ResponseEntity<List<AdminOrganizationDto>> getOrganisations() {
+            summary = "Get all organizations ",
+            description = "Retrieves all available organizations.")
+    public ResponseEntity<List<AdminOrganizationDto>> getOrganizations() {
         return ResponseEntity.ok()
                 .body(
                         organizationService.getAllOrganizations().stream()
-                                .map(this::toOrganisationDto)
+                                .map(OrganizationMapper::toOrganisationDto)
                                 .toList());
     }
 
-    @PostMapping("/organisations")
-    @Operation(summary = "Create organisation", description = "Creates a new organisation.")
-    public ResponseEntity<AdminOrganizationDto> createOrganisation(
+    @PostMapping("/organizations")
+    @Operation(summary = "Create organization", description = "Creates a new organization.")
+    public ResponseEntity<AdminOrganizationDto> createOrganization(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organization created =
                 organizationService.createOrganization(
                         OrganizationMapper.toOrganization(request), request.organizerId());
-        AdminOrganizationDto response = toOrganisationDto(created);
+        AdminOrganizationDto response = OrganizationMapper.toOrganisationDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -65,10 +66,10 @@ public class AdminOrganisationController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @DeleteMapping("/organisations/{id}")
+    @DeleteMapping("/organizations/{id}")
     @Operation(
-            summary = "Get organisation by ID",
-            description = "Retrieves an organisation using its ID.")
+            summary = "Get organization by ID",
+            description = "Retrieves an organization using its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
         organizationService.deleteOrganizationById(id);
         return ResponseEntity.noContent().build();
@@ -83,7 +84,7 @@ public class AdminOrganisationController {
         Event created =
                 eventService.createEvent(
                         EventMapper.toEvent(request, organisation), organisation.getId());
-        AdminOrganizationEventDto response = toEventDto(created);
+        AdminOrganizationEventDto response = EventMapper.toEventDto(created);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -99,26 +100,4 @@ public class AdminOrganisationController {
         return ResponseEntity.noContent().build();
     }
 
-    private AdminOrganizationDto toOrganisationDto(Organization organisation) {
-        List<AdminOrganizationEventDto> events =
-                organisation.getEvents() == null
-                        ? List.of()
-                        : organisation.getEvents().stream().map(this::toEventDto).toList();
-        return new AdminOrganizationDto(
-                organisation.getId(),
-                organisation.getName(),
-                organisation.getDescription(),
-                events,
-                organisation.getOrgCity(),
-                organisation.getOrganizer() == null ? null : organisation.getOrganizer().getId());
-    }
-
-    private AdminOrganizationEventDto toEventDto(Event event) {
-        return new AdminOrganizationEventDto(
-                event.getId(),
-                event.getName(),
-                event.getDescription(),
-                event.getTime(),
-                event.getOrganisation() == null ? null : event.getOrganisation().getId());
-    }
 }

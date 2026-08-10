@@ -3,6 +3,7 @@ package dev.salt.Ring20.mapper;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import dev.salt.Ring20.dto.admin.AdminCreateEventDto;
+import dev.salt.Ring20.dto.admin.AdminOrganizationEventDto;
 import dev.salt.Ring20.dto.company.CompanyEventDto;
 import dev.salt.Ring20.dto.company.CreateCompanyEventDto;
 import dev.salt.Ring20.dto.company.UpdateCompanyEventDto;
@@ -40,6 +41,14 @@ public class EventMapper {
                 event.getCity(),
                 event.getVenue(),
                 event.getEventType());
+    }
+    public static AdminOrganizationEventDto toEventDto(Event event) {
+        return new AdminOrganizationEventDto(
+                event.getId(),
+                event.getName(),
+                event.getDescription(),
+                event.getTime(),
+                event.getOrganisation() == null ? null : event.getOrganisation().getId());
     }
 
     public static Event toEvent(EventCreateRequestDto dto) {
