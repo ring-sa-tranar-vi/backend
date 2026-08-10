@@ -9,7 +9,7 @@ import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.EventService;
-import dev.salt.Ring20.service.OrganisationService;
+import dev.salt.Ring20.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -28,12 +28,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
         description = "Administrative endpoints for managing organisation and events")
 public class AdminOrganisationController {
 
-    private final OrganisationService organisationService;
+    private final OrganizationService organizationService;
     private final EventService eventService;
 
     public AdminOrganisationController(
-            OrganisationService organisationService, EventService eventService) {
-        this.organisationService = organisationService;
+            OrganizationService organizationService, EventService eventService) {
+        this.organizationService = organizationService;
         this.eventService = eventService;
     }
 
@@ -44,7 +44,7 @@ public class AdminOrganisationController {
     public ResponseEntity<List<AdminOrganizationDto>> getOrganisations() {
         return ResponseEntity.ok()
                 .body(
-                        organisationService.getAllOrganisations().stream()
+                        organizationService.getAllOrganisations().stream()
                                 .map(this::toOrganisationDto)
                                 .toList());
     }
@@ -54,7 +54,7 @@ public class AdminOrganisationController {
     public ResponseEntity<AdminOrganizationDto> createOrganisation(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organization created =
-                organisationService.createOrganisation(
+                organizationService.createOrganisation(
                         OrganizationMapper.toOrganization(request), request.organizerId());
         AdminOrganizationDto response = toOrganisationDto(created);
         URI location =
@@ -70,7 +70,7 @@ public class AdminOrganisationController {
             summary = "Get organisation by ID",
             description = "Retrieves an organisation using its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
-        organisationService.deleteOrganisationById(id);
+        organizationService.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -79,7 +79,7 @@ public class AdminOrganisationController {
     public ResponseEntity<AdminOrganizationEventDto> createEvent(
             @Valid @RequestBody AdminCreateEventDto request) {
         Organization organisation =
-                organisationService.getOrganisationById(request.organisationId());
+                organizationService.getOrganisationById(request.organisationId());
         Event created =
                 eventService.createEvent(
                         EventMapper.toEvent(request, organisation), organisation.getId());

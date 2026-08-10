@@ -15,7 +15,7 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.EventService;
-import dev.salt.Ring20.service.OrganisationService;
+import dev.salt.Ring20.service.OrganizationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -34,14 +34,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @ExtendWith(MockitoExtension.class)
 class AdminOrganisationControllerTest {
 
-    @Mock private OrganisationService organisationService;
+    @Mock private OrganizationService organizationService;
     @Mock private EventService eventService;
 
     private AdminOrganisationController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new AdminOrganisationController(organisationService, eventService);
+        controller = new AdminOrganisationController(organizationService, eventService);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme("http");
         request.setServerName("localhost");
@@ -59,7 +59,7 @@ class AdminOrganisationControllerTest {
         Organization organisation = organisation(1L);
         Event event = event(2L, organisation);
         organisation.setEvents(List.of(event));
-        when(organisationService.getAllOrganisations()).thenReturn(List.of(organisation));
+        when(organizationService.getAllOrganisations()).thenReturn(List.of(organisation));
 
         ResponseEntity<List<AdminOrganizationDto>> response = controller.getOrganisations();
 
@@ -73,14 +73,14 @@ class AdminOrganisationControllerTest {
     void createOrganisationReturnsCreatedOrganisation() {
         OrganizationCreateRequestDto request =
                 new OrganizationCreateRequestDto("Salt", "Training", "Stockholm", 1L, "Motivation");
-        when(organisationService.createOrganisation(any(Organization.class), eq(1L)))
+        when(organizationService.createOrganisation(any(Organization.class), eq(1L)))
                 .thenReturn(organisation(3L));
 
         ResponseEntity<AdminOrganizationDto> response = controller.createOrganisation(request);
 
         ArgumentCaptor<Organization> captor = ArgumentCaptor.forClass(Organization.class);
 
-        verify(organisationService).createOrganisation(captor.capture(), eq(1L));
+        verify(organizationService).createOrganisation(captor.capture(), eq(1L));
 
         Organization passed = captor.getValue();
 
@@ -95,7 +95,7 @@ class AdminOrganisationControllerTest {
         ResponseEntity<Void> response = controller.deleteOrganisation(4L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(organisationService).deleteOrganisationById(4L);
+        verify(organizationService).deleteOrganisationById(4L);
     }
 
     @Test
@@ -105,7 +105,7 @@ class AdminOrganisationControllerTest {
         LocalDateTime time = LocalDateTime.of(2026, 8, 4, 10, 0);
         AdminCreateEventDto dto =
                 new AdminCreateEventDto(organisation.getId(), "Morning event", "Description", time);
-        when(organisationService.getOrganisationById(1L)).thenReturn(organisation);
+        when(organizationService.getOrganisationById(1L)).thenReturn(organisation);
         when(eventService.createEvent(any(Event.class), eq(organisation.getId())))
                 .thenReturn(created);
 

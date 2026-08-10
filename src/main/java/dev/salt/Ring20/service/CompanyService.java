@@ -12,15 +12,15 @@ public class CompanyService {
 
     private static final String COMPANY_ROLE = "COMPANY";
 
-    private final OrganisationService organisationService;
+    private final OrganizationService organizationService;
     private final EventService eventService;
     private final UserService userService;
 
     public CompanyService(
-            OrganisationService organisationService,
+            OrganizationService organizationService,
             EventService eventService,
             UserService userService) {
-        this.organisationService = organisationService;
+        this.organizationService = organizationService;
         this.eventService = eventService;
         this.userService = userService;
     }
@@ -28,7 +28,7 @@ public class CompanyService {
     public CompanyMeResponseDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
         Organization organisation =
-                organisationService.findOrganisationForUser(clerkId).orElse(null);
+                organizationService.findOrganisationForUser(clerkId).orElse(null);
         boolean canManageOrganisation = organisation != null;
         return new CompanyMeResponseDto(
                 user.getId(),
@@ -42,7 +42,7 @@ public class CompanyService {
 
     public Organization getManagedOrganisationForClerkId(String clerkId) {
         userService.getByClerkIdOrThrow(clerkId);
-        return organisationService.getOrganisationForUser(clerkId).stream()
+        return organizationService.getOrganisationForUser(clerkId).stream()
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
     }
@@ -63,8 +63,8 @@ public class CompanyService {
         eventService.deleteEventById(existing.getId());
     }
 
-    public OrganisationService getOrganisationService() {
-        return organisationService;
+    public OrganizationService getOrganisationService() {
+        return organizationService;
     }
 
     public EventService getEventService() {

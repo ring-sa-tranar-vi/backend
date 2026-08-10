@@ -20,15 +20,15 @@ public class OrganizationApplicationService {
 
     private final OrganizationApplicationRepository organizationApplicationRepository;
     private final UserService userService;
-    private final OrganisationService organisationService;
+    private final OrganizationService organizationService;
 
     public OrganizationApplicationService(
             OrganizationApplicationRepository organizationApplicationRepository,
             UserService userService,
-            OrganisationService organisationService) {
+            OrganizationService organizationService) {
         this.organizationApplicationRepository = organizationApplicationRepository;
         this.userService = userService;
-        this.organisationService = organisationService;
+        this.organizationService = organizationService;
     }
 
     @Transactional
@@ -36,7 +36,7 @@ public class OrganizationApplicationService {
             OrganizationApplication application, String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
 
-        if (organisationService.hasOrganisation(user.getId())) {
+        if (organizationService.hasOrganisation(user.getId())) {
             throw new IllegalStateException("User already organizes an organisation");
         }
         if (organizationApplicationRepository.existsByUser_IdAndApplicationStatusIn(
@@ -90,12 +90,12 @@ public class OrganizationApplicationService {
             throw new IllegalStateException("Application already processed");
         }
 
-        if (organisationService.hasOrganisation(application.getUser().getId())) {
+        if (organizationService.hasOrganisation(application.getUser().getId())) {
             throw new IllegalStateException("Applicant already organizes an organisation");
         }
 
         Organization organization = createOrganization(application);
-        organisationService.createOrganisation(organization, application.getUser().getId());
+        organizationService.createOrganisation(organization, application.getUser().getId());
 
         application.setApplicationStatus(ApplicationStatus.APPROVED);
         setReviewedTime(application);

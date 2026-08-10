@@ -13,15 +13,15 @@ import org.springframework.stereotype.Service;
 public class EventService {
     private final EventRepository eventRepository;
     private final OrganizationRepository organizationRepository;
-    private final OrganisationService organisationService;
+    private final OrganizationService organizationService;
 
     public EventService(
             EventRepository eventRepository,
             OrganizationRepository organizationRepository,
-            OrganisationService organisationService) {
+            OrganizationService organizationService) {
         this.eventRepository = eventRepository;
         this.organizationRepository = organizationRepository;
-        this.organisationService = organisationService;
+        this.organizationService = organizationService;
     }
 
     public Event createEvent(Event event, Long organizationId) {
@@ -80,6 +80,6 @@ public class EventService {
     }
 
     private Organization getOrganisationById(Long id) {
-        return organisationService.getOrganisationById(id);
+        return organizationService.getOrganisationById(id);
     }
 }

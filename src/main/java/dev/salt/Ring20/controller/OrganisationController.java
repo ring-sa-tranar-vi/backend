@@ -8,7 +8,7 @@ import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.EventService;
-import dev.salt.Ring20.service.OrganisationService;
+import dev.salt.Ring20.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,11 +27,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
         description = "Endpoints for creating, managing, and retrieving organisations.")
 public class OrganisationController {
 
-    private final OrganisationService organisationService;
+    private final OrganizationService organizationService;
     private final EventService eventService;
 
-    public OrganisationController(OrganisationService service, EventService eventService) {
-        this.organisationService = service;
+    public OrganisationController(OrganizationService service, EventService eventService) {
+        this.organizationService = service;
         this.eventService = eventService;
     }
 
@@ -41,7 +41,7 @@ public class OrganisationController {
     public ResponseEntity<OrganizationResponseDto> createOrganisation(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organization newOrg =
-                organisationService.createOrganisation(
+                organizationService.createOrganisation(
                         OrganizationMapper.toOrganization(request), request.organizerId());
         OrganizationResponseDto response = OrganizationMapper.toResponseDto(newOrg);
         URI location =
@@ -59,7 +59,7 @@ public class OrganisationController {
     public ResponseEntity<List<OrganizationResponseDto>> getAllOrganisations() {
         return ResponseEntity.ok()
                 .body(
-                        organisationService.getAllOrganisations().stream()
+                        organizationService.getAllOrganisations().stream()
                                 .map(OrganizationMapper::toResponseDto)
                                 .toList());
     }
@@ -72,7 +72,7 @@ public class OrganisationController {
         return ResponseEntity.ok()
                 .body(
                         OrganizationMapper.toResponseDto(
-                                organisationService.getOrganisationById(id)));
+                                organizationService.getOrganisationById(id)));
     }
 
     @GetMapping("/{id}/events")
@@ -95,7 +95,7 @@ public class OrganisationController {
     public ResponseEntity<OrganizationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganizationUpdateRequestDto request) {
         Organization updatedOrg =
-                organisationService.updateOrganisationById(
+                organizationService.updateOrganisationById(
                         OrganizationMapper.toOrganization(request), id);
         return ResponseEntity.ok().body(OrganizationMapper.toResponseDto(updatedOrg));
     }
@@ -104,7 +104,7 @@ public class OrganisationController {
     @PreAuthorize("@organisationSecurity.canModify(#id, authentication.name)")
     @Operation(summary = "Delete organisation", description = "Deletes an organisation by its ID.")
     public ResponseEntity<Void> deleteOrganisation(@PathVariable Long id) {
-        organisationService.deleteOrganisationById(id);
+        organizationService.deleteOrganisationById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -117,7 +117,7 @@ public class OrganisationController {
             Authentication authentication) {
         return ResponseEntity.ok()
                 .body(
-                        organisationService
+                        organizationService
                                 .getOrganisationForUser(authentication.getName())
                                 .stream()
                                 .map(OrganizationMapper::toResponseDto)

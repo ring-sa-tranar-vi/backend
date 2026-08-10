@@ -29,7 +29,7 @@ class OrganizationApplicationServiceTest {
     @Mock
     private UserService userService;
     @Mock
-    private OrganisationService organisationService;
+    private OrganizationService organizationService;
 
     @Test
     void returnsLatestApplicationForCurrentUser() {
@@ -70,7 +70,7 @@ class OrganizationApplicationServiceTest {
         assertEquals(PaymentStatus.PENDING, created.getPaymentStatus());
         assertNotNull(created.getCreatedAt());
         assertNull(created.getReviewedAt());
-        verify(organisationService, never()).createOrganisation(any(), any());
+        verify(organizationService, never()).createOrganisation(any(), any());
     }
 
     @Test
@@ -83,7 +83,7 @@ class OrganizationApplicationServiceTest {
 
         assertEquals(ApplicationStatus.REJECTED, rejected.getApplicationStatus());
         assertNotNull(rejected.getReviewedAt());
-        verify(organisationService, never()).createOrganisation(any(), any() );
+        verify(organizationService, never()).createOrganisation(any(), any() );
     }
 
     @Test
@@ -95,7 +95,7 @@ class OrganizationApplicationServiceTest {
 
         OrganizationApplication approved = service().approve(9L);
 
-        verify(organisationService)
+        verify(organizationService)
                 .createOrganisation(any(Organization.class), eq(7L)
                 );
         assertEquals(ApplicationStatus.APPROVED, approved.getApplicationStatus());
@@ -150,6 +150,6 @@ class OrganizationApplicationServiceTest {
 
     private OrganizationApplicationService service() {
         return new OrganizationApplicationService(
-                applicationRepository, userService, organisationService);
+                applicationRepository, userService, organizationService);
     }
 }

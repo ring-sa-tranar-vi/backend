@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class OrganisationService {
+public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
 
-    public OrganisationService(OrganizationRepository repo, UserRepository userRepo) {
+    public OrganizationService(OrganizationRepository repo, UserRepository userRepo) {
         this.organizationRepository = repo;
         this.userRepository = userRepo;
     }
