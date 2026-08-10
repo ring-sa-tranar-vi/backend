@@ -6,12 +6,12 @@ import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service("organisationSecurity")
-public class OrganisationSecurity {
+public class OrganizationSecurity {
 
     private final OrganizationRepository repository;
     private final SecurityService securityService;
 
-    public OrganisationSecurity(
+    public OrganizationSecurity(
             OrganizationRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
