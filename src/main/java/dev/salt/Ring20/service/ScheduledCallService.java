@@ -84,6 +84,7 @@ public class ScheduledCallService {
 
     @Scheduled(fixedRate = 60000)
     public void handleScheduledCalls() {
+        System.out.println("Scheduler running...");
         Instant now = Instant.now();
 
         List<ScheduledCall> startingNow =
