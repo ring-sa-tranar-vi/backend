@@ -1,6 +1,6 @@
 package dev.salt.Ring20.repository;
 
-import dev.salt.Ring20.entity.Organization;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
                 LEFT JOIN FETCH organisation.events
                 WHERE u.id = :id
             """)
-    List<Organization> findFollowedOrganisationsWithEventsById(@Param("id") Long id);
+    List<Organisation> findFollowedOrganisationsWithEventsById(@Param("id") Long id);
 
     @Query(
             """

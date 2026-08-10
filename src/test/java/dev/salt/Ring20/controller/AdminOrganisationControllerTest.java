@@ -12,7 +12,7 @@ import dev.salt.Ring20.dto.admin.AdminOrganizationDto;
 import dev.salt.Ring20.dto.admin.AdminOrganizationEventDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organization;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.EventService;
 import dev.salt.Ring20.service.OrganizationService;
@@ -56,7 +56,7 @@ class AdminOrganisationControllerTest {
 
     @Test
     void getOrganisationsReturnsAdminContract() {
-        Organization organisation = organisation(1L);
+        Organisation organisation = organisation(1L);
         Event event = event(2L, organisation);
         organisation.setEvents(List.of(event));
         when(organizationService.getAllOrganisations()).thenReturn(List.of(organisation));
@@ -73,16 +73,16 @@ class AdminOrganisationControllerTest {
     void createOrganisationReturnsCreatedOrganisation() {
         OrganizationCreateRequestDto request =
                 new OrganizationCreateRequestDto("Salt", "Training", "Stockholm", 1L, "Motivation");
-        when(organizationService.createOrganisation(any(Organization.class), eq(1L)))
+        when(organizationService.createOrganisation(any(Organisation.class), eq(1L)))
                 .thenReturn(organisation(3L));
 
         ResponseEntity<AdminOrganizationDto> response = controller.createOrganisation(request);
 
-        ArgumentCaptor<Organization> captor = ArgumentCaptor.forClass(Organization.class);
+        ArgumentCaptor<Organisation> captor = ArgumentCaptor.forClass(Organisation.class);
 
         verify(organizationService).createOrganisation(captor.capture(), eq(1L));
 
-        Organization passed = captor.getValue();
+        Organisation passed = captor.getValue();
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(3L, response.getBody().id());
@@ -100,7 +100,7 @@ class AdminOrganisationControllerTest {
 
     @Test
     void createEventUsesOrganisationCityAndReturnsCreatedEvent() {
-        Organization organisation = organisation(1L);
+        Organisation organisation = organisation(1L);
         Event created = event(5L, organisation);
         LocalDateTime time = LocalDateTime.of(2026, 8, 4, 10, 0);
         AdminCreateEventDto dto =
@@ -132,16 +132,16 @@ class AdminOrganisationControllerTest {
         verify(eventService).deleteEventById(6L);
     }
 
-    private Organization organisation(Long id) {
+    private Organisation organisation(Long id) {
         User organizer = new User();
         organizer.setId(1L);
-        Organization organisation =
-                new Organization("Salt", "Training", "Stockholm", organizer, "motivation");
+        Organisation organisation =
+                new Organisation("Salt", "Training", "Stockholm", organizer, "motivation");
         organisation.setId(id);
         return organisation;
     }
 
-    private Event event(Long id, Organization organisation) {
+    private Event event(Long id, Organisation organisation) {
         Event event = new Event();
         event.setId(id);
         event.setName("Morning event");

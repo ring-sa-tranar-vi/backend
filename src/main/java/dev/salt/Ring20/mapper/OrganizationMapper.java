@@ -6,11 +6,11 @@ import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationUpdateRequestDto;
-import dev.salt.Ring20.entity.Organization;
+import dev.salt.Ring20.entity.Organisation;
 import java.util.List;
 
 public class OrganizationMapper {
-    public static CompanyOrganizationDto toCompanyOrganisationDto(Organization organisation) {
+    public static CompanyOrganizationDto toCompanyOrganisationDto(Organisation organisation) {
         return new CompanyOrganizationDto(
                 organisation.getId(),
                 organisation.getName(),
@@ -18,7 +18,7 @@ public class OrganizationMapper {
                 organisation.getOrgCity());
     }
 
-    public static OrganizationResponseDto toResponseDto(Organization organisation) {
+    public static OrganizationResponseDto toResponseDto(Organisation organisation) {
         List<EventResponseDto> events =
                 organisation.getEvents() == null
                         ? List.of()
@@ -35,24 +35,24 @@ public class OrganizationMapper {
                 organisation.getMotivation());
     }
 
-    public static Organization toOrganization(OrganizationUpdateRequestDto dto) {
-        Organization organization = new Organization();
+    public static Organisation toOrganization(OrganizationUpdateRequestDto dto) {
+        Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
         organization.setOrgCity(dto.orgCity());
         return organization;
     }
 
-    public static Organization toOrganization(UpdateCompanyOrganizationDto dto) {
-        Organization organization = new Organization();
+    public static Organisation toOrganization(UpdateCompanyOrganizationDto dto) {
+        Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
         organization.setOrgCity(dto.orgCity());
         return organization;
     }
 
-    public static Organization toOrganization(OrganizationCreateRequestDto dto) {
-        Organization organization = new Organization();
+    public static Organisation toOrganization(OrganizationCreateRequestDto dto) {
+        Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
         organization.setOrgCity(dto.orgCity());

@@ -41,7 +41,7 @@ public class User {
 
     @ManyToMany
     @JoinTable(name = "user_organisations")
-    private List<Organization> followedOrganisations = new ArrayList<>();
+    private List<Organisation> followedOrganisations = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "user_events")

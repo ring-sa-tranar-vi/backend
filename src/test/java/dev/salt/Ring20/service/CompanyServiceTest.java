@@ -3,7 +3,7 @@ package dev.salt.Ring20.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import dev.salt.Ring20.entity.Organization;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.User;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ class CompanyServiceTest {
         CompanyService service = new CompanyService(organizationService, eventService, userService);
         User user = new User();
         user.setId(7L);
-        Organization owned = new Organization();
+        Organisation owned = new Organisation();
         owned.setId(12L);
         owned.setName("Owned organisation");
         when(userService.getByClerkIdOrThrow("clerk-company")).thenReturn(user);

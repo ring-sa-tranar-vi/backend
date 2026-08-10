@@ -5,7 +5,7 @@ import dev.salt.Ring20.dto.admin.AdminOrganizationDto;
 import dev.salt.Ring20.dto.admin.AdminOrganizationEventDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organization;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.EventService;
@@ -53,7 +53,7 @@ public class AdminOrganisationController {
     @Operation(summary = "Create organisation", description = "Creates a new organisation.")
     public ResponseEntity<AdminOrganizationDto> createOrganisation(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
-        Organization created =
+        Organisation created =
                 organizationService.createOrganisation(
                         OrganizationMapper.toOrganization(request), request.organizerId());
         AdminOrganizationDto response = toOrganisationDto(created);
@@ -78,7 +78,7 @@ public class AdminOrganisationController {
     @Operation(summary = "Create event", description = "Creates a new event.")
     public ResponseEntity<AdminOrganizationEventDto> createEvent(
             @Valid @RequestBody AdminCreateEventDto request) {
-        Organization organisation =
+        Organisation organisation =
                 organizationService.getOrganisationById(request.organisationId());
         Event created =
                 eventService.createEvent(
@@ -99,7 +99,7 @@ public class AdminOrganisationController {
         return ResponseEntity.noContent().build();
     }
 
-    private AdminOrganizationDto toOrganisationDto(Organization organisation) {
+    private AdminOrganizationDto toOrganisationDto(Organisation organisation) {
         List<AdminOrganizationEventDto> events =
                 organisation.getEvents() == null
                         ? List.of()

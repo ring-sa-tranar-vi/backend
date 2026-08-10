@@ -1,6 +1,6 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.Organization;
+import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.enums.ApplicationStatus;
@@ -94,7 +94,7 @@ public class OrganizationApplicationService {
             throw new IllegalStateException("Applicant already organizes an organisation");
         }
 
-        Organization organization = createOrganization(application);
+        Organisation organization = createOrganization(application);
         organizationService.createOrganisation(organization, application.getUser().getId());
 
         application.setApplicationStatus(ApplicationStatus.APPROVED);
@@ -103,8 +103,8 @@ public class OrganizationApplicationService {
         return organizationApplicationRepository.save(application);
     }
 
-    private Organization createOrganization(OrganizationApplication application) {
-        Organization organization = new Organization();
+    private Organisation createOrganization(OrganizationApplication application) {
+        Organisation organization = new Organisation();
         organization.setName(application.getOrganizationName());
         organization.setDescription(application.getDescription());
         organization.setOrgCity(application.getCity());

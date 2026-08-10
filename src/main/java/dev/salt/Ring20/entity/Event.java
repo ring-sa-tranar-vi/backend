@@ -27,7 +27,7 @@ public class Event {
     @ManyToOne(optional = false)
     @JoinColumn(name = "organisation_id", nullable = false)
     @JsonIgnore
-    private Organization organisation;
+    private Organisation organisation;
 
     private String city;
     private String venue;
@@ -43,7 +43,7 @@ public class Event {
             String name,
             String description,
             LocalDateTime time,
-            Organization organisation,
+            Organisation organisation,
             String city,
             String venue,
             EventType eventType) {
