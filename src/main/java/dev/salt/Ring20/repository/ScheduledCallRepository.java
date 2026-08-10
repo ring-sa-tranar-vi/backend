@@ -1,7 +1,6 @@
 package dev.salt.Ring20.repository;
 
 import dev.salt.Ring20.entity.CallBackStatus;
-import dev.salt.Ring20.entity.DayOfWeekType;
 import dev.salt.Ring20.entity.ScheduledCall;
 import java.time.Instant;
 import java.util.List;
@@ -25,7 +24,4 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
             Instant time,
             CallBackStatus status
     );
-
-    void deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
-            Long id, DayOfWeekType day, Instant now, CallBackStatus callBackStatus);
 }

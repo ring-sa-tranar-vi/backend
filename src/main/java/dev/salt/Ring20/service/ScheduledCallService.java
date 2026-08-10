@@ -88,7 +88,7 @@ public class ScheduledCallService {
         Instant now = Instant.now();
 
         List<ScheduledCall> startingNow =
-                scheduledCallRepository.findCallsBetween(now, now.plusSeconds(60));
+                scheduledCallRepository.findCallsBetween(now.minus(30), now.plusSeconds(60));
 
         for (ScheduledCall call : startingNow) {
 
@@ -163,6 +163,7 @@ public class ScheduledCallService {
         }
     }
     public void cancelCall(Long callId) {
+
         ScheduledCall call =
                 scheduledCallRepository
                         .findById(callId)
