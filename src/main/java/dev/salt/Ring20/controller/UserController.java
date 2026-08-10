@@ -1,5 +1,7 @@
 package dev.salt.Ring20.controller;
 
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import dev.salt.Ring20.dto.callback.CallbackPreferenceRequestDto;
 import dev.salt.Ring20.dto.callback.CallbackPreferenceResponseDto;
 import dev.salt.Ring20.dto.event.EventResponseDto;
@@ -34,8 +36,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 @RestController
 @RequestMapping("/api/users")
 @Tag(
@@ -55,7 +55,6 @@ public class UserController {
         this.userService = userService;
         this.activityLogService = activityLogService;
         this.displayResolverService = displayResolverService;
-
     }
 
     @GetMapping("/me/role")
@@ -293,7 +292,6 @@ public class UserController {
         userService.removeCallbackPreference(userId, day);
         return ResponseEntity.noContent().build();
     }
-
 
     private User getCurrentUser(Authentication authentication) {
         return userService.findByClerkId(getClerkId(authentication)).orElseThrow();

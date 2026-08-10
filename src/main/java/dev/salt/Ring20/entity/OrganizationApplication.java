@@ -40,5 +40,4 @@ public class OrganizationApplication {
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
-
 }

@@ -8,7 +8,6 @@ import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationUpdateRequestDto;
-import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organization;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class OrganizationMapper {
         return organization;
     }
 
-    public static  AdminOrganizationDto toOrganisationDto(Organization organisation) {
+    public static AdminOrganizationDto toOrganisationDto(Organization organisation) {
         List<AdminOrganizationEventDto> events =
                 organisation.getEvents() == null
                         ? List.of()
@@ -76,6 +75,4 @@ public class OrganizationMapper {
                 organisation.getOrgCity(),
                 organisation.getOrganizer() == null ? null : organisation.getOrganizer().getId());
     }
-
-
 }

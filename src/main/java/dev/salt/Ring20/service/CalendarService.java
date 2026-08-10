@@ -93,7 +93,7 @@ public class CalendarService {
         LocalDate end = yearMonth.atEndOfMonth();
         LocalDateTime now = LocalDateTime.now();
 
-        for (CallbackPreference pref : preferences){
+        for (CallbackPreference pref : preferences) {
 
             DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
             LocalDate date = start;
@@ -112,9 +112,7 @@ public class CalendarService {
                     continue;
                 }
 
-
                 callEvents.add(createCallCalendarEvent(pref, callTime, date));
-
 
                 if (pref.getRepeat() == RepeatType.NEVER) {
                     break;
