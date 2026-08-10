@@ -252,20 +252,19 @@ public class UserService {
                 user.getCallbackPreferences().stream()
                         .filter(c -> c.getDay() == callback.getDay())
                         .findFirst();
-        CallbackPreference result;
 
         if (existing.isPresent()) {
             CallbackPreference preference = existing.get();
             preference.setTime(callback.getTime());
             preference.setRepeat(callback.getRepeat());
-            result = preference;
-        } else {
-            callback.setUser(user);
-            user.getCallbackPreferences().add(callback);
-            result = callback;
+            scheduledCallService.resetCallsForPreference(preference);
+            return preference;
         }
-        scheduledCallService.resetAllCallsForUser(userId);
-        return result;
+
+        callback.setUser(user);
+        user.getCallbackPreferences().add(callback);
+        scheduledCallService.generateCallsForPreference(callback);
+        return callback;
     }
 
     @Transactional

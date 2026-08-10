@@ -145,6 +145,7 @@ public class ScheduledCallService {
         }
     }
 
+    @Transactional
     public void completeCall(Long id) {
         ScheduledCall call =
                 scheduledCallRepository
@@ -167,6 +168,8 @@ public class ScheduledCallService {
             generateCallsForPreference(pref);
         }
     }
+
+    @Transactional
     public void cancelCall(Long callId) {
 
 
@@ -184,6 +187,7 @@ public class ScheduledCallService {
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
     }
+    @Transactional
     public void cancelFutureCallsForOnePreference(CallbackPreference pref) {
         scheduledCallRepository
                 .cancelFuturePendingCallsForPreference(
@@ -194,5 +198,11 @@ public class ScheduledCallService {
     @Transactional
     public void detachHistoricalCallsFromPreference(Long preferenceId) {
         scheduledCallRepository.detachPreferenceFromHistoricalCalls( preferenceId);
+    }
+
+    @Transactional
+    public void resetCallsForPreference(CallbackPreference pref) {
+        cancelFutureCallsForOnePreference(pref);
+        generateCallsForPreference(pref);
     }
 }
