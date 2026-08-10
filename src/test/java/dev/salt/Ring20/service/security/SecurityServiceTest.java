@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import dev.salt.Ring20.entity.Organization;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.service.UserService;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -16,12 +16,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SecurityServiceTest {
 
     @Mock private UserService userService;
-    @Mock private OrganisationRepository organisationRepository;
+    @Mock private OrganizationRepository organizationRepository;
 
     @Test
     void organizerMustOwnAnOrganisation() {
-        SecurityService service = new SecurityService(userService, organisationRepository);
-        when(organisationRepository.findByOrganizer_ClerkIdWithEvents("clerk-organizer"))
+        SecurityService service = new SecurityService(userService, organizationRepository);
+        when(organizationRepository.findByOrganizer_ClerkIdWithEvents("clerk-organizer"))
                 .thenReturn(List.of(new Organization()));
 
         assertThat(service.isOrganizer("clerk-organizer")).isTrue();
@@ -29,8 +29,8 @@ class SecurityServiceTest {
 
     @Test
     void userWithoutAnOrganisationIsNotAnOrganizer() {
-        SecurityService service = new SecurityService(userService, organisationRepository);
-        when(organisationRepository.findByOrganizer_ClerkIdWithEvents("clerk-user"))
+        SecurityService service = new SecurityService(userService, organizationRepository);
+        when(organizationRepository.findByOrganizer_ClerkIdWithEvents("clerk-user"))
                 .thenReturn(List.of());
 
         assertThat(service.isOrganizer("clerk-user")).isFalse();

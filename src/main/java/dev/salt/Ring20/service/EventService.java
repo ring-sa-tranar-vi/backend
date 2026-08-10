@@ -3,7 +3,7 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
-    private final OrganisationRepository organisationRepository;
+    private final OrganizationRepository organizationRepository;
     private final OrganisationService organisationService;
 
     public EventService(
             EventRepository eventRepository,
-            OrganisationRepository organisationRepository,
+            OrganizationRepository organizationRepository,
             OrganisationService organisationService) {
         this.eventRepository = eventRepository;
-        this.organisationRepository = organisationRepository;
+        this.organizationRepository = organizationRepository;
         this.organisationService = organisationService;
     }
 
@@ -69,7 +69,7 @@ public class EventService {
 
     public List<Event> getEventsForUser(String clerkId) {
         List<Organization> organisations =
-                organisationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
+                organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
         if (organisations.isEmpty()) {
             throw new NoSuchElementException(

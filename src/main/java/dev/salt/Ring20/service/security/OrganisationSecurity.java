@@ -1,18 +1,18 @@
 package dev.salt.Ring20.service.security;
 
 import dev.salt.Ring20.entity.Organization;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 @Service("organisationSecurity")
 public class OrganisationSecurity {
 
-    private final OrganisationRepository repository;
+    private final OrganizationRepository repository;
     private final SecurityService securityService;
 
     public OrganisationSecurity(
-            OrganisationRepository repository, SecurityService securityService) {
+            OrganizationRepository repository, SecurityService securityService) {
         this.repository = repository;
         this.securityService = securityService;
     }

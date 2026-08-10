@@ -4,7 +4,7 @@ import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,17 +20,17 @@ public class UserService {
     private static final int STARTING_INTENSITY = 2;
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
-    private final OrganisationRepository organisationRepository;
+    private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
-            OrganisationRepository organisationRepository,
+            OrganizationRepository organizationRepository,
             EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
-        this.organisationRepository = organisationRepository;
+        this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
     }
 
@@ -142,7 +142,7 @@ public class UserService {
     public Organization addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
         Organization org =
-                organisationRepository
+                organizationRepository
                         .findByIdWithEvents(orgId)
                         .orElseThrow(
                                 () ->
@@ -169,7 +169,7 @@ public class UserService {
 
         if (removed) {
             Organization org =
-                    organisationRepository
+                    organizationRepository
                             .findById(orgId)
                             .orElseThrow(
                                     () ->

@@ -8,7 +8,7 @@ import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.NoSuchElementException;
@@ -27,7 +27,7 @@ class UserServiceTest {
 
     @Mock private UserRepository userRepository;
     @Mock private TrainerRepository trainerRepository;
-    @Mock private OrganisationRepository organisationRepository;
+    @Mock private OrganizationRepository organizationRepository;
     @Mock private EventRepository eventRepository;
 
     @InjectMocks private UserService userService;

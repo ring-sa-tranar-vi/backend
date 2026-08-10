@@ -20,7 +20,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 class UserRepositoryTest {
 
     @Autowired private UserRepository userRepository;
-    @Autowired private OrganisationRepository organisationRepository;
+    @Autowired private OrganizationRepository organizationRepository;
     @Autowired private EventRepository eventRepository;
     @Autowired private EntityManager entityManager;
 
@@ -37,7 +37,7 @@ class UserRepositoryTest {
     void findFollowedOrganisationsWithEventsByIdLoadsTheirEvents() {
         User user = userRepository.save(new User("Jane", 2, "context", "clerk_2"));
         Organization organisation =
-                organisationRepository.save(
+                organizationRepository.save(
                         new Organization(
                                 "Community", "Local activities", "Stockholm", user, "motivation"));
         eventRepository.save(

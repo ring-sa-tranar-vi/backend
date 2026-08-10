@@ -2,7 +2,7 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -13,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrganisationService {
 
-    private final OrganisationRepository organizationRepository;
+    private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
 
-    public OrganisationService(OrganisationRepository repo, UserRepository userRepo) {
+    public OrganisationService(OrganizationRepository repo, UserRepository userRepo) {
         this.organizationRepository = repo;
         this.userRepository = userRepo;
     }
