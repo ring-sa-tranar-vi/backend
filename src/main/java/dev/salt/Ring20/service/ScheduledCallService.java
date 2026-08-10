@@ -52,6 +52,7 @@ public class ScheduledCallService {
         call.setTargetTime(time);
         call.setFcmToken(pref.getUser().getFcmToken());
         call.setCallBackStatus(CallBackStatus.PENDING);
+        call.setCallbackPreferenceId(pref.getId());
         return call;
     }
 
@@ -105,7 +106,7 @@ public class ScheduledCallService {
         }
 
         List<ScheduledCall> missedCalls =
-                scheduledCallRepository.findMissedCalls(now.minusSeconds(60));
+                scheduledCallRepository.findAllMissedCalls(now);
 
         for (ScheduledCall call : missedCalls) {
 
@@ -151,6 +152,9 @@ public class ScheduledCallService {
                                 () ->
                                         new NoSuchElementException(
                                                 "No scheduled call exist with this id: " + id));
+        if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
+            throw new IllegalStateException("Only triggered calls can be completed");
+        }
         call.setCallBackStatus(CallBackStatus.COMPLETED);
         scheduledCallRepository.save(call);
     }
@@ -164,6 +168,7 @@ public class ScheduledCallService {
     }
     public void cancelCall(Long callId) {
 
+
         ScheduledCall call =
                 scheduledCallRepository
                         .findById(callId)
@@ -172,7 +177,18 @@ public class ScheduledCallService {
                                         new NoSuchElementException(
                                                 "Call not found with id: " + callId));
 
+        if (call.getCallBackStatus() != CallBackStatus.PENDING) {
+            throw new IllegalStateException("Only pending calls can be cancelled");
+        }
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
+    }
+    public void cancelFutureCallsForPreference(CallbackPreference pref) {
+        scheduledCallRepository
+                .deleteByCallbackPreferenceIdAndTargetTimeAfterAndCallBackStatus(
+                        pref.getId(),
+                        Instant.now(),
+                        CallBackStatus.PENDING
+                );
     }
 }
