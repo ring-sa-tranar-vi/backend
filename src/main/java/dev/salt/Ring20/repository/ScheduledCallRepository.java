@@ -21,10 +21,6 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
 
     boolean existsByUserIdAndTargetTime(Long userId, Instant targetTime);
 
-    void deleteByUserIdAndTargetTimeAfterAndCallBackStatus(Long userId, Instant time, CallBackStatus status);
-
-    void deleteByCallbackPreference_IdAndTargetTimeAfterAndCallBackStatus(Long callbackPreferenceId, Instant targetTime, CallBackStatus status);
-
     @Modifying
     @Query("""
                 UPDATE ScheduledCall c
@@ -33,4 +29,28 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
             """)
     void detachPreferenceFromHistoricalCalls(
             @Param("preferenceId") Long preferenceId);
+
+    @Modifying
+    @Query("""
+    UPDATE ScheduledCall c
+    SET c.callBackStatus = 'CANCELLED'
+    WHERE c.userId = :userId
+      AND c.targetTime > :time
+      AND c.callBackStatus = 'PENDING'
+""")
+    void cancelFuturePendingCallsForUser(
+            @Param("userId") Long userId,
+            @Param("time") Instant time);
+
+    @Modifying
+    @Query("""
+    UPDATE ScheduledCall c
+    SET c.callBackStatus = 'CANCELLED'
+    WHERE c.callbackPreference.id = :preferenceId
+      AND c.targetTime > :targetTime
+      AND c.callBackStatus = 'PENDING'
+""")
+    void cancelFuturePendingCallsForPreference(
+            @Param("preferenceId") Long preferenceId,
+            @Param("targetTime") Instant targetTime);
 }

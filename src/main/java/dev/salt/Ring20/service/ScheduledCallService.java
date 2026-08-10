@@ -160,8 +160,8 @@ public class ScheduledCallService {
         scheduledCallRepository.save(call);
     }
 
-    public void resetCallsForUser(Long userId) {
-        scheduledCallRepository.deleteByUserIdAndTargetTimeAfterAndCallBackStatus(userId, Instant.now(), CallBackStatus.PENDING);
+    public void resetAllCallsForUser(Long userId) {
+        scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
         for (CallbackPreference pref : prefs){
             generateCallsForPreference(pref);
@@ -184,13 +184,11 @@ public class ScheduledCallService {
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
     }
-    public void cancelFutureCallsForPreference(CallbackPreference pref) {
+    public void cancelFutureCallsForOnePreference(CallbackPreference pref) {
         scheduledCallRepository
-                .deleteByCallbackPreference_IdAndTargetTimeAfterAndCallBackStatus(
+                .cancelFuturePendingCallsForPreference(
                         pref.getId(),
-                        Instant.now(),
-                        CallBackStatus.PENDING
-                );
+                        Instant.now());
     }
 
     @Transactional
