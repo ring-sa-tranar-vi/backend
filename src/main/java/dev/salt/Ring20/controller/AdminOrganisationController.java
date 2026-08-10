@@ -3,7 +3,7 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.admin.AdminCreateEventDto;
 import dev.salt.Ring20.dto.admin.AdminOrganisationDto;
 import dev.salt.Ring20.dto.admin.AdminOrganisationEventDto;
-import dev.salt.Ring20.dto.organization.OrganisationCreateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.mapper.EventMapper;
@@ -52,7 +52,7 @@ public class AdminOrganisationController {
     @PostMapping("/organisations")
     @Operation(summary = "Create organisation", description = "Creates a new organisation.")
     public ResponseEntity<AdminOrganisationDto> createOrganisation(
-            @Valid @RequestBody OrganisationCreateRequestDto request) {
+            @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organisation created =
                 organisationService.createOrganisation(
                         OrganizationMapper.toOrganization(request), request.organizerId());

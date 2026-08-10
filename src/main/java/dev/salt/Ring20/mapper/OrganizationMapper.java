@@ -3,9 +3,9 @@ package dev.salt.Ring20.mapper;
 import dev.salt.Ring20.dto.company.CompanyOrganisationDto;
 import dev.salt.Ring20.dto.company.UpdateCompanyOrganisationDto;
 import dev.salt.Ring20.dto.event.EventResponseDto;
-import dev.salt.Ring20.dto.organization.OrganisationCreateRequestDto;
-import dev.salt.Ring20.dto.organization.OrganisationResponseDto;
-import dev.salt.Ring20.dto.organization.OrganisationUpdateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
+import dev.salt.Ring20.dto.organization.OrganizationUpdateRequestDto;
 import dev.salt.Ring20.entity.Organisation;
 import java.util.List;
 
@@ -18,14 +18,14 @@ public class OrganizationMapper {
                 organisation.getOrgCity());
     }
 
-    public static OrganisationResponseDto toResponseDto(Organisation organisation) {
+    public static OrganizationResponseDto toResponseDto(Organisation organisation) {
         List<EventResponseDto> events =
                 organisation.getEvents() == null
                         ? List.of()
                         : organisation.getEvents().stream()
                                 .map(EventMapper::toEventResponseDto)
                                 .toList();
-        return new OrganisationResponseDto(
+        return new OrganizationResponseDto(
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
@@ -35,7 +35,7 @@ public class OrganizationMapper {
                 organisation.getMotivation());
     }
 
-    public static Organisation toOrganization(OrganisationUpdateRequestDto dto) {
+    public static Organisation toOrganization(OrganizationUpdateRequestDto dto) {
         Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());
@@ -51,7 +51,7 @@ public class OrganizationMapper {
         return organization;
     }
 
-    public static Organisation toOrganization(OrganisationCreateRequestDto dto) {
+    public static Organisation toOrganization(OrganizationCreateRequestDto dto) {
         Organisation organization = new Organisation();
         organization.setName(dto.name());
         organization.setDescription(dto.description());

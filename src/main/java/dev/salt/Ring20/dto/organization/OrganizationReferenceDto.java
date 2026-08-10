@@ -2,4 +2,4 @@ package dev.salt.Ring20.dto.organization;
 
 import jakarta.validation.constraints.NotNull;
 
-public record OrganisationReferenceDto(@NotNull Long id) {}
+public record OrganizationReferenceDto(@NotNull Long id) {}

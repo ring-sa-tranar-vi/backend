@@ -4,7 +4,7 @@ import dev.salt.Ring20.dto.callback.CallbackPreferenceRequestDto;
 import dev.salt.Ring20.dto.callback.CallbackPreferenceResponseDto;
 import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.fcmToken.FcmTokenRequestDto;
-import dev.salt.Ring20.dto.organization.OrganisationResponseDto;
+import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
 import dev.salt.Ring20.dto.user.UserCreateRequestDto;
 import dev.salt.Ring20.dto.user.UserRequestDto;
 import dev.salt.Ring20.dto.user.UserResponseDto;
@@ -164,7 +164,7 @@ public class UserController {
     @Operation(
             summary = "Get followed organisations",
             description = "Retrieves organisations followed by the authenticated user.")
-    public ResponseEntity<List<OrganisationResponseDto>> getAllFollowedOrganization(
+    public ResponseEntity<List<OrganizationResponseDto>> getAllFollowedOrganization(
             Authentication authentication) {
         User currentUser = getCurrentUser(authentication);
 
@@ -179,7 +179,7 @@ public class UserController {
     @Operation(
             summary = "Follow organisation",
             description = "Adds an organisation to the user's followed list.")
-    public ResponseEntity<OrganisationResponseDto> followedOrg(
+    public ResponseEntity<OrganizationResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = getCurrentUser(authentication);
         Organisation org = userService.addFollowOrganization(currentUser.getId(), orgId);

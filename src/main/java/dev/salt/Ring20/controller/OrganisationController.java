@@ -1,9 +1,9 @@
 package dev.salt.Ring20.controller;
 
 import dev.salt.Ring20.dto.event.EventResponseDto;
-import dev.salt.Ring20.dto.organization.OrganisationCreateRequestDto;
-import dev.salt.Ring20.dto.organization.OrganisationResponseDto;
-import dev.salt.Ring20.dto.organization.OrganisationUpdateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
+import dev.salt.Ring20.dto.organization.OrganizationUpdateRequestDto;
 import dev.salt.Ring20.entity.Organisation;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
@@ -38,12 +38,12 @@ public class OrganisationController {
     @PostMapping
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(summary = "Create organisation", description = "Creates a new organisation.")
-    public ResponseEntity<OrganisationResponseDto> createOrganisation(
-            @Valid @RequestBody OrganisationCreateRequestDto request) {
+    public ResponseEntity<OrganizationResponseDto> createOrganisation(
+            @Valid @RequestBody OrganizationCreateRequestDto request) {
         Organisation newOrg =
                 organisationService.createOrganisation(
                         OrganizationMapper.toOrganization(request), request.organizerId());
-        OrganisationResponseDto response = OrganizationMapper.toResponseDto(newOrg);
+        OrganizationResponseDto response = OrganizationMapper.toResponseDto(newOrg);
         URI location =
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{id}")
@@ -56,7 +56,7 @@ public class OrganisationController {
     @Operation(
             summary = "Get all organisations",
             description = "Retrieves all available organisations.")
-    public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
+    public ResponseEntity<List<OrganizationResponseDto>> getAllOrganisations() {
         return ResponseEntity.ok()
                 .body(
                         organisationService.getAllOrganisations().stream()
@@ -68,7 +68,7 @@ public class OrganisationController {
     @Operation(
             summary = "Get organisation by ID",
             description = "Retrieves an organisation using its ID.")
-    public ResponseEntity<OrganisationResponseDto> getOrganisationById(@PathVariable Long id) {
+    public ResponseEntity<OrganizationResponseDto> getOrganisationById(@PathVariable Long id) {
         return ResponseEntity.ok()
                 .body(
                         OrganizationMapper.toResponseDto(
@@ -92,8 +92,8 @@ public class OrganisationController {
     @Operation(
             summary = "Update organisation",
             description = "Updates an existing organisation by its ID.")
-    public ResponseEntity<OrganisationResponseDto> updateOrganisation(
-            @PathVariable Long id, @Valid @RequestBody OrganisationUpdateRequestDto request) {
+    public ResponseEntity<OrganizationResponseDto> updateOrganisation(
+            @PathVariable Long id, @Valid @RequestBody OrganizationUpdateRequestDto request) {
         Organisation updatedOrg =
                 organisationService.updateOrganisationById(
                         OrganizationMapper.toOrganization(request), id);
@@ -113,7 +113,7 @@ public class OrganisationController {
     @Operation(
             summary = "Get my organisation",
             description = "Retrieves the organisation belonging to the authenticated organiser.")
-    public ResponseEntity<List<OrganisationResponseDto>> getMyOrganisation(
+    public ResponseEntity<List<OrganizationResponseDto>> getMyOrganisation(
             Authentication authentication) {
         return ResponseEntity.ok()
                 .body(
