@@ -27,9 +27,17 @@ public class CompanyService {
 
     public CompanyMeDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
-        Organisation organisation = getManagedOrganisationForClerkId(clerkId);
+        Organisation organisation =
+                organisationService.findOrganisationForUser(clerkId).orElse(null);
+        boolean canManageOrganisation = organisation != null;
         return new CompanyMeDto(
-                user.getId(), COMPANY_ROLE, true, organisation.getId(), organisation.getName());
+                user.getId(),
+                canManageOrganisation
+                        ? COMPANY_ROLE
+                        : user.getRole() == null ? "USER" : user.getRole().name(),
+                canManageOrganisation,
+                canManageOrganisation ? organisation.getId() : null,
+                canManageOrganisation ? organisation.getName() : null);
     }
 
     public Organisation getManagedOrganisationForClerkId(String clerkId) {

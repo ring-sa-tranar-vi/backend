@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface OrganisationRepository extends JpaRepository<Organisation, Long> {
+    boolean existsByOrganizer_Id(Long organizerId);
+
     @Query(
             "SELECT DISTINCT organisation FROM Organisation organisation LEFT JOIN FETCH organisation.events")
     List<Organisation> findAllWithEvents();
@@ -22,4 +24,6 @@ public interface OrganisationRepository extends JpaRepository<Organisation, Long
                 WHERE o.organizer.clerkId = :clerkId
             """)
     List<Organisation> findByOrganizer_ClerkIdWithEvents(String clerkId);
+
+    Optional<Organisation> findFirstByOrganizer_ClerkId(String clerkId);
 }
