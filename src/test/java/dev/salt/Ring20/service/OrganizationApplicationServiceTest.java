@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.dto.organization.OrganizationApplicationRequestDto;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.OrganizationApplication;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.enums.ApplicationStatus;
@@ -96,7 +96,7 @@ class OrganizationApplicationServiceTest {
         OrganizationApplication approved = service().approve(9L);
 
         verify(organizationService)
-                .createOrganisation(any(Organisation.class), eq(7L)
+                .createOrganisation(any(Organization.class), eq(7L)
                 );
         assertEquals(ApplicationStatus.APPROVED, approved.getApplicationStatus());
         assertNotNull(approved.getReviewedAt());

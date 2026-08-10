@@ -2,7 +2,7 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class CompanyService {
 
     public CompanyMeResponseDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
-        Organisation organisation =
+        Organization organisation =
                 organizationService.findOrganisationForUser(clerkId).orElse(null);
         boolean canManageOrganisation = organisation != null;
         return new CompanyMeResponseDto(
@@ -40,7 +40,7 @@ public class CompanyService {
                 canManageOrganisation ? organisation.getName() : null);
     }
 
-    public Organisation getManagedOrganisationForClerkId(String clerkId) {
+    public Organization getManagedOrganisationForClerkId(String clerkId) {
         userService.getByClerkIdOrThrow(clerkId);
         return organizationService.getOrganisationForUser(clerkId).stream()
                 .findFirst()
@@ -49,7 +49,7 @@ public class CompanyService {
 
     public Event getManagedEventForClerkId(Long eventId, String clerkId) {
         Event event = eventService.getEventById(eventId);
-        Organisation organisation = getManagedOrganisationForClerkId(clerkId);
+        Organization organisation = getManagedOrganisationForClerkId(clerkId);
         if (event.getOrganisation() == null
                 || organisation.getId() == null
                 || !organisation.getId().equals(event.getOrganisation().getId())) {

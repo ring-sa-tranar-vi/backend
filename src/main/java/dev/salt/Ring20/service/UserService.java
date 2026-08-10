@@ -121,7 +121,7 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
-    public List<Organisation> getUserOrganizationById(Long id) {
+    public List<Organization> getUserOrganizationById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
         }
@@ -139,9 +139,9 @@ public class UserService {
     }
 
     @Transactional
-    public Organisation addFollowOrganization(Long userId, Long orgId) {
+    public Organization addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
-        Organisation org =
+        Organization org =
                 organizationRepository
                         .findByIdWithEvents(orgId)
                         .orElseThrow(
@@ -168,7 +168,7 @@ public class UserService {
                 user.getFollowedOrganisations().removeIf(org -> org.getId().equals(orgId));
 
         if (removed) {
-            Organisation org =
+            Organization org =
                     organizationRepository
                             .findById(orgId)
                             .orElseThrow(

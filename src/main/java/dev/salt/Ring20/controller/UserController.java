@@ -10,7 +10,7 @@ import dev.salt.Ring20.dto.user.UserRequestDto;
 import dev.salt.Ring20.dto.user.UserResponseDto;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.UserRole;
@@ -182,7 +182,7 @@ public class UserController {
     public ResponseEntity<OrganizationResponseDto> followedOrg(
             Authentication authentication, @PathVariable Long orgId) {
         User currentUser = getCurrentUser(authentication);
-        Organisation org = userService.addFollowOrganization(currentUser.getId(), orgId);
+        Organization org = userService.addFollowOrganization(currentUser.getId(), orgId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(OrganizationMapper.toResponseDto(org));
     }

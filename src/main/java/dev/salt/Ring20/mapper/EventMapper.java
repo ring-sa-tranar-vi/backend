@@ -10,7 +10,7 @@ import dev.salt.Ring20.dto.event.EventCreateRequestDto;
 import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.event.EventUpdateRequestDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.enums.EventType;
 import java.time.LocalDateTime;
 import org.springframework.web.server.ResponseStatusException;
@@ -82,7 +82,7 @@ public class EventMapper {
                 parseEventType(dto.eventType()));
     }
 
-    public static Event toEvent(AdminCreateEventDto dto, Organisation org) {
+    public static Event toEvent(AdminCreateEventDto dto, Organization org) {
         return createEvent(
                 dto.name(),
                 dto.description(),

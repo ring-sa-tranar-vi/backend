@@ -4,7 +4,7 @@ import dev.salt.Ring20.dto.event.EventResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationUpdateRequestDto;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.mapper.EventMapper;
 import dev.salt.Ring20.mapper.OrganizationMapper;
 import dev.salt.Ring20.service.EventService;
@@ -40,7 +40,7 @@ public class OrganisationController {
     @Operation(summary = "Create organisation", description = "Creates a new organisation.")
     public ResponseEntity<OrganizationResponseDto> createOrganisation(
             @Valid @RequestBody OrganizationCreateRequestDto request) {
-        Organisation newOrg =
+        Organization newOrg =
                 organizationService.createOrganisation(
                         OrganizationMapper.toOrganization(request), request.organizerId());
         OrganizationResponseDto response = OrganizationMapper.toResponseDto(newOrg);
@@ -94,7 +94,7 @@ public class OrganisationController {
             description = "Updates an existing organisation by its ID.")
     public ResponseEntity<OrganizationResponseDto> updateOrganisation(
             @PathVariable Long id, @Valid @RequestBody OrganizationUpdateRequestDto request) {
-        Organisation updatedOrg =
+        Organization updatedOrg =
                 organizationService.updateOrganisationById(
                         OrganizationMapper.toOrganization(request), id);
         return ResponseEntity.ok().body(OrganizationMapper.toResponseDto(updatedOrg));

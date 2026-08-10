@@ -3,7 +3,7 @@ package dev.salt.Ring20.service.security;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.service.UserService;
 import java.util.List;
@@ -22,7 +22,7 @@ class SecurityServiceTest {
     void organizerMustOwnAnOrganisation() {
         SecurityService service = new SecurityService(userService, organizationRepository);
         when(organizationRepository.findByOrganizer_ClerkIdWithEvents("clerk-organizer"))
-                .thenReturn(List.of(new Organisation()));
+                .thenReturn(List.of(new Organization()));
 
         assertThat(service.isOrganizer("clerk-organizer")).isTrue();
     }
