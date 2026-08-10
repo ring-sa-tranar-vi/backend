@@ -31,24 +31,6 @@ public class ScheduledCallService {
         this.scheduledCallRepository = scheduledCallRepository;
     }
 
-    public void cancelCall(Long callId) {
-        ScheduledCall call =
-                scheduledCallRepository
-                        .findById(callId)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Call not found with id: " + callId));
-
-        call.setCallBackStatus(CallBackStatus.CANCELLED);
-        scheduledCallRepository.save(call);
-    }
-
-    public void resetCallsForPreference(CallbackPreference pref) {
-        scheduledCallRepository.deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
-                pref.getUser().getId(), pref.getDay(), Instant.now(), CallBackStatus.PENDING);
-    }
-
     public void generateCallsForPreference(CallbackPreference pref) {
 
         int occurrences = getOccurrences(pref);
@@ -177,5 +159,22 @@ public class ScheduledCallService {
         for (CallbackPreference pref : prefs){
             generateCallsForPreference(pref);
         }
+    }
+    public void cancelCall(Long callId) {
+        ScheduledCall call =
+                scheduledCallRepository
+                        .findById(callId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Call not found with id: " + callId));
+
+        call.setCallBackStatus(CallBackStatus.CANCELLED);
+        scheduledCallRepository.save(call);
+    }
+
+    public void resetCallsForPreference(CallbackPreference pref) {
+        scheduledCallRepository.deleteByUserIdAndDayAndTargetTimeAfterAndCallBackStatus(
+                pref.getUser().getId(), pref.getDay(), Instant.now(), CallBackStatus.PENDING);
     }
 }
