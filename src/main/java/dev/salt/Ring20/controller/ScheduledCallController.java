@@ -5,11 +5,10 @@ import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.service.ScheduledCallService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/calls")
@@ -26,14 +25,10 @@ public class ScheduledCallController {
 
     @GetMapping("/{id}")
     @PreAuthorize("@scheduledCallSecurity.canModify(#id, authentication.name)")
-    @Operation(
-            summary = "Get scheduled call",
-            description = "Returns a scheduled call by its ID.")
+    @Operation(summary = "Get scheduled call", description = "Returns a scheduled call by its ID.")
     public ResponseEntity<ScheduledCallDto> getCall(@PathVariable Long id) {
 
-        return ResponseEntity.ok(
-                toDto(scheduledCallService.getCall(id))
-        );
+        return ResponseEntity.ok(toDto(scheduledCallService.getCall(id)));
     }
 
     @GetMapping("/user/{userId}")
@@ -41,23 +36,17 @@ public class ScheduledCallController {
     @Operation(
             summary = "Get user's scheduled calls",
             description = "Returns all scheduled calls for a user.")
-    public ResponseEntity<List<ScheduledCallDto>> getCallsForUser(
-            @PathVariable Long userId) {
+    public ResponseEntity<List<ScheduledCallDto>> getCallsForUser(@PathVariable Long userId) {
 
         return ResponseEntity.ok(
-                scheduledCallService.getCallsForUser(userId)
-                        .stream()
-                        .map(this::toDto)
-                        .toList()
-        );
+                scheduledCallService.getCallsForUser(userId).stream().map(this::toDto).toList());
     }
 
     @PostMapping("/user/{userId}/reset")
     @Operation(
             summary = "Reset user's future calls",
             description = "Cancels future pending calls and recreates weekly calls.")
-    public ResponseEntity<Void> resetCallsForUser(
-            @PathVariable Long userId) {
+    public ResponseEntity<Void> resetCallsForUser(@PathVariable Long userId) {
 
         scheduledCallService.resetAllCallsForUser(userId);
         return ResponseEntity.noContent().build();
@@ -88,8 +77,6 @@ public class ScheduledCallController {
                 call.getUserId(),
                 call.getTrainerId(),
                 call.getTargetTime(),
-                call.getCallBackStatus()
-        );
+                call.getCallBackStatus());
     }
-
 }

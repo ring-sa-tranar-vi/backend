@@ -36,23 +36,17 @@ public class ScheduledCallService {
 
         if (pref.getRepeat() == RepeatType.NEVER) {
             long existing =
-                    scheduledCallRepository.countFuturePendingCalls(
-                            pref.getId(),
-                            Instant.now());
+                    scheduledCallRepository.countFuturePendingCalls(pref.getId(), Instant.now());
 
             if (existing == 0) {
-                scheduledCallRepository.save(
-                        buildCall(pref, calculateNext(pref))
-                );
+                scheduledCallRepository.save(buildCall(pref, calculateNext(pref)));
             }
 
             return;
         }
 
         long existing =
-                scheduledCallRepository.countFuturePendingCalls(
-                        pref.getId(),
-                        Instant.now());
+                scheduledCallRepository.countFuturePendingCalls(pref.getId(), Instant.now());
 
         int toCreate = WEEKLY_PENDING_CALLS - (int) existing;
 
@@ -127,8 +121,7 @@ public class ScheduledCallService {
             }
         }
 
-        List<ScheduledCall> missedCalls =
-                scheduledCallRepository.findAllMissedCalls(now);
+        List<ScheduledCall> missedCalls = scheduledCallRepository.findAllMissedCalls(now);
 
         for (ScheduledCall call : missedCalls) {
 
@@ -137,8 +130,7 @@ public class ScheduledCallService {
                 scheduledCallRepository.save(call);
             }
         }
-        List<CallbackPreference> preferences =
-                callbackPreferenceRepository.findAll();
+        List<CallbackPreference> preferences = callbackPreferenceRepository.findAll();
 
         for (CallbackPreference pref : preferences) {
             if (pref.getRepeat() == RepeatType.WEEKLY) {
@@ -195,7 +187,6 @@ public class ScheduledCallService {
     @Transactional
     public void cancelCall(Long callId) {
 
-
         ScheduledCall call =
                 scheduledCallRepository
                         .findById(callId)
@@ -210,17 +201,15 @@ public class ScheduledCallService {
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
     }
+
     @Transactional
     public void cancelFutureCallsForOnePreference(CallbackPreference pref) {
-        scheduledCallRepository
-                .cancelFuturePendingCallsForPreference(
-                        pref.getId(),
-                        Instant.now());
+        scheduledCallRepository.cancelFuturePendingCallsForPreference(pref.getId(), Instant.now());
     }
 
     @Transactional
     public void detachHistoricalCallsFromPreference(Long preferenceId) {
-        scheduledCallRepository.detachPreferenceFromHistoricalCalls( preferenceId);
+        scheduledCallRepository.detachPreferenceFromHistoricalCalls(preferenceId);
     }
 
     @Transactional
@@ -233,10 +222,7 @@ public class ScheduledCallService {
     public ScheduledCall getCall(Long id) {
         return scheduledCallRepository
                 .findById(id)
-                .orElseThrow(
-                        () ->
-                                new NoSuchElementException(
-                                        "Call not found with id: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Call not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -247,12 +233,9 @@ public class ScheduledCallService {
     @Transactional
     public void resetAllCallsForUser(Long userId) {
 
-        scheduledCallRepository.cancelFuturePendingCallsForUser(
-                userId,
-                Instant.now());
+        scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
 
-        List<CallbackPreference> prefs =
-                callbackPreferenceRepository.findByUserId(userId);
+        List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
         for (CallbackPreference pref : prefs) {
             if (pref.getRepeat() == RepeatType.WEEKLY) {

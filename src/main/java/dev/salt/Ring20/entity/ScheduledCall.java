@@ -1,9 +1,7 @@
 package dev.salt.Ring20.entity;
 
 import jakarta.persistence.*;
-
 import java.time.Instant;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +26,9 @@ public class ScheduledCall {
     private CallBackStatus callBackStatus;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "callback_preference_id", nullable = true, foreignKey = @ForeignKey(name = "fk_scheduled_call_callback_preference"))
+    @JoinColumn(
+            name = "callback_preference_id",
+            nullable = true,
+            foreignKey = @ForeignKey(name = "fk_scheduled_call_callback_preference"))
     private CallbackPreference callbackPreference;
 }
