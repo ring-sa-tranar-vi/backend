@@ -138,7 +138,15 @@ public class UserController {
             @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
         User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = getClerkId(authentication);
-        User updated = userService.updateUserPreferencesByClerkId(clerkId, userToUpdate);
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId(),
+                        userRequest.city(),
+                        userRequest.onboarding());
 
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -153,7 +161,15 @@ public class UserController {
             Authentication authentication) {
         User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = getClerkId(authentication);
-        User updated = userService.updateUserPreferencesByClerkId(clerkId, userToUpdate);
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId(),
+                        userRequest.city(),
+                        userRequest.onboarding());
 
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -169,7 +185,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .body(
-                        userService.getUserOrganizationById(currentUser.getId()).stream()
+                        userService.getUserOrgsById(currentUser.getId()).stream()
                                 .map(OrganizationMapper::toResponseDto)
                                 .toList());
     }

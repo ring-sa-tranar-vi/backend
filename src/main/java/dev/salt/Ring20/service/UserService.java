@@ -1,6 +1,8 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.entity.enums.DayOfWeekType;
+import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
@@ -20,6 +22,7 @@ public class UserService {
     private final TrainerRepository trainerRepository;
     private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
+    private final ScheduledCallService scheduledCallService;
 
     public UserService(
             UserRepository userRepository,
@@ -127,7 +130,7 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
-    public List<Organisation> getUserOrgsById(Long id) {
+    public List<Organization> getUserOrgsById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
         }
@@ -145,10 +148,10 @@ public class UserService {
     }
 
     @Transactional
-    public Organisation addFollowOrganization(Long userId, Long orgId) {
+    public Organization addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
-        Organisation org =
-                organisationRepository
+        Organization org =
+                organizationRepository
                         .findByIdWithEvents(orgId)
                         .orElseThrow(
                                 () ->
@@ -174,8 +177,8 @@ public class UserService {
                 user.getFollowedOrganisations().removeIf(org -> org.getId().equals(orgId));
 
         if (removed) {
-            Organisation org =
-                    organisationRepository
+            Organization org =
+                    organizationRepository
                             .findById(orgId)
                             .orElseThrow(
                                     () ->
