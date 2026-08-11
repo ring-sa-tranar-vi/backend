@@ -159,7 +159,8 @@ public class ScheduledCallService {
                                             .build())
                             .build();
 
-            FirebaseMessaging.getInstance().send(message);
+
+            System.out.println(FirebaseMessaging.getInstance().send(message));
             return true;
 
         } catch (Exception e) {
