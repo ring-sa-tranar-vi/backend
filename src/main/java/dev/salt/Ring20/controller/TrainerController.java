@@ -1,13 +1,12 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.trainerDtos.TrainerRequestDto;
-import dev.salt.Ring20.dto.trainerDtos.TrainerResponseDto;
-import dev.salt.Ring20.dto.workoutDtos.RecommendWorkoutResponseDto;
+import dev.salt.Ring20.dto.trainer.TrainerRequestDto;
+import dev.salt.Ring20.dto.trainer.TrainerResponseDto;
+import dev.salt.Ring20.dto.workout.RecommendWorkoutResponseDto;
 import dev.salt.Ring20.entity.Trainer;
-import dev.salt.Ring20.service.FileStorageService;
+import dev.salt.Ring20.mapper.TrainerMapper;
 import dev.salt.Ring20.service.TrainerService;
-import dev.salt.Ring20.service.data.RecommendedWorkoutData;
-import dev.salt.Ring20.service.data.TrainerData;
+import dev.salt.Ring20.service.storage.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
         description = "Endpoints for managing trainers and generating workout recommendations.")
 public class TrainerController {
 
+    private static final int VALID_MINUTES = 15;
+
     private final TrainerService trainerService;
     private final FileStorageService fileStorageService;
 
@@ -37,15 +38,22 @@ public class TrainerController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get all trainers", description = "Retrieves all available trainers.")
     public ResponseEntity<List<TrainerResponseDto>> getAllTrainers() {
-        return ResponseEntity.ok(
-                trainerService.getAllTrainers().stream().map(this::toResponseDto).toList());
+        return ResponseEntity.ok()
+                .body(
+                        trainerService.getAllTrainers().stream()
+                                .map(
+                                        t ->
+                                                TrainerMapper.toResponseDto(
+                                                        t, fileStorageService, VALID_MINUTES))
+                                .toList());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get trainer by ID", description = "Retrieves a trainer using their ID.")
     public ResponseEntity<TrainerResponseDto> getTrainerById(@PathVariable Long id) {
         Trainer trainer = trainerService.getTrainerById(id);
-        return ResponseEntity.ok(toResponseDto(trainer));
+        return ResponseEntity.ok()
+                .body(TrainerMapper.toResponseDto(trainer, fileStorageService, VALID_MINUTES));
     }
 
     @PostMapping
@@ -55,8 +63,9 @@ public class TrainerController {
             description = "Creates a new trainer. Available to administrators only.")
     public ResponseEntity<TrainerResponseDto> createTrainer(
             @Valid @RequestBody TrainerRequestDto request) {
-        Trainer trainer = trainerService.createTrainer(toTrainerData(request));
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponseDto(trainer));
+        Trainer trainer = trainerService.createTrainer(TrainerMapper.toTrainerData(request));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(TrainerMapper.toResponseDto(trainer, fileStorageService, VALID_MINUTES));
     }
 
     @PutMapping("/{id}")
@@ -66,8 +75,9 @@ public class TrainerController {
             description = "Updates an existing trainer. Available to administrators only.")
     public ResponseEntity<TrainerResponseDto> updateTrainer(
             @PathVariable Long id, @Valid @RequestBody TrainerRequestDto request) {
-        Trainer trainer = trainerService.updateTrainer(id, toTrainerData(request));
-        return ResponseEntity.ok(toResponseDto(trainer));
+        Trainer trainer = trainerService.updateTrainer(id, TrainerMapper.toTrainerData(request));
+        return ResponseEntity.ok()
+                .body(TrainerMapper.toResponseDto(trainer, fileStorageService, VALID_MINUTES));
     }
 
     @DeleteMapping("/{id}")
@@ -80,36 +90,6 @@ public class TrainerController {
         return ResponseEntity.noContent().build();
     }
 
-    private TrainerResponseDto toResponseDto(Trainer trainer) {
-        String introUrl =
-                (trainer.getIntro() != null)
-                        ? fileStorageService.getFileAccess(trainer.getIntro(), 15)
-                        : null;
-        String imageSelectUrl =
-                (trainer.getImageSelect() != null)
-                        ? fileStorageService.getFileAccess(trainer.getImageSelect(), 15)
-                        : null;
-        String imageCallUrl =
-                (trainer.getImageCall()) != null
-                        ? fileStorageService.getFileAccess(trainer.getImageCall(), 15)
-                        : null;
-        String imageStartUrl =
-                (trainer.getImageStart()) != null
-                        ? fileStorageService.getFileAccess(trainer.getImageStart(), 15)
-                        : null;
-        return new TrainerResponseDto(
-                trainer.getId(),
-                trainer.getName(),
-                trainer.getPrompt(),
-                trainer.getVoice(),
-                introUrl,
-                trainer.getLanguage(),
-                imageSelectUrl,
-                imageCallUrl,
-                imageStartUrl,
-                trainer.getAmbience());
-    }
-
     @GetMapping("/recommend-for/{userId}")
     @Operation(
             summary = "Get AI workout recommendation",
@@ -119,23 +99,9 @@ public class TrainerController {
 
         return trainerService
                 .getAiRecommendedWorkout(userId)
-                .thenApply(data -> ResponseEntity.ok(toRecommendedWorkoutResponse(data)));
-    }
-
-    private RecommendWorkoutResponseDto toRecommendedWorkoutResponse(RecommendedWorkoutData data) {
-        return new RecommendWorkoutResponseDto(data.workoutId(), data.reasoning());
-    }
-
-    private TrainerData toTrainerData(TrainerRequestDto request) {
-        return new TrainerData(
-                request.name(),
-                request.prompt(),
-                request.voice(),
-                request.intro(),
-                request.language(),
-                request.imageSelect(),
-                request.imageCall(),
-                request.imageStart(),
-                request.ambience());
+                .thenApply(
+                        data ->
+                                ResponseEntity.ok()
+                                        .body(TrainerMapper.toRecommendedWorkoutResponse(data)));
     }
 }

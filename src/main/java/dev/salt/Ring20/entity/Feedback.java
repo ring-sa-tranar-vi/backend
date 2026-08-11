@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -2,7 +2,7 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -18,19 +18,18 @@ public class UserService {
     private static final int STARTING_INTENSITY = 2;
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
-    private final OrganisationRepository organisationRepository;
+    private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
-    private final ScheduledCallService scheduledCallService;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
-            OrganisationRepository organisationRepository,
+            OrganizationRepository organizationRepository,
             EventRepository eventRepository,
             ScheduledCallService scheduledCallService) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
-        this.organisationRepository = organisationRepository;
+        this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
         this.scheduledCallService = scheduledCallService;
     }

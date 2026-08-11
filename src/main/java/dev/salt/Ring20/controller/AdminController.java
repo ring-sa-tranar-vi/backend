@@ -1,13 +1,14 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.adminDtos.*;
-import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.admin.*;
+import dev.salt.Ring20.dto.user.UserRequestDto;
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.mapper.AdminMapper;
+import dev.salt.Ring20.mapper.UserMapper;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.AdminService;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.UserService;
-import dev.salt.Ring20.service.data.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,9 +25,7 @@ import org.springframework.web.bind.annotation.*;
         description =
                 "Administrative endpoints for managing users, monitoring activity, and viewing system statistics.")
 public class AdminController {
-    private static final int ACTIVE_USER_DAYS = 30;
-    private static final String UNKNOWN_USER = "Unknown user";
-    private static final String UNKNOWN_WORKOUT = "Unknown workout";
+
     private final UserService userService;
     private final FeedbackService feedbackService;
     private final ActivityLogService activityLogService;
@@ -51,10 +50,11 @@ public class AdminController {
     public ResponseEntity<String> adminPage(Authentication authentication) {
         final String name = userService.getByClerkIdOrThrow(authentication.getName()).getName();
 
-        return ResponseEntity.ok(
-                "Congrats, "
-                        + name
-                        + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
+        return ResponseEntity.ok()
+                .body(
+                        "Congrats, "
+                                + name
+                                + " - you're the admin. Try not to break everything. \uD83D\uDE0E");
     }
 
     @GetMapping("/users/count")
@@ -65,7 +65,8 @@ public class AdminController {
     public ResponseEntity<AdminUserCountResponseDto> getUserCount() {
         long total = userService.getUserCount();
         long active = activityLogService.getActiveUserCount();
-        return ResponseEntity.ok(new AdminUserCountResponseDto(total, active));
+
+        return ResponseEntity.ok().body(new AdminUserCountResponseDto(total, active));
     }
 
     @GetMapping("/users")
@@ -74,7 +75,9 @@ public class AdminController {
             summary = "Get user summaries",
             description = "Retrieves a summary of all registered users.")
     public ResponseEntity<List<AdminUserSummaryResponseDto>> getUsers() {
-        return ResponseEntity.ok(toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
+
+        return ResponseEntity.ok()
+                .body(AdminMapper.toAdminUserSummaryResponseDto(adminService.getUserSummaries()));
     }
 
     @PutMapping("/users/{id}")
@@ -82,8 +85,10 @@ public class AdminController {
     @Operation(summary = "Update user", description = "Updates the details of an existing user.")
     public ResponseEntity<String> updateUser(
             @PathVariable Long id, @Valid @RequestBody UserRequestDto updateData) {
-        User updated = adminService.updateUser(id, toUserEntity(updateData));
-        return ResponseEntity.ok("User with ID " + updated.getId() + " updated successfully");
+        User updated = adminService.updateUser(id, UserMapper.toUserEntity(updateData));
+
+        return ResponseEntity.ok()
+                .body("User with ID " + updated.getId() + " updated successfully");
     }
 
     @DeleteMapping("/users/{id}")
@@ -101,8 +106,10 @@ public class AdminController {
             summary = "Get recent activity logs",
             description = "Retrieves the most recent workout activity logs.")
     public ResponseEntity<List<AdminRecentActivityResponseDto>> getRecentActivityLogs() {
-        return ResponseEntity.ok(
-                toAdminRecentActivityResponseDto(adminService.getRecentActivityLogs()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toAdminRecentActivityResponseDto(
+                                adminService.getRecentActivityLogs()));
     }
 
     @GetMapping("/workouts/usage")
@@ -112,7 +119,8 @@ public class AdminController {
             description = "Retrieves usage statistics for workouts.")
     public ResponseEntity<List<AdminWorkoutUsageResponseDto>> getWorkoutUsage() {
 
-        return ResponseEntity.ok(toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
+        return ResponseEntity.ok()
+                .body(AdminMapper.toAdminWorkoutUsageResponseDto(adminService.getWorkoutUsage()));
     }
 
     @GetMapping("/workouts/feedback-summary")
@@ -123,8 +131,10 @@ public class AdminController {
     public ResponseEntity<List<AdminWorkoutFeedbackSummaryResponseDto>>
             getWorkoutFeedbackSummary() {
 
-        return ResponseEntity.ok(
-                toWorkoutFeedbackSummaryDto(feedbackService.getWorkoutFeedbackSummary()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toWorkoutFeedbackSummaryDto(
+                                feedbackService.getWorkoutFeedbackSummary()));
     }
 
     @GetMapping("/feedbacks")
@@ -134,8 +144,10 @@ public class AdminController {
             description = "Retrieves the most recent workout feedback entries.")
     public ResponseEntity<List<AdminRecentFeedbackResponseDto>> getRecentFeedbackEntries() {
 
-        return ResponseEntity.ok(
-                toAdminRecentFeedbackResponseDto(feedbackService.getRecentFeedbackEntries()));
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toAdminRecentFeedbackResponseDto(
+                                feedbackService.getRecentFeedbackEntries()));
     }
 
     @GetMapping("/trainers/overview")
@@ -144,135 +156,10 @@ public class AdminController {
             summary = "Get trainer overview",
             description = "Retrieves overview information for all trainers.")
     public ResponseEntity<List<AdminTrainerOverviewResponseDto>> getTrainerOverview() {
-        return ResponseEntity.ok(
-                toAdminTrainerOverviewsponseDto(adminService.getTrainerOverview()));
-    }
 
-    private List<AdminWorkoutFeedbackSummaryResponseDto> toWorkoutFeedbackSummaryDto(
-            List<WorkoutFeedbackSummaryData> data) {
-        return data.stream()
-                .map(
-                        summary ->
-                                new AdminWorkoutFeedbackSummaryResponseDto(
-                                        summary.workout().getId(),
-                                        summary.workout().getName(),
-                                        summary.feedbackCount(),
-                                        summary.avgRating(),
-                                        summary.dislikeRate(),
-                                        summary.tooHardRate(),
-                                        summary.status()))
-                .toList();
-    }
-
-    private List<AdminUserSummaryResponseDto> toAdminUserSummaryResponseDto(UserSummaryData data) {
-        return data.users().stream()
-                .map(
-                        user ->
-                                new AdminUserSummaryResponseDto(
-                                        user.getId(),
-                                        user.getName(),
-                                        user.getClerkId(),
-                                        user.getRole(),
-                                        user.getIntensityLevel(),
-                                        user.getContext(),
-                                        user.getTrainerId(),
-                                        user.getCity(),
-                                        isActive(data.lastCompletedAtByUserId().get(user.getId())),
-                                        true,
-                                        data.lastCompletedAtByUserId().get(user.getId())))
-                .toList();
-    }
-
-    private boolean isActive(java.time.LocalDateTime lastCompletedAt) {
-        return lastCompletedAt != null
-                && !lastCompletedAt.isBefore(
-                        java.time.LocalDateTime.now().minusDays(ACTIVE_USER_DAYS));
-    }
-
-    private List<AdminRecentActivityResponseDto> toAdminRecentActivityResponseDto(
-            RecentActivityData data) {
-        return data.activityLogs().stream()
-                .map(
-                        activityLog ->
-                                new AdminRecentActivityResponseDto(
-                                        activityLog.getId(),
-                                        activityLog.getUserId(),
-                                        data.userNameById()
-                                                .getOrDefault(
-                                                        activityLog.getUserId(), UNKNOWN_USER),
-                                        activityLog.getWorkoutId(),
-                                        data.workoutNameById()
-                                                .getOrDefault(
-                                                        activityLog.getWorkoutId(),
-                                                        UNKNOWN_WORKOUT),
-                                        activityLog.getStatus(),
-                                        activityLog.getDurationSeconds(),
-                                        activityLog.getCompletedAt()))
-                .toList();
-    }
-
-    private List<AdminWorkoutUsageResponseDto> toAdminWorkoutUsageResponseDto(
-            WorkoutUsageData data) {
-        return data.workouts().stream()
-                .map(
-                        workout ->
-                                new AdminWorkoutUsageResponseDto(
-                                        workout.getId(),
-                                        workout.getName(),
-                                        data.startedCountByWorkoutId()
-                                                .getOrDefault(workout.getId(), 0L),
-                                        data.completedCountByWorkoutId()
-                                                .getOrDefault(workout.getId(), 0L),
-                                        data.lastCompletedAtByWorkoutId().get(workout.getId())))
-                .toList();
-    }
-
-    private List<AdminTrainerOverviewResponseDto> toAdminTrainerOverviewsponseDto(
-            TrainerOverviewData data) {
-        return data.trainers().stream()
-                .map(
-                        trainer ->
-                                new AdminTrainerOverviewResponseDto(
-                                        trainer.getId(),
-                                        trainer.getName(),
-                                        trainer.getLanguage(),
-                                        data.assignedUserCountByTrainerId()
-                                                .getOrDefault(trainer.getId(), 0L)))
-                .toList();
-    }
-
-    private List<AdminRecentFeedbackResponseDto> toAdminRecentFeedbackResponseDto(
-            RecentFeedbackData data) {
-
-        return data.feedbacks().stream()
-                .map(
-                        feedback ->
-                                new AdminRecentFeedbackResponseDto(
-                                        feedback.getId(),
-                                        feedback.getUserId(),
-                                        feedback.getWorkoutId(),
-                                        feedback.getActivityLogId(),
-                                        data.workoutNameById()
-                                                .getOrDefault(
-                                                        feedback.getWorkoutId(), UNKNOWN_WORKOUT),
-                                        feedback.getDifficulty(),
-                                        feedback.getLiked(),
-                                        feedback.getRating(),
-                                        feedback.getComment(),
-                                        feedback.getCreatedAt()))
-                .toList();
-    }
-
-    private User toUserEntity(UserRequestDto request) {
-        User user = new User();
-
-        user.setName(request.name());
-        user.setIntensityLevel(request.intensityLevel());
-        user.setContext(request.context());
-        user.setTrainerId(request.trainerId());
-        user.setCity(request.city());
-        user.setOnboarding(request.onboarding());
-
-        return user;
+        return ResponseEntity.ok()
+                .body(
+                        AdminMapper.toAdminTrainerOverviewsResponseDto(
+                                adminService.getTrainerOverview()));
     }
 }

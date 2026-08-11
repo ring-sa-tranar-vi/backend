@@ -1,5 +1,7 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.DayOfWeekType;
+import dev.salt.Ring20.entity.enums.RepeatType;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package dev.salt.Ring20.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.salt.Ring20.entity.UserWorkoutPreference;
-import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.ApplicationStatus;
+import dev.salt.Ring20.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;
