@@ -69,7 +69,7 @@ public class ScheduledCallService {
                 toCreate--;
             }
 
-            nextTime = nextTime.plus(1, ChronoUnit.WEEKS);
+            nextTime = nextTime.plus(7, ChronoUnit.DAYS);
         }
     }
 
@@ -190,17 +190,6 @@ public class ScheduledCallService {
         }
         call.setCallBackStatus(CallBackStatus.COMPLETED);
         scheduledCallRepository.save(call);
-    }
-
-    @Transactional
-    public void resetAllCallsForUser(Long userId) {
-        scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
-        List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
-        for (CallbackPreference pref : prefs) {
-            if (pref.getRepeat() == RepeatType.WEEKLY) {
-                ensureRollingCalls(pref);
-            }
-        }
     }
 
     @Transactional
