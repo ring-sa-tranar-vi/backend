@@ -27,12 +27,6 @@ spring:
       init:
         mode: always
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: 1
-    ignore-migration-patterns: "*:missing"
-
   security:
     oauth2:
       resourceserver:
