@@ -22,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduledCallService {
     private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final ScheduledCallRepository scheduledCallRepository;
-    private static final int REPEAT_TIMES_IF_WEEKLY = 4;
-    private static final int NO_REPEAT_TIMES = 1;
+    private static final int WEEKLY_PENDING_CALLS = 4;
 
     public ScheduledCallService(
             CallbackPreferenceRepository callbackPreferenceRepository,
@@ -32,17 +31,45 @@ public class ScheduledCallService {
         this.scheduledCallRepository = scheduledCallRepository;
     }
 
-    public void generateCallsForPreference(CallbackPreference pref) {
+    @Transactional
+    public void ensureRollingCalls(CallbackPreference pref) {
 
-        int occurrences = getOccurrences(pref);
+        if (pref.getRepeat() == RepeatType.NEVER) {
+            long existing =
+                    scheduledCallRepository.countFuturePendingCalls(
+                            pref.getId(),
+                            Instant.now());
 
-        for (int i = 0; i < occurrences; i++) {
+            if (existing == 0) {
+                scheduledCallRepository.save(
+                        buildCall(pref, calculateNext(pref))
+                );
+            }
 
-            Instant targetTime = getTargetTime(pref, i);
+            return;
+        }
 
-            if (alreadyExists(pref.getUser().getId(), targetTime)) continue;
+        long existing =
+                scheduledCallRepository.countFuturePendingCalls(
+                        pref.getId(),
+                        Instant.now());
 
-            scheduledCallRepository.save(buildCall(pref, targetTime));
+        int toCreate = WEEKLY_PENDING_CALLS - (int) existing;
+
+        if (toCreate <= 0) {
+            return;
+        }
+
+        Instant nextTime = calculateNext(pref);
+
+        while (toCreate > 0) {
+
+            if (!alreadyExists(pref.getUser().getId(), nextTime)) {
+                scheduledCallRepository.save(buildCall(pref, nextTime));
+                toCreate--;
+            }
+
+            nextTime = nextTime.plus(1, ChronoUnit.WEEKS);
         }
     }
 
@@ -59,14 +86,6 @@ public class ScheduledCallService {
 
     private boolean alreadyExists(Long userId, Instant time) {
         return scheduledCallRepository.existsByUserIdAndTargetTime(userId, time);
-    }
-
-    private Instant getTargetTime(CallbackPreference pref, int weekOffset) {
-        return calculateNext(pref).plus(weekOffset, ChronoUnit.WEEKS);
-    }
-
-    private int getOccurrences(CallbackPreference pref) {
-        return pref.getRepeat() == RepeatType.WEEKLY ? REPEAT_TIMES_IF_WEEKLY : NO_REPEAT_TIMES;
     }
 
     private Instant calculateNext(CallbackPreference pref) {
@@ -100,10 +119,12 @@ public class ScheduledCallService {
                 continue;
             }
 
-            sendNotification(call);
+            boolean sent = sendNotification(call);
 
-            call.setCallBackStatus(CallBackStatus.TRIGGERED);
-            scheduledCallRepository.save(call);
+            if (sent) {
+                call.setCallBackStatus(CallBackStatus.TRIGGERED);
+                scheduledCallRepository.save(call);
+            }
         }
 
         List<ScheduledCall> missedCalls =
@@ -116,12 +137,20 @@ public class ScheduledCallService {
                 scheduledCallRepository.save(call);
             }
         }
+        List<CallbackPreference> preferences =
+                callbackPreferenceRepository.findAll();
+
+        for (CallbackPreference pref : preferences) {
+            if (pref.getRepeat() == RepeatType.WEEKLY) {
+                ensureRollingCalls(pref);
+            }
+        }
     }
 
-    public void sendNotification(ScheduledCall call) {
+    public boolean sendNotification(ScheduledCall call) {
         try {
             if (call.getFcmToken() == null || call.getFcmToken().isBlank()) {
-                return;
+                return false;
             }
 
             Message message =
@@ -138,10 +167,12 @@ public class ScheduledCallService {
                                             .build())
                             .build();
 
-            FirebaseMessaging.getInstance().sendAsync(message);
+            FirebaseMessaging.getInstance().send(message);
+            return true;
 
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -153,7 +184,7 @@ public class ScheduledCallService {
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
-                                                "No scheduled call exist with this id: " + id));
+                                                "No scheduled call exists with this id: " + id));
         if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
             throw new IllegalStateException("Only triggered calls can be completed");
         }
@@ -161,11 +192,14 @@ public class ScheduledCallService {
         scheduledCallRepository.save(call);
     }
 
+    @Transactional
     public void resetAllCallsForUser(Long userId) {
         scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
-        for (CallbackPreference pref : prefs){
-            generateCallsForPreference(pref);
+        for (CallbackPreference pref : prefs) {
+            if (pref.getRepeat() == RepeatType.WEEKLY) {
+                ensureRollingCalls(pref);
+            }
         }
     }
 
@@ -203,6 +237,6 @@ public class ScheduledCallService {
     @Transactional
     public void resetCallsForPreference(CallbackPreference pref) {
         cancelFutureCallsForOnePreference(pref);
-        generateCallsForPreference(pref);
+        ensureRollingCalls(pref);
     }
 }

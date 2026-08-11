@@ -263,7 +263,7 @@ public class UserService {
 
         callback.setUser(user);
         user.getCallbackPreferences().add(callback);
-        scheduledCallService.generateCallsForPreference(callback);
+        scheduledCallService.ensureRollingCalls(callback);
         return callback;
     }
 

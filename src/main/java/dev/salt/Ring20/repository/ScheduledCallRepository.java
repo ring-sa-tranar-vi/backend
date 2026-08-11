@@ -5,6 +5,7 @@ import dev.salt.Ring20.entity.ScheduledCall;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -53,4 +54,15 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     void cancelFuturePendingCallsForPreference(
             @Param("preferenceId") Long preferenceId,
             @Param("targetTime") Instant targetTime);
+
+    @Query("""
+                SELECT COUNT(c)
+                FROM ScheduledCall c
+                WHERE c.callbackPreference.id = :prefId
+                  AND c.targetTime > :now
+                  AND c.callBackStatus = 'PENDING'
+            """)
+    long countFuturePendingCalls(@Param("prefId") Long prefId, @Param("now") Instant now);
+
 }
+
