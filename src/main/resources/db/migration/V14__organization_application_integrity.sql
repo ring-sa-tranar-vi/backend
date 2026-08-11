@@ -1,4 +1,4 @@
--- Packaged counterpart of db-init/05-organization-application-integrity.sql.
+-- Packaged counterpart of db-init/04-organization-application-integrity.sql.
 -- Flyway runs this for existing local, staging, and production databases.
 ALTER TABLE organisation
     DROP COLUMN IF EXISTS initial_followers;
