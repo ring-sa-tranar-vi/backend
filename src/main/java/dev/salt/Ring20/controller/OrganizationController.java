@@ -25,12 +25,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Tag(
         name = "organizations",
         description = "Endpoints for creating, managing, and retrieving organizations.")
-public class organizationController {
+public class OrganizationController {
 
     private final OrganizationService organizationService;
     private final EventService eventService;
 
-    public organizationController(OrganizationService service, EventService eventService) {
+    public OrganizationController(OrganizationService service, EventService eventService) {
         this.organizationService = service;
         this.eventService = eventService;
     }
