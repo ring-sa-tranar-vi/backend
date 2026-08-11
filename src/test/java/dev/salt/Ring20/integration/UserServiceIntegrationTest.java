@@ -20,16 +20,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DisplayName("UserService Integration Tests")
 class UserServiceIntegrationTest {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private TrainerRepository trainerRepository;
-    @MockitoBean
-    private ScheduledCallService scheduledCallService;
+    @Autowired private TrainerRepository trainerRepository;
+    @MockitoBean private ScheduledCallService scheduledCallService;
 
     @Test
     void createUserPersistsAndCanBeLoaded() {
