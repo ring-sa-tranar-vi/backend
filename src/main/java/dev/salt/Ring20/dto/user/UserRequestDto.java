@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record UserRequestDto(
         @NotBlank String name,
-        @Min(0) @Max(4) int intensityLevel,
+        @Min(1) @Max(5) int intensityLevel,
         String context,
         @NotNull Long trainerId,
         String city,
