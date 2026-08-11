@@ -64,5 +64,6 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
             """)
     long countFuturePendingCalls(@Param("prefId") Long prefId, @Param("now") Instant now);
 
+    List<ScheduledCall> findByUserId(Long userId);
 }
 

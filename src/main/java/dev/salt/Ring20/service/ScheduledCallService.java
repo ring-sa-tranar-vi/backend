@@ -228,4 +228,36 @@ public class ScheduledCallService {
         cancelFutureCallsForOnePreference(pref);
         ensureRollingCalls(pref);
     }
+
+    @Transactional(readOnly = true)
+    public ScheduledCall getCall(Long id) {
+        return scheduledCallRepository
+                .findById(id)
+                .orElseThrow(
+                        () ->
+                                new NoSuchElementException(
+                                        "Call not found with id: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduledCall> getCallsForUser(Long userId) {
+        return scheduledCallRepository.findByUserId(userId);
+    }
+
+    @Transactional
+    public void resetAllCallsForUser(Long userId) {
+
+        scheduledCallRepository.cancelFuturePendingCallsForUser(
+                userId,
+                Instant.now());
+
+        List<CallbackPreference> prefs =
+                callbackPreferenceRepository.findByUserId(userId);
+
+        for (CallbackPreference pref : prefs) {
+            if (pref.getRepeat() == RepeatType.WEEKLY) {
+                ensureRollingCalls(pref);
+            }
+        }
+    }
 }
