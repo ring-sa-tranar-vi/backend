@@ -99,7 +99,6 @@ public class ScheduledCallService {
 
     @Scheduled(fixedRate = 60000)
     public void handleScheduledCalls() {
-        System.out.println("Scheduler running...");
         Instant now = Instant.now();
 
         List<ScheduledCall> startingNow =
@@ -159,8 +158,7 @@ public class ScheduledCallService {
                                             .build())
                             .build();
 
-
-            System.out.println(FirebaseMessaging.getInstance().send(message));
+            FirebaseMessaging.getInstance().send(message);
             return true;
 
         } catch (Exception e) {
