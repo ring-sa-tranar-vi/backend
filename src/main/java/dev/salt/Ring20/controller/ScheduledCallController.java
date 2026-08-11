@@ -1,5 +1,6 @@
 package dev.salt.Ring20.controller;
 
+import dev.salt.Ring20.dto.ScheduledCallDto;
 import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.service.ScheduledCallService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,10 +29,10 @@ public class ScheduledCallController {
     @Operation(
             summary = "Get scheduled call",
             description = "Returns a scheduled call by its ID.")
-    public ResponseEntity<ScheduledCall> getCall(@PathVariable Long id) {
+    public ResponseEntity<ScheduledCallDto> getCall(@PathVariable Long id) {
 
         return ResponseEntity.ok(
-                scheduledCallService.getCall(id)
+                toDto(scheduledCallService.getCall(id))
         );
     }
 
@@ -40,11 +41,14 @@ public class ScheduledCallController {
     @Operation(
             summary = "Get user's scheduled calls",
             description = "Returns all scheduled calls for a user.")
-    public ResponseEntity<List<ScheduledCall>> getCallsForUser(
+    public ResponseEntity<List<ScheduledCallDto>> getCallsForUser(
             @PathVariable Long userId) {
 
         return ResponseEntity.ok(
                 scheduledCallService.getCallsForUser(userId)
+                        .stream()
+                        .map(this::toDto)
+                        .toList()
         );
     }
 
@@ -76,6 +80,16 @@ public class ScheduledCallController {
 
         scheduledCallService.cancelCall(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private ScheduledCallDto toDto(ScheduledCall call) {
+        return new ScheduledCallDto(
+                call.getId(),
+                call.getUserId(),
+                call.getTrainerId(),
+                call.getTargetTime(),
+                call.getCallBackStatus()
+        );
     }
 
 }
