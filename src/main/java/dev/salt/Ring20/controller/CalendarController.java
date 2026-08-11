@@ -1,8 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
+import dev.salt.Ring20.dto.calendarEvent.CalendarEventDto;
+import dev.salt.Ring20.mapper.CalendarMapper;
 import dev.salt.Ring20.service.CalendarService;
-import dev.salt.Ring20.service.security.SecurityService;
+import dev.salt.Ring20.service.data.CalendarEventData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 public class CalendarController {
 
     private final CalendarService calendarService;
-    private final SecurityService securityService;
 
     @GetMapping
     @PreAuthorize("@securityService.isOwnerOrAdmin(#userId, authentication.name)")
@@ -29,13 +29,14 @@ public class CalendarController {
                     "Retrieves a user's workout calendar events for the specified month and year.")
     public ResponseEntity<List<CalendarEventDto>> getCalendar(
             @RequestParam Long userId, @RequestParam int year, @RequestParam int month) {
-
-        if (month < 1 || month > 12) {
+        int minMonth = 1;
+        int maxMonth = 12;
+        if (month < minMonth || month > maxMonth) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<CalendarEventDto> events = calendarService.getMonthlyCalendar(userId, year, month);
+        List<CalendarEventData> events = calendarService.getMonthlyCalendar(userId, year, month);
 
-        return ResponseEntity.ok(events);
+        return ResponseEntity.ok().body(events.stream().map(CalendarMapper::toDto).toList());
     }
 }

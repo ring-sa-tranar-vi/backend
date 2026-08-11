@@ -1,8 +1,9 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.activityLogDtos.ActivityLogCreateRequestDto;
-import dev.salt.Ring20.dto.activityLogDtos.ActivityLogResponseDto;
+import dev.salt.Ring20.dto.activityLog.ActivityLogCreateRequestDto;
+import dev.salt.Ring20.dto.activityLog.ActivityLogResponseDto;
 import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.mapper.ActivityLogMapper;
 import dev.salt.Ring20.service.ActivityLogService;
 import dev.salt.Ring20.service.security.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +42,7 @@ public class ActivityLogController {
     public ResponseEntity<Map<String, Boolean>> hasCompletedWorkoutToday(
             @PathVariable Long userId) {
         boolean hasCompleted = activityLogService.hasCompletedWorkoutToday(userId);
-        return ResponseEntity.ok(Map.of("hasCompletedToday", hasCompleted));
+        return ResponseEntity.ok().body(Map.of("hasCompletedToday", hasCompleted));
     }
 
     @PostMapping
@@ -51,12 +52,13 @@ public class ActivityLogController {
     public ResponseEntity<ActivityLogResponseDto> createActivityLog(
             @Valid @RequestBody ActivityLogCreateRequestDto activityLogRequest,
             Authentication authentication) {
-        ActivityLog activityLog = toEntity(activityLogRequest);
+        ActivityLog activityLog = ActivityLogMapper.toEntity(activityLogRequest);
 
         activityLog.setUserId(securityService.currentUserId(authentication.getName()));
 
         ActivityLog created = activityLogService.createActivityLog(activityLog);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ActivityLogMapper.toResponse(created));
     }
 
     @PutMapping("/{id}/complete")
@@ -67,27 +69,6 @@ public class ActivityLogController {
     public ResponseEntity<ActivityLogResponseDto> completeActivityLog(@PathVariable Long id) {
 
         ActivityLog completed = activityLogService.completeActivityLog(id);
-        return ResponseEntity.ok().body(toResponse(completed));
-    }
-
-    private ActivityLog toEntity(ActivityLogCreateRequestDto request) {
-        ActivityLog activityLog = new ActivityLog();
-        activityLog.setWorkoutId(request.workoutId());
-        activityLog.setCompletedAt(request.completedAt());
-        activityLog.setDurationSeconds(request.durationSeconds());
-        activityLog.setFeedback(request.feedback());
-        activityLog.setStatus(request.status());
-        return activityLog;
-    }
-
-    private ActivityLogResponseDto toResponse(ActivityLog activityLog) {
-        return new ActivityLogResponseDto(
-                activityLog.getId(),
-                activityLog.getUserId(),
-                activityLog.getWorkoutId(),
-                activityLog.getCompletedAt(),
-                activityLog.getDurationSeconds(),
-                activityLog.getFeedback(),
-                activityLog.getStatus());
+        return ResponseEntity.ok().body(ActivityLogMapper.toResponse(completed));
     }
 }

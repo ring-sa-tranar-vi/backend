@@ -1,8 +1,10 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.entity.enums.DayOfWeekType;
+import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -18,17 +20,17 @@ public class UserService {
     private static final int STARTING_INTENSITY = 2;
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
-    private final OrganisationRepository organisationRepository;
+    private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
-            OrganisationRepository organisationRepository,
+            OrganizationRepository organizationRepository,
             EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
-        this.organisationRepository = organisationRepository;
+        this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
     }
 
@@ -93,14 +95,8 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUserPreferencesByClerkId(
-            String clerkId,
-            String name,
-            int intensityLevel,
-            String context,
-            Long trainerId,
-            String city,
-            boolean onboarding) {
+    public User updateUserPreferencesByClerkId(String clerkId, User user) {
+        Long trainerId = user.getTrainerId();
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
@@ -108,15 +104,15 @@ public class UserService {
             throw new IllegalArgumentException("Trainer does not exist with id: " + trainerId);
         }
 
-        User user = getByClerkIdOrThrow(clerkId);
+        User foundUser = getByClerkIdOrThrow(clerkId);
 
-        user.setName(sanitizeDisplayName(name));
-        user.setIntensityLevel(intensityLevel);
-        user.setContext(context);
-        user.setTrainerId(trainerId);
-        user.setCity(city);
-        user.setOnboarding(onboarding);
-        return userRepository.save(user);
+        foundUser.setName(sanitizeDisplayName(user.getName()));
+        foundUser.setIntensityLevel(user.getIntensityLevel());
+        foundUser.setContext(user.getContext());
+        foundUser.setTrainerId(user.getTrainerId());
+        foundUser.setCity(user.getCity());
+        foundUser.setOnboarding(user.isOnboarding());
+        return userRepository.save(foundUser);
     }
 
     public User getUserById(Long id) {
@@ -125,7 +121,7 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
-    public List<Organisation> getUserOrgsById(Long id) {
+    public List<Organization> getUserOrganizationById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
         }
@@ -143,10 +139,10 @@ public class UserService {
     }
 
     @Transactional
-    public Organisation addFollowOrganization(Long userId, Long orgId) {
+    public Organization addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
-        Organisation org =
-                organisationRepository
+        Organization org =
+                organizationRepository
                         .findByIdWithEvents(orgId)
                         .orElseThrow(
                                 () ->
@@ -172,8 +168,8 @@ public class UserService {
                 user.getFollowedOrganisations().removeIf(org -> org.getId().equals(orgId));
 
         if (removed) {
-            Organisation org =
-                    organisationRepository
+            Organization org =
+                    organizationRepository
                             .findById(orgId)
                             .orElseThrow(
                                     () ->
@@ -201,6 +197,7 @@ public class UserService {
 
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
+
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
 

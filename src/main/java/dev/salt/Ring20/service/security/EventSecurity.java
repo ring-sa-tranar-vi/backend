@@ -5,7 +5,7 @@ import dev.salt.Ring20.repository.EventRepository;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("eventSecurityService")
 public class EventSecurity {
 
     private final EventRepository eventRepository;

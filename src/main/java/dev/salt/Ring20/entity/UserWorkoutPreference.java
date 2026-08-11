@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;

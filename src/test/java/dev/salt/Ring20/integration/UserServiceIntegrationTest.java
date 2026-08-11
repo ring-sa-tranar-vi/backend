@@ -47,16 +47,12 @@ class UserServiceIntegrationTest {
         trainer = trainerRepository.save(trainer);
 
         userService.createUser("clerk_int_2", "Original");
+        User preferences = new User("Updated", 5, "context", "clerk_int_2");
+        preferences.setTrainerId(trainer.getId());
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
 
-        User updated =
-                userService.updateUserPreferencesByClerkId(
-                        "clerk_int_2",
-                        "Updated",
-                        5,
-                        "context",
-                        trainer.getId(),
-                        "Stockholm",
-                        false);
+        User updated = userService.updateUserPreferencesByClerkId("clerk_int_2", preferences);
 
         assertEquals("Updated", updated.getName());
         assertEquals(5, updated.getIntensityLevel());

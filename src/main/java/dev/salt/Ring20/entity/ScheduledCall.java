@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.CallBackStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.Getter;

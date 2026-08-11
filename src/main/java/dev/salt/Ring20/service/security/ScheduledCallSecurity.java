@@ -4,7 +4,7 @@ import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("scheduledCallSecurity")
 public class ScheduledCallSecurity {
 
     private final ScheduledCallRepository repository;

@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.user.UserRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

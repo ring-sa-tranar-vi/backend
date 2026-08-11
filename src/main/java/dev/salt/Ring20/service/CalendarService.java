@@ -1,11 +1,12 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.calendarEventDtos.CalendarEventDto;
 import dev.salt.Ring20.entity.*;
+import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.service.data.CalendarEventData;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,32 +28,30 @@ public class CalendarService {
     private final WorkoutRepository workoutRepository;
 
     @Transactional(readOnly = true)
-    public List<CalendarEventDto> getMonthlyCalendar(Long userId, int year, int month) {
+    public List<CalendarEventData> getMonthlyCalendar(Long userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
-
         User user =
                 userRepository
                         .findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        List<CalendarEventDto> calendarEvents = new ArrayList<>();
+        List<CalendarEventData> calendarEvents = new ArrayList<>();
 
         calendarEvents.addAll(getWorkouts(userId, startOfMonth, endOfMonth));
         calendarEvents.addAll(getEvents(user, startOfMonth, endOfMonth));
         calendarEvents.addAll(getScheduledCalls(userId, yearMonth));
-        calendarEvents.sort(Comparator.comparing(CalendarEventDto::time));
+        calendarEvents.sort(Comparator.comparing(CalendarEventData::time));
 
         return calendarEvents;
     }
 
-    private List<CalendarEventDto> getWorkouts(
+    private List<CalendarEventData> getWorkouts(
             Long userId, LocalDateTime start, LocalDateTime end) {
         List<ActivityLog> logs =
                 activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
                         userId, "COMPLETED", start, end);
-
         return logs.stream()
                 .map(
                         log -> {
@@ -62,22 +61,12 @@ public class CalendarService {
                                             .map(Workout::getName)
                                             .orElse("Deleted training");
 
-                            return new CalendarEventDto(
-                                    "WORKOUT-" + log.getId(),
-                                    "WORKOUT",
-                                    workoutName,
-                                    "Time: "
-                                            + (log.getDurationSeconds() != null
-                                                    ? log.getDurationSeconds() / 60 + " min"
-                                                    : "N/A"),
-                                    log.getCompletedAt(),
-                                    true);
+                            return createWorkoutCalendarEvent(log, workoutName);
                         })
                 .toList();
     }
 
-    private List<CalendarEventDto> getEvents(User user, LocalDateTime start, LocalDateTime end) {
-        LocalDateTime now = LocalDateTime.now();
+    private List<CalendarEventData> getEvents(User user, LocalDateTime start, LocalDateTime end) {
 
         return user.getAttendingEvents().stream()
                 .filter(event -> !event.getTime().isBefore(start) && !event.getTime().isAfter(end))
@@ -91,25 +80,20 @@ public class CalendarService {
                             String fullDescription =
                                     baseDesc.isEmpty() ? location : baseDesc + " - " + location;
 
-                            return new CalendarEventDto(
-                                    "EVENT-" + event.getId(),
-                                    "EVENT",
-                                    event.getName(),
-                                    fullDescription,
-                                    event.getTime(),
-                                    event.getTime().isBefore(now));
+                            return createEventCalenderEvent(event, fullDescription);
                         })
                 .toList();
     }
 
-    private List<CalendarEventDto> getScheduledCalls(Long userId, YearMonth yearMonth) {
-        List<CalendarEventDto> events = new ArrayList<>();
+    private List<CalendarEventData> getScheduledCalls(Long userId, YearMonth yearMonth) {
+        List<CallbackPreference> preferences = callbackPreferenceRepository.findByUserId(userId);
+        List<CalendarEventData> callEvents = new ArrayList<>();
 
         LocalDate start = yearMonth.atDay(1);
         LocalDate end = yearMonth.atEndOfMonth();
         LocalDateTime now = LocalDateTime.now();
 
-        for (CallbackPreference pref : callbackPreferenceRepository.findByUserId(userId)) {
+        for (CallbackPreference pref : preferences) {
 
             DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
             LocalDate date = start;
@@ -128,14 +112,7 @@ public class CalendarService {
                     continue;
                 }
 
-                events.add(
-                        new CalendarEventDto(
-                                "CALL-" + pref.getId() + "-" + date,
-                                "CALL",
-                                "Trainer Call",
-                                "Trainer call",
-                                callTime,
-                                callTime.isBefore(now)));
+                callEvents.add(createCallCalendarEvent(pref, callTime, date));
 
                 if (pref.getRepeat() == RepeatType.NEVER) {
                     break;
@@ -145,6 +122,53 @@ public class CalendarService {
             }
         }
 
-        return events;
+        return callEvents;
+    }
+
+    private CalendarEventData createCallCalendarEvent(
+            CallbackPreference pref, LocalDateTime callTime, LocalDate date) {
+        LocalDateTime now = LocalDateTime.now();
+        return createCalenderEventData(
+                "CALL-" + pref.getId() + "-" + date,
+                "CALL",
+                "Trainer Call",
+                "Trainer call",
+                callTime,
+                callTime.isBefore(now));
+    }
+
+    private CalendarEventData createWorkoutCalendarEvent(ActivityLog log, String workoutName) {
+        return createCalenderEventData(
+                "WORKOUT-" + log.getId(),
+                "WORKOUT",
+                workoutName,
+                "Time: "
+                        + (log.getDurationSeconds() != null
+                                ? log.getDurationSeconds() / 60 + " min"
+                                : "N/A"),
+                log.getCompletedAt(),
+                true);
+    }
+
+    private CalendarEventData createEventCalenderEvent(Event event, String fullDescription) {
+        LocalDateTime now = LocalDateTime.now();
+        return createCalenderEventData(
+                "EVENT-" + event.getId(),
+                "EVENT",
+                event.getName(),
+                fullDescription,
+                event.getTime(),
+                event.getTime().isBefore(now));
+    }
+
+    private CalendarEventData createCalenderEventData(
+            String id,
+            String type,
+            String title,
+            String description,
+            LocalDateTime time,
+            boolean completed) {
+
+        return new CalendarEventData(id, type, title, description, time, completed);
     }
 }

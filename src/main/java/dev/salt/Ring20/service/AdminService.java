@@ -1,12 +1,10 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.entity.*;
-import dev.salt.Ring20.repository.ActivityLogRepository;
-import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
-import dev.salt.Ring20.repository.TrainerRepository;
-import dev.salt.Ring20.repository.UserRepository;
-import dev.salt.Ring20.repository.WorkoutRepository;
+import dev.salt.Ring20.entity.ActivityLog;
+import dev.salt.Ring20.entity.Trainer;
+import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.Workout;
+import dev.salt.Ring20.repository.*;
 import dev.salt.Ring20.service.data.RecentActivityData;
 import dev.salt.Ring20.service.data.TrainerOverviewData;
 import dev.salt.Ring20.service.data.UserSummaryData;
@@ -21,8 +19,8 @@ import org.springframework.stereotype.Service;
 public class AdminService {
 
     private static final String STATUS_COMPLETED = "COMPLETED";
-
     private static final int RECENT_ACTIVITY_LIMIT = 25;
+
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
     private final WorkoutRepository workoutRepository;
@@ -32,9 +30,7 @@ public class AdminService {
             UserRepository userRepository,
             ActivityLogRepository activityLogRepository,
             WorkoutRepository workoutRepository,
-            TrainerRepository trainerRepository,
-            OrganisationRepository organisationRepository,
-            EventRepository eventRepository) {
+            TrainerRepository trainerRepository) {
         this.userRepository = userRepository;
         this.activityLogRepository = activityLogRepository;
         this.workoutRepository = workoutRepository;
@@ -81,6 +77,7 @@ public class AdminService {
     }
 
     public WorkoutUsageData getWorkoutUsage() {
+        Long addOneCount = 1L;
         List<ActivityLog> activityLogs = activityLogRepository.findAll();
         Map<Long, Long> startedCountByWorkoutId = new HashMap<>();
         Map<Long, Long> completedCountByWorkoutId = new HashMap<>();
@@ -91,11 +88,10 @@ public class AdminService {
             if (workoutId == null) {
                 continue;
             }
-
-            startedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
+            startedCountByWorkoutId.merge(workoutId, addOneCount, Long::sum);
 
             if (STATUS_COMPLETED.equalsIgnoreCase(activityLog.getStatus())) {
-                completedCountByWorkoutId.merge(workoutId, 1L, Long::sum);
+                completedCountByWorkoutId.merge(workoutId, addOneCount, Long::sum);
                 if (activityLog.getCompletedAt() != null) {
                     lastCompletedAtByWorkoutId.merge(
                             workoutId,
@@ -119,9 +115,10 @@ public class AdminService {
 
     public TrainerOverviewData getTrainerOverview() {
         Map<Long, Long> assignedUserCountByTrainerId = new HashMap<>();
+        Long addOneCount = 1L;
         for (User user : userRepository.findAll()) {
             if (user.getTrainerId() != null) {
-                assignedUserCountByTrainerId.merge(user.getTrainerId(), 1L, Long::sum);
+                assignedUserCountByTrainerId.merge(user.getTrainerId(), addOneCount, Long::sum);
             }
         }
 
@@ -134,11 +131,11 @@ public class AdminService {
 
     @Transactional
     public User updateUser(Long id, User updateData) {
+        String message = "User not found with id: ";
         User existing =
                 userRepository
                         .findById(id)
-                        .orElseThrow(
-                                () -> new NoSuchElementException("User not found with id: " + id));
+                        .orElseThrow(() -> new NoSuchElementException(message + id));
 
         if (updateData.getName() != null && !updateData.getName().isBlank()) {
             existing.setName(updateData.getName());
@@ -161,11 +158,11 @@ public class AdminService {
 
     @Transactional
     public void deleteUser(Long id) {
+        String message = "User not found with id: ";
         User user =
                 userRepository
                         .findById(id)
-                        .orElseThrow(
-                                () -> new NoSuchElementException("User not found with id: " + id));
+                        .orElseThrow(() -> new NoSuchElementException(message + id));
         userRepository.delete(user);
     }
 }

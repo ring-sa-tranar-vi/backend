@@ -1,8 +1,8 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.CompanyMeDto;
+import dev.salt.Ring20.dto.company.CompanyMeResponseDto;
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
@@ -12,25 +12,25 @@ public class CompanyService {
 
     private static final String COMPANY_ROLE = "COMPANY";
 
-    private final OrganisationService organisationService;
+    private final OrganizationService organizationService;
     private final EventService eventService;
     private final UserService userService;
 
     public CompanyService(
-            OrganisationService organisationService,
+            OrganizationService organizationService,
             EventService eventService,
             UserService userService) {
-        this.organisationService = organisationService;
+        this.organizationService = organizationService;
         this.eventService = eventService;
         this.userService = userService;
     }
 
-    public CompanyMeDto getCompanyMe(String clerkId) {
+    public CompanyMeResponseDto getCompanyMe(String clerkId) {
         User user = userService.getByClerkIdOrThrow(clerkId);
-        Organisation organisation =
-                organisationService.findOrganisationForUser(clerkId).orElse(null);
+        Organization organisation =
+                organizationService.findOrganizationForUser(clerkId).orElse(null);
         boolean canManageOrganisation = organisation != null;
-        return new CompanyMeDto(
+        return new CompanyMeResponseDto(
                 user.getId(),
                 canManageOrganisation
                         ? COMPANY_ROLE
@@ -40,16 +40,16 @@ public class CompanyService {
                 canManageOrganisation ? organisation.getName() : null);
     }
 
-    public Organisation getManagedOrganisationForClerkId(String clerkId) {
+    public Organization getManagedOrganisationForClerkId(String clerkId) {
         userService.getByClerkIdOrThrow(clerkId);
-        return organisationService.getOrganisationForUser(clerkId).stream()
+        return organizationService.getOrganizationForUser(clerkId).stream()
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Organisation not found"));
     }
 
     public Event getManagedEventForClerkId(Long eventId, String clerkId) {
         Event event = eventService.getEventById(eventId);
-        Organisation organisation = getManagedOrganisationForClerkId(clerkId);
+        Organization organisation = getManagedOrganisationForClerkId(clerkId);
         if (event.getOrganisation() == null
                 || organisation.getId() == null
                 || !organisation.getId().equals(event.getOrganisation().getId())) {
@@ -63,8 +63,8 @@ public class CompanyService {
         eventService.deleteEventById(existing.getId());
     }
 
-    public OrganisationService getOrganisationService() {
-        return organisationService;
+    public OrganizationService getOrganisationService() {
+        return organizationService;
     }
 
     public EventService getEventService() {

@@ -1,6 +1,7 @@
 package dev.salt.Ring20.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.salt.Ring20.entity.enums.EventType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -26,7 +27,7 @@ public class Event {
     @ManyToOne(optional = false)
     @JoinColumn(name = "organisation_id", nullable = false)
     @JsonIgnore
-    private Organisation organisation;
+    private Organization organisation;
 
     private String city;
     private String venue;
@@ -42,7 +43,7 @@ public class Event {
             String name,
             String description,
             LocalDateTime time,
-            Organisation organisation,
+            Organization organisation,
             String city,
             String venue,
             EventType eventType) {
