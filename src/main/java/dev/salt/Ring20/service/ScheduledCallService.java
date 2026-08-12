@@ -257,13 +257,6 @@ public class ScheduledCallService {
                 call.getUserId(),
                 call.getTrainerId());
         try {
-            if (call.getFcmToken() == null || call.getFcmToken().isBlank()) {
-                log.warn(
-                        "Cannot send notification for call id={}: FCM token is missing",
-                        call.getId());
-                return false;
-            }
-
             Message message =
                     Message.builder()
                             .setToken(call.getFcmToken())
