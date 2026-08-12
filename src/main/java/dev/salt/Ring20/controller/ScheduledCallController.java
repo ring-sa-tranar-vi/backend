@@ -46,6 +46,7 @@ public class ScheduledCallController {
     @Operation(
             summary = "Reset user's future calls",
             description = "Cancels future pending calls and recreates weekly calls.")
+    @PreAuthorize("#userId == @securityService.currentUserId(authentication.name)")
     public ResponseEntity<Void> resetCallsForUser(@PathVariable Long userId) {
 
         scheduledCallService.resetAllCallsForUser(userId);
