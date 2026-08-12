@@ -52,7 +52,8 @@ class UserControllerTest {
                 new UserController(userService, activityLogService, displayResolverService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
-        when(userService.updateUserPreferencesByClerkId(eq("clerk_1"), any(User.class)))
+        when(userService.updateUserPreferencesByClerkId(
+                        eq("clerk_1"), anyString(), anyInt(), anyString(), anyLong(), anyString(), anyBoolean()))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
@@ -75,7 +76,8 @@ class UserControllerTest {
 
         // when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
 
-        when(userService.updateUserPreferencesByClerkId(eq("clerk_1"), any(User.class)))
+        when(userService.updateUserPreferencesByClerkId(
+                        eq("clerk_1"), anyString(), anyInt(), anyString(), anyLong(), anyString(), anyBoolean()))
                 .thenReturn(user);
 
         ResponseEntity<?> response =
