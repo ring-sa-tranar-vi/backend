@@ -55,7 +55,15 @@ class UserServiceIntegrationTest {
         preferences.setCity("Stockholm");
         preferences.setOnboarding(false);
 
-        User updated = userService.updateUserPreferencesByClerkId("clerk_int_2",  preferences.getName(), preferences.getIntensityLevel(), preferences.getContext(),preferences.getTrainerId(), preferences.getCity(), preferences.isOnboarding());
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        "clerk_int_2",
+                        preferences.getName(),
+                        preferences.getIntensityLevel(),
+                        preferences.getContext(),
+                        preferences.getTrainerId(),
+                        preferences.getCity(),
+                        preferences.isOnboarding());
 
         assertEquals("Updated", updated.getName());
         assertEquals(5, updated.getIntensityLevel());

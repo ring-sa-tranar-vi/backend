@@ -2,7 +2,6 @@ package dev.salt.Ring20.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.entity.enums.CallBackStatus;
