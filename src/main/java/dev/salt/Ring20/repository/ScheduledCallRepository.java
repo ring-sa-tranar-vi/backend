@@ -28,8 +28,7 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
                 WHERE c.callbackPreference.id = :preferenceId
                   AND c.targetTime < CURRENT_TIMESTAMP
             """)
-    void detachPreferenceFromHistoricalCalls(
-            @Param("preferenceId") Long preferenceId);
+    void detachPreferenceFromHistoricalCalls(@Param("preferenceId") Long preferenceId);
 
     @Modifying
     @Query(

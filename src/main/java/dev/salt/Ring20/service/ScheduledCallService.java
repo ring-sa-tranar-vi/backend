@@ -8,13 +8,11 @@ import dev.salt.Ring20.entity.enums.CallBackStatus;
 import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
-
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -48,10 +46,7 @@ public class ScheduledCallService {
             long existing =
                     scheduledCallRepository.countFuturePendingCalls(pref.getId(), Instant.now());
 
-            log.info(
-                    "Preference={} has {} future pending calls",
-                    pref.getId(),
-                    existing);
+            log.info("Preference={} has {} future pending calls", pref.getId(), existing);
 
             if (existing == 0) {
                 Instant next = calculateNext(pref);
@@ -83,10 +78,7 @@ public class ScheduledCallService {
             return;
         }
 
-        log.info(
-                "Preference={} needs {} additional calls",
-                pref.getId(),
-                toCreate);
+        log.info("Preference={} needs {} additional calls", pref.getId(), toCreate);
 
         Instant nextTime = calculateNext(pref);
 
@@ -129,14 +121,9 @@ public class ScheduledCallService {
     }
 
     private boolean alreadyExists(Long userId, Instant time) {
-        boolean exists =
-                scheduledCallRepository.existsByUserIdAndTargetTime(userId, time);
+        boolean exists = scheduledCallRepository.existsByUserIdAndTargetTime(userId, time);
 
-        log.info(
-                "Existing call check: user={}, time={}, exists={}",
-                userId,
-                time,
-                exists);
+        log.info("Existing call check: user={}, time={}, exists={}", userId, time, exists);
 
         return exists;
     }
@@ -153,11 +140,7 @@ public class ScheduledCallService {
             nextDate = nextDate.plusWeeks(1);
         }
 
-        Instant result =
-                nextDate
-                        .atTime(time)
-                        .atZone(ZoneId.systemDefault())
-                        .toInstant();
+        Instant result = nextDate.atTime(time).atZone(ZoneId.systemDefault()).toInstant();
 
         log.info(
                 "Calculated next call: preference={}, day={}, time={}, result={}",
@@ -177,9 +160,7 @@ public class ScheduledCallService {
         List<ScheduledCall> startingNow =
                 scheduledCallRepository.findCallsBetween(now.minusSeconds(30), now.plusSeconds(60));
 
-        log.info(
-                "Found {} calls in trigger window",
-                startingNow.size());
+        log.info("Found {} calls in trigger window", startingNow.size());
 
         for (ScheduledCall call : startingNow) {
             log.info(
@@ -198,32 +179,25 @@ public class ScheduledCallService {
             }
 
             if (call.getFcmToken() == null || call.getFcmToken().isBlank()) {
-                log.warn(
-                        "Skipping call id={} because FCM token is missing",
-                        call.getId());
+                log.warn("Skipping call id={} because FCM token is missing", call.getId());
                 continue;
             }
 
             boolean sent = sendNotification(call);
 
             if (sent) {
-                log.info(
-                        "Notification sent successfully for call id={}",
-                        call.getId());
+                log.info("Notification sent successfully for call id={}", call.getId());
                 call.setCallBackStatus(CallBackStatus.TRIGGERED);
                 scheduledCallRepository.save(call);
             } else {
-                log.warn(
-                        "Notification failed for call id={}",
-                        call.getId());
+                log.warn("Notification failed for call id={}", call.getId());
             }
         }
 
-        List<ScheduledCall> missedCalls = scheduledCallRepository.findAllMissedCalls(now.minusSeconds(60));
+        List<ScheduledCall> missedCalls =
+                scheduledCallRepository.findAllMissedCalls(now.minusSeconds(60));
 
-        log.info(
-                "Found {} missed calls",
-                missedCalls.size());
+        log.info("Found {} missed calls", missedCalls.size());
 
         for (ScheduledCall call : missedCalls) {
 
@@ -238,9 +212,7 @@ public class ScheduledCallService {
             }
         }
         List<CallbackPreference> preferences = callbackPreferenceRepository.findAll();
-        log.info(
-                "Checking {} callback preferences for rolling calls",
-                preferences.size());
+        log.info("Checking {} callback preferences for rolling calls", preferences.size());
 
         for (CallbackPreference pref : preferences) {
             if (pref.getRepeat() == RepeatType.WEEKLY) {
@@ -266,21 +238,14 @@ public class ScheduledCallService {
                             .putData("type", "TRAINING_CALL")
                             .build();
 
-            String response =
-                    FirebaseMessaging.getInstance().send(message);
+            String response = FirebaseMessaging.getInstance().send(message);
 
-            log.info(
-                    "FCM notification sent for call id={}, response={}",
-                    call.getId(),
-                    response);
+            log.info("FCM notification sent for call id={}, response={}", call.getId(), response);
 
             return true;
 
         } catch (Exception e) {
-            log.error(
-                    "Failed to send FCM notification for call id={}",
-                    call.getId(),
-                    e);
+            log.error("Failed to send FCM notification for call id={}", call.getId(), e);
 
             return false;
         }
@@ -298,10 +263,7 @@ public class ScheduledCallService {
                                         new NoSuchElementException(
                                                 "No scheduled call exists with this id: " + id));
         if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
-            log.warn(
-                    "Cannot complete call id={}: current status={}",
-                    id,
-                    call.getCallBackStatus());
+            log.warn("Cannot complete call id={}: current status={}", id, call.getCallBackStatus());
 
             throw new IllegalStateException("Only triggered calls can be completed");
         }
@@ -327,37 +289,29 @@ public class ScheduledCallService {
                     callId,
                     call.getCallBackStatus());
 
-            throw new IllegalStateException(
-                    "Only pending calls can be cancelled");
+            throw new IllegalStateException("Only pending calls can be cancelled");
         }
 
         call.setCallBackStatus(CallBackStatus.CANCELLED);
         scheduledCallRepository.save(call);
         log.info("Call id={} marked as CANCELLED", callId);
-
     }
 
     @Transactional
     public void cancelFutureCallsForOnePreference(CallbackPreference pref) {
-        log.info(
-                "Cancelling future pending calls for preference={}",
-                pref.getId());
+        log.info("Cancelling future pending calls for preference={}", pref.getId());
         scheduledCallRepository.cancelFuturePendingCallsForPreference(pref.getId(), Instant.now());
     }
 
     @Transactional
     public void detachHistoricalCallsFromPreference(Long preferenceId) {
-        log.info(
-                "Detaching historical calls from preference={}",
-                preferenceId);
+        log.info("Detaching historical calls from preference={}", preferenceId);
         scheduledCallRepository.detachPreferenceFromHistoricalCalls(preferenceId);
     }
 
     @Transactional
     public void resetCallsForPreference(CallbackPreference pref) {
-        log.info(
-                "Resetting calls for preference={}",
-                pref.getId());
+        log.info("Resetting calls for preference={}", pref.getId());
         cancelFutureCallsForOnePreference(pref);
         ensureRollingCalls(pref);
     }
@@ -373,34 +327,25 @@ public class ScheduledCallService {
     @Transactional(readOnly = true)
     public List<ScheduledCall> getCallsForUser(Long userId) {
 
-        log.info(
-                "Fetching scheduled calls for user={}",
-                userId);
+        log.info("Fetching scheduled calls for user={}", userId);
         return scheduledCallRepository.findByUserId(userId);
     }
 
     @Transactional
     public void resetAllCallsForUser(Long userId) {
 
-        log.info(
-                "Resetting all future calls for user={}",
-                userId);
+        log.info("Resetting all future calls for user={}", userId);
         scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
 
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
-        log.info(
-                "Found {} preferences for user={}",
-                prefs.size(),
-                userId);
+        log.info("Found {} preferences for user={}", prefs.size(), userId);
 
         for (CallbackPreference pref : prefs) {
             if (pref.getRepeat() == RepeatType.WEEKLY) {
                 ensureRollingCalls(pref);
             }
         }
-        log.info(
-                "Finished resetting calls for user={}",
-                userId);
+        log.info("Finished resetting calls for user={}", userId);
     }
 }
