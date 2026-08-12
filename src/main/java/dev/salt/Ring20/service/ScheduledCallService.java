@@ -151,11 +151,6 @@ public class ScheduledCallService {
                             .putData("trainerId", String.valueOf(call.getTrainerId()))
                             .putData("userId", String.valueOf(call.getUserId()))
                             .putData("type", "TRAINING_CALL")
-                            .setNotification(
-                                    Notification.builder()
-                                            .setTitle("Time to train!")
-                                            .setBody("Tap to start your session")
-                                            .build())
                             .build();
 
             FirebaseMessaging.getInstance().send(message);
