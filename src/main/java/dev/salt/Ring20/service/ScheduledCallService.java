@@ -119,7 +119,7 @@ public class ScheduledCallService {
             }
         }
 
-        List<ScheduledCall> missedCalls = scheduledCallRepository.findAllMissedCalls(now);
+        List<ScheduledCall> missedCalls = scheduledCallRepository.findAllMissedCalls(now.minusSeconds(60));
 
         for (ScheduledCall call : missedCalls) {
 
