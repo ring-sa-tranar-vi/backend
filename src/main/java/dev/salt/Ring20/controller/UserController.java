@@ -136,7 +136,6 @@ public class UserController {
             description = "Updates the profile of the authenticated user.")
     public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
             @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
-        User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = getClerkId(authentication);
         User updated =
                 userService.updateUserPreferencesByClerkId(
@@ -159,7 +158,6 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
-        User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = getClerkId(authentication);
         User updated =
                 userService.updateUserPreferencesByClerkId(
