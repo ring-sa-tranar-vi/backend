@@ -5,5 +5,6 @@ public enum CallBackStatus {
     TRIGGERED,
     COMPLETED,
     MISSED,
-    CANCELLED
+    CANCELLED,
+    RECEIVED
 }

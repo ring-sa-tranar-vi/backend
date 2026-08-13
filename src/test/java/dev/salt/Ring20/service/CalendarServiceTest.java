@@ -6,14 +6,15 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import dev.salt.Ring20.entity.*;
-import dev.salt.Ring20.entity.enums.DayOfWeekType;
+import dev.salt.Ring20.entity.enums.CallBackStatus;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
+import dev.salt.Ring20.repository.ScheduledCallRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.CalendarEventData;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,7 @@ class CalendarServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private ActivityLogRepository activityLogRepository;
     @Mock private CallbackPreferenceRepository callbackPreferenceRepository;
+    @Mock private ScheduledCallRepository scheduledCallRepository;
     @Mock private WorkoutRepository workoutRepository;
 
     @InjectMocks private CalendarService calendarService;
@@ -39,6 +41,7 @@ class CalendarServiceTest {
     void setUp() {
         testUser = new User("Test User", 1, "Context", "clerk_123");
         testUser.setId(1L);
+        testUser.setTimeZone("UTC");
     }
 
     @Test
@@ -70,12 +73,33 @@ class CalendarServiceTest {
         event.setTime(LocalDateTime.of(2026, 8, 20, 18, 0));
         testUser.getAttendingEvents().add(event);
 
-        CallbackPreference callPref = new CallbackPreference();
-        callPref.setId(300L);
-        callPref.setDay(DayOfWeekType.MONDAY);
-        callPref.setTime(LocalTime.of(15, 0));
+        ScheduledCall call1 = new ScheduledCall();
+        call1.setId(300L);
+        call1.setTargetTime(LocalDateTime.of(2026, 8, 3, 15, 0).toInstant(ZoneOffset.UTC));
+        call1.setCallBackStatus(CallBackStatus.PENDING);
 
-        when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of(callPref));
+        ScheduledCall call2 = new ScheduledCall();
+        call2.setId(301L);
+        call2.setTargetTime(LocalDateTime.of(2026, 8, 10, 15, 0).toInstant(ZoneOffset.UTC));
+        call2.setCallBackStatus(CallBackStatus.TRIGGERED);
+
+        ScheduledCall call3 = new ScheduledCall();
+        call3.setId(302L);
+        call3.setTargetTime(LocalDateTime.of(2026, 8, 17, 15, 0).toInstant(ZoneOffset.UTC));
+        call3.setCallBackStatus(CallBackStatus.RECEIVED);
+
+        ScheduledCall call4 = new ScheduledCall();
+        call4.setId(303L);
+        call4.setTargetTime(LocalDateTime.of(2026, 8, 24, 15, 0).toInstant(ZoneOffset.UTC));
+        call4.setCallBackStatus(CallBackStatus.COMPLETED);
+
+        ScheduledCall call5 = new ScheduledCall();
+        call5.setId(304L);
+        call5.setTargetTime(LocalDateTime.of(2026, 8, 31, 15, 0).toInstant(ZoneOffset.UTC));
+        call5.setCallBackStatus(CallBackStatus.CANCELLED);
+
+        when(scheduledCallRepository.findByUserId(1L))
+                .thenReturn(List.of(call1, call2, call3, call4, call5));
 
         List<CalendarEventData> result = calendarService.getMonthlyCalendar(1L, year, month);
 
@@ -91,6 +115,12 @@ class CalendarServiceTest {
                 result.stream().filter(e -> e.type().equals("EVENT")).findFirst().orElseThrow();
         assertEquals("Yoga Event", eventDto.title());
         assertEquals("EVENT-200", eventDto.id());
+
+        CalendarEventData callDto =
+                result.stream().filter(e -> e.type().equals("CALL")).findFirst().orElseThrow();
+        assertEquals(300L, callDto.scheduledCallId());
+        assertEquals(CallBackStatus.PENDING, callDto.callBackStatus());
+        assertEquals("300", callDto.id());
     }
 
     @Test
@@ -108,6 +138,7 @@ class CalendarServiceTest {
     @Test
     void getMonthlyCalendar_shouldFilterEventsOutsideOfRequestedMonth() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of());
 
         Event validEvent = new Event();
         validEvent.setId(1L);
@@ -131,6 +162,7 @@ class CalendarServiceTest {
     @Test
     void getMonthlyCalendar_shouldKeepAttendedEventsAfterTheyHaveEnded() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of());
 
         Event pastEvent = new Event();
         pastEvent.setId(3L);
@@ -149,6 +181,7 @@ class CalendarServiceTest {
     @Test
     void getMonthlyCalendar_shouldFormatEventDescriptionAndLocationCorrectly() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of());
 
         Event event = new Event();
         event.setId(10L);
@@ -175,7 +208,7 @@ class CalendarServiceTest {
         when(activityLogRepository.findByUserIdAndStatusAndCompletedAtBetween(
                         any(), any(), any(), any()))
                 .thenReturn(List.of());
-        when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of());
+        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of());
 
         List<CalendarEventData> result = calendarService.getMonthlyCalendar(1L, 2026, 8);
 
@@ -186,12 +219,33 @@ class CalendarServiceTest {
     void getMonthlyCalendar_shouldHandleLeapYearsForScheduledCalls() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
 
-        CallbackPreference callPref = new CallbackPreference();
-        callPref.setId(1L);
-        callPref.setDay(DayOfWeekType.THURSDAY);
-        callPref.setTime(LocalTime.of(10, 0));
+        ScheduledCall call1 = new ScheduledCall();
+        call1.setId(1L);
+        call1.setTargetTime(LocalDateTime.of(2024, 2, 1, 10, 0).toInstant(ZoneOffset.UTC));
+        call1.setCallBackStatus(CallBackStatus.PENDING);
 
-        when(callbackPreferenceRepository.findByUserId(1L)).thenReturn(List.of(callPref));
+        ScheduledCall call2 = new ScheduledCall();
+        call2.setId(2L);
+        call2.setTargetTime(LocalDateTime.of(2024, 2, 8, 10, 0).toInstant(ZoneOffset.UTC));
+        call2.setCallBackStatus(CallBackStatus.PENDING);
+
+        ScheduledCall call3 = new ScheduledCall();
+        call3.setId(3L);
+        call3.setTargetTime(LocalDateTime.of(2024, 2, 15, 10, 0).toInstant(ZoneOffset.UTC));
+        call3.setCallBackStatus(CallBackStatus.PENDING);
+
+        ScheduledCall call4 = new ScheduledCall();
+        call4.setId(4L);
+        call4.setTargetTime(LocalDateTime.of(2024, 2, 22, 10, 0).toInstant(ZoneOffset.UTC));
+        call4.setCallBackStatus(CallBackStatus.PENDING);
+
+        ScheduledCall call5 = new ScheduledCall();
+        call5.setId(5L);
+        call5.setTargetTime(LocalDateTime.of(2024, 2, 29, 10, 0).toInstant(ZoneOffset.UTC));
+        call5.setCallBackStatus(CallBackStatus.PENDING);
+
+        when(scheduledCallRepository.findByUserId(1L))
+                .thenReturn(List.of(call1, call2, call3, call4, call5));
 
         List<CalendarEventData> result = calendarService.getMonthlyCalendar(1L, 2024, 2);
 
@@ -202,6 +256,7 @@ class CalendarServiceTest {
     @Test
     void getMonthlyCalendar_shouldUseFallbackNameForDeletedWorkout() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of());
 
         ActivityLog workoutLog = new ActivityLog();
         workoutLog.setId(50L);
@@ -223,6 +278,7 @@ class CalendarServiceTest {
     @Test
     void getMonthlyCalendar_shouldFormatEventWithoutVenue() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of());
 
         Event event = new Event();
         event.setId(15L);
