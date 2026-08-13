@@ -18,7 +18,8 @@ public class OrganizationMapper {
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
-                organisation.getOrgCity());
+                organisation.getOrgCity(),
+                organisation.getUsersFollowing());
     }
 
     public static OrganizationResponseDto toResponseDto(Organization organisation) {
