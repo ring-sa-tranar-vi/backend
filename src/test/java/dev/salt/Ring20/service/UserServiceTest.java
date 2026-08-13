@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.CallbackPreference;
+import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.RepeatType;
-import dev.salt.Ring20.repository.EventRepository;
+import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
+import dev.salt.Ring20.repository.EventRepository;
 import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;

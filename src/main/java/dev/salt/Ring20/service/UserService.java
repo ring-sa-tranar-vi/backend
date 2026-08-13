@@ -1,19 +1,16 @@
 package dev.salt.Ring20.service;
 
-import dev.salt.Ring20.dto.user.UserTimeZoneDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.UserRole;
 import dev.salt.Ring20.repository.*;
 import jakarta.transaction.Transactional;
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -108,14 +105,9 @@ public class UserService {
 
         int updated =
                 scheduledCallRepository.updateFcmTokenForFuturePendingCalls(
-                        id,
-                        newToken,
-                        Instant.now());
+                        id, newToken, Instant.now());
 
-        log.info(
-                "Updated FCM token for user={}, updated {} future pending calls",
-                id,
-                updated);
+        log.info("Updated FCM token for user={}, updated {} future pending calls", id, updated);
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
@@ -326,8 +318,7 @@ public class UserService {
         try {
             ZoneId.of(timeZone);
         } catch (DateTimeException e) {
-            throw new IllegalArgumentException(
-                    "Invalid time zone: " + timeZone);
+            throw new IllegalArgumentException("Invalid time zone: " + timeZone);
         }
 
         user.setTimeZone(timeZone);

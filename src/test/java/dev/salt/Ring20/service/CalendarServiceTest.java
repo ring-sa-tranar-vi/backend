@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import dev.salt.Ring20.entity.*;
-import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.CallBackStatus;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
@@ -15,7 +14,6 @@ import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.CalendarEventData;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
@@ -100,7 +98,8 @@ class CalendarServiceTest {
         call5.setTargetTime(LocalDateTime.of(2026, 8, 31, 15, 0).toInstant(ZoneOffset.UTC));
         call5.setCallBackStatus(CallBackStatus.CANCELLED);
 
-        when(scheduledCallRepository.findByUserId(1L)).thenReturn(List.of(call1, call2, call3, call4, call5));
+        when(scheduledCallRepository.findByUserId(1L))
+                .thenReturn(List.of(call1, call2, call3, call4, call5));
 
         List<CalendarEventData> result = calendarService.getMonthlyCalendar(1L, year, month);
 
@@ -118,7 +117,7 @@ class CalendarServiceTest {
         assertEquals("EVENT-200", eventDto.id());
 
         CalendarEventData callDto =
-            result.stream().filter(e -> e.type().equals("CALL")).findFirst().orElseThrow();
+                result.stream().filter(e -> e.type().equals("CALL")).findFirst().orElseThrow();
         assertEquals(300L, callDto.scheduledCallId());
         assertEquals(CallBackStatus.PENDING, callDto.callBackStatus());
         assertEquals("300", callDto.id());
@@ -246,7 +245,7 @@ class CalendarServiceTest {
         call5.setCallBackStatus(CallBackStatus.PENDING);
 
         when(scheduledCallRepository.findByUserId(1L))
-            .thenReturn(List.of(call1, call2, call3, call4, call5));
+                .thenReturn(List.of(call1, call2, call3, call4, call5));
 
         List<CalendarEventData> result = calendarService.getMonthlyCalendar(1L, 2024, 2);
 

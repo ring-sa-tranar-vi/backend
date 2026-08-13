@@ -27,10 +27,8 @@ import dev.salt.Ring20.service.security.DisplayResolverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -285,12 +283,14 @@ public class UserController {
     @Operation(
             summary = "Update my time zone",
             description = "Updates time zone for the authenticated user.")
-    public ResponseEntity<UserTimeZoneDto> updateTimeZone(Authentication authentication, @RequestBody UserTimeZoneDto timeZone) {
+    public ResponseEntity<UserTimeZoneDto> updateTimeZone(
+            Authentication authentication, @RequestBody UserTimeZoneDto timeZone) {
         String clerkId = getClerkId(authentication);
 
         return ResponseEntity.ok()
                 .body(
-                        new UserTimeZoneDto(userService.updateUserTimeZone(clerkId, timeZone.timeZone())));
+                        new UserTimeZoneDto(
+                                userService.updateUserTimeZone(clerkId, timeZone.timeZone())));
     }
 
     @GetMapping("/{userId}/callback-preference")

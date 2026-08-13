@@ -2,18 +2,16 @@ package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.entity.enums.CallBackStatus;
-import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.CalendarEventData;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -127,8 +125,8 @@ public class CalendarService {
     private CalendarEventData createWorkoutCalendarEvent(ActivityLog log, String workoutName) {
         return createCalenderEventData(
                 "WORKOUT-" + log.getId(),
-            null,
-            null,
+                null,
+                null,
                 "WORKOUT",
                 workoutName,
                 "Time: "

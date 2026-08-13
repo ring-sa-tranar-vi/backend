@@ -30,24 +30,24 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
             """)
     void detachPreferenceFromHistoricalCalls(@Param("preferenceId") Long preferenceId);
 
-        @Modifying
-        @Query(
-                        """
+    @Modifying
+    @Query(
+            """
                                 DELETE FROM ScheduledCall c
                                 WHERE c.userId = :userId
                                   AND c.targetTime > :time
                         """)
-        int deleteFutureCallsForUser(@Param("userId") Long userId, @Param("time") Instant time);
+    int deleteFutureCallsForUser(@Param("userId") Long userId, @Param("time") Instant time);
 
-        @Modifying
-        @Query(
-                        """
+    @Modifying
+    @Query(
+            """
                                 DELETE FROM ScheduledCall c
                                 WHERE c.callbackPreference.id = :preferenceId
                                   AND c.targetTime > :targetTime
                         """)
-        int deleteFutureCallsForPreference(
-                        @Param("preferenceId") Long preferenceId, @Param("targetTime") Instant targetTime);
+    int deleteFutureCallsForPreference(
+            @Param("preferenceId") Long preferenceId, @Param("targetTime") Instant targetTime);
 
     @Query(
             """
@@ -60,8 +60,10 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     long countFuturePendingCalls(@Param("prefId") Long prefId, @Param("now") Instant now);
 
     List<ScheduledCall> findByUserId(Long userId);
+
     @Modifying
-    @Query("""
+    @Query(
+"""
     UPDATE ScheduledCall c
     SET c.fcmToken = :token
     WHERE c.userId = :userId
@@ -69,7 +71,5 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
       AND c.callBackStatus = 'PENDING'
 """)
     int updateFcmTokenForFuturePendingCalls(
-            @Param("userId") Long userId,
-            @Param("token") String token,
-            @Param("now") Instant now);
+            @Param("userId") Long userId, @Param("token") String token, @Param("now") Instant now);
 }
