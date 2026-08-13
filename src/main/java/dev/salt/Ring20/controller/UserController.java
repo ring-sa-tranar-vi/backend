@@ -26,8 +26,10 @@ import dev.salt.Ring20.service.security.DisplayResolverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -85,6 +87,16 @@ public class UserController {
         User currentUser = userService.getByClerkIdOrThrow(clerkId);
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(currentUser, isAdmin));
+    }
+
+    @DeleteMapping("/me")
+    @Operation(
+            summary = "Delete my profile",
+            description = "Deletes the profile of the authenticated user.")
+    public ResponseEntity<Void> deleteCurrentUserProfile(Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+        userService.removeUser(clerkId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/by-clerk/{clerkId}")

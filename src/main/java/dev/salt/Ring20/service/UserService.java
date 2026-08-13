@@ -8,9 +8,11 @@ import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -286,5 +288,10 @@ public class UserService {
 
     public long getUserCount() {
         return userRepository.count();
+    }
+
+    public void removeUser(String clerkId) {
+        User user = getUserById(getInternalUserId(clerkId));
+        userRepository.delete(user);
     }
 }
