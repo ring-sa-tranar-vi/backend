@@ -292,13 +292,9 @@ public class ScheduledCallService {
     }
 
     @Transactional
-    public void confirmReceived(Long id, Long userId) {
+    public void confirmReceived(Long id) {
 
         ScheduledCall call = findCall(id);
-
-        if (!call.getUserId().equals(userId)) {
-            throw new IllegalStateException("Call does not belong to the authenticated user");
-        }
 
         if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
             log.warn("Cannot mark call id={} as RECEIVED because status={}", id, call.getCallBackStatus());
@@ -309,7 +305,7 @@ public class ScheduledCallService {
         call.setCallBackStatus(CallBackStatus.RECEIVED);
         scheduledCallRepository.save(call);
 
-        log.info("Call id={} confirmed as RECEIVED by user={}", id, userId);
+        log.info("Call id={} confirmed as RECEIVED by user={}", id, call.getUserId());
     }
 
     private ScheduledCall findCall(Long callId) {
