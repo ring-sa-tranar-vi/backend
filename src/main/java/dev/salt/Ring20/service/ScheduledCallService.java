@@ -242,8 +242,9 @@ public class ScheduledCallService {
 
     @Transactional
     public void cancelFutureCallsForOnePreference(CallbackPreference pref) {
-        log.info("Cancelling future pending calls for preference={}", pref.getId());
-        scheduledCallRepository.cancelFuturePendingCallsForPreference(pref.getId(), Instant.now());
+        log.info("Deleting future calls for preference={}", pref.getId());
+        int deleted = scheduledCallRepository.deleteFutureCallsForPreference(pref.getId(), Instant.now());
+        log.info("Deleted {} future calls for preference={}", deleted, pref.getId());
     }
 
     @Transactional
@@ -276,7 +277,8 @@ public class ScheduledCallService {
     public void resetAllCallsForUser(Long userId) {
 
         log.info("Resetting all future calls for user={}", userId);
-        scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
+        int deleted = scheduledCallRepository.deleteFutureCallsForUser(userId, Instant.now());
+        log.info("Deleted {} future calls for user={}", deleted, userId);
 
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
