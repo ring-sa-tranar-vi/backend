@@ -11,8 +11,7 @@ class UserResponseDTOTest {
 
     @Test
     void recordStoresValues() {
-        UserResponseDto dto =
-                new UserResponseDto(1L, "Jane", 4, "context", true, 7L, "Stockholm", false);
+        UserResponseDto dto = new UserResponseDto(1L, "Jane", 4, "context", true, 7L, "Stockholm", false, "UTC");
 
         assertEquals("Jane", dto.name());
         assertEquals(4, dto.intensityLevel());
@@ -20,5 +19,6 @@ class UserResponseDTOTest {
         assertTrue(dto.isAdmin());
         assertEquals(7L, dto.trainerId());
         assertEquals("Stockholm", dto.city());
+        assertEquals("UTC", dto.timeZone());
     }
 }
