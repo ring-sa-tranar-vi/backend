@@ -17,7 +17,8 @@ public class OrganizationMapper {
                 organisation.getId(),
                 organisation.getName(),
                 organisation.getDescription(),
-                organisation.getOrgCity());
+                organisation.getOrgCity(),
+                organisation.getUsersFollowing());
     }
 
     public static OrganizationResponseDto toResponseDto(Organization organisation) {
@@ -34,7 +35,8 @@ public class OrganizationMapper {
                 events,
                 organisation.getOrgCity(),
                 organisation.getOrganizer() != null ? organisation.getOrganizer().getId() : null,
-                organisation.getMotivation());
+                organisation.getMotivation(),
+                organisation.getUsersFollowing());
     }
 
     public static Organization toOrganization(OrganizationUpdateRequestDto dto) {

@@ -10,4 +10,5 @@ public record OrganizationResponseDto(
         List<EventResponseDto> events,
         String orgCity,
         Long organizerId,
-        String motivation) {}
+        String motivation,
+        int num_of_followers) {}

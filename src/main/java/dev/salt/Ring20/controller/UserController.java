@@ -87,6 +87,16 @@ public class UserController {
         return ResponseEntity.ok().body(UserMapper.toResponse(currentUser, isAdmin));
     }
 
+    @DeleteMapping("/me")
+    @Operation(
+            summary = "Delete my profile",
+            description = "Deletes the profile of the authenticated user.")
+    public ResponseEntity<Void> deleteCurrentUserProfile(Authentication authentication) {
+        String clerkId = getClerkId(authentication);
+        userService.removeUser(clerkId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/by-clerk/{clerkId}")
     @PreAuthorize("@securityService.isAdmin(authentication.name)")
     @Operation(

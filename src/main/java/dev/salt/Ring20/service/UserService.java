@@ -287,4 +287,9 @@ public class UserService {
     public long getUserCount() {
         return userRepository.count();
     }
+
+    public void removeUser(String clerkId) {
+        User user = getUserById(getInternalUserId(clerkId));
+        userRepository.delete(user);
+    }
 }
