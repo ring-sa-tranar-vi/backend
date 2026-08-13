@@ -1,5 +1,6 @@
 package dev.salt.Ring20.service;
 
+import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import dev.salt.Ring20.entity.CallbackPreference;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.google.firebase.messaging.AndroidConfig;
 
 @Service
 public class ScheduledCallService {
