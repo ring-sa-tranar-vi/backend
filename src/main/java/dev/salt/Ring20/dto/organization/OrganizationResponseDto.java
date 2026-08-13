@@ -11,4 +11,4 @@ public record OrganizationResponseDto(
         String orgCity,
         Long organizerId,
         String motivation,
-        int usersFollowing) {}
+        int num_of_followers) {}

@@ -12,4 +12,4 @@ public record EventResponseDto(
         String city,
         String venue,
         EventType eventType,
-        int number_of_attendees) {}
+        int num_of_attendees) {}
