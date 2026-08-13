@@ -1,5 +1,6 @@
 package dev.salt.Ring20.service;
 
+import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import dev.salt.Ring20.entity.CallbackPreference;
@@ -235,7 +236,12 @@ public class ScheduledCallService {
                             .putData("callId", String.valueOf(call.getId()))
                             .putData("trainerId", String.valueOf(call.getTrainerId()))
                             .putData("userId", String.valueOf(call.getUserId()))
+                            .putData("callerName", "AI Coach")
                             .putData("type", "TRAINING_CALL")
+                            .setAndroidConfig(
+                                    AndroidConfig.builder()
+                                            .setPriority(AndroidConfig.Priority.HIGH)
+                                            .build())
                             .build();
 
             String response = FirebaseMessaging.getInstance().send(message);
