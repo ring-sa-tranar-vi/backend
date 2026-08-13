@@ -39,8 +39,6 @@ public class ScheduledCallService {
 
         log.info("Ensuring rolling calls for preference={}, user={}, repeat={}", pref.getId(), pref.getUser().getId(), pref.getRepeat());
 
-        Instant now = Instant.now();
-
         if (pref.getRepeat() == RepeatType.NEVER) {
             long existing = scheduledCallRepository.countFuturePendingCalls(pref.getId(), Instant.now());
 
@@ -135,6 +133,7 @@ public class ScheduledCallService {
         return exists;
     }
 
+    @Transactional
     @Scheduled(fixedRate = 60000)
     public void handleScheduledCalls() {
         Instant now = Instant.now();
