@@ -238,8 +238,8 @@ public class ScheduledCallService {
                             .putData("callerName", "AI Coach")
                             .putData("type", "TRAINING_CALL")
                             .setAndroidConfig(AndroidConfig.builder()
-                                .setPriority(AndroidConfig.Priority.HIGH)
-                                .build())
+                                    .setPriority(AndroidConfig.Priority.HIGH)
+                                    .build())
                             .build();
 
             String response = FirebaseMessaging.getInstance().send(message);
