@@ -216,10 +216,10 @@ public class ScheduledCallService {
         log.info("Completing call id={}", id);
 
         ScheduledCall call = scheduledCallRepository.findById(id).orElseThrow(() -> new NoSuchElementException("No scheduled call exists with this id: " + id));
-        if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
+        if (call.getCallBackStatus() != CallBackStatus.RECEIVED) {
             log.warn("Cannot complete call id={}: current status={}", id, call.getCallBackStatus());
 
-            throw new IllegalStateException("Only triggered calls can be completed");
+            throw new IllegalStateException("Only received calls can be completed");
         }
         call.setCallBackStatus(CallBackStatus.COMPLETED);
         scheduledCallRepository.save(call);
