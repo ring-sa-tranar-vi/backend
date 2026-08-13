@@ -9,11 +9,13 @@ import dev.salt.Ring20.entity.enums.CallBackStatus;
 import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
+
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.NoSuchElementException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,6 +45,8 @@ public class ScheduledCallService {
                 pref.getUser().getId(),
                 pref.getRepeat());
 
+        Instant now = Instant.now();
+
         if (pref.getRepeat() == RepeatType.NEVER) {
             long existing =
                     scheduledCallRepository.countFuturePendingCalls(pref.getId(), Instant.now());
@@ -50,12 +54,17 @@ public class ScheduledCallService {
             log.info("Preference={} has {} future pending calls", pref.getId(), existing);
 
             if (existing == 0) {
-                Instant next = calculateNext(pref);
+                ZonedDateTime nextTime = calculateNextZoned(pref);
+                Instant next = nextTime.toInstant();
 
-                scheduledCallRepository.save(buildCall(pref, next));
+                scheduledCallRepository.save(
+                        buildCall(pref, next));
+
                 log.info(
-                        "No pending call exists for non-repeating preference={}, creating call at {}",
+                        "No pending call exists for non-repeating preference={}, " +
+                                "creating call at local={} instant={}",
                         pref.getId(),
+                        nextTime,
                         next);
             } else {
                 log.info(
@@ -81,16 +90,19 @@ public class ScheduledCallService {
 
         log.info("Preference={} needs {} additional calls", pref.getId(), toCreate);
 
-        Instant nextTime = calculateNext(pref);
+        ZonedDateTime nextTime = calculateNextZoned(pref);
 
         while (toCreate > 0) {
+            Instant instant = nextTime.toInstant();
+
             log.info(
                     "Checking whether call already exists for user={} at {}",
                     pref.getUser().getId(),
-                    nextTime);
+                    nextTime,
+                    instant);
 
-            if (!alreadyExists(pref.getUser().getId(), nextTime)) {
-                ScheduledCall call = buildCall(pref, nextTime);
+            if (!alreadyExists(pref.getUser().getId(), instant)) {
+                ScheduledCall call = buildCall(pref, instant);
                 scheduledCallRepository.save(call);
 
                 log.info(
@@ -106,9 +118,45 @@ public class ScheduledCallService {
                         nextTime);
             }
 
-            nextTime = nextTime.plus(7, ChronoUnit.DAYS);
+            nextTime = nextTime.plusWeeks(1);
         }
     }
+
+    private ZonedDateTime calculateNextZoned(CallbackPreference pref) {
+        ZoneId zone = ZoneId.of(pref.getUser().getTimeZone());
+        ZonedDateTime now = ZonedDateTime.now(zone);
+
+        LocalDate today = now.toLocalDate();
+        LocalTime currentTime = now.toLocalTime();
+        LocalTime scheduledTime = pref.getTime();
+
+        DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
+
+        LocalDate nextDate =
+                today.with(TemporalAdjusters.nextOrSame(targetDay));
+
+        if (nextDate.equals(today) && !scheduledTime.isAfter(currentTime)) {
+            nextDate = nextDate.plusWeeks(1);
+        }
+
+        ZonedDateTime result =
+                ZonedDateTime.of(
+                        nextDate,
+                        scheduledTime,
+                        zone);
+
+        log.info(
+                "Calculated next call: preference={}, zone={}, now={}, " +
+                        "scheduledLocal={}, instant={}",
+                pref.getId(),
+                zone,
+                now,
+                result,
+                result.toInstant());
+
+        return result;
+    }
+
 
     private ScheduledCall buildCall(CallbackPreference pref, Instant time) {
         ScheduledCall call = new ScheduledCall();
@@ -127,30 +175,6 @@ public class ScheduledCallService {
         log.info("Existing call check: user={}, time={}, exists={}", userId, time, exists);
 
         return exists;
-    }
-
-    private Instant calculateNext(CallbackPreference pref) {
-        LocalDate today = LocalDate.now();
-        LocalTime time = pref.getTime();
-
-        DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
-
-        LocalDate nextDate = today.with(TemporalAdjusters.nextOrSame(targetDay));
-
-        if (nextDate.equals(today) && time.isBefore(LocalTime.now())) {
-            nextDate = nextDate.plusWeeks(1);
-        }
-
-        Instant result = nextDate.atTime(time).atZone(ZoneId.systemDefault()).toInstant();
-
-        log.info(
-                "Calculated next call: preference={}, day={}, time={}, result={}",
-                pref.getId(),
-                targetDay,
-                time,
-                result);
-
-        return result;
     }
 
     @Scheduled(fixedRate = 60000)
