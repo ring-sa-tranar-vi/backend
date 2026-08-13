@@ -11,4 +11,5 @@ public record EventResponseDto(
         Long organisationId,
         String city,
         String venue,
-        EventType eventType) {}
+        EventType eventType,
+        int number_of_attendees) {}
