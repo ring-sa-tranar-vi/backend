@@ -9,6 +9,7 @@ import dev.salt.Ring20.dto.organization.OrganizationCreateRequestDto;
 import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
 import dev.salt.Ring20.dto.organization.OrganizationUpdateRequestDto;
 import dev.salt.Ring20.entity.Organization;
+
 import java.util.List;
 
 public class OrganizationMapper {
@@ -25,8 +26,8 @@ public class OrganizationMapper {
                 organisation.getEvents() == null
                         ? List.of()
                         : organisation.getEvents().stream()
-                                .map(EventMapper::toEventResponseDto)
-                                .toList();
+                        .map(EventMapper::toEventResponseDto)
+                        .toList();
         return new OrganizationResponseDto(
                 organisation.getId(),
                 organisation.getName(),
@@ -34,7 +35,8 @@ public class OrganizationMapper {
                 events,
                 organisation.getOrgCity(),
                 organisation.getOrganizer() != null ? organisation.getOrganizer().getId() : null,
-                organisation.getMotivation());
+                organisation.getMotivation(),
+                organisation.getUsersFollowing());
     }
 
     public static Organization toOrganization(OrganizationUpdateRequestDto dto) {
