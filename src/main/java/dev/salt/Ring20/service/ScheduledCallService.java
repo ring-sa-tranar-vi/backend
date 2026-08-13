@@ -305,14 +305,7 @@ public class ScheduledCallService {
     @Transactional
     public void cancelCall(Long callId) {
         log.info("Cancelling call id={}", callId);
-        ScheduledCall call =
-                scheduledCallRepository
-                        .findById(callId)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Call not found with id: " + callId));
-
+        ScheduledCall call = findCall(callId);
         if (call.getCallBackStatus() != CallBackStatus.PENDING) {
             log.warn(
                     "Cannot cancel call id={}: current status={}",
@@ -377,5 +370,45 @@ public class ScheduledCallService {
             }
         }
         log.info("Finished resetting calls for user={}", userId);
+    }
+
+    @Transactional
+    public void confirmReceived(Long id, Long userId) {
+
+        ScheduledCall call = findCall(id);
+
+        if (!call.getUserId().equals(userId)) {
+            throw new IllegalStateException(
+                    "Call does not belong to the authenticated user");
+        }
+
+        if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
+            log.warn(
+                    "Cannot mark call id={} as RECEIVED because status={}",
+                    id,
+                    call.getCallBackStatus());
+
+            throw new IllegalStateException(
+                    "Only triggered calls can be marked as received");
+        }
+
+        call.setCallBackStatus(CallBackStatus.RECEIVED);
+        scheduledCallRepository.save(call);
+
+        log.info(
+                "Call id={} confirmed as RECEIVED by user={}",
+                id,
+                userId);
+    }
+
+    private ScheduledCall findCall(Long callId){
+        ScheduledCall call =
+                scheduledCallRepository
+                        .findById(callId)
+                        .orElseThrow(
+                                () ->
+                                        new NoSuchElementException(
+                                                "Call not found with id: " + callId));
+
     }
 }
