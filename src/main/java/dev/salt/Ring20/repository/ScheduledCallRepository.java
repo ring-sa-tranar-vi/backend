@@ -64,4 +64,16 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     long countFuturePendingCalls(@Param("prefId") Long prefId, @Param("now") Instant now);
 
     List<ScheduledCall> findByUserId(Long userId);
+    @Modifying
+    @Query("""
+    UPDATE ScheduledCall c
+    SET c.fcmToken = :token
+    WHERE c.userId = :userId
+      AND c.targetTime > :now
+      AND c.callBackStatus = 'PENDING'
+""")
+    int updateFcmTokenForFuturePendingCalls(
+            @Param("userId") Long userId,
+            @Param("token") String token,
+            @Param("now") Instant now);
 }
