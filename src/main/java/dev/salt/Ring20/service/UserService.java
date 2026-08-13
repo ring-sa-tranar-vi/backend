@@ -1,5 +1,6 @@
 package dev.salt.Ring20.service;
 
+import dev.salt.Ring20.dto.user.UserTimeZoneDto;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.UserRole;
@@ -8,6 +9,9 @@ import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import jakarta.transaction.Transactional;
+
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -291,5 +295,21 @@ public class UserService {
     public void removeUser(String clerkId) {
         User user = getUserById(getInternalUserId(clerkId));
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public String updateUserTimeZone(String clerkId, String timeZone) {
+        User user = getUserById(getInternalUserId(clerkId));
+        try {
+            ZoneId.of(timeZone);
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException(
+                    "Invalid time zone: " + timeZone);
+        }
+
+        user.setTimeZone(timeZone);
+        userRepository.save(user);
+
+        return user.getTimeZone();
     }
 }

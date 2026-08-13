@@ -10,6 +10,7 @@ import dev.salt.Ring20.dto.organization.OrganizationResponseDto;
 import dev.salt.Ring20.dto.user.UserCreateRequestDto;
 import dev.salt.Ring20.dto.user.UserRequestDto;
 import dev.salt.Ring20.dto.user.UserResponseDto;
+import dev.salt.Ring20.dto.user.UserTimeZoneDto;
 import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.Organization;
@@ -26,8 +27,10 @@ import dev.salt.Ring20.service.security.DisplayResolverService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -276,6 +279,18 @@ public class UserController {
         User currentUser = getCurrentUser(authentication);
 
         return ResponseEntity.ok().body(activityLogService.getUserProgress(currentUser.getId()));
+    }
+
+    @PutMapping("/me/time-zone")
+    @Operation(
+            summary = "Update my time zone",
+            description = "Updates time zone for the authenticated user.")
+    public ResponseEntity<UserTimeZoneDto> updateTimeZone(Authentication authentication, @RequestBody UserTimeZoneDto timeZone) {
+        String clerkId = getClerkId(authentication);
+
+        return ResponseEntity.ok()
+                .body(
+                        new UserTimeZoneDto(userService.updateUserTimeZone(clerkId, timeZone.timeZone())));
     }
 
     @GetMapping("/{userId}/callback-preference")
