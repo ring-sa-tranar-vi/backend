@@ -28,6 +28,7 @@ public class UserService {
     private final TrainerRepository trainerRepository;
     private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
+    private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final ScheduledCallService scheduledCallService;
     private final ScheduledCallRepository scheduledCallRepository;
 
@@ -36,12 +37,14 @@ public class UserService {
             TrainerRepository trainerRepository,
             OrganizationRepository organizationRepository,
             EventRepository eventRepository,
+            CallbackPreferenceRepository callbackPreferenceRepository,
             ScheduledCallService scheduledCallService,
             ScheduledCallRepository scheduledCallRepository) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
         this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
+        this.callbackPreferenceRepository = callbackPreferenceRepository;
         this.scheduledCallService = scheduledCallService;
         this.scheduledCallRepository = scheduledCallRepository;
     }
@@ -286,10 +289,10 @@ public class UserService {
         }
 
         callback.setUser(user);
-        user.getCallbackPreferences().add(callback);
-        userRepository.saveAndFlush(user);
-        scheduledCallService.ensureRollingCalls(callback);
-        return callback;
+        CallbackPreference savedCallback = callbackPreferenceRepository.saveAndFlush(callback);
+        user.getCallbackPreferences().add(savedCallback);
+        scheduledCallService.ensureRollingCalls(savedCallback);
+        return savedCallback;
     }
 
     @Transactional
