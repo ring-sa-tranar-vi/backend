@@ -136,9 +136,16 @@ public class UserController {
             description = "Updates the profile of the authenticated user.")
     public ResponseEntity<UserResponseDto> updateCurrentUserProfile(
             @Valid @RequestBody UserRequestDto userRequest, Authentication authentication) {
-        User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = getClerkId(authentication);
-        User updated = userService.updateUserPreferencesByClerkId(clerkId, userToUpdate);
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId(),
+                        userRequest.city(),
+                        userRequest.onboarding());
 
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -151,9 +158,16 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UserRequestDto userRequest,
             Authentication authentication) {
-        User userToUpdate = UserMapper.toUserEntity(userRequest);
         String clerkId = getClerkId(authentication);
-        User updated = userService.updateUserPreferencesByClerkId(clerkId, userToUpdate);
+        User updated =
+                userService.updateUserPreferencesByClerkId(
+                        clerkId,
+                        userRequest.name(),
+                        userRequest.intensityLevel(),
+                        userRequest.context(),
+                        userRequest.trainerId(),
+                        userRequest.city(),
+                        userRequest.onboarding());
 
         boolean isAdmin = userService.isAdmin(clerkId);
         return ResponseEntity.ok().body(UserMapper.toResponse(updated, isAdmin));
@@ -169,7 +183,7 @@ public class UserController {
 
         return ResponseEntity.ok()
                 .body(
-                        userService.getUserOrganizationById(currentUser.getId()).stream()
+                        userService.getUserOrgsById(currentUser.getId()).stream()
                                 .map(OrganizationMapper::toResponseDto)
                                 .toList());
     }
@@ -287,7 +301,7 @@ public class UserController {
     @Operation(
             summary = "Remove callback preference",
             description = "Removes a user's callback preference for a specific day.")
-    public ResponseEntity<Void> removeCallBackPreference(
+    public ResponseEntity<Void> removeAllCallBackPreferenceByDay(
             @PathVariable Long userId, @PathVariable DayOfWeekType day) {
         userService.removeCallbackPreference(userId, day);
         return ResponseEntity.noContent().build();

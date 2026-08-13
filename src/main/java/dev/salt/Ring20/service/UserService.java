@@ -22,16 +22,19 @@ public class UserService {
     private final TrainerRepository trainerRepository;
     private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
+    private final ScheduledCallService scheduledCallService;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
             OrganizationRepository organizationRepository,
-            EventRepository eventRepository) {
+            EventRepository eventRepository,
+            ScheduledCallService scheduledCallService) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
         this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
+        this.scheduledCallService = scheduledCallService;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -95,8 +98,14 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUserPreferencesByClerkId(String clerkId, User user) {
-        Long trainerId = user.getTrainerId();
+    public User updateUserPreferencesByClerkId(
+            String clerkId,
+            String name,
+            int intensityLevel,
+            String context,
+            Long trainerId,
+            String city,
+            boolean onboarding) {
         if (trainerId == null) {
             throw new IllegalArgumentException("Trainer is required");
         }
@@ -104,15 +113,15 @@ public class UserService {
             throw new IllegalArgumentException("Trainer does not exist with id: " + trainerId);
         }
 
-        User foundUser = getByClerkIdOrThrow(clerkId);
+        User user = getByClerkIdOrThrow(clerkId);
 
-        foundUser.setName(sanitizeDisplayName(user.getName()));
-        foundUser.setIntensityLevel(user.getIntensityLevel());
-        foundUser.setContext(user.getContext());
-        foundUser.setTrainerId(user.getTrainerId());
-        foundUser.setCity(user.getCity());
-        foundUser.setOnboarding(user.isOnboarding());
-        return userRepository.save(foundUser);
+        user.setName(sanitizeDisplayName(name));
+        user.setIntensityLevel(intensityLevel);
+        user.setContext(context);
+        user.setTrainerId(trainerId);
+        user.setCity(city);
+        user.setOnboarding(onboarding);
+        return userRepository.save(user);
     }
 
     public User getUserById(Long id) {
@@ -121,7 +130,7 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
-    public List<Organization> getUserOrganizationById(Long id) {
+    public List<Organization> getUserOrgsById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
         }
@@ -197,7 +206,6 @@ public class UserService {
 
         if (!alreadyAttending) {
             user.getAttendingEvents().add(event);
-
             event.setUsersAttending(event.getUsersAttending() + 1);
         }
 
@@ -249,13 +257,14 @@ public class UserService {
             CallbackPreference preference = existing.get();
             preference.setTime(callback.getTime());
             preference.setRepeat(callback.getRepeat());
-
+            scheduledCallService.resetCallsForPreference(preference);
             return preference;
         }
 
         callback.setUser(user);
         user.getCallbackPreferences().add(callback);
-
+        userRepository.saveAndFlush(user);
+        scheduledCallService.ensureRollingCalls(callback);
         return callback;
     }
 
@@ -263,11 +272,16 @@ public class UserService {
     public void removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        boolean removed = user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
+        CallbackPreference pref =
+                user.getCallbackPreferences().stream()
+                        .filter(c -> c.getDay() == day)
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new NoSuchElementException("No callback preference found"));
 
-        if (!removed) {
-            throw new NoSuchElementException("No callback preference found for day: " + day);
-        }
+        scheduledCallService.cancelFutureCallsForOnePreference(pref);
+        scheduledCallService.detachHistoricalCallsFromPreference(pref.getId());
+        user.getCallbackPreferences().remove(pref);
     }
 
     public long getUserCount() {
