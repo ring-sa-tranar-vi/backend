@@ -1,18 +1,28 @@
-# Ring så Tränar Vi - Backend
+This backend powers the Ring så tränar vi fitness app. It provides REST APIs for managing users, workouts, trainers, activity logs, and feedback, while handling authentication, data storage, and AI-generated workout suggestions.
 
-## Overview
+## Features / Responsibilities
 
-This backend powers the Ring så Tränar vi fitness app for older adults. It provides REST APIs for managing users, workouts, trainers, activity logs, and feedback, while handling authentication, data storage, and AI-generated workout suggestions.
+- Provide REST APIs for users, workouts, trainers, activity logs, feedback, and admin operations
+- Validate Clerk-issued JWTs and apply role-based access control
+- Store and manage application data using JPA repositories
+- Generate workout recommendations using Gemini AI
+- Provide API documentation via OpenAPI/Swagger
 
-## Local Development
+## Tech Stack
 
-To setup the backend for local development, see Installation section below. The backend runs on http://localhost:8080 and connects to a local Postgres database via Docker Compose.
-
-**ALWAYS** use the provided Docker Compose setup for local development to ensure consistent database configuration and avoid exceeding NEON's free plan limit.
-
-***If an entity is added and/or updated**, create a .sql in the db-init folder to update the database with the changes. Follow the naming convention such as 01-xxx.sql, 02-xxx.sql etc. and use the next number in chronological order.*
-
-If you need to reset the database on local development environment, run ```docker compose down -v``` to remove the volume and start fresh with ```docker compose up```.
+- Java 21
+- Spring Boot 4
+- Spring Web
+- Spring Data JPA
+- Spring Security
+- OAuth2 Resource Server with JWT
+- Spring WebSocket
+- OpenAPI/Swagger UI via springdoc-openapi
+- Postgres Database for local development
+- PostgreSQL runtime support
+- Clerk for authentication token issuance and validation
+- Neon
+- Google Gemini for AI token and workout recommendation flows
 
 ## Architecture
 
@@ -40,188 +50,379 @@ Database (H2 / PostgreSQL)
 - Entities represent database models
 - DTOs handle API request and response objects
 
-## Responsibilities
+## Project Structure
 
-- Provide REST APIs for users, workouts, trainers, activity logs, feedback, and admin operations
-- Validate Clerk-issued JWTs and apply role-based access control
-- Store and manage application data using JPA repositories
-- Generate workout recommendations using Gemini AI
-- Provide API documentation via OpenAPI/Swagger
+```text
+backend/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── .../
+│   │   │       ├── controller/       # REST API endpoints
+│   │   │       ├── service/         
+│   │   │       │    ├── ai           # Ai logic 
+│   │   │       │    ├── data         # Data holders
+│   │   │       │    ├── security     # Security logic
+│   │   │       │    └── storage      # Storage logic
+│   │   │       ├── repository/       # Database access
+│   │   │       ├── entity/           # Entities and enums
+│   │   │       │    └── enums/
+│   │   │       ├── dto/              # Request and response objects
+│   │   │       │    ├── user/
+│   │   │       │    ├── workout/
+│   │   │       │    ├── organization/
+│   │   │       │    ├── event/
+│   │   │       │    ├── trainer/
+│   │   │       │    ├── admin/
+│   │   │       │    ├── callback/
+│   │   │       │    ├── feedback/
+│   │   │       │    ├── activityLog/
+│   │   │       │    ├── calendarEvent/
+│   │   │       │    ├── company/
+│   │   │       │    └── fcmToken/
+│   │   │       ├── config/            # Application configuration
+│   │   │       └── mapper/            # Mapper classes
+│   │   ├──kotlin/                     # Kotlin setup
+│   │   │
+│   │   └── resources/
+│   │         ├── db.migration        # Database migration    
+│   │         └── application.yaml    # Application configuration
+│   │      
+│   └── test/
+│       └── java/                      # Automated tests
+├── build.gradle.kts                   # Gradle build configuration
+├── gradlew                            # Gradle Wrapper
+├── gradlew.bat                        # Gradle Wrapper for Windows
+└── settings.gradle.kts                # Gradle project settings
+```
 
-## Tech Stack
+## Getting Started
 
-- Java 21
-- Spring Boot 4
-- Spring Web
-- Spring Data JPA
-- Spring Security
-- OAuth2 Resource Server with JWT
-- Spring WebSocket
-- OpenAPI/Swagger UI via springdoc-openapi
-- Postgres Database for local development
-- PostgreSQL runtime support
-- Clerk for authentication token issuance and validation
-- Supabase for file storage
-- Google Gemini for AI token and workout recommendation flows
+### Prerequisites
 
+- Git
+- Java 21+
+- Docker
+- Docker Compose
 
-## Authentication
+### Installation
 
-- All protected endpoints require a valid Clerk JWT
-- Include token in header:
-  Authorization: Bearer <token>
+Clone the repository
 
-- Roles supported:
-  - USER
-  - ADMIN
- 
-- CORS is configured to allow requests from the frontend application
+```bash
+git clone https://github.com/ring-sa-tranar-vi/backend.git 
+cd ring-sa-tranar-vi/backend
+```
+
+### Environment Variables
+
+The application requires environment variables for database access, authentication, and AI functionality.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| ` SPRING_DATASOURCE_URL` | `for local devlopment` | `Database connection URL used by the application` |
+| ` SPRING_DATASOURCE_USERNAME` | `for local devlopment` | `Username used to connect to the database` |
+| ` SPRING_DATASOURCE_PASSWORD` | `for local devlopment` | `Password used to connect to the database` |
+| ` PORT` | `yes` | `Port on which the backend application runs` |
+| ` CLERK_JWT_ISSUER_URI` | `yes` | `Clerk issuer URI used to validate authentication tokens` |
+| ` GEMINI_API_KEY` | `yes` | `API key used to access the Gemini API` |
+| ` OPENAI_API_KEY` | `yes` | `API key used to access the OpenAI API` |
+| ` GRAFANA_OTLP_AUTH` | `yes` | `Authentication credentials used when sending telemetry to Grafana` |
+| ` GRAFANA_OTLP_URL` | `yes` | `Endpoint URL used for sending telemetry to Grafana` |
+| ` FIREBASE_CONFIG_JSON` | `yes` | `Firebase service account configuration used by the backend` |
+
+### Run Locally
+
+Copy the folder **ringsatranarvi_files** and it's content
+from https://drive.google.com/drive/folders/1AAGsyKJFmYUuf5IheBsp0cPiSEkf44nA to the root of the project.
+
+#### Start the database
+
+The project uses PostgreSQL for local development. PostgreSQL is started using ```docker compose up``` and starts a
+container on port ```5432```.
+The local database is configured as:
+
+| Setting | Value |
+| --- | --- |
+| ` Database` | `ring20_db` |
+| ` Username` | `postgres` |
+| ` password` | `password` |
+| ` Host` | `localhost` |
+| ` post` | `5432` |
+
+The database initialization scripts in db-init/ are automatically executed when the PostgreSQL container is initialized.
+
+To stop the database, run ```docker compose down```. The data will persist in the Postgres volume. If you want to reset
+the database, run ```docker compose down -v``` to remove the volume and start fresh.
+
+#### Run the backend
+
+Once the PostgreSQL database is running localy, start the Spring Boor application:
+
+```bash
+./gradlew bootRun
+```
+
+The application will run locally at http://localhost:8080
+
+### Open Swagger
+
+Once the application is running, the API documentation is available through Swagger UI:
+http://localhost:8080/swagger-ui/index.html
 
 ## API
 
-- Base URL: http://localhost:8080
+The backend exposes a REST API for managing users, workouts, trainers, activity logs, feedback, organizations, events
+and AI-generated workout suggestions.
 
-- Swagger UI:
-http://localhost:8080/swagger-ui/index.html
+The complete API specification is available through Swagger UI when running the application locally:
 
-- Main route groups: 
-   /api/users, /api/workouts, /api/trainers, /api/activity-logs, /api/feedbacks, /api/admin, /api/live-token, /api
+`http://localhost:8080/swagger-ui/index.html`
 
-## Example Request
+### Authentication
 
-GET /api/workouts
+he API uses [Clerk](https://clerk.com/) for authentication. Protected endpoints require a valid Clerk-issued JWT.
+
+Include the JWT in the `Authorization` header using the Bearer scheme:
+
+```
+Authorization: Bearer <clerk-jwt>
+```
+
+CORS is configured to allow requests from the frontend application
+
+Roles supported:
+
+- USER
+- ADMIN
+- SUPER_ADMIN
+
+### Endpoints
+
+The main API resources are:
+
+/api/users,
+/api/workouts,
+/api/trainers,
+/api/activity-logs,
+/api/feedbacks,
+/api/company,
+/api/organizations,
+/api/events
+/api/admin,
+/api/live-tokens,
+/api
+
+### Example Request
+
+Request:
+
+```
+GET /api/users/1
 
 Headers:
 Authorization: Bearer <token>
+```
+
+Response:
+
+```
+{
+  "id": 1,
+  "name": "string",
+  "intensityLevel": 0,
+  "context": "string",
+  "isAdmin": true,
+  "trainerId": 0,
+  "city": "string",
+  "onboarding": true
+}
+```
+
+### Error Handling
+
+The API returns standard HTTP status codes:
+
+- 200 - Successful request
+- 201 - Created
+- 204 - No Content
+- 400 - Invalid request
+- 401 - Authentication required
+- 403 - Insufficient permissions
+- 404 - Resource not found
+- 409 - Request conflict
+- 500 - Server error
+
+Errors follow a consistent response format.
 
 ## Database
+
 The application uses JPA/Hibernate for database management.
 
-Local development:
+#### Local development:
+
+**ALWAYS** use the provided Docker Compose setup for local development to ensure consistent database configuration and
+avoid exceeding NEON's free plan limit.
+
 - Postgres database
 
 Production:
+
 - PostgreSQL database hosted on Neon
 
-Main entities:
+#### Main entities:
 
 - User
 - Trainer
 - Workout
 - Activity Log
 - Feedback
-- Organisation
+- Organization
+- Organization Application
 - Event
+- User workout preference
+- Callback preference
 
-**ALWAYS** use the provided Docker Compose setup for local development to ensure consistent database configuration and avoid exceeding NEON's free plan limit.
+#### Updating entities:
 
-***If an entity is added and/or updated**, create a .sql in the db-init folder to update the database with the changes. Follow the naming convention such as 01-xxx.sql, 02-xxx.sql etc. and use the next number in chronological order. These files are used to update the database on NEON and in docker compose.*
+***If an entity is added and/or updated**, create a .sql in the db-init folder to update the database with the changes.
+Follow the naming convention such as 01-xxx.sql, 02-xxx.sql etc. and use the next number in chronological order. These
+files are used to update the database on NEON and in docker compose.*
 
-If you need to reset the database on local development environment, run ```docker compose down -v``` to remove the volume and start fresh with ```docker compose up```.
+If you need to reset the database on local development environment, run ```docker compose down -v``` to remove the
+volume and start fresh with ```docker compose up```.
 
-## Environment Variables
+## Development
 
-- CLERK_JWT_ISSUER_URI
-- GEMINI_API_KEY
+This section describes the tools and workflows used when developing the backend.
 
-
-## Getting Started
-### Prerequisites
-- Java 21+
-- Gradle Wrapper
-
-### Installation
-
-
-#### 1. Clone the repository:
-```bash
-git clone https://github.com/ring-sa-tranar-vi/backend.git
-```
-#### 2. Set environment variables (see above)
-
-#### 3. Copy files
-Copy the folder **ringsatranarvi_files** and it's content from https://drive.google.com/drive/folders/1AAGsyKJFmYUuf5IheBsp0cPiSEkf44nA to the root of the project.
-
-#### 4. Docker Compose for Postgres
-Run ```docker compose up``` to start the Postgres database for local development. Postgres automatically populates the database with initial data on first run.
-To stop the database, run ```docker compose down```. The data will persist in the Postgres volume. If you want to reset the database, run ```docker compose down -v``` to remove the volume and start fresh.
-
-#### 5. Build the app
-```bash
-./gradlew build
-```
-#### 6. Run the app locally
-```bash
-./gradlew bootRun
-```
-The application will run locally at http://localhost:8080
-
-#### 7. Open Swagger
-http://localhost:8080/swagger-ui/index.html
-
-
-## Testing
+### Testing
 
 The project uses Spring Boot testing tools for validating backend functionality.
 
-Run tests with:
+Run all tests with:
 
 ```bash
 ./gradlew test
 ```
 
-## Error Handling
+### Linting and Formatting
 
-The API returns standard HTTP status codes:
+We use **Spotless** for linting and formatting with the google-java-format (Android Open Source Project) ruleset.
 
-- 200 - Successful request
-- 400 - Invalid request
-- 401 - Authentication required
-- 403 - Insufficient permissions
-- 404 - Resource not found
-- 500 - Server error
+To automatically format the code run:
 
-Errors follow a consistent response format.
+```bash
+./gradlew spotlessApply
+```
+
+To check whether the code is correctly formatted without making changes run:
+
+```bash
+./gradlew spotlessCheck
+```
+
+The CI pipeline runs Spotless on all code and fails the build if any formatting issues are found. This ensures that all
+code is consistently formatted before being merged.
+
+<!--
+### Local Development
+The backend runs locally using Spring Boot, while PostgreSQL is provided through Docker Compose.
+**ALWAYS** use the provided Docker Compose setup for local development to ensure consistent database configuration and avoid exceeding NEON's free plan limit.
+Start the database:
+```bash
+docker compose up -d
+```
+Start the backend:
+```bash
+./gradlew bootRun
+```
+The application is then available at:
+http://localhost:8080
+See Getting Started for the complete local setup instructions.
+The project uses the Gradle Wrapper, so Gradle does not need to be installed separately.
+If the Gradle Wrapper is not executable on Linux or macOS, run:
+```bash
+chmod +x gradlew
+```
+-->
+
+### Development Workflow
+
+The project uses Trunk-Based Development. Developers work on short-lived branches and create pull requests against the `main` branch.
+
+Changes should be kept small and focused to make them easier to review and integrate.
+
+Before creating a pull request:
+
+1. Run the test suite:
+
+```bash
+./gradlew test
+```
+
+2. Run code formatting:
+
+```bash
+./gradlew spotlessApply
+```
+
+3. Commit and push the changes.
+
+4. Create a pull request for review.
+
+
+The project also uses a pre-push Git hook that runs Spotless on staged files to help prevent incorrectly formatted code
+from being pushed.
+
+CI runs the relevant checks again before changes can be merged.
 
 ## Deployment & CI/CD
 
-We use **Trunk-Based Development** and deploy the Spring Boot application to **Google Cloud Run** via GitHub Actions. The pipeline ensures code is thoroughly tested and built once before moving through the environments.
+The Spring Boot application is deployed to **Google Cloud Run** via GitHub Actions.
+The pipeline ensures code is thoroughly tested and built once before moving through the environments.
 
-### The Workflow
+### Workflow
 
-1.  **Pull Requests (Testing):** Any PR opened against `main` automatically runs the test suite (`./gradlew test`). The code cannot be merged until all tests pass.
-2.  **Merge to `main` (Build & Push):** * The Java code (Java 21) is packaged using Gradle.
-    * A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
-    * The image is pushed to the shared GCP Artifact Registry.
-3.  **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built Docker image.
-4.  **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production, ensuring zero environment drift.
-
-### Linting and Formatting
-We use **Spotless** for linting and formatting with the google-java-format (Android Open Source Project) ruleset. The CI pipeline runs Spotless on all code and fails the build if any formatting issues are found. This ensures that all code is consistently formatted before being merged.
-
-### Local Development
-The application automatically installs a pre-push Git hook to run Spotless on staged files. This ensures that all code is formatted consistently before being pushed.
-When building locally, note that the CI pipeline utilizes Gradle's build cache to optimize performance. Ensure your local `./gradlew` file has the correct execution permissions (`chmod +x gradlew`) if gradle commands in the terminal doesn't work.
+1. **Pull Requests (Testing):** Any PR opened against `main` automatically runs the test suite (`./gradlew test`). The
+   code cannot be merged until all tests pass.
+2. **Merge to `main` (Build & Push):** * The Java code (Java 21) is packaged using Gradle.
+- A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
+- The image is pushed to the shared GCP Artifact Registry.
+3. **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built
+   Docker image.
+4. **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to
+   the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production,
+   ensuring zero environment drift.
 
 ## Troubleshooting
 
 ### Application fails to start
 
 Check that:
-- Required environment variables are configured
-- Java 21 is installed
-- Gradle wrapper has execution permissions
+
+- Required environment variables are configured.
+- Java 21 is installed.
+- Gradle wrapper has execution permissions.
+- On Linux or macOS, if the Gradle Wrapper is not executable, run:
+
+```bash
+chmod +x gradlew
+```
 
 ### Authentication fails
 
 Check:
+
 - Clerk issuer URI is correct
 - JWT token is valid
 - Authorization header uses:
 
+```
 Authorization: Bearer <token>
+```
 
 ## Related Repositories
 
 - Frontend: [Repository Link](https://github.com/ring-sa-tranar-vi/frontend)
-- Infrastructure: [Repository Link](https://github.com/ring-sa-tranar-vi/infrastructure)
+- Infrastructure: [Repository Link
