@@ -1,3 +1,7 @@
+# Ring så tränar vi - Backend
+
+## Overview
+
 This backend powers the Ring så tränar vi fitness app. It provides REST APIs for managing users, workouts, trainers, activity logs, and feedback, while handling authentication, data storage, and AI-generated workout suggestions.
 
 ## Features / Responsibilities
@@ -5,7 +9,7 @@ This backend powers the Ring så tränar vi fitness app. It provides REST APIs f
 - Provide REST APIs for users, workouts, trainers, activity logs, feedback, and admin operations
 - Validate Clerk-issued JWTs and apply role-based access control
 - Store and manage application data using JPA repositories
-- Generate workout recommendations using Gemini AI
+- AI driven workout selection using Gemini AI
 - Provide API documentation via OpenAPI/Swagger
 
 ## Tech Stack
@@ -84,8 +88,7 @@ backend/
 │   │   │       └── mapper/            # Mapper classes
 │   │   ├──kotlin/                     # Kotlin setup
 │   │   │
-│   │   └── resources/
-│   │         ├── db.migration        # Database migration    
+│   │   └── resources/   
 │   │         └── application.yaml    # Application configuration
 │   │      
 │   └── test/
@@ -130,6 +133,8 @@ The application requires environment variables for database access, authenticati
 | ` GRAFANA_OTLP_AUTH` | `yes` | `Authentication credentials used when sending telemetry to Grafana` |
 | ` GRAFANA_OTLP_URL` | `yes` | `Endpoint URL used for sending telemetry to Grafana` |
 | ` FIREBASE_CONFIG_JSON` | `yes` | `Firebase service account configuration used by the backend` |
+
+**Grafana** is used for monitoring and observability of the backend and infrastructure. The Grafana configuration is provided through environment variables and is **only required for deployed environments, not for local development**.
 
 ### Run Locally
 
@@ -181,7 +186,7 @@ The complete API specification is available through Swagger UI when running the 
 
 ### Authentication
 
-he API uses [Clerk](https://clerk.com/) for authentication. Protected endpoints require a valid Clerk-issued JWT.
+The API uses [Clerk](https://clerk.com/) for authentication. Protected endpoints require a valid Clerk-issued JWT.
 
 Include the JWT in the `Authorization` header using the Bearer scheme:
 
@@ -195,7 +200,6 @@ Roles supported:
 
 - USER
 - ADMIN
-- SUPER_ADMIN
 
 ### Endpoints
 
@@ -368,9 +372,9 @@ Before creating a pull request:
 ```
 
 3. Commit and push the changes.
-
+  
 4. Create a pull request for review.
-
+  
 
 The project also uses a pre-push Git hook that runs Spotless on staged files to help prevent incorrectly formatted code
 from being pushed.
@@ -385,15 +389,15 @@ The pipeline ensures code is thoroughly tested and built once before moving thro
 ### Workflow
 
 1. **Pull Requests (Testing):** Any PR opened against `main` automatically runs the test suite (`./gradlew test`). The
-   code cannot be merged until all tests pass.
+  code cannot be merged until all tests pass.
 2. **Merge to `main` (Build & Push):** * The Java code (Java 21) is packaged using Gradle.
-- A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
-- The image is pushed to the shared GCP Artifact Registry.
+  - A minimal Docker image (based on Eclipse Temurin Alpine) is built and tagged with the specific GitHub commit SHA.
+  - The image is pushed to the shared GCP Artifact Registry.
 3. **Staging (Auto-Deploy):** The pipeline automatically updates the Staging Cloud Run service with the newly built
-   Docker image.
+  Docker image.
 4. **Production (Manual Approval):** The pipeline halts. To deploy to Production, an authorized team member must go to
-   the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production,
-   ensuring zero environment drift.
+  the GitHub Actions tab and approve the release. The *exact same* Docker image is then deployed to Production,
+  ensuring zero environment drift.
 
 ## Troubleshooting
 
@@ -425,4 +429,4 @@ Authorization: Bearer <token>
 ## Related Repositories
 
 - Frontend: [Repository Link](https://github.com/ring-sa-tranar-vi/frontend)
-- Infrastructure: [Repository Link
+- Infrastructure: [Repository Link](https://github.com/ring-sa-tranar-vi/infrastructure)
