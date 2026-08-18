@@ -1,7 +1,7 @@
 package dev.salt.Ring20.controller;
 
 import dev.salt.Ring20.dto.ScheduledCallDto;
-import dev.salt.Ring20.entity.ScheduledCall;
+import dev.salt.Ring20.mapper.ScheduledCallMapper;
 import dev.salt.Ring20.service.ScheduledCallService;
 import dev.salt.Ring20.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +32,8 @@ public class ScheduledCallController {
     @Operation(summary = "Get scheduled call", description = "Returns a scheduled call by its ID.")
     public ResponseEntity<ScheduledCallDto> getCall(@PathVariable Long id) {
 
-        return ResponseEntity.ok(toDto(scheduledCallService.getCall(id)));
+        return ResponseEntity.ok(
+                ScheduledCallMapper.toScheduledCallDto(scheduledCallService.getCall(id)));
     }
 
     @GetMapping("/user/{userId}")
@@ -43,7 +44,9 @@ public class ScheduledCallController {
     public ResponseEntity<List<ScheduledCallDto>> getCallsForUser(@PathVariable Long userId) {
 
         return ResponseEntity.ok(
-                scheduledCallService.getCallsForUser(userId).stream().map(this::toDto).toList());
+                scheduledCallService.getCallsForUser(userId).stream()
+                        .map(ScheduledCallMapper::toScheduledCallDto)
+                        .toList());
     }
 
     @PostMapping("/user/{userId}/reset")
@@ -84,14 +87,5 @@ public class ScheduledCallController {
 
         scheduledCallService.cancelCall(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private ScheduledCallDto toDto(ScheduledCall call) {
-        return new ScheduledCallDto(
-                call.getId(),
-                call.getUserId(),
-                call.getTrainerId(),
-                call.getTargetTime(),
-                call.getCallBackStatus());
     }
 }
