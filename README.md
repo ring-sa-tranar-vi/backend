@@ -138,6 +138,9 @@ The application requires environment variables for database access, authenticati
 
 ### Run Locally
 
+If you want to see the differnet trainers do the next step, otherwise skip it.
+
+#### copy files
 Copy the folder **ringsatranarvi_files** and it's content
 from https://drive.google.com/drive/folders/1AAGsyKJFmYUuf5IheBsp0cPiSEkf44nA to the root of the project.
 
@@ -273,6 +276,7 @@ avoid exceeding NEON's free plan limit.
 Production:
 
 - PostgreSQL database hosted on Neon
+- media files are stored on Google Cloud Platform
 
 #### Main entities:
 
