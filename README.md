@@ -140,7 +140,7 @@ The application requires environment variables for database access, authenticati
 
 If you want to see the differnet trainers do the next step, otherwise skip it.
 
-#### copy files
+#### Copy files
 Copy the folder **ringsatranarvi_files** and it's content
 from https://drive.google.com/drive/folders/1AAGsyKJFmYUuf5IheBsp0cPiSEkf44nA to the root of the project.
 
@@ -208,17 +208,17 @@ Roles supported:
 
 The main API resources are:
 
-/api/users,
-/api/workouts,
-/api/trainers,
-/api/activity-logs,
-/api/feedbacks,
-/api/company,
-/api/organizations,
-/api/events
-/api/admin,
-/api/live-tokens,
-/api
+- /api/users
+- /api/workouts
+- /api/trainers
+- /api/activity-logs
+- /api/feedbacks
+- /api/company
+- /api/organizations
+- /api/events
+- /api/admin
+- /api/live-tokens
+- /api
 
 ### Example Request
 
