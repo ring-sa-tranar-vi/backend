@@ -10,7 +10,6 @@ import dev.salt.Ring20.entity.enums.RepeatType;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.ScheduledCallRepository;
 import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,12 +49,16 @@ public class ScheduledCallService {
             log.info("Preference={} has {} future pending calls", pref.getId(), existing);
 
             if (existing == 0) {
-                Instant next = calculateNext(pref);
+                ZonedDateTime nextTime = calculateNextZoned(pref);
+                Instant next = nextTime.toInstant();
 
                 scheduledCallRepository.save(buildCall(pref, next));
+
                 log.info(
-                        "No pending call exists for non-repeating preference={}, creating call at {}",
+                        "No pending call exists for non-repeating preference={}, "
+                                + "creating call at local={} instant={}",
                         pref.getId(),
+                        nextTime,
                         next);
             } else {
                 log.info(
@@ -81,16 +84,19 @@ public class ScheduledCallService {
 
         log.info("Preference={} needs {} additional calls", pref.getId(), toCreate);
 
-        Instant nextTime = calculateNext(pref);
+        ZonedDateTime nextTime = calculateNextZoned(pref);
 
         while (toCreate > 0) {
+            Instant instant = nextTime.toInstant();
+
             log.info(
                     "Checking whether call already exists for user={} at {}",
                     pref.getUser().getId(),
-                    nextTime);
+                    nextTime,
+                    instant);
 
-            if (!alreadyExists(pref.getUser().getId(), nextTime)) {
-                ScheduledCall call = buildCall(pref, nextTime);
+            if (!alreadyExists(pref.getUser().getId(), instant)) {
+                ScheduledCall call = buildCall(pref, instant);
                 scheduledCallRepository.save(call);
 
                 log.info(
@@ -106,8 +112,38 @@ public class ScheduledCallService {
                         nextTime);
             }
 
-            nextTime = nextTime.plus(7, ChronoUnit.DAYS);
+            nextTime = nextTime.plusWeeks(1);
         }
+    }
+
+    private ZonedDateTime calculateNextZoned(CallbackPreference pref) {
+        ZoneId zone = ZoneId.of(pref.getUser().getTimeZone());
+        ZonedDateTime now = ZonedDateTime.now(zone);
+
+        LocalDate today = now.toLocalDate();
+        LocalTime currentTime = now.toLocalTime();
+        LocalTime scheduledTime = pref.getTime();
+
+        DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
+
+        LocalDate nextDate = today.with(TemporalAdjusters.nextOrSame(targetDay));
+
+        if (nextDate.equals(today) && !scheduledTime.isAfter(currentTime)) {
+            nextDate = nextDate.plusWeeks(1);
+        }
+
+        ZonedDateTime result = ZonedDateTime.of(nextDate, scheduledTime, zone);
+
+        log.info(
+                "Calculated next call: preference={}, zone={}, now={}, "
+                        + "scheduledLocal={}, instant={}",
+                pref.getId(),
+                zone,
+                now,
+                result,
+                result.toInstant());
+
+        return result;
     }
 
     private ScheduledCall buildCall(CallbackPreference pref, Instant time) {
@@ -129,30 +165,7 @@ public class ScheduledCallService {
         return exists;
     }
 
-    private Instant calculateNext(CallbackPreference pref) {
-        LocalDate today = LocalDate.now();
-        LocalTime time = pref.getTime();
-
-        DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
-
-        LocalDate nextDate = today.with(TemporalAdjusters.nextOrSame(targetDay));
-
-        if (nextDate.equals(today) && time.isBefore(LocalTime.now())) {
-            nextDate = nextDate.plusWeeks(1);
-        }
-
-        Instant result = nextDate.atTime(time).atZone(ZoneId.systemDefault()).toInstant();
-
-        log.info(
-                "Calculated next call: preference={}, day={}, time={}, result={}",
-                pref.getId(),
-                targetDay,
-                time,
-                result);
-
-        return result;
-    }
-
+    @Transactional
     @Scheduled(fixedRate = 60000)
     public void handleScheduledCalls() {
         Instant now = Instant.now();
@@ -268,10 +281,10 @@ public class ScheduledCallService {
                                 () ->
                                         new NoSuchElementException(
                                                 "No scheduled call exists with this id: " + id));
-        if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
+        if (call.getCallBackStatus() != CallBackStatus.RECEIVED) {
             log.warn("Cannot complete call id={}: current status={}", id, call.getCallBackStatus());
 
-            throw new IllegalStateException("Only triggered calls can be completed");
+            throw new IllegalStateException("Only received calls can be completed");
         }
         call.setCallBackStatus(CallBackStatus.COMPLETED);
         scheduledCallRepository.save(call);
@@ -281,14 +294,7 @@ public class ScheduledCallService {
     @Transactional
     public void cancelCall(Long callId) {
         log.info("Cancelling call id={}", callId);
-        ScheduledCall call =
-                scheduledCallRepository
-                        .findById(callId)
-                        .orElseThrow(
-                                () ->
-                                        new NoSuchElementException(
-                                                "Call not found with id: " + callId));
-
+        ScheduledCall call = findCall(callId);
         if (call.getCallBackStatus() != CallBackStatus.PENDING) {
             log.warn(
                     "Cannot cancel call id={}: current status={}",
@@ -305,8 +311,10 @@ public class ScheduledCallService {
 
     @Transactional
     public void cancelFutureCallsForOnePreference(CallbackPreference pref) {
-        log.info("Cancelling future pending calls for preference={}", pref.getId());
-        scheduledCallRepository.cancelFuturePendingCallsForPreference(pref.getId(), Instant.now());
+        log.info("Deleting future calls for preference={}", pref.getId());
+        int deleted =
+                scheduledCallRepository.deleteFutureCallsForPreference(pref.getId(), Instant.now());
+        log.info("Deleted {} future calls for preference={}", deleted, pref.getId());
     }
 
     @Transactional
@@ -341,7 +349,8 @@ public class ScheduledCallService {
     public void resetAllCallsForUser(Long userId) {
 
         log.info("Resetting all future calls for user={}", userId);
-        scheduledCallRepository.cancelFuturePendingCallsForUser(userId, Instant.now());
+        int deleted = scheduledCallRepository.deleteFutureCallsForUser(userId, Instant.now());
+        log.info("Deleted {} future calls for user={}", deleted, userId);
 
         List<CallbackPreference> prefs = callbackPreferenceRepository.findByUserId(userId);
 
@@ -353,5 +362,31 @@ public class ScheduledCallService {
             }
         }
         log.info("Finished resetting calls for user={}", userId);
+    }
+
+    @Transactional
+    public void confirmReceived(Long id) {
+
+        ScheduledCall call = findCall(id);
+
+        if (call.getCallBackStatus() != CallBackStatus.TRIGGERED) {
+            log.warn(
+                    "Cannot mark call id={} as RECEIVED because status={}",
+                    id,
+                    call.getCallBackStatus());
+
+            throw new IllegalStateException("Only triggered calls can be marked as received");
+        }
+
+        call.setCallBackStatus(CallBackStatus.RECEIVED);
+        scheduledCallRepository.save(call);
+
+        log.info("Call id={} confirmed as RECEIVED by user={}", id, call.getUserId());
+    }
+
+    private ScheduledCall findCall(Long callId) {
+        return scheduledCallRepository
+                .findById(callId)
+                .orElseThrow(() -> new NoSuchElementException("Call not found with id: " + callId));
     }
 }

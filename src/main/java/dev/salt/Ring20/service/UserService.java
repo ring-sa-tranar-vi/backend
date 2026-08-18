@@ -3,14 +3,16 @@ package dev.salt.Ring20.service;
 import dev.salt.Ring20.entity.*;
 import dev.salt.Ring20.entity.enums.DayOfWeekType;
 import dev.salt.Ring20.entity.enums.UserRole;
-import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganizationRepository;
-import dev.salt.Ring20.repository.TrainerRepository;
-import dev.salt.Ring20.repository.UserRepository;
+import dev.salt.Ring20.repository.*;
 import jakarta.transaction.Transactional;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,23 +20,30 @@ public class UserService {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private static final int STARTING_INTENSITY = 2;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
     private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
+    private final CallbackPreferenceRepository callbackPreferenceRepository;
     private final ScheduledCallService scheduledCallService;
+    private final ScheduledCallRepository scheduledCallRepository;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
             OrganizationRepository organizationRepository,
             EventRepository eventRepository,
-            ScheduledCallService scheduledCallService) {
+            CallbackPreferenceRepository callbackPreferenceRepository,
+            ScheduledCallService scheduledCallService,
+            ScheduledCallRepository scheduledCallRepository) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
         this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
+        this.callbackPreferenceRepository = callbackPreferenceRepository;
         this.scheduledCallService = scheduledCallService;
+        this.scheduledCallRepository = scheduledCallRepository;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -85,10 +94,20 @@ public class UserService {
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
-    public void setFcmToken(Long id, String token) {
+    public void setFcmToken(Long id, String newToken) {
         User user = getUserById(id);
-        user.setFcmToken(token);
+        if (newToken.equals(user.getFcmToken())) {
+            return;
+        }
+
+        user.setFcmToken(newToken);
         userRepository.save(user);
+
+        int updated =
+                scheduledCallRepository.updateFcmTokenForFuturePendingCalls(
+                        id, newToken, Instant.now());
+
+        log.info("Updated FCM token for user={}, updated {} future pending calls", id, updated);
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
@@ -262,10 +281,10 @@ public class UserService {
         }
 
         callback.setUser(user);
-        user.getCallbackPreferences().add(callback);
-        userRepository.saveAndFlush(user);
-        scheduledCallService.ensureRollingCalls(callback);
-        return callback;
+        CallbackPreference savedCallback = callbackPreferenceRepository.saveAndFlush(callback);
+        user.getCallbackPreferences().add(savedCallback);
+        scheduledCallService.ensureRollingCalls(savedCallback);
+        return savedCallback;
     }
 
     @Transactional
@@ -286,5 +305,25 @@ public class UserService {
 
     public long getUserCount() {
         return userRepository.count();
+    }
+
+    public void removeUser(String clerkId) {
+        User user = getUserById(getInternalUserId(clerkId));
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    public String updateUserTimeZone(String clerkId, String timeZone) {
+        User user = getUserById(getInternalUserId(clerkId));
+        try {
+            ZoneId.of(timeZone);
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Invalid time zone: " + timeZone);
+        }
+
+        user.setTimeZone(timeZone);
+        userRepository.save(user);
+
+        return user.getTimeZone();
     }
 }

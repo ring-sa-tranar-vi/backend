@@ -27,7 +27,8 @@ public class UserMapper {
                 isAdmin,
                 user.getTrainerId(),
                 user.getCity(),
-                user.isOnboarding());
+                user.isOnboarding(),
+                user.getTimeZone());
     }
 
     public static UserResponseDto toResponse(User user) {
@@ -39,6 +40,7 @@ public class UserMapper {
                 "ADMIN".equals(user.getRole()),
                 user.getTrainerId(),
                 user.getCity(),
-                user.isOnboarding());
+                user.isOnboarding(),
+                user.getTimeZone());
     }
 }

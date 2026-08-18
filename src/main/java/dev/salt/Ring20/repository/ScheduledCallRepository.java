@@ -32,25 +32,21 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
 
     @Modifying
     @Query(
-"""
-    UPDATE ScheduledCall c
-    SET c.callBackStatus = 'CANCELLED'
-    WHERE c.userId = :userId
-      AND c.targetTime > :time
-      AND c.callBackStatus = 'PENDING'
-""")
-    void cancelFuturePendingCallsForUser(@Param("userId") Long userId, @Param("time") Instant time);
+            """
+                                DELETE FROM ScheduledCall c
+                                WHERE c.userId = :userId
+                                  AND c.targetTime > :time
+                        """)
+    int deleteFutureCallsForUser(@Param("userId") Long userId, @Param("time") Instant time);
 
     @Modifying
     @Query(
-"""
-    UPDATE ScheduledCall c
-    SET c.callBackStatus = 'CANCELLED'
-    WHERE c.callbackPreference.id = :preferenceId
-      AND c.targetTime > :targetTime
-      AND c.callBackStatus = 'PENDING'
-""")
-    void cancelFuturePendingCallsForPreference(
+            """
+                                DELETE FROM ScheduledCall c
+                                WHERE c.callbackPreference.id = :preferenceId
+                                  AND c.targetTime > :targetTime
+                        """)
+    int deleteFutureCallsForPreference(
             @Param("preferenceId") Long preferenceId, @Param("targetTime") Instant targetTime);
 
     @Query(
@@ -64,4 +60,16 @@ public interface ScheduledCallRepository extends JpaRepository<ScheduledCall, Lo
     long countFuturePendingCalls(@Param("prefId") Long prefId, @Param("now") Instant now);
 
     List<ScheduledCall> findByUserId(Long userId);
+
+    @Modifying
+    @Query(
+"""
+    UPDATE ScheduledCall c
+    SET c.fcmToken = :token
+    WHERE c.userId = :userId
+      AND c.targetTime > :now
+      AND c.callBackStatus = 'PENDING'
+""")
+    int updateFcmTokenForFuturePendingCalls(
+            @Param("userId") Long userId, @Param("token") String token, @Param("now") Instant now);
 }

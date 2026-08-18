@@ -40,7 +40,8 @@ public class EventMapper {
                 organisationId,
                 event.getCity(),
                 event.getVenue(),
-                event.getEventType());
+                event.getEventType(),
+                event.getUsersAttending());
     }
 
     public static AdminOrganizationEventDto toEventDto(Event event) {

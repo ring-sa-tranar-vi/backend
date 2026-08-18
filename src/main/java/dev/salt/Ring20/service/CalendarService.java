@@ -1,16 +1,17 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
-import dev.salt.Ring20.entity.enums.RepeatType;
+import dev.salt.Ring20.entity.enums.CallBackStatus;
 import dev.salt.Ring20.repository.ActivityLogRepository;
 import dev.salt.Ring20.repository.CallbackPreferenceRepository;
+import dev.salt.Ring20.repository.ScheduledCallRepository;
 import dev.salt.Ring20.repository.UserRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.CalendarEventData;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -25,6 +26,7 @@ public class CalendarService {
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
     private final CallbackPreferenceRepository callbackPreferenceRepository;
+    private final ScheduledCallRepository scheduledCallRepository;
     private final WorkoutRepository workoutRepository;
 
     @Transactional(readOnly = true)
@@ -36,12 +38,13 @@ public class CalendarService {
                 userRepository
                         .findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        ZoneId userZone = ZoneId.of(user.getTimeZone());
 
         List<CalendarEventData> calendarEvents = new ArrayList<>();
 
         calendarEvents.addAll(getWorkouts(userId, startOfMonth, endOfMonth));
         calendarEvents.addAll(getEvents(user, startOfMonth, endOfMonth));
-        calendarEvents.addAll(getScheduledCalls(userId, yearMonth));
+        calendarEvents.addAll(getScheduledCalls(userId, yearMonth, userZone));
         calendarEvents.sort(Comparator.comparing(CalendarEventData::time));
 
         return calendarEvents;
@@ -85,61 +88,45 @@ public class CalendarService {
                 .toList();
     }
 
-    private List<CalendarEventData> getScheduledCalls(Long userId, YearMonth yearMonth) {
-        List<CallbackPreference> preferences = callbackPreferenceRepository.findByUserId(userId);
+    private List<CalendarEventData> getScheduledCalls(
+            Long userId, YearMonth yearMonth, ZoneId userZone) {
+        List<ScheduledCall> scheduledCalls = scheduledCallRepository.findByUserId(userId);
         List<CalendarEventData> callEvents = new ArrayList<>();
 
         LocalDate start = yearMonth.atDay(1);
         LocalDate end = yearMonth.atEndOfMonth();
-        LocalDateTime now = LocalDateTime.now();
 
-        for (CallbackPreference pref : preferences) {
+        for (ScheduledCall call : scheduledCalls) {
+            LocalDateTime callTime = LocalDateTime.ofInstant(call.getTargetTime(), userZone);
+            LocalDate callDate = callTime.toLocalDate();
 
-            DayOfWeek targetDay = DayOfWeek.valueOf(pref.getDay().name());
-            LocalDate date = start;
-
-            while (!date.isAfter(end)) {
-
-                if (date.getDayOfWeek() != targetDay) {
-                    date = date.plusDays(1);
-                    continue;
-                }
-
-                LocalDateTime callTime = LocalDateTime.of(date, pref.getTime());
-
-                if (pref.getRepeat() == RepeatType.NEVER && callTime.isBefore(now)) {
-                    date = date.plusDays(1);
-                    continue;
-                }
-
-                callEvents.add(createCallCalendarEvent(pref, callTime, date));
-
-                if (pref.getRepeat() == RepeatType.NEVER) {
-                    break;
-                }
-
-                date = date.plusDays(1);
+            if (callDate.isBefore(start) || callDate.isAfter(end)) {
+                continue;
             }
+
+            callEvents.add(createCallCalendarEvent(call, callTime));
         }
 
         return callEvents;
     }
 
-    private CalendarEventData createCallCalendarEvent(
-            CallbackPreference pref, LocalDateTime callTime, LocalDate date) {
-        LocalDateTime now = LocalDateTime.now();
+    private CalendarEventData createCallCalendarEvent(ScheduledCall call, LocalDateTime callTime) {
         return createCalenderEventData(
-                "CALL-" + pref.getId() + "-" + date,
+                String.valueOf(call.getId()),
+                call.getId(),
+                call.getCallBackStatus(),
                 "CALL",
                 "Trainer Call",
                 "Trainer call",
                 callTime,
-                callTime.isBefore(now));
+                call.getCallBackStatus() != CallBackStatus.PENDING);
     }
 
     private CalendarEventData createWorkoutCalendarEvent(ActivityLog log, String workoutName) {
         return createCalenderEventData(
                 "WORKOUT-" + log.getId(),
+                null,
+                null,
                 "WORKOUT",
                 workoutName,
                 "Time: "
@@ -154,6 +141,8 @@ public class CalendarService {
         LocalDateTime now = LocalDateTime.now();
         return createCalenderEventData(
                 "EVENT-" + event.getId(),
+                null,
+                null,
                 "EVENT",
                 event.getName(),
                 fullDescription,
@@ -163,12 +152,15 @@ public class CalendarService {
 
     private CalendarEventData createCalenderEventData(
             String id,
+            Long scheduledCallId,
+            CallBackStatus callBackStatus,
             String type,
             String title,
             String description,
             LocalDateTime time,
             boolean completed) {
 
-        return new CalendarEventData(id, type, title, description, time, completed);
+        return new CalendarEventData(
+                id, scheduledCallId, callBackStatus, type, title, description, time, completed);
     }
 }

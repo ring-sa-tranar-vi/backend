@@ -7,6 +7,8 @@ public class CalendarMapper {
     public static CalendarEventDto toDto(CalendarEventData calendarEvent) {
         return new CalendarEventDto(
                 calendarEvent.id(),
+                calendarEvent.scheduledCallId(),
+                calendarEvent.callBackStatus(),
                 calendarEvent.type(),
                 calendarEvent.title(),
                 calendarEvent.description(),

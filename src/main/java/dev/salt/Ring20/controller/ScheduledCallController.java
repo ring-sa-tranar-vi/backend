@@ -3,6 +3,7 @@ package dev.salt.Ring20.controller;
 import dev.salt.Ring20.dto.ScheduledCallDto;
 import dev.salt.Ring20.entity.ScheduledCall;
 import dev.salt.Ring20.service.ScheduledCallService;
+import dev.salt.Ring20.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -18,9 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class ScheduledCallController {
 
     private final ScheduledCallService scheduledCallService;
+    private final UserService userService;
 
-    public ScheduledCallController(ScheduledCallService scheduledCallService) {
+    public ScheduledCallController(
+            ScheduledCallService scheduledCallService, UserService userService) {
         this.scheduledCallService = scheduledCallService;
+        this.userService = userService;
     }
 
     @GetMapping("/{id}")
@@ -61,6 +65,16 @@ public class ScheduledCallController {
     public ResponseEntity<Void> completeCall(@PathVariable Long id) {
 
         scheduledCallService.completeCall(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/received")
+    @Operation(
+            summary = "Confirm callback notification received",
+            description = "Confirms that the native app received the callback notification.")
+    @PreAuthorize("@scheduledCallSecurity.canModify(#id, authentication.name)")
+    public ResponseEntity<Void> confirmReceived(@PathVariable Long id) {
+        scheduledCallService.confirmReceived(id);
         return ResponseEntity.ok().build();
     }
 

@@ -49,6 +49,9 @@ public class User {
 
     private String fcmToken;
 
+    @Column(nullable = false)
+    private String timeZone = "UTC";
+
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;
         this.intensityLevel = intensityLevel;
@@ -56,5 +59,6 @@ public class User {
         this.clerkId = clerkId;
         this.role = UserRole.USER;
         this.trainerId = DEFAULT_TRAINER_ID;
+        this.timeZone = "UTC";
     }
 }
