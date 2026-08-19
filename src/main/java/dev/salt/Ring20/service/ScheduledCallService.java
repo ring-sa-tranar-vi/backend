@@ -172,7 +172,8 @@ public class ScheduledCallService {
         log.info("Scheduled call job started. now={}", now);
 
         List<ScheduledCall> startingNow =
-                scheduledCallRepository.findCallsBetween(now.minusSeconds(3600), now.plusSeconds(14400));
+                scheduledCallRepository.findCallsBetween(
+                        now.minusSeconds(3600), now.plusSeconds(14400));
 
         log.info("Found {} calls in trigger window", startingNow.size());
 
