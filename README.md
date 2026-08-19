@@ -220,6 +220,8 @@ The main API resources are:
 - /api/live-tokens
 - /api
 
+Read more about the admin endpoints [here](ADMIN_ENDPOINTS_TESTS_TOOLS.md)
+
 ### Example Request
 
 Request:
