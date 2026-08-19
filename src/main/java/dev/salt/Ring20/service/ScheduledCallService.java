@@ -230,17 +230,23 @@ public class ScheduledCallService {
                 call.getUserId(),
                 call.getTrainerId());
         try {
+            String trainerName = "AI Coach";
+
             Message message =
                     Message.builder()
                             .setToken(call.getFcmToken())
+
                             .putData("callId", String.valueOf(call.getId()))
                             .putData("trainerId", String.valueOf(call.getTrainerId()))
                             .putData("userId", String.valueOf(call.getUserId()))
-                            .putData("callerName", "AI Coach")
+                            .putData("callerName", trainerName)
                             .putData("type", "TRAINING_CALL")
+
                             .setAndroidConfig(
                                     AndroidConfig.builder()
                                             .setPriority(AndroidConfig.Priority.HIGH)
+                                            .setDirectBootOk(true)
+                                            .setTtl(0)
                                             .build())
                             .build();
 
@@ -252,7 +258,6 @@ public class ScheduledCallService {
 
         } catch (Exception e) {
             log.error("Failed to send FCM notification for call id={}", call.getId(), e);
-
             return false;
         }
     }
