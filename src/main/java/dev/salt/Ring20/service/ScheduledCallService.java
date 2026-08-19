@@ -235,13 +235,11 @@ public class ScheduledCallService {
             Message message =
                     Message.builder()
                             .setToken(call.getFcmToken())
-
                             .putData("callId", String.valueOf(call.getId()))
                             .putData("trainerId", String.valueOf(call.getTrainerId()))
                             .putData("userId", String.valueOf(call.getUserId()))
                             .putData("callerName", trainerName)
                             .putData("type", "TRAINING_CALL")
-
                             .setAndroidConfig(
                                     AndroidConfig.builder()
                                             .setPriority(AndroidConfig.Priority.HIGH)
