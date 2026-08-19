@@ -4,7 +4,7 @@ import dev.salt.Ring20.entity.Feedback;
 import dev.salt.Ring20.repository.FeedbackRepository;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("feedbackSecurity")
 public class FeedbackSecurity {
 
     private final FeedbackRepository repository;

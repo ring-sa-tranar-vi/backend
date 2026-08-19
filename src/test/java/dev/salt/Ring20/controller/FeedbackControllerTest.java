@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.feedbackDtos.FeedbackRequestDto;
-import dev.salt.Ring20.dto.feedbackDtos.FeedbackResponseDto;
+import dev.salt.Ring20.dto.feedback.FeedbackRequestDto;
+import dev.salt.Ring20.dto.feedback.FeedbackResponseDto;
 import dev.salt.Ring20.entity.Feedback;
-import dev.salt.Ring20.entity.FeedbackDifficulty;
+import dev.salt.Ring20.entity.enums.FeedbackDifficulty;
 import dev.salt.Ring20.service.FeedbackService;
 import dev.salt.Ring20.service.security.SecurityService;
 import java.util.NoSuchElementException;
@@ -67,7 +67,7 @@ class FeedbackControllerTest {
     void deleteFeedbackReturnsNoContentWhenPresent() {
         FeedbackController controller = new FeedbackController(feedbackService, securityService);
 
-        when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
+        // when(feedbackService.getFeedbackById(1L)).thenReturn(new Feedback());
 
         ResponseEntity<Void> response = controller.deleteFeedback(1L);
 

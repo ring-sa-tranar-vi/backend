@@ -1,12 +1,10 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.EventType;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
@@ -14,35 +12,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
-    private final OrganisationRepository organisationRepository;
-    private final OrganisationService organisationService;
+    private final OrganizationRepository organizationRepository;
+    private final OrganizationService organizationService;
 
     public EventService(
             EventRepository eventRepository,
-            OrganisationRepository organisationRepository,
-            OrganisationService organisationService) {
+            OrganizationRepository organizationRepository,
+            OrganizationService organizationService) {
         this.eventRepository = eventRepository;
-        this.organisationRepository = organisationRepository;
-        this.organisationService = organisationService;
+        this.organizationRepository = organizationRepository;
+        this.organizationService = organizationService;
     }
 
-    public Event createEvent(
-            String name,
-            String description,
-            LocalDateTime time,
-            Long organisationId,
-            String city,
-            String venue,
-            EventType eventType) {
-        return eventRepository.save(
-                new Event(
-                        name,
-                        description,
-                        time,
-                        getOrganisationById(organisationId),
-                        city,
-                        venue,
-                        eventType));
+    public Event createEvent(Event event, Long organizationId) {
+        event.setOrganisation(getOrganisationById(organizationId));
+        return eventRepository.save(event);
     }
 
     public List<Event> getAllEvents() {
@@ -54,33 +38,28 @@ public class EventService {
     }
 
     public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElseThrow();
+        return eventRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException(" Event not found with id: " + id));
     }
 
     @Transactional
-    public Event updateEvent(
-            Long id,
-            String name,
-            String description,
-            LocalDateTime time,
-            String city,
-            String venue,
-            EventType eventType) {
+    public Event updateEvent(Event event, Long id) {
 
-        Event event =
+        Event eventToUpdate =
                 eventRepository
                         .findById(id)
                         .orElseThrow(
                                 () ->
                                         new NoSuchElementException(
                                                 " Event not found with id: " + id));
-        event.setName(name);
-        event.setDescription(description);
-        event.setTime(time);
-        event.setCity(city);
-        event.setVenue(venue);
-        event.setEventType(eventType);
-        return eventRepository.save(event);
+        eventToUpdate.setName(event.getName());
+        eventToUpdate.setDescription(event.getDescription());
+        eventToUpdate.setTime(event.getTime());
+        eventToUpdate.setCity(event.getCity());
+        eventToUpdate.setVenue(event.getVenue());
+        eventToUpdate.setEventType(event.getEventType());
+        return eventRepository.save(eventToUpdate);
     }
 
     @Transactional
@@ -89,8 +68,8 @@ public class EventService {
     }
 
     public List<Event> getEventsForUser(String clerkId) {
-        List<Organisation> organisations =
-                organisationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
+        List<Organization> organisations =
+                organizationRepository.findByOrganizer_ClerkIdWithEvents(clerkId);
 
         if (organisations.isEmpty()) {
             throw new NoSuchElementException(
@@ -100,7 +79,7 @@ public class EventService {
         return organisations.stream().flatMap(org -> org.getEvents().stream()).toList();
     }
 
-    private Organisation getOrganisationById(Long id) {
-        return organisationService.getOrganisationById(id);
+    private Organization getOrganisationById(Long id) {
+        return organizationService.getOrganizationById(id);
     }
 }

@@ -4,13 +4,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import dev.salt.Ring20.entity.CallbackPreference;
 import dev.salt.Ring20.entity.Event;
 import dev.salt.Ring20.entity.User;
-import dev.salt.Ring20.entity.UserRole;
+import dev.salt.Ring20.entity.enums.DayOfWeekType;
+import dev.salt.Ring20.entity.enums.RepeatType;
+import dev.salt.Ring20.entity.enums.UserRole;
+import dev.salt.Ring20.repository.CallbackPreferenceRepository;
 import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
+import dev.salt.Ring20.repository.OrganizationRepository;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
+import java.time.LocalTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +32,10 @@ class UserServiceTest {
 
     @Mock private UserRepository userRepository;
     @Mock private TrainerRepository trainerRepository;
-    @Mock private OrganisationRepository organisationRepository;
+    @Mock private OrganizationRepository organizationRepository;
     @Mock private EventRepository eventRepository;
+    @Mock private CallbackPreferenceRepository callbackPreferenceRepository;
+    @Mock private ScheduledCallService scheduledCallService;
 
     @InjectMocks private UserService userService;
 
@@ -94,9 +101,20 @@ class UserServiceTest {
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
+        User preferences = new User("  Updated  ", 4, "new", "clerk_1");
+        preferences.setTrainerId(7L);
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
+
         User updated =
                 userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "  Updated  ", 4, "new", 7L, "Stockholm", false);
+                        "clerk_1",
+                        preferences.getName(),
+                        preferences.getIntensityLevel(),
+                        preferences.getContext(),
+                        preferences.getTrainerId(),
+                        preferences.getCity(),
+                        preferences.isOnboarding());
 
         assertEquals("Updated", updated.getName());
         assertEquals(4, updated.getIntensityLevel());
@@ -109,12 +127,23 @@ class UserServiceTest {
 
     @Test
     void updateUserPreferencesByClerkIdRejectsMissingTrainer() {
+        User preferences = new User("Name", 3, "context", "clerk_1");
+        preferences.setTrainerId(null);
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
+
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", null, "Stockholm", false));
+                                        "clerk_1",
+                                        preferences.getName(),
+                                        preferences.getIntensityLevel(),
+                                        preferences.getContext(),
+                                        preferences.getTrainerId(),
+                                        preferences.getCity(),
+                                        preferences.isOnboarding()));
 
         assertEquals("Trainer is required", ex.getMessage());
     }
@@ -123,12 +152,23 @@ class UserServiceTest {
     void updateUserPreferencesRejectsUnknownTrainer() {
         when(trainerRepository.existsById(999L)).thenReturn(false);
 
+        User preferences = new User("Name", 3, "context", "clerk_1");
+        preferences.setTrainerId(999L);
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
+
         IllegalArgumentException ex =
                 assertThrows(
                         IllegalArgumentException.class,
                         () ->
                                 userService.updateUserPreferencesByClerkId(
-                                        "clerk_1", "Name", 3, "context", 999L, "Stockholm", false));
+                                        "clerk_1",
+                                        preferences.getName(),
+                                        preferences.getIntensityLevel(),
+                                        preferences.getContext(),
+                                        preferences.getTrainerId(),
+                                        preferences.getCity(),
+                                        preferences.isOnboarding()));
 
         assertEquals("Trainer does not exist with id: 999", ex.getMessage());
     }
@@ -158,5 +198,29 @@ class UserServiceTest {
 
         assertTrue(user.getAttendingEvents().isEmpty());
         assertEquals(0, event.getUsersAttending());
+    }
+
+    @Test
+    void addOrUpdateCallbackPreferenceSavesPreferenceBeforeSchedulingCalls() {
+        CallbackPreference preference = new CallbackPreference();
+        preference.setDay(DayOfWeekType.MONDAY);
+        preference.setTime(LocalTime.of(9, 0));
+        preference.setRepeat(RepeatType.WEEKLY);
+
+        CallbackPreference savedPreference = new CallbackPreference();
+        savedPreference.setId(42L);
+        savedPreference.setDay(DayOfWeekType.MONDAY);
+        savedPreference.setTime(LocalTime.of(9, 0));
+        savedPreference.setRepeat(RepeatType.WEEKLY);
+        savedPreference.setUser(user);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(callbackPreferenceRepository.saveAndFlush(preference)).thenReturn(savedPreference);
+
+        CallbackPreference result = userService.addOrUpdateCallbackPreference(1L, preference);
+
+        assertSame(savedPreference, result);
+        verify(callbackPreferenceRepository).saveAndFlush(preference);
+        verify(scheduledCallService).ensureRollingCalls(savedPreference);
     }
 }

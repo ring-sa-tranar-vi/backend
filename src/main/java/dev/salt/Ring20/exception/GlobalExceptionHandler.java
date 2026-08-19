@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleBadRequest(
             IllegalArgumentException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ProblemDetail> handleConflict(
+            IllegalStateException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ProblemDetail> handleDataConflict(
+            DataIntegrityViolationException ex, HttpServletRequest request) {
+        return build(
+                HttpStatus.CONFLICT,
+                "The user already has an active application or organisation",
+                request.getRequestURI());
     }
 
     @ExceptionHandler(ResponseStatusException.class)
@@ -101,6 +117,13 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception:", ex);
 
         return build(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(QuotaExceededException.class)
+    public ResponseEntity<ProblemDetail> handleQuotaExceeded(
+            QuotaExceededException ex, HttpServletRequest request) {
+
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request.getRequestURI());
     }
 
     private ResponseEntity<ProblemDetail> build(HttpStatus status, String message, String path) {

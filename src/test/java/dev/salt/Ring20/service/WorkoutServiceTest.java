@@ -1,8 +1,10 @@
 package dev.salt.Ring20.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import dev.salt.Ring20.entity.ActivityLog;
 import dev.salt.Ring20.entity.Workout;
@@ -26,8 +28,6 @@ class WorkoutServiceTest {
     @Mock private WorkoutRepository workoutRepository;
 
     @Mock private ActivityLogRepository activityLogRepository;
-
-    @Mock private FileStorageService fileStorageService;
 
     @InjectMocks private WorkoutService workoutService;
 

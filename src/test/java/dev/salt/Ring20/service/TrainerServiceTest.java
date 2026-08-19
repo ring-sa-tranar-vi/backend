@@ -1,14 +1,13 @@
 package dev.salt.Ring20.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.repository.TrainerRepository;
-import dev.salt.Ring20.repository.UserRepository;
-import dev.salt.Ring20.repository.WorkoutRepository;
 import dev.salt.Ring20.service.data.TrainerData;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -25,10 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TrainerServiceTest {
 
     @Mock private TrainerRepository trainerRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private GeminiWorkoutService geminiWorkoutService;
-    @Mock private WorkoutRepository workoutRepository;
-    @Mock private ObjectMapper objectMapper;
 
     @InjectMocks private TrainerService trainerService;
 

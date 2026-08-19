@@ -1,7 +1,0 @@
-package dev.salt.Ring20.entity;
-
-public enum FeedbackDifficulty {
-    TOO_EASY,
-    JUST_RIGHT,
-    TOO_HARD
-}

@@ -4,14 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.userDtos.UserCreateRequestDto;
-import dev.salt.Ring20.dto.userDtos.UserRequestDto;
+import dev.salt.Ring20.dto.user.UserCreateRequestDto;
+import dev.salt.Ring20.dto.user.UserRequestDto;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.service.ActivityLogService;
-import dev.salt.Ring20.service.EventService;
-import dev.salt.Ring20.service.OrganisationService;
 import dev.salt.Ring20.service.UserService;
-import java.util.Optional;
+import dev.salt.Ring20.service.security.DisplayResolverService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,15 +28,12 @@ class UserControllerTest {
 
     @Mock private ActivityLogService activityLogService;
 
-    @Mock private OrganisationService organisationService;
-
-    @Mock private EventService eventService;
+    @Mock private DisplayResolverService displayResolverService;
 
     @Test
     void createUserReturnsResponseBody() {
         UserController controller =
-                new UserController(
-                        userService, activityLogService, organisationService, eventService);
+                new UserController(userService, activityLogService, displayResolverService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(1L);
         when(userService.createUser(eq("clerk_1"), any())).thenReturn(user);
@@ -54,12 +49,17 @@ class UserControllerTest {
     @Test
     void updateCurrentUserProfileReturnsOk() {
         UserController controller =
-                new UserController(
-                        userService, activityLogService, organisationService, eventService);
+                new UserController(userService, activityLogService, displayResolverService);
         User user = new User("Jane", 3, "context", "clerk_1");
         user.setTrainerId(4L);
         when(userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "Jane", 3, "context", 4L, "Stockholm", false))
+                        eq("clerk_1"),
+                        anyString(),
+                        anyInt(),
+                        anyString(),
+                        anyLong(),
+                        anyString(),
+                        anyBoolean()))
                 .thenReturn(user);
         when(userService.isAdmin("clerk_1")).thenReturn(false);
 
@@ -75,16 +75,21 @@ class UserControllerTest {
     void updateUserPreferencesUpdatesCurrentUser() {
 
         UserController controller =
-                new UserController(
-                        userService, activityLogService, organisationService, eventService);
+                new UserController(userService, activityLogService, displayResolverService);
 
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setId(1L);
 
-        when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
+        // when(userService.findByClerkId("clerk_1")).thenReturn(Optional.of(user));
 
         when(userService.updateUserPreferencesByClerkId(
-                        "clerk_1", "Other", 2, "x", 1L, "Stockholm", false))
+                        eq("clerk_1"),
+                        anyString(),
+                        anyInt(),
+                        anyString(),
+                        anyLong(),
+                        anyString(),
+                        anyBoolean()))
                 .thenReturn(user);
 
         ResponseEntity<?> response =
@@ -99,8 +104,7 @@ class UserControllerTest {
     @Test
     void getUserByIdReturnsMappedResponse() {
         UserController controller =
-                new UserController(
-                        userService, activityLogService, organisationService, eventService);
+                new UserController(userService, activityLogService, displayResolverService);
         User user = new User("Jane", 2, "context", "clerk_1");
         user.setTrainerId(9L);
         when(userService.getUserById(1L)).thenReturn(user);

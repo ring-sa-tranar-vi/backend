@@ -1,7 +1,7 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.UserWorkoutPreference;
-import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import dev.salt.Ring20.repository.UserWorkoutPreferenceRepository;
 import dev.salt.Ring20.repository.WorkoutRepository;
 import java.time.LocalDateTime;
@@ -24,19 +24,9 @@ public class UserWorkoutPreferenceService {
     }
 
     public Map<String, List<Long>> getPreferences(Long userId) {
-        List<Long> dislikedWorkoutIds =
-                preferenceRepository
-                        .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.DISLIKED)
-                        .stream()
-                        .map(UserWorkoutPreference::getWorkoutId)
-                        .toList();
+        List<Long> dislikedWorkoutIds = getDislikedWorkoutIds(userId);
 
-        List<Long> favoriteWorkoutIds =
-                preferenceRepository
-                        .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.FAVORITE)
-                        .stream()
-                        .map(UserWorkoutPreference::getWorkoutId)
-                        .toList();
+        List<Long> favoriteWorkoutIds = getFavouriteWorkoutIds(userId);
 
         return Map.of(
                 "dislikedWorkoutIds", dislikedWorkoutIds, "favoriteWorkoutIds", favoriteWorkoutIds);
@@ -47,20 +37,21 @@ public class UserWorkoutPreferenceService {
             Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
         return preferenceRepository
                 .findByUserIdAndWorkoutIdAndPreferenceType(userId, workoutId, preferenceType)
-                .orElseGet(
-                        () -> {
-                            UserWorkoutPreference preference = new UserWorkoutPreference();
-                            preference.setUserId(userId);
-                            if (!workoutRepository.existsById(workoutId)) {
-                                throw new IllegalArgumentException(
-                                        "Workout does not exist with id: " + workoutId);
-                            }
-                            preference.setWorkoutId(workoutId);
-                            preference.setPreferenceType(preferenceType);
-                            preference.setCreatedAt(LocalDateTime.now());
+                .orElseGet(() -> getWorkoutPreference(userId, workoutId, preferenceType));
+    }
 
-                            return preferenceRepository.save(preference);
-                        });
+    private UserWorkoutPreference getWorkoutPreference(
+            Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
+        UserWorkoutPreference preference = new UserWorkoutPreference();
+        preference.setUserId(userId);
+        if (!workoutRepository.existsById(workoutId)) {
+            throw new IllegalArgumentException("Workout does not exist with id: " + workoutId);
+        }
+        preference.setWorkoutId(workoutId);
+        preference.setPreferenceType(preferenceType);
+        preference.setCreatedAt(LocalDateTime.now());
+
+        return preferenceRepository.save(preference);
     }
 
     @Transactional
@@ -68,5 +59,21 @@ public class UserWorkoutPreferenceService {
             Long userId, Long workoutId, UserWorkoutPreferenceType preferenceType) {
         preferenceRepository.deleteByUserIdAndWorkoutIdAndPreferenceType(
                 userId, workoutId, preferenceType);
+    }
+
+    private List<Long> getDislikedWorkoutIds(Long userId) {
+        return preferenceRepository
+                .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.DISLIKED)
+                .stream()
+                .map(UserWorkoutPreference::getWorkoutId)
+                .toList();
+    }
+
+    private List<Long> getFavouriteWorkoutIds(Long userId) {
+        return preferenceRepository
+                .findByUserIdAndPreferenceType(userId, UserWorkoutPreferenceType.FAVORITE)
+                .stream()
+                .map(UserWorkoutPreference::getWorkoutId)
+                .toList();
     }
 }

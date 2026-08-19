@@ -1,14 +1,18 @@
 package dev.salt.Ring20.service;
 
 import dev.salt.Ring20.entity.*;
-import dev.salt.Ring20.repository.EventRepository;
-import dev.salt.Ring20.repository.OrganisationRepository;
-import dev.salt.Ring20.repository.TrainerRepository;
-import dev.salt.Ring20.repository.UserRepository;
+import dev.salt.Ring20.entity.enums.DayOfWeekType;
+import dev.salt.Ring20.entity.enums.UserRole;
+import dev.salt.Ring20.repository.*;
 import jakarta.transaction.Transactional;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,20 +20,30 @@ public class UserService {
 
     private static final String DEFAULT_DISPLAY_NAME = "No name entered";
     private static final int STARTING_INTENSITY = 2;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
-    private final OrganisationRepository organisationRepository;
+    private final OrganizationRepository organizationRepository;
     private final EventRepository eventRepository;
+    private final CallbackPreferenceRepository callbackPreferenceRepository;
+    private final ScheduledCallService scheduledCallService;
+    private final ScheduledCallRepository scheduledCallRepository;
 
     public UserService(
             UserRepository userRepository,
             TrainerRepository trainerRepository,
-            OrganisationRepository organisationRepository,
-            EventRepository eventRepository) {
+            OrganizationRepository organizationRepository,
+            EventRepository eventRepository,
+            CallbackPreferenceRepository callbackPreferenceRepository,
+            ScheduledCallService scheduledCallService,
+            ScheduledCallRepository scheduledCallRepository) {
         this.userRepository = userRepository;
         this.trainerRepository = trainerRepository;
-        this.organisationRepository = organisationRepository;
+        this.organizationRepository = organizationRepository;
         this.eventRepository = eventRepository;
+        this.callbackPreferenceRepository = callbackPreferenceRepository;
+        this.scheduledCallService = scheduledCallService;
+        this.scheduledCallRepository = scheduledCallRepository;
     }
 
     public boolean isAdmin(String clerkId) {
@@ -80,10 +94,20 @@ public class UserService {
         return userRepository.save(new User(displayName, STARTING_INTENSITY, "", clerkId));
     }
 
-    public void setFcmToken(Long id, String token) {
+    public void setFcmToken(Long id, String newToken) {
         User user = getUserById(id);
-        user.setFcmToken(token);
+        if (newToken.equals(user.getFcmToken())) {
+            return;
+        }
+
+        user.setFcmToken(newToken);
         userRepository.save(user);
+
+        int updated =
+                scheduledCallRepository.updateFcmTokenForFuturePendingCalls(
+                        id, newToken, Instant.now());
+
+        log.info("Updated FCM token for user={}, updated {} future pending calls", id, updated);
     }
 
     public User getByClerkIdOrThrow(String clerkId) {
@@ -125,7 +149,7 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
 
-    public List<Organisation> getUserOrgsById(Long id) {
+    public List<Organization> getUserOrgsById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new NoSuchElementException("User not found");
         }
@@ -143,10 +167,10 @@ public class UserService {
     }
 
     @Transactional
-    public Organisation addFollowOrganization(Long userId, Long orgId) {
+    public Organization addFollowOrganization(Long userId, Long orgId) {
         User user = getUserById(userId);
-        Organisation org =
-                organisationRepository
+        Organization org =
+                organizationRepository
                         .findByIdWithEvents(orgId)
                         .orElseThrow(
                                 () ->
@@ -172,8 +196,8 @@ public class UserService {
                 user.getFollowedOrganisations().removeIf(org -> org.getId().equals(orgId));
 
         if (removed) {
-            Organisation org =
-                    organisationRepository
+            Organization org =
+                    organizationRepository
                             .findById(orgId)
                             .orElseThrow(
                                     () ->
@@ -252,28 +276,54 @@ public class UserService {
             CallbackPreference preference = existing.get();
             preference.setTime(callback.getTime());
             preference.setRepeat(callback.getRepeat());
-
+            scheduledCallService.resetCallsForPreference(preference);
             return preference;
         }
 
         callback.setUser(user);
-        user.getCallbackPreferences().add(callback);
-
-        return callback;
+        CallbackPreference savedCallback = callbackPreferenceRepository.saveAndFlush(callback);
+        user.getCallbackPreferences().add(savedCallback);
+        scheduledCallService.ensureRollingCalls(savedCallback);
+        return savedCallback;
     }
 
     @Transactional
     public void removeCallbackPreference(Long userId, DayOfWeekType day) {
         User user = getUserById(userId);
 
-        boolean removed = user.getCallbackPreferences().removeIf(c -> c.getDay() == day);
+        CallbackPreference pref =
+                user.getCallbackPreferences().stream()
+                        .filter(c -> c.getDay() == day)
+                        .findFirst()
+                        .orElseThrow(
+                                () -> new NoSuchElementException("No callback preference found"));
 
-        if (!removed) {
-            throw new NoSuchElementException("No callback preference found for day: " + day);
-        }
+        scheduledCallService.cancelFutureCallsForOnePreference(pref);
+        scheduledCallService.detachHistoricalCallsFromPreference(pref.getId());
+        user.getCallbackPreferences().remove(pref);
     }
 
     public long getUserCount() {
         return userRepository.count();
+    }
+
+    public void removeUser(String clerkId) {
+        User user = getUserById(getInternalUserId(clerkId));
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    public String updateUserTimeZone(String clerkId, String timeZone) {
+        User user = getUserById(getInternalUserId(clerkId));
+        try {
+            ZoneId.of(timeZone);
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("Invalid time zone: " + timeZone);
+        }
+
+        user.setTimeZone(timeZone);
+        userRepository.save(user);
+
+        return user.getTimeZone();
     }
 }

@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.UserRole;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,13 +41,16 @@ public class User {
 
     @ManyToMany
     @JoinTable(name = "user_organisations")
-    private List<Organisation> followedOrganisations = new ArrayList<>();
+    private List<Organization> followedOrganisations = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "user_events")
     private List<Event> attendingEvents = new ArrayList<>();
 
     private String fcmToken;
+
+    @Column(nullable = false)
+    private String timeZone = "UTC";
 
     public User(String name, Integer intensityLevel, String context, String clerkId) {
         this.name = name;
@@ -55,5 +59,6 @@ public class User {
         this.clerkId = clerkId;
         this.role = UserRole.USER;
         this.trainerId = DEFAULT_TRAINER_ID;
+        this.timeZone = "UTC";
     }
 }

@@ -3,9 +3,9 @@ package dev.salt.Ring20.repository;
 import static org.junit.jupiter.api.Assertions.*;
 
 import dev.salt.Ring20.entity.Event;
-import dev.salt.Ring20.entity.EventType;
-import dev.salt.Ring20.entity.Organisation;
+import dev.salt.Ring20.entity.Organization;
 import dev.salt.Ring20.entity.User;
+import dev.salt.Ring20.entity.enums.EventType;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 class UserRepositoryTest {
 
     @Autowired private UserRepository userRepository;
-    @Autowired private OrganisationRepository organisationRepository;
+    @Autowired private OrganizationRepository organizationRepository;
     @Autowired private EventRepository eventRepository;
     @Autowired private EntityManager entityManager;
 
@@ -36,9 +36,9 @@ class UserRepositoryTest {
     @Test
     void findFollowedOrganisationsWithEventsByIdLoadsTheirEvents() {
         User user = userRepository.save(new User("Jane", 2, "context", "clerk_2"));
-        Organisation organisation =
-                organisationRepository.save(
-                        new Organisation(
+        Organization organisation =
+                organizationRepository.save(
+                        new Organization(
                                 "Community", "Local activities", "Stockholm", user, "motivation"));
         eventRepository.save(
                 new Event(
@@ -53,7 +53,7 @@ class UserRepositoryTest {
         userRepository.saveAndFlush(user);
         entityManager.clear();
 
-        List<Organisation> followed =
+        List<Organization> followed =
                 userRepository.findFollowedOrganisationsWithEventsById(user.getId());
         entityManager.clear();
 

@@ -1,6 +1,6 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.entity.UserWorkoutPreferenceType;
+import dev.salt.Ring20.entity.enums.UserWorkoutPreferenceType;
 import dev.salt.Ring20.service.UserWorkoutPreferenceService;
 import dev.salt.Ring20.service.security.CurrentUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +34,7 @@ public class UserPreferenceController {
             description = "Retrieves workout preferences for the authenticated user.")
     public ResponseEntity<Map<String, List<Long>>> getMyPreferences(Authentication authentication) {
         Long userId = currentUserService.getCurrentUserId(authentication);
-        return ResponseEntity.ok(preferenceService.getPreferences(userId));
+        return ResponseEntity.ok().body(preferenceService.getPreferences(userId));
     }
 
     @PostMapping("/favorites/{workoutId}")

@@ -1,9 +1,10 @@
 package dev.salt.Ring20.controller;
 
-import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationRequestDto;
-import dev.salt.Ring20.dto.organisationDtos.OrganizationApplicationResponseDto;
+import dev.salt.Ring20.dto.organization.OrganizationApplicationRequestDto;
+import dev.salt.Ring20.dto.organization.OrganizationApplicationResponseDto;
 import dev.salt.Ring20.entity.OrganizationApplication;
-import dev.salt.Ring20.entity.PaymentStatus;
+import dev.salt.Ring20.entity.enums.PaymentStatus;
+import dev.salt.Ring20.mapper.OrganizationApplicationMapper;
 import dev.salt.Ring20.service.OrganizationApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,11 +40,7 @@ public class OrganizationApplicationController {
 
         OrganizationApplication app =
                 applicationService.createApplication(
-                        authentication.getName(),
-                        request.organizationName(),
-                        request.description(),
-                        request.city(),
-                        request.motivation());
+                        OrganizationApplicationMapper.toEntity(request), authentication.getName());
 
         URI location = URI.create("/api/organization-applications/" + app.getId());
 
@@ -56,8 +53,25 @@ public class OrganizationApplicationController {
             summary = "Get all applications",
             description = "Retrieves all organisation applications.")
     public ResponseEntity<List<OrganizationApplicationResponseDto>> getAll() {
-        return ResponseEntity.ok(
-                applicationService.getAll().stream().map((m -> toResponse(m))).toList());
+        return ResponseEntity.ok()
+                .body(
+                        applicationService.getAll().stream()
+                                .map((OrganizationApplicationMapper::toResponse))
+                                .toList());
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Get current user's latest application",
+            description =
+                    "Returns the authenticated user's latest organisation application, or 404 if none exists.")
+    public ResponseEntity<OrganizationApplicationResponseDto> getMine(
+            Authentication authentication) {
+        return ResponseEntity.ok()
+                .body(
+                        OrganizationApplicationMapper.toResponse(
+                                applicationService.getLatestForUser(authentication.getName())));
     }
 
     @GetMapping("/{id}")
@@ -67,7 +81,8 @@ public class OrganizationApplicationController {
             description = "Retrieves an organisation application using its ID.")
     public ResponseEntity<OrganizationApplicationResponseDto> getById(@PathVariable Long id) {
 
-        return ResponseEntity.ok(toResponse(applicationService.getById(id)));
+        return ResponseEntity.ok()
+                .body(OrganizationApplicationMapper.toResponse(applicationService.getById(id)));
     }
 
     @PutMapping("/{id}/approve")
@@ -78,7 +93,8 @@ public class OrganizationApplicationController {
                     "Updates an application status to approved. Used by administrators to approve applications.")
     public ResponseEntity<OrganizationApplicationResponseDto> approve(@PathVariable Long id) {
 
-        return ResponseEntity.ok(toResponse(applicationService.approve(id)));
+        return ResponseEntity.ok()
+                .body(OrganizationApplicationMapper.toResponse(applicationService.approve(id)));
     }
 
     @PutMapping("/{id}/reject")
@@ -89,7 +105,8 @@ public class OrganizationApplicationController {
                     "Updates an application status to rejected. Used by administrators to reject applications.")
     public ResponseEntity<OrganizationApplicationResponseDto> reject(@PathVariable Long id) {
 
-        return ResponseEntity.ok(toResponse(applicationService.reject(id)));
+        return ResponseEntity.ok()
+                .body(OrganizationApplicationMapper.toResponse(applicationService.reject(id)));
     }
 
     @PutMapping("/{id}/payment-status")
@@ -101,7 +118,7 @@ public class OrganizationApplicationController {
             @PathVariable Long id, @RequestParam PaymentStatus status) {
 
         OrganizationApplication app = applicationService.updatePaymentStatus(id, status);
-        return ResponseEntity.ok(toResponse(app));
+        return ResponseEntity.ok().body(OrganizationApplicationMapper.toResponse(app));
     }
 
     @DeleteMapping("/{id}")
@@ -113,19 +130,5 @@ public class OrganizationApplicationController {
 
         applicationService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private OrganizationApplicationResponseDto toResponse(OrganizationApplication application) {
-        return new OrganizationApplicationResponseDto(
-                application.getId(),
-                application.getUser().getId(),
-                application.getOrganizationName(),
-                application.getDescription(),
-                application.getCity(),
-                application.getMotivation(),
-                application.getApplicationStatus(),
-                application.getCreatedAt(),
-                application.getReviewedAt(),
-                application.getPaymentStatus());
     }
 }

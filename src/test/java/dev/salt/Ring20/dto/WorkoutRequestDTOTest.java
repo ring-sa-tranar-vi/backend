@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
+import dev.salt.Ring20.dto.workout.WorkoutRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

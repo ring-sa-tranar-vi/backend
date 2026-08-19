@@ -4,14 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import dev.salt.Ring20.dto.workoutDtos.WorkoutEnabledRequestDto;
-import dev.salt.Ring20.dto.workoutDtos.WorkoutRequestDto;
-import dev.salt.Ring20.dto.workoutDtos.WorkoutResponseDto;
+import dev.salt.Ring20.dto.workout.WorkoutEnabledRequestDto;
+import dev.salt.Ring20.dto.workout.WorkoutRequestDto;
+import dev.salt.Ring20.dto.workout.WorkoutResponseDto;
 import dev.salt.Ring20.entity.Workout;
-import dev.salt.Ring20.service.FileStorageService;
-import dev.salt.Ring20.service.UserService;
 import dev.salt.Ring20.service.WorkoutService;
-import dev.salt.Ring20.service.security.CurrentUserService;
 import dev.salt.Ring20.service.security.SecurityService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -30,12 +27,7 @@ class WorkoutControllerTest {
 
     @Mock private WorkoutService workoutService;
 
-    @Mock private UserService userService;
-
-    @Mock private FileStorageService fileStorageService;
-
     @InjectMocks private WorkoutController workoutController;
-    @InjectMocks CurrentUserService currentUserService;
 
     @Mock private SecurityService securityService;
 

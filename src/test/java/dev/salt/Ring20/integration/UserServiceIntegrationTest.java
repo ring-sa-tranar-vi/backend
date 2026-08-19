@@ -6,12 +6,14 @@ import dev.salt.Ring20.entity.Trainer;
 import dev.salt.Ring20.entity.User;
 import dev.salt.Ring20.repository.TrainerRepository;
 import dev.salt.Ring20.repository.UserRepository;
+import dev.salt.Ring20.service.ScheduledCallService;
 import dev.salt.Ring20.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @DataJpaTest
 @Import(UserService.class)
@@ -23,6 +25,7 @@ class UserServiceIntegrationTest {
     @Autowired private UserRepository userRepository;
 
     @Autowired private TrainerRepository trainerRepository;
+    @MockitoBean private ScheduledCallService scheduledCallService;
 
     @Test
     void createUserPersistsAndCanBeLoaded() {
@@ -47,16 +50,20 @@ class UserServiceIntegrationTest {
         trainer = trainerRepository.save(trainer);
 
         userService.createUser("clerk_int_2", "Original");
+        User preferences = new User("Updated", 5, "context", "clerk_int_2");
+        preferences.setTrainerId(trainer.getId());
+        preferences.setCity("Stockholm");
+        preferences.setOnboarding(false);
 
         User updated =
                 userService.updateUserPreferencesByClerkId(
                         "clerk_int_2",
-                        "Updated",
-                        5,
-                        "context",
-                        trainer.getId(),
-                        "Stockholm",
-                        false);
+                        preferences.getName(),
+                        preferences.getIntensityLevel(),
+                        preferences.getContext(),
+                        preferences.getTrainerId(),
+                        preferences.getCity(),
+                        preferences.isOnboarding());
 
         assertEquals("Updated", updated.getName());
         assertEquals(5, updated.getIntensityLevel());

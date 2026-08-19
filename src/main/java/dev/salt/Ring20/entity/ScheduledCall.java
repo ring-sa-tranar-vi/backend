@@ -1,5 +1,6 @@
 package dev.salt.Ring20.entity;
 
+import dev.salt.Ring20.entity.enums.CallBackStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 import lombok.Getter;
@@ -24,4 +25,11 @@ public class ScheduledCall {
 
     @Enumerated(EnumType.STRING)
     private CallBackStatus callBackStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "callback_preference_id",
+            nullable = true,
+            foreignKey = @ForeignKey(name = "fk_scheduled_call_callback_preference"))
+    private CallbackPreference callbackPreference;
 }

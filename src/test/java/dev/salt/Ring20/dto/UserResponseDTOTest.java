@@ -2,7 +2,7 @@ package dev.salt.Ring20.dto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import dev.salt.Ring20.dto.userDtos.UserResponseDto;
+import dev.salt.Ring20.dto.user.UserResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ class UserResponseDTOTest {
     @Test
     void recordStoresValues() {
         UserResponseDto dto =
-                new UserResponseDto(1L, "Jane", 4, "context", true, 7L, "Stockholm", false);
+                new UserResponseDto(1L, "Jane", 4, "context", true, 7L, "Stockholm", false, "UTC");
 
         assertEquals("Jane", dto.name());
         assertEquals(4, dto.intensityLevel());
@@ -20,5 +20,6 @@ class UserResponseDTOTest {
         assertTrue(dto.isAdmin());
         assertEquals(7L, dto.trainerId());
         assertEquals("Stockholm", dto.city());
+        assertEquals("UTC", dto.timeZone());
     }
 }
