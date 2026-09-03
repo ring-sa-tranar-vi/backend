@@ -36,7 +36,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
-	implementation("com.google.cloud:google-cloud-storage:2.71.0")
+	implementation("com.google.cloud:google-cloud-storage:2.72.0")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("com.google.firebase:firebase-admin:9.2.0")
 	compileOnly("org.projectlombok:lombok")
